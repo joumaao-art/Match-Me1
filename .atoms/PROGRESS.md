@@ -46,3 +46,4 @@ Build MatchMe - an AI-powered recruitment platform with swipe-based matching bet
 - 2026-07-17: Production-grade PostgreSQL database designed - 30+ tables with full relationships, indexes, RLS policies, audit trails, realtime, seed data
 - 2026-07-17: Starting monorepo refactor - shared packages, pnpm workspace, admin dashboard
 - 2026-07-17: Monorepo refactor complete - @matchme/shared package with types, validation (Zod), i18n (EN/AR), constants, utils; pnpm workspace configured; web app imports from shared; build + lint pass
+- 2026-07-17: Full bilingual support implemented - 200+ translation keys (EN/AR), RTL/LTR support, language switcher on every page, all hardcoded text replaced with t() calls, language preference persisted in localStorage, validation/error/notification messages translated, placeholders translated

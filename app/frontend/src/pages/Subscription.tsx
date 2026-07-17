@@ -16,39 +16,38 @@ export default function Subscription() {
   const [currentPlan] = useState<'free' | 'premium'>('free');
 
   const handleUpgrade = () => {
-    toast.success('Redirecting to checkout...');
-    // In production, this would call the Stripe edge function
+    toast.success(t('redirecting_checkout'));
   };
 
   const freeFeatures = [
-    { icon: Users, text: 'Limited job postings (3/month)' },
-    { icon: MessageSquare, text: 'Message matched candidates only' },
-    { icon: Shield, text: 'Hidden contact information' },
-    { icon: BarChart3, text: 'Basic analytics' },
+    { icon: Users, text: t('limited_job_postings') },
+    { icon: MessageSquare, text: t('message_matched_only') },
+    { icon: Shield, text: t('hidden_contact_info') },
+    { icon: BarChart3, text: t('basic_analytics') },
   ];
 
   const premiumFeatures = [
-    { icon: Zap, text: 'Unlimited job postings' },
-    { icon: MessageSquare, text: 'Message anyone directly' },
-    { icon: Users, text: 'Full contact details visible' },
-    { icon: BarChart3, text: 'Advanced analytics & reports' },
-    { icon: Star, text: 'Priority ranking in search' },
-    { icon: Crown, text: 'Export candidate data (CSV/PDF)' },
+    { icon: Zap, text: t('unlimited_job_postings') },
+    { icon: MessageSquare, text: t('message_anyone') },
+    { icon: Users, text: t('full_contact_details') },
+    { icon: BarChart3, text: t('advanced_analytics') },
+    { icon: Star, text: t('priority_ranking') },
+    { icon: Crown, text: t('export_candidate_data') },
   ];
 
   const seekerFreeFeatures = [
-    { icon: Zap, text: 'Unlimited swipes' },
-    { icon: Shield, text: 'Basic profile visibility' },
-    { icon: MessageSquare, text: 'Message matched companies' },
+    { icon: Zap, text: t('unlimited_swipes') },
+    { icon: Shield, text: t('basic_profile_visibility') },
+    { icon: MessageSquare, text: t('message_matched_companies') },
   ];
 
   const seekerPremiumFeatures = [
-    { icon: Zap, text: 'Unlimited swipes + Undo' },
-    { icon: Star, text: 'Priority profile visibility' },
-    { icon: MessageSquare, text: 'Message any company' },
-    { icon: BarChart3, text: 'Detailed analytics & insights' },
-    { icon: Crown, text: 'AI profile enhancement' },
-    { icon: Users, text: 'See who viewed your profile' },
+    { icon: Zap, text: t('unlimited_swipes_undo') },
+    { icon: Star, text: t('priority_profile_visibility') },
+    { icon: MessageSquare, text: t('message_any_company') },
+    { icon: BarChart3, text: t('detailed_analytics') },
+    { icon: Crown, text: t('ai_profile_enhancement') },
+    { icon: Users, text: t('see_profile_viewers') },
   ];
 
   const isCompany = userRole === 'company';
@@ -124,7 +123,7 @@ export default function Subscription() {
               <Badge className="absolute -top-3 start-4">{t('current_plan')}</Badge>
             )}
             <div className="absolute -top-3 end-4">
-              <Badge variant="secondary" className="bg-accent text-accent-foreground">Popular</Badge>
+              <Badge variant="secondary" className="bg-accent text-accent-foreground">{t('popular')}</Badge>
             </div>
             <CardHeader>
               <CardTitle className="font-[Poppins] flex items-center gap-2">
@@ -138,7 +137,7 @@ export default function Subscription() {
                 <span className="text-muted-foreground">{t('per_month')}</span>
                 {billingCycle === 'yearly' && (
                   <span className="text-xs text-muted-foreground block mt-1">
-                    Billed ${39 * 12}/year
+                    {t('billed_yearly', { amount: 39 * 12 })}
                   </span>
                 )}
               </CardDescription>
@@ -164,7 +163,7 @@ export default function Subscription() {
 
         {/* Payment Methods */}
         <div className="mt-8 text-center">
-          <p className="text-sm text-muted-foreground mb-3">Secure payment powered by Stripe</p>
+          <p className="text-sm text-muted-foreground mb-3">{t('secure_payment')}</p>
           <div className="flex justify-center gap-4 items-center">
             <div className="px-3 py-1.5 bg-muted rounded-md text-xs font-medium">Visa</div>
             <div className="px-3 py-1.5 bg-muted rounded-md text-xs font-medium">Mastercard</div>

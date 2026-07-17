@@ -86,7 +86,7 @@ export default function Messages() {
         {/* Conversation List */}
         <div className={`w-full md:w-80 border-e border-border flex flex-col ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
           <div className="p-3">
-            <Input placeholder={`${t('search')}...`} className="h-9" />
+            <Input placeholder={t('search_conversations')} className="h-9" />
           </div>
           <div className="flex-1 overflow-y-auto">
             {mockConversations.map((conv) => (
@@ -144,7 +144,7 @@ export default function Messages() {
                 </div>
                 <div>
                   <p className="font-medium text-sm">{selectedConversation.name}</p>
-                  <p className="text-xs text-green-600">{selectedConversation.online ? 'Online' : 'Offline'}</p>
+                  <p className="text-xs text-green-600">{selectedConversation.online ? t('online') : t('offline')}</p>
                 </div>
               </div>
 
@@ -185,7 +185,7 @@ export default function Messages() {
                     placeholder={t('type_message')}
                     className="flex-1"
                   />
-                  <Button size="icon" onClick={handleSend} disabled={!newMessage.trim()} className="cursor-pointer shrink-0">
+                  <Button size="icon" onClick={handleSend} disabled={!newMessage.trim()} className="cursor-pointer shrink-0" aria-label={t('send')}>
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>
@@ -197,7 +197,7 @@ export default function Messages() {
                 <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
                   <Send className="w-8 h-8 text-muted-foreground/50" />
                 </div>
-                <p className="text-muted-foreground">{t('no_messages')}</p>
+                <p className="text-muted-foreground">{t('no_messages_desc')}</p>
               </div>
             </div>
           )}

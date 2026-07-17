@@ -26,7 +26,6 @@ export default function ResetPassword() {
   const [success, setSuccess] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
 
-  // Password strength calculator
   useEffect(() => {
     if (!password) { setPasswordStrength(0); return; }
     let strength = 0;
@@ -40,7 +39,6 @@ export default function ResetPassword() {
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!password || !confirmPassword) {
       toast.error(t('fill_all_fields'));
       return;
@@ -53,18 +51,17 @@ export default function ResetPassword() {
       toast.error(t('password_too_short'));
       return;
     }
-
     setLoading(true);
     try {
       const { error } = await authService.updatePassword(password);
       if (error) {
-        toast.error(error.message || 'Failed to update password');
+        toast.error(error.message || t('update_password_failed'));
         return;
       }
       setSuccess(true);
       toast.success(t('password_updated'));
     } catch (error: any) {
-      toast.error(error.message || 'Failed to update password');
+      toast.error(error.message || t('update_password_failed'));
     } finally {
       setLoading(false);
     }
@@ -87,11 +84,9 @@ export default function ResetPassword() {
               <CheckCircle2 className="w-8 h-8 text-green-600" />
             </div>
             <h2 className="text-xl font-semibold font-[Poppins] mb-2">{t('password_updated')}</h2>
-            <p className="text-muted-foreground mb-6">
-              Your password has been successfully updated. You can now log in with your new password.
-            </p>
+            <p className="text-muted-foreground mb-6">{t('password_updated_desc')}</p>
             <Button onClick={() => navigate(ROUTES.AUTH)} className="w-full cursor-pointer">
-              Go to Login
+              {t('go_to_login')}
             </Button>
           </CardContent>
         </Card>
@@ -102,7 +97,6 @@ export default function ResetPassword() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
           <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mx-auto mb-3">
             <Sparkles className="w-7 h-7 text-primary-foreground" />
@@ -112,21 +106,19 @@ export default function ResetPassword() {
 
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="font-[Poppins]">Set New Password</CardTitle>
-            <CardDescription>
-              Enter your new password below. Make sure it's strong and unique.
-            </CardDescription>
+            <CardTitle className="font-[Poppins]">{t('set_new_password')}</CardTitle>
+            <CardDescription>{t('set_new_password_desc')}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleUpdatePassword} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="new-password">New Password</Label>
+                <Label htmlFor="new-password">{t('new_password')}</Label>
                 <div className="relative">
                   <Lock className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="new-password"
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="••••••••"
+                    placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="ps-10 pe-10"
@@ -142,7 +134,6 @@ export default function ResetPassword() {
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </Button>
                 </div>
-                {/* Password strength indicator */}
                 {password && (
                   <div className="space-y-1">
                     <div className="flex gap-1">
@@ -159,11 +150,11 @@ export default function ResetPassword() {
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirm-new-password">Confirm New Password</Label>
+                <Label htmlFor="confirm-new-password">{t('confirm_new_password')}</Label>
                 <Input
                   id="confirm-new-password"
                   type="password"
-                  placeholder="••••••••"
+                  placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   autoComplete="new-password"
@@ -177,7 +168,7 @@ export default function ResetPassword() {
                 className="w-full cursor-pointer"
                 disabled={loading || (!!confirmPassword && password !== confirmPassword)}
               >
-                {loading ? 'Updating...' : 'Update Password'}
+                {loading ? t('updating_password') : t('update_password')}
               </Button>
             </form>
           </CardContent>

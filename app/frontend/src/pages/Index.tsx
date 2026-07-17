@@ -43,10 +43,10 @@ export default function Index() {
             <span className="text-xl font-bold font-[Poppins]">{t('app_name')}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={toggleLang} className="cursor-pointer">
+            <Button variant="ghost" size="icon" onClick={toggleLang} className="cursor-pointer" aria-label={t('language')}>
               <Globe className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={toggleDark} className="cursor-pointer">
+            <Button variant="ghost" size="icon" onClick={toggleDark} className="cursor-pointer" aria-label={isDark ? t('light_mode') : t('dark_mode')}>
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
             {user ? (
@@ -164,7 +164,7 @@ export default function Index() {
       {/* Footer */}
       <footer className="border-t border-border py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-muted-foreground text-sm">
-          <p>© 2026 MatchMe. All rights reserved.</p>
+          <p>{t('copyright')}</p>
         </div>
       </footer>
     </div>

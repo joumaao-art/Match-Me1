@@ -79,10 +79,10 @@ function CompanyNav({ activeTab, setActiveTab }: { activeTab: string; setActiveT
           <span className="text-lg font-bold font-[Poppins]">{t('app_name')}</span>
         </div>
         <div className="flex gap-1">
-          <Button variant="ghost" size="icon" onClick={() => changeLanguage(i18n.language === 'en' ? 'ar' : 'en')} className="cursor-pointer h-8 w-8">
+          <Button variant="ghost" size="icon" onClick={() => changeLanguage(i18n.language === 'en' ? 'ar' : 'en')} className="cursor-pointer h-8 w-8" aria-label={t('language')}>
             <Globe className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={toggleDark} className="cursor-pointer h-8 w-8">
+          <Button variant="ghost" size="icon" onClick={toggleDark} className="cursor-pointer h-8 w-8" aria-label={isDark ? t('light_mode') : t('dark_mode')}>
             {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </Button>
         </div>
@@ -129,10 +129,10 @@ function CompanyDashboard() {
   const { t } = useTranslation();
   
   const stats = [
-    { label: 'Active Vacancies', value: '5', color: 'text-primary' },
+    { label: t('active_vacancies'), value: '5', color: 'text-primary' },
     { label: t('candidates'), value: '47', color: 'text-accent' },
-    { label: 'Interviews', value: '8', color: 'text-green-600' },
-    { label: 'Hired', value: '2', color: 'text-purple-600' },
+    { label: t('interviews'), value: '8', color: 'text-green-600' },
+    { label: t('hired'), value: '2', color: 'text-purple-600' },
   ];
 
   return (
@@ -154,7 +154,7 @@ function CompanyDashboard() {
       </div>
 
       {/* Top Candidates */}
-      <h3 className="text-lg font-semibold font-[Poppins] mb-3">Top Matched Candidates</h3>
+      <h3 className="text-lg font-semibold font-[Poppins] mb-3">{t('top_matched_candidates')}</h3>
       <div className="space-y-3">
         {mockCandidates.slice(0, 3).map((candidate) => (
           <Card key={candidate.id}>
@@ -204,37 +204,37 @@ function VacanciesView() {
             <div className="space-y-4 mt-4">
               <div>
                 <Label>{t('job_title')}</Label>
-                <Input placeholder="e.g. Senior Frontend Developer" className="mt-1" />
+                <Input placeholder={t('job_title_placeholder')} className="mt-1" />
               </div>
               <div>
                 <Label>{t('employment_type')}</Label>
                 <Select>
-                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select type" /></SelectTrigger>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder={t('select_type')} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="full-time">Full-time</SelectItem>
-                    <SelectItem value="part-time">Part-time</SelectItem>
-                    <SelectItem value="contract">Contract</SelectItem>
-                    <SelectItem value="remote">Remote</SelectItem>
+                    <SelectItem value="full-time">{t('full_time')}</SelectItem>
+                    <SelectItem value="part-time">{t('part_time')}</SelectItem>
+                    <SelectItem value="contract">{t('contract')}</SelectItem>
+                    <SelectItem value="remote">{t('remote')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label>{t('job_description')}</Label>
-                <Textarea placeholder="Describe the role..." className="mt-1" rows={4} />
+                <Textarea placeholder={t('job_desc_placeholder')} className="mt-1" rows={4} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>{t('country')}</Label>
-                  <Input placeholder="UAE" className="mt-1" />
+                  <Input placeholder={t('country_placeholder')} className="mt-1" />
                 </div>
                 <div>
                   <Label>{t('city')}</Label>
-                  <Input placeholder="Dubai" className="mt-1" />
+                  <Input placeholder={t('city_placeholder')} className="mt-1" />
                 </div>
               </div>
               <div>
                 <Label>{t('required_skills')}</Label>
-                <Input placeholder="React, TypeScript, Node.js" className="mt-1" />
+                <Input placeholder={t('skills_input_placeholder')} className="mt-1" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -249,26 +249,26 @@ function VacanciesView() {
               <div>
                 <Label>{t('education_level')}</Label>
                 <Select>
-                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select level" /></SelectTrigger>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder={t('select_level')} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="high-school">High School</SelectItem>
-                    <SelectItem value="bachelors">Bachelor's</SelectItem>
-                    <SelectItem value="masters">Master's</SelectItem>
-                    <SelectItem value="phd">PhD</SelectItem>
+                    <SelectItem value="high-school">{t('high_school')}</SelectItem>
+                    <SelectItem value="bachelors">{t('bachelors')}</SelectItem>
+                    <SelectItem value="masters">{t('masters')}</SelectItem>
+                    <SelectItem value="phd">{t('doctorate')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label>Min Salary (USD)</Label>
+                  <Label>{t('min_salary')}</Label>
                   <Input type="number" placeholder="5000" className="mt-1" />
                 </div>
                 <div>
-                  <Label>Max Salary (USD)</Label>
+                  <Label>{t('max_salary')}</Label>
                   <Input type="number" placeholder="10000" className="mt-1" />
                 </div>
               </div>
-              <Button className="w-full cursor-pointer" onClick={() => { toast.success('Vacancy posted!'); setShowPostDialog(false); }}>
+              <Button className="w-full cursor-pointer" onClick={() => { toast.success(t('vacancy_posted')); setShowPostDialog(false); }}>
                 {t('post_vacancy')}
               </Button>
             </div>
@@ -283,7 +283,7 @@ function VacanciesView() {
             <CardContent className="p-4 flex items-center justify-between">
               <div>
                 <p className="font-medium">{vacancy.title}</p>
-                <p className="text-xs text-muted-foreground">Posted: {vacancy.posted} · {vacancy.applicants} applicants</p>
+                <p className="text-xs text-muted-foreground">{t('posted_on')}: {vacancy.posted} · {vacancy.applicants} {t('applicants')}</p>
               </div>
               <Badge variant={vacancy.status === 'open' ? 'default' : 'secondary'}>
                 {t(vacancy.status)}
@@ -299,11 +299,10 @@ function VacanciesView() {
 function CandidatesView() {
   const { t } = useTranslation();
   const [candidates, setCandidates] = useState(mockCandidates);
-  const [selectedCandidate, setSelectedCandidate] = useState<typeof mockCandidates[0] | null>(null);
 
   const updateStatus = (id: string, status: string) => {
     setCandidates(prev => prev.map(c => c.id === id ? { ...c, status: status as any } : c));
-    toast.success(`Candidate ${status}`);
+    toast.success(status === 'accepted' ? t('candidate_accepted') : t('candidate_rejected'));
   };
 
   return (
@@ -312,7 +311,7 @@ function CandidatesView() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2 mb-4">
-        <Badge variant="default" className="cursor-pointer">All</Badge>
+        <Badge variant="default" className="cursor-pointer">{t('all')}</Badge>
         <Badge variant="outline" className="cursor-pointer">{t('new_status')}</Badge>
         <Badge variant="outline" className="cursor-pointer">{t('accepted')}</Badge>
         <Badge variant="outline" className="cursor-pointer">{t('interview')}</Badge>
@@ -352,7 +351,7 @@ function CandidatesView() {
 
               <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
                 <Briefcase className="w-3 h-3" />
-                <span>{candidate.experience} years</span>
+                <span>{t('years_experience', { count: candidate.experience })}</span>
                 <GraduationCap className="w-3 h-3 ms-2" />
                 <span>{candidate.education}</span>
               </div>
@@ -367,10 +366,10 @@ function CandidatesView() {
                   <X className="w-3 h-3" />
                   {t('reject')}
                 </Button>
-                <Button size="sm" variant="ghost" className="cursor-pointer gap-1">
+                <Button size="sm" variant="ghost" className="cursor-pointer gap-1" aria-label={t('send')}>
                   <Send className="w-3 h-3" />
                 </Button>
-                <Button size="sm" variant="ghost" className="cursor-pointer gap-1">
+                <Button size="sm" variant="ghost" className="cursor-pointer gap-1" aria-label={t('save')}>
                   <BookmarkPlus className="w-3 h-3" />
                 </Button>
               </div>
@@ -386,10 +385,18 @@ function AnalyticsView() {
   const { t } = useTranslation();
 
   const metrics = [
-    { label: 'Total Applications', value: '156' },
-    { label: 'Acceptance Rate', value: '34%' },
-    { label: 'Response Rate', value: '78%' },
-    { label: 'Avg. Time to Hire', value: '12 days' },
+    { label: t('total_applications'), value: '156' },
+    { label: t('acceptance_rate'), value: '34%' },
+    { label: t('response_rate'), value: '78%' },
+    { label: t('avg_time_to_hire'), value: t('days', { count: 12 }) },
+  ];
+
+  const funnelStages = [
+    { stage: t('applications'), count: 156, pct: 100 },
+    { stage: t('screened'), count: 89, pct: 57 },
+    { stage: t('interviewed'), count: 34, pct: 22 },
+    { stage: t('offered'), count: 12, pct: 8 },
+    { stage: t('hired'), count: 8, pct: 5 },
   ];
 
   return (
@@ -410,16 +417,10 @@ function AnalyticsView() {
       {/* Hiring Funnel */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-base font-[Poppins]">Hiring Funnel</CardTitle>
+          <CardTitle className="text-base font-[Poppins]">{t('hiring_funnel')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {[
-            { stage: 'Applications', count: 156, pct: 100 },
-            { stage: 'Screened', count: 89, pct: 57 },
-            { stage: 'Interviewed', count: 34, pct: 22 },
-            { stage: 'Offered', count: 12, pct: 8 },
-            { stage: 'Hired', count: 8, pct: 5 },
-          ].map((item) => (
+          {funnelStages.map((item) => (
             <div key={item.stage} className="flex items-center gap-3">
               <span className="text-sm w-24 shrink-0">{item.stage}</span>
               <div className="flex-1">
@@ -434,7 +435,7 @@ function AnalyticsView() {
       {/* Top Skills */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-[Poppins]">Top Requested Skills</CardTitle>
+          <CardTitle className="text-base font-[Poppins]">{t('top_requested_skills')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
@@ -457,37 +458,37 @@ function CompanySettingsView() {
       <div className="space-y-4 max-w-lg">
         <Card>
           <CardContent className="p-4">
-            <h3 className="font-medium mb-3">{t('company_name')}</h3>
+            <h3 className="font-medium mb-3">{t('company_profile')}</h3>
             <div className="space-y-3">
               <div>
                 <Label>{t('company_name')}</Label>
-                <Input placeholder="TechCorp" className="mt-1" />
+                <Input placeholder={t('company_name_placeholder')} className="mt-1" />
               </div>
               <div>
                 <Label>{t('company_website')}</Label>
-                <Input placeholder="https://techcorp.com" className="mt-1" />
+                <Input placeholder={t('website_placeholder')} className="mt-1" />
               </div>
               <div>
                 <Label>{t('company_phone')}</Label>
-                <Input placeholder="+971 4 123 4567" className="mt-1" />
+                <Input placeholder={t('phone_placeholder')} className="mt-1" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>{t('country')}</Label>
-                  <Input placeholder="UAE" className="mt-1" />
+                  <Input placeholder={t('country_placeholder')} className="mt-1" />
                 </div>
                 <div>
                   <Label>{t('city')}</Label>
-                  <Input placeholder="Dubai" className="mt-1" />
+                  <Input placeholder={t('city_placeholder')} className="mt-1" />
                 </div>
               </div>
               <div>
                 <Label>{t('industry')}</Label>
-                <Input placeholder="Technology" className="mt-1" />
+                <Input placeholder={t('industry_placeholder')} className="mt-1" />
               </div>
               <div>
                 <Label>{t('company_description')}</Label>
-                <Textarea placeholder="Tell us about your company..." className="mt-1" rows={3} />
+                <Textarea placeholder={t('company_desc_placeholder')} className="mt-1" rows={3} />
               </div>
             </div>
             <Button className="mt-4 cursor-pointer">{t('save')}</Button>
@@ -499,8 +500,21 @@ function CompanySettingsView() {
 }
 
 export default function Company() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const getTabTitle = (tab: string) => {
+    const map: Record<string, string> = {
+      dashboard: t('dashboard'),
+      vacancies: t('vacancies'),
+      candidates: t('candidates'),
+      messages: t('messages'),
+      analytics: t('analytics'),
+      settings: t('settings'),
+    };
+    return map[tab] || tab;
+  };
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -526,7 +540,7 @@ export default function Company() {
           <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)} className="cursor-pointer">
             <ChevronRight className="w-5 h-5" />
           </Button>
-          <span className="font-bold font-[Poppins] capitalize">{activeTab}</span>
+          <span className="font-bold font-[Poppins]">{getTabTitle(activeTab)}</span>
           <div className="w-9" />
         </header>
 
@@ -538,7 +552,7 @@ export default function Company() {
           <div className="flex-1 flex items-center justify-center p-8 text-center">
             <div>
               <MessageSquare className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-muted-foreground">No messages yet</p>
+              <p className="text-muted-foreground">{t('no_messages')}</p>
             </div>
           </div>
         )}

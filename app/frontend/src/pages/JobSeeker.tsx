@@ -24,28 +24,28 @@ import {
 const mockJobs = [
   {
     id: '1', company_name: 'TechCorp', logo_url: '', industry: 'Technology', country: 'UAE', city: 'Dubai',
-    employment_type: 'Full-time', min_experience: 3, max_experience: 5, job_title: 'Senior Frontend Developer',
+    employment_type: 'full_time', min_experience: 3, max_experience: 5, job_title: 'Senior Frontend Developer',
     job_description: 'We are looking for an experienced frontend developer to join our team and build amazing user interfaces.',
     required_skills: ['React', 'TypeScript', 'Tailwind CSS'], salary_min: 8000, salary_max: 12000,
     compatibility_score: 92
   },
   {
     id: '2', company_name: 'DataFlow', logo_url: '', industry: 'Data Analytics', country: 'Saudi Arabia', city: 'Riyadh',
-    employment_type: 'Full-time', min_experience: 2, max_experience: 4, job_title: 'Full Stack Engineer',
+    employment_type: 'full_time', min_experience: 2, max_experience: 4, job_title: 'Full Stack Engineer',
     job_description: 'Join our growing team to build scalable data platforms and analytics dashboards.',
     required_skills: ['Node.js', 'Python', 'PostgreSQL', 'React'], salary_min: 7000, salary_max: 10000,
     compatibility_score: 85
   },
   {
     id: '3', company_name: 'FinanceHub', logo_url: '', industry: 'Finance', country: 'UAE', city: 'Abu Dhabi',
-    employment_type: 'Remote', min_experience: 1, max_experience: 3, job_title: 'Mobile Developer',
+    employment_type: 'remote', min_experience: 1, max_experience: 3, job_title: 'Mobile Developer',
     job_description: 'Build cross-platform mobile applications for our fintech products serving millions of users.',
     required_skills: ['React Native', 'Flutter', 'Firebase'], salary_min: 6000, salary_max: 9000,
     compatibility_score: 78
   },
   {
     id: '4', company_name: 'CloudNine', logo_url: '', industry: 'Cloud Computing', country: 'Qatar', city: 'Doha',
-    employment_type: 'Full-time', min_experience: 4, max_experience: 7, job_title: 'DevOps Engineer',
+    employment_type: 'full_time', min_experience: 4, max_experience: 7, job_title: 'DevOps Engineer',
     job_description: 'Design and maintain cloud infrastructure for enterprise clients across the region.',
     required_skills: ['AWS', 'Kubernetes', 'Terraform', 'CI/CD'], salary_min: 10000, salary_max: 15000,
     compatibility_score: 71
@@ -82,10 +82,10 @@ function SeekerNav({ activeTab, setActiveTab }: { activeTab: string; setActiveTa
           <span className="text-lg font-bold font-[Poppins]">{t('app_name')}</span>
         </div>
         <div className="flex gap-1">
-          <Button variant="ghost" size="icon" onClick={() => changeLanguage(i18n.language === 'en' ? 'ar' : 'en')} className="cursor-pointer h-8 w-8">
+          <Button variant="ghost" size="icon" onClick={() => changeLanguage(i18n.language === 'en' ? 'ar' : 'en')} className="cursor-pointer h-8 w-8" aria-label={t('language')}>
             <Globe className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={toggleDark} className="cursor-pointer h-8 w-8">
+          <Button variant="ghost" size="icon" onClick={toggleDark} className="cursor-pointer h-8 w-8" aria-label={isDark ? t('light_mode') : t('dark_mode')}>
             {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </Button>
         </div>
@@ -144,6 +144,17 @@ function SwipeCard({ job, onSwipe }: { job: typeof mockJobs[0]; onSwipe: (direct
     }
   };
 
+  const getEmploymentTypeLabel = (type: string) => {
+    const map: Record<string, string> = {
+      full_time: t('full_time'),
+      part_time: t('part_time'),
+      contract: t('contract'),
+      remote: t('remote'),
+      internship: t('internship'),
+    };
+    return map[type] || type;
+  };
+
   return (
     <motion.div
       className="absolute inset-0 cursor-grab active:cursor-grabbing"
@@ -183,11 +194,11 @@ function SwipeCard({ job, onSwipe }: { job: typeof mockJobs[0]; onSwipe: (direct
             </Badge>
             <Badge variant="secondary" className="gap-1">
               <Briefcase className="w-3 h-3" />
-              {job.employment_type}
+              {getEmploymentTypeLabel(job.employment_type)}
             </Badge>
             <Badge variant="secondary" className="gap-1">
               <GraduationCap className="w-3 h-3" />
-              {job.min_experience}-{job.max_experience} yrs
+              {t('years_experience', { count: `${job.min_experience}-${job.max_experience}` })}
             </Badge>
           </div>
 
@@ -207,7 +218,7 @@ function SwipeCard({ job, onSwipe }: { job: typeof mockJobs[0]; onSwipe: (direct
           {/* Salary */}
           {job.salary_min && (
             <div className="bg-muted/50 rounded-lg p-3 text-center">
-              <p className="text-sm font-medium">${job.salary_min.toLocaleString()} - ${job.salary_max?.toLocaleString()} / month</p>
+              <p className="text-sm font-medium">${job.salary_min.toLocaleString()} - ${job.salary_max?.toLocaleString()} {t('per_month')}</p>
             </div>
           )}
         </CardContent>
@@ -242,8 +253,9 @@ function SwipeView() {
         <div className="text-center">
           <Heart className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
           <h3 className="text-lg font-semibold font-[Poppins] mb-2">{t('no_more_jobs')}</h3>
+          <p className="text-sm text-muted-foreground mb-4">{t('check_back_later')}</p>
           <Button onClick={() => setCurrentIndex(0)} className="cursor-pointer mt-4">
-            Start Over
+            {t('start_over')}
           </Button>
         </div>
       </div>
@@ -272,6 +284,7 @@ function SwipeView() {
           variant="outline"
           className="w-16 h-16 rounded-full border-2 border-destructive text-destructive hover:bg-destructive hover:text-white cursor-pointer"
           onClick={() => handleSwipe('left')}
+          aria-label={t('not_interested')}
         >
           <X className="w-6 h-6" />
         </Button>
@@ -279,6 +292,7 @@ function SwipeView() {
           size="lg"
           className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 text-white cursor-pointer"
           onClick={() => handleSwipe('right')}
+          aria-label={t('interested')}
         >
           <Check className="w-6 h-6" />
         </Button>
@@ -335,11 +349,11 @@ function DashboardView() {
       <Card className="mb-6">
         <CardContent className="p-4">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium">Profile Strength</span>
+            <span className="text-sm font-medium">{t('profile_strength')}</span>
             <span className="text-sm font-bold text-primary">75%</span>
           </div>
           <Progress value={75} className="h-2" />
-          <p className="text-xs text-muted-foreground mt-2">Add certifications to improve your score</p>
+          <p className="text-xs text-muted-foreground mt-2">{t('add_certifications_tip')}</p>
         </CardContent>
       </Card>
 
@@ -385,27 +399,27 @@ function SettingsView() {
             <div className="space-y-3">
               <div>
                 <Label>{t('first_name')}</Label>
-                <Input placeholder="John" className="mt-1" />
+                <Input placeholder={t('first_name_placeholder')} className="mt-1" />
               </div>
               <div>
                 <Label>{t('last_name')}</Label>
-                <Input placeholder="Doe" className="mt-1" />
+                <Input placeholder={t('last_name_placeholder')} className="mt-1" />
               </div>
               <div>
                 <Label>{t('email')}</Label>
-                <Input placeholder="john@example.com" className="mt-1" disabled />
+                <Input placeholder={t('email_placeholder')} className="mt-1" disabled />
               </div>
               <div>
                 <Label>{t('mobile')}</Label>
-                <Input placeholder="+971 50 123 4567" className="mt-1" />
+                <Input placeholder={t('mobile_placeholder')} className="mt-1" />
               </div>
               <div>
                 <Label>{t('professional_summary')}</Label>
-                <Textarea placeholder="Tell us about yourself..." className="mt-1" rows={3} />
+                <Textarea placeholder={t('summary_placeholder')} className="mt-1" rows={3} />
               </div>
               <div>
                 <Label>{t('key_skills')}</Label>
-                <Input placeholder="React, TypeScript, Node.js" className="mt-1" />
+                <Input placeholder={t('skills_placeholder')} className="mt-1" />
               </div>
             </div>
             <Button className="mt-4 cursor-pointer">{t('save')}</Button>
@@ -417,8 +431,20 @@ function SettingsView() {
 }
 
 export default function JobSeeker() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('swipe');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const getTabTitle = (tab: string) => {
+    const map: Record<string, string> = {
+      swipe: t('discover'),
+      dashboard: t('dashboard'),
+      messages: t('messages'),
+      saved: t('saved_jobs'),
+      settings: t('settings'),
+    };
+    return map[tab] || tab;
+  };
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -444,7 +470,7 @@ export default function JobSeeker() {
           <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)} className="cursor-pointer">
             <ChevronRight className="w-5 h-5" />
           </Button>
-          <span className="font-bold font-[Poppins]">{activeTab === 'swipe' ? 'Discover' : activeTab}</span>
+          <span className="font-bold font-[Poppins]">{getTabTitle(activeTab)}</span>
           <div className="w-9" />
         </header>
 
@@ -455,7 +481,7 @@ export default function JobSeeker() {
           <div className="flex-1 flex items-center justify-center p-8 text-center">
             <div>
               <MessageSquare className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-muted-foreground">{('no_messages')}</p>
+              <p className="text-muted-foreground">{t('no_messages')}</p>
             </div>
           </div>
         )}
@@ -463,7 +489,8 @@ export default function JobSeeker() {
           <div className="flex-1 flex items-center justify-center p-8 text-center">
             <div>
               <Bookmark className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-muted-foreground">No saved jobs yet</p>
+              <h3 className="font-medium mb-1">{t('no_saved_jobs')}</h3>
+              <p className="text-muted-foreground text-sm">{t('no_saved_jobs_desc')}</p>
             </div>
           </div>
         )}

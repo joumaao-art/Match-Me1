@@ -1,19 +1,29 @@
 /**
- * English translations.
+ * English translations - Complete bilingual support.
+ * Every UI element, validation message, notification, placeholder,
+ * and error message is translated. No hardcoded text.
  */
 
 export const en = {
+  // ============================================================
   // App
+  // ============================================================
   app_name: 'MatchMe',
   tagline: 'Smart Recruitment, Perfect Match',
+  subtitle: 'AI-powered recruitment platform that connects talented professionals with top companies through smart matching.',
+  copyright: '© 2026 MatchMe. All rights reserved.',
 
+  // ============================================================
   // Auth
+  // ============================================================
   login: 'Login',
   register: 'Sign Up',
   logout: 'Logout',
   email: 'Email',
   password: 'Password',
   confirm_password: 'Confirm Password',
+  new_password: 'New Password',
+  confirm_new_password: 'Confirm New Password',
   remember_me: 'Remember me',
   forgot_password: 'Forgot password?',
   reset_password: 'Reset Password',
@@ -21,15 +31,24 @@ export const en = {
   send_reset_email: 'Send Reset Link',
   reset_email_sent: 'Password reset email sent! Check your inbox.',
   update_password: 'Update Password',
+  updating_password: 'Updating...',
   password_updated: 'Password Updated',
+  password_updated_desc: 'Your password has been successfully updated. You can now log in with your new password.',
+  set_new_password: 'Set New Password',
+  set_new_password_desc: "Enter your new password below. Make sure it's strong and unique.",
+  go_to_login: 'Go to Login',
   back_to_login: 'Back to Login',
   verify_email: 'Verify Your Email',
   verify_email_msg: 'We sent a verification link to your email. Please check your inbox and click the link to verify your account.',
   resend_verification: 'Resend Verification Email',
   verification_resent: 'Verification email resent!',
   verification_email_sent: 'Verification email sent! Check your inbox.',
+  authenticating: 'Authenticating...',
+  sign_in_as_admin: 'Sign In as Admin',
 
+  // ============================================================
   // Roles
+  // ============================================================
   i_am: 'I am a...',
   job_seeker: 'Job Seeker',
   job_seeker_desc: 'Looking for my next career opportunity',
@@ -38,7 +57,9 @@ export const en = {
   admin: 'Administrator',
   select_role: 'Please select your role',
 
+  // ============================================================
   // Navigation
+  // ============================================================
   home: 'Home',
   dashboard: 'Dashboard',
   profile: 'Profile',
@@ -49,7 +70,31 @@ export const en = {
   subscription: 'Subscription',
   back: 'Back',
 
+  // ============================================================
+  // Landing Page
+  // ============================================================
+  hero_title: 'Find Your Perfect Career Match',
+  hero_subtitle: 'AI-powered recruitment platform that connects talented professionals with top companies through smart matching.',
+  get_started: 'Get Started',
+  learn_more: 'Learn More',
+  how_it_works: 'How It Works',
+  why_matchme: 'Why MatchMe?',
+  feature_matching: 'AI-Powered Matching',
+  feature_matching_desc: 'Our intelligent algorithm analyzes skills, experience, and preferences to find your perfect match.',
+  feature_swipe: 'Swipe to Connect',
+  feature_swipe_desc: 'Simple, intuitive interface. Swipe right on opportunities that excite you.',
+  feature_secure: 'Secure & Private',
+  feature_secure_desc: 'Your data is encrypted and protected. Share only what you want, when you want.',
+  step1_title: 'Create Your Profile',
+  step1_desc: 'Build your professional profile with skills, experience, and preferences.',
+  step2_title: 'Discover Matches',
+  step2_desc: 'Our AI finds the best opportunities based on your unique profile.',
+  step3_title: 'Connect & Grow',
+  step3_desc: 'Chat with matches, schedule interviews, and land your dream role.',
+
+  // ============================================================
   // Job Seeker
+  // ============================================================
   discover: 'Discover',
   swipe_jobs: 'Swipe Jobs',
   saved_jobs: 'Saved Jobs',
@@ -62,36 +107,155 @@ export const en = {
   languages: 'Languages',
   open_to_work: 'Open to Work',
   not_looking: 'Not Looking',
+  match_score: 'Match',
+  required_skills: 'Required Skills',
+  no_more_jobs: 'No more jobs to show',
+  check_back_later: 'Check back later for new opportunities',
+  start_over: 'Start Over',
+  no_saved_jobs: 'No saved jobs yet',
+  no_saved_jobs_desc: 'Jobs you save will appear here',
+  profile_strength: 'Profile Strength',
+  add_certifications_tip: 'Add certifications to improve your score',
+  matched_jobs: 'Matched Jobs',
+  its_a_match: "It's a Match!",
+  match_message: 'You and {{company}} are interested in each other!',
 
+  // ============================================================
+  // Job Seeker Settings / Profile
+  // ============================================================
+  first_name: 'First Name',
+  last_name: 'Last Name',
+  mobile: 'Mobile Number',
+  professional_summary: 'Professional Summary',
+  key_skills: 'Key Skills',
+  first_name_placeholder: 'John',
+  last_name_placeholder: 'Doe',
+  email_placeholder: 'john@example.com',
+  mobile_placeholder: '+971 50 123 4567',
+  summary_placeholder: 'Tell us about yourself...',
+  skills_placeholder: 'React, TypeScript, Node.js',
+
+  // ============================================================
   // Company
+  // ============================================================
   vacancies: 'Vacancies',
   candidates: 'Candidates',
   analytics: 'Analytics',
   post_job: 'Post a Job',
+  post_vacancy: 'Post Vacancy',
   edit_job: 'Edit Job',
   company_profile: 'Company Profile',
   branches: 'Branches',
   team: 'Team',
   hiring_pipeline: 'Hiring Pipeline',
+  active_vacancies: 'Active Vacancies',
+  interviews: 'Interviews',
+  hired: 'Hired',
+  top_matched_candidates: 'Top Matched Candidates',
+  vacancy_posted: 'Vacancy posted successfully!',
+  posted_on: 'Posted',
+  applicants: 'applicants',
 
+  // ============================================================
+  // Company Settings
+  // ============================================================
+  company_name: 'Company Name',
+  company_website: 'Website',
+  company_phone: 'Phone',
+  company_description: 'Company Description',
+  industry: 'Industry',
+  country: 'Country',
+  city: 'City',
+  company_name_placeholder: 'TechCorp',
+  website_placeholder: 'https://techcorp.com',
+  phone_placeholder: '+971 4 123 4567',
+  country_placeholder: 'UAE',
+  city_placeholder: 'Dubai',
+  industry_placeholder: 'Technology',
+  company_desc_placeholder: 'Tell us about your company...',
+
+  // ============================================================
+  // Job Posting Form
+  // ============================================================
+  job_title: 'Job Title',
+  employment_type: 'Employment Type',
+  job_description: 'Job Description',
+  min_experience: 'Min Experience',
+  max_experience: 'Max Experience',
+  education_level: 'Education Level',
+  min_salary: 'Min Salary (USD)',
+  max_salary: 'Max Salary (USD)',
+  select_type: 'Select type',
+  select_level: 'Select level',
+  job_title_placeholder: 'e.g. Senior Frontend Developer',
+  job_desc_placeholder: 'Describe the role...',
+  skills_input_placeholder: 'React, TypeScript, Node.js',
+  full_time: 'Full-time',
+  part_time: 'Part-time',
+  contract: 'Contract',
+  remote: 'Remote',
+  internship: 'Internship',
+  high_school: 'High School',
+  bachelors: "Bachelor's",
+  masters: "Master's",
+  doctorate: 'PhD',
+  per_month: '/month',
+  salary_range: '{{min}} - {{max}} / month',
+
+  // ============================================================
+  // Candidates
+  // ============================================================
+  all: 'All',
+  new_status: 'New',
+  accepted: 'Accepted',
+  interview: 'Interview',
+  accept: 'Accept',
+  reject: 'Reject',
+  candidate_accepted: 'Candidate accepted',
+  candidate_rejected: 'Candidate rejected',
+  years_experience: '{{count}} years',
+
+  // ============================================================
+  // Analytics
+  // ============================================================
+  total_applications: 'Total Applications',
+  acceptance_rate: 'Acceptance Rate',
+  response_rate: 'Response Rate',
+  avg_time_to_hire: 'Avg. Time to Hire',
+  days: '{{count}} days',
+  hiring_funnel: 'Hiring Funnel',
+  screened: 'Screened',
+  interviewed: 'Interviewed',
+  offered: 'Offered',
+  top_requested_skills: 'Top Requested Skills',
+
+  // ============================================================
   // Matching
+  // ============================================================
   match: 'Match!',
   compatibility: 'Compatibility',
   interested: 'Interested',
   not_interested: 'Not Interested',
   super_like: 'Super Like',
   mutual_match: 'Mutual Match',
-  no_more_jobs: 'No more jobs to show',
-  check_back_later: 'Check back later for new opportunities',
 
+  // ============================================================
   // Messages
+  // ============================================================
   type_message: 'Type a message...',
   send: 'Send',
   no_conversations: 'No conversations yet',
+  no_messages: 'No messages yet',
+  no_messages_desc: 'Select a conversation to start chatting',
   start_matching: 'Start matching to begin conversations',
   unread: 'Unread',
+  online: 'Online',
+  offline: 'Offline',
+  search_conversations: 'Search conversations...',
 
+  // ============================================================
   // Subscription
+  // ============================================================
   free_plan: 'Free',
   premium_plan: 'Premium',
   business_plan: 'Business',
@@ -101,14 +265,49 @@ export const en = {
   monthly: 'Monthly',
   yearly: 'Yearly',
   save_percent: 'Save {{percent}}%',
-  per_month: '/month',
   per_year: '/year',
+  billed_yearly: 'Billed ${{amount}}/year',
   features: 'Features',
   subscribe: 'Subscribe',
   cancel_subscription: 'Cancel Subscription',
+  popular: 'Popular',
+  redirecting_checkout: 'Redirecting to checkout...',
+  secure_payment: 'Secure payment powered by Stripe',
 
+  // Subscription Features - Company
+  limited_job_postings: 'Limited job postings (3/month)',
+  message_matched_only: 'Message matched candidates only',
+  hidden_contact_info: 'Hidden contact information',
+  basic_analytics: 'Basic analytics',
+  unlimited_job_postings: 'Unlimited job postings',
+  message_anyone: 'Message anyone directly',
+  full_contact_details: 'Full contact details visible',
+  advanced_analytics: 'Advanced analytics & reports',
+  priority_ranking: 'Priority ranking in search',
+  export_candidate_data: 'Export candidate data (CSV/PDF)',
+
+  // Subscription Features - Job Seeker
+  unlimited_swipes: 'Unlimited swipes',
+  basic_profile_visibility: 'Basic profile visibility',
+  message_matched_companies: 'Message matched companies',
+  unlimited_swipes_undo: 'Unlimited swipes + Undo',
+  priority_profile_visibility: 'Priority profile visibility',
+  message_any_company: 'Message any company',
+  detailed_analytics: 'Detailed analytics & insights',
+  ai_profile_enhancement: 'AI profile enhancement',
+  see_profile_viewers: 'See who viewed your profile',
+
+  // ============================================================
   // Admin
+  // ============================================================
+  admin_portal: 'Admin Portal',
   admin_dashboard: 'Admin Dashboard',
+  admin_login: 'Administrator Login',
+  admin_login_desc: 'Enter your admin credentials to continue',
+  admin_restricted: 'Restricted access - Administrators only',
+  admin_unauthorized: 'This portal is for authorized administrators only.',
+  admin_logged_warning: 'Unauthorized access attempts are logged.',
+  welcome_admin: 'Welcome, Administrator',
   users: 'Users',
   total_users: 'Total Users',
   total_companies: 'Total Companies',
@@ -120,7 +319,9 @@ export const en = {
   activity_logs: 'Activity Logs',
   system_settings: 'System Settings',
 
-  // Common
+  // ============================================================
+  // Common Actions
+  // ============================================================
   loading: 'Loading...',
   save: 'Save',
   cancel: 'Cancel',
@@ -142,7 +343,9 @@ export const en = {
   download: 'Download',
   refresh: 'Refresh',
 
-  // Validation
+  // ============================================================
+  // Validation Messages
+  // ============================================================
   fill_all_fields: 'Please fill in all fields',
   passwords_dont_match: 'Passwords do not match',
   password_too_short: 'Password must be at least 6 characters',
@@ -150,16 +353,22 @@ export const en = {
   login_failed: 'Login failed',
   registration_failed: 'Registration failed',
   reset_failed: 'Failed to send reset email',
+  update_password_failed: 'Failed to update password',
   enter_email: 'Please enter your email',
+  auth_failed: 'Authentication failed',
 
-  // Password strength
+  // ============================================================
+  // Password Strength
+  // ============================================================
   weak: 'Weak',
   fair: 'Fair',
   good: 'Good',
   strong: 'Strong',
   very_strong: 'Very Strong',
 
+  // ============================================================
   // Status
+  // ============================================================
   active: 'Active',
   inactive: 'Inactive',
   pending: 'Pending',
@@ -169,7 +378,9 @@ export const en = {
   closed: 'Closed',
   draft: 'Draft',
 
+  // ============================================================
   // Time
+  // ============================================================
   today: 'Today',
   yesterday: 'Yesterday',
   just_now: 'Just now',
@@ -177,20 +388,17 @@ export const en = {
   hours_ago: '{{count}} hours ago',
   days_ago: '{{count}} days ago',
 
-  // Footer
+  // ============================================================
+  // Footer & Legal
+  // ============================================================
   privacy_policy: 'Privacy Policy',
   terms_of_service: 'Terms of Service',
   contact_us: 'Contact Us',
   about_us: 'About Us',
 
-  // Landing
-  hero_title: 'Find Your Perfect Career Match',
-  hero_subtitle: 'AI-powered recruitment platform that connects talented professionals with top companies through smart matching.',
-  get_started: 'Get Started',
-  how_it_works: 'How It Works',
-  why_matchme: 'Why MatchMe?',
-
+  // ============================================================
   // Misc
+  // ============================================================
   dont_have_account: "Don't have an account?",
   already_have_account: 'Already have an account?',
   or: 'or',
@@ -198,4 +406,41 @@ export const en = {
   dark_mode: 'Dark Mode',
   light_mode: 'Light Mode',
   language: 'Language',
+
+  // ============================================================
+  // Notifications (toast messages)
+  // ============================================================
+  notification_match: 'You have a new match!',
+  notification_message: 'New message received',
+  notification_application: 'New application received',
+  notification_interview: 'Interview scheduled',
+  notification_payment: 'Payment processed successfully',
+  notification_profile_view: 'Someone viewed your profile',
+
+  // ============================================================
+  // Email Templates (for reference)
+  // ============================================================
+  email_welcome_subject: 'Welcome to MatchMe!',
+  email_welcome_body: 'Thank you for joining MatchMe. Start building your profile to discover amazing opportunities.',
+  email_verification_subject: 'Verify your email address',
+  email_verification_body: 'Click the link below to verify your email address and activate your account.',
+  email_reset_subject: 'Reset your password',
+  email_reset_body: 'Click the link below to reset your password. This link expires in 1 hour.',
+  email_match_subject: "You've got a new match!",
+  email_match_body: 'Great news! {{company}} is interested in your profile. Start a conversation now.',
+  email_interview_subject: 'Interview invitation',
+  email_interview_body: '{{company}} would like to schedule an interview with you.',
+
+  // ============================================================
+  // Error Messages
+  // ============================================================
+  error_generic: 'Something went wrong. Please try again.',
+  error_network: 'Network error. Please check your connection.',
+  error_unauthorized: 'You are not authorized to perform this action.',
+  error_not_found: 'The requested resource was not found.',
+  error_server: 'Server error. Please try again later.',
+  error_file_too_large: 'File is too large. Maximum size is {{size}}MB.',
+  error_invalid_file_type: 'Invalid file type. Allowed types: {{types}}.',
+  error_session_expired: 'Your session has expired. Please log in again.',
+  error_rate_limit: 'Too many requests. Please wait a moment.',
 } as const;

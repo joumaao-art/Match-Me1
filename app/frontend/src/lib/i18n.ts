@@ -21,6 +21,10 @@ i18n.use(initReactI18next).init({
   },
 });
 
+// Set initial direction and lang on page load
+document.documentElement.dir = savedLang === 'ar' ? 'rtl' : 'ltr';
+document.documentElement.lang = savedLang;
+
 export const changeLanguage = (lang: string) => {
   i18n.changeLanguage(lang);
   localStorage.setItem('matchme-lang', lang);
