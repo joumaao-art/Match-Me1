@@ -1,0 +1,961 @@
+Build a modern, scalable, production-ready recruitment platform called MatchMe.
+
+MatchMe is an AI-powered hiring platform that matches Companies and Job Seekers using a compatibility algorithm and a swipe-based experience inspired by Tinder, but designed specifically for professional recruitment.
+
+The platform must support both:
+
+English (default)
+Arabic (RTL)
+
+Users should be able to switch languages at any time.
+
+The application should be mobile-first while remaining fully responsive on tablets and desktop browsers.
+
+The UI should feel similar to:
+
+LinkedIn (professional)
+Tinder (swiping)
+Airbnb (clean UX)
+Linear (minimal modern interface)
+
+Use a clean white interface with blue accent colors.
+
+Technology
+
+Build using modern scalable architecture.
+
+Frontend
+
+Flutter (iOS + Android)
+Responsive Web
+
+Backend
+
+Supabase (preferred)
+or
+Firebase
+
+Authentication
+
+Email/password
+Email verification
+Password recovery
+JWT authentication
+
+Storage
+
+CVs
+Images
+Company logos
+Attachments
+
+Database
+
+Relational database with optimized indexing.
+
+Languages
+
+The application must be fully bilingual.
+
+English
+
+Arabic (RTL)
+
+Everything including
+
+menus
+buttons
+messages
+notifications
+validation
+emails
+
+must support localization.
+
+User Types
+
+There are only two user roles.
+
+1. Job Seeker
+2. Company
+
+The login flow must immediately ask the user to choose:
+
+"I am"
+
+Job Seeker
+Company
+
+Each role has its own onboarding flow.
+
+Authentication
+
+Each role has its own login page.
+
+Both login pages include:
+
+Email
+Password
+Remember Me
+Login
+
+Buttons
+
+Login
+Create Account
+Forgot Password
+
+Password Recovery
+
+Send reset email
+Reset password
+
+Account Verification
+
+When a user creates an account
+
+Send verification email.
+
+Account cannot be activated until email verification is completed.
+
+Security
+
+Implement
+
+Email verification
+Password hashing
+Session timeout
+Secure authentication
+JWT
+Role-based permissions
+Rate limiting
+CAPTCHA
+SQL Injection protection
+XSS protection
+Content Moderation
+
+The platform must automatically block:
+
+offensive words
+hate speech
+profanity
+abusive language
+
+in
+
+company profiles
+job descriptions
+messages
+biographies
+
+Use AI moderation plus profanity filtering.
+
+Company Onboarding
+
+After signup,
+
+redirect the company to
+
+Create Company Profile
+
+Mandatory fields
+
+Company Name
+Company Logo
+Company Website
+Company Phone Number
+Country
+City
+Industry
+Company Size
+Company Type
+Local
+International
+Company Description
+
+Validation
+
+Website validation
+
+Phone validation
+
+Image upload
+
+Logo cropping
+
+Company Dashboard
+
+Sidebar
+
+Dashboard
+
+Post Vacancy
+
+Candidates
+
+Messages
+
+Analytics
+
+Subscription
+
+Company Profile
+
+Settings
+
+Post Vacancy
+
+Mandatory
+
+Job Title
+
+Employment Type
+
+Job Description
+
+Country
+
+City
+
+Preferences
+
+Required Skills
+
+Minimum Experience
+
+Maximum Experience
+
+Education Level
+
+Optional
+
+Salary Range (USD)
+
+Benefits
+
+Job status
+
+Open
+
+Closed
+
+Draft
+
+Scheduled
+
+Every vacancy generates
+
+Unique Job ID
+
+Posting Date
+
+Expiration Date
+
+Job Matching Algorithm
+
+Every posted vacancy is automatically matched against every Job Seeker.
+
+Calculate compatibility score.
+
+Score should be based on
+
+Skills
+
+Experience
+
+Education
+
+Industry
+
+Location
+
+Employment Type
+
+Availability
+
+Keywords
+
+Language
+
+Preferences
+
+Weighting example
+
+Skills 35%
+
+Experience 20%
+
+Education 10%
+
+Location 10%
+
+Preferences 15%
+
+Industry 5%
+
+Availability 5%
+
+Display
+
+92%
+
+85%
+
+71%
+
+etc.
+
+Rank candidates from highest score to lowest.
+
+Company Candidate Search
+
+Companies can search ALL job seekers.
+
+Filters
+
+Skills
+
+Location
+
+Nationality
+
+Languages
+
+Education
+
+Years Experience
+
+Industry
+
+Availability
+
+Expected Salary
+
+Keyword Search
+
+Free Plan
+
+Can search everyone
+
+BUT
+
+Contact information hidden unless matched.
+
+Only see
+
+Photo
+
+Experience
+
+Education
+
+Skills
+
+Summary
+
+If matched
+
+Reveal
+
+Name
+
+Phone
+
+Email
+
+Premium subscribers
+
+Can see contact information for everyone.
+
+Company Dashboard
+
+Dashboard includes
+
+Top matched candidates
+
+Matching score
+
+Status
+
+New
+
+Accepted
+
+Rejected
+
+Interview
+
+Offer
+
+Hired
+
+Actions
+
+Accept
+
+Reject
+
+Message
+
+Bookmark
+
+Export
+
+Messaging
+
+Real-time messaging.
+
+Features
+
+Read receipts
+
+Typing indicator
+
+Push notifications
+
+Email notifications
+
+Attachments
+
+PDF
+
+Word
+
+Images
+
+Maximum attachment size configurable.
+
+Premium companies
+
+Can message anyone.
+
+Free companies
+
+Can only message matched candidates.
+
+Company Analytics
+
+Interactive dashboards.
+
+Charts
+
+Applications
+
+Matches
+
+Hiring Funnel
+
+Acceptance Rate
+
+Response Rate
+
+Top Skills
+
+Top Locations
+
+Vacancy Performance
+
+Time to Hire
+
+Monthly Hiring
+
+Export
+
+CSV
+
+Excel
+
+PDF
+
+Subscription System
+
+Free Company
+
+Limited vacancies
+
+Limited messages
+
+Hidden contact information
+
+Premium Company
+
+Unlimited vacancies
+
+Unlimited messaging
+
+View all contact details
+
+Advanced analytics
+
+Priority ranking
+
+Export candidates
+
+Subscription management
+
+Monthly
+
+Yearly
+
+Stripe integration
+
+Apple Pay
+
+Google Pay
+
+Job Seeker Onboarding
+
+After signup
+
+redirect to
+
+Create Profile
+
+Mandatory
+
+Photo
+
+First Name
+
+Middle Name
+
+Last Name
+
+Email
+
+Mobile
+
+Nationality
+
+Date of Birth
+
+Current Location
+
+Languages
+
+Language proficiency
+
+Upload CV
+
+Education
+
+Work Experience
+
+Key Skills
+
+Availability
+
+Preferences
+
+Preferred Employment Type
+
+Preferred Location
+
+Preferred Industry
+
+Preferred Company Size
+
+Optional
+
+Expected Salary
+
+Certificates
+
+Accomplishments
+
+ATS Resume Parsing
+
+When CV uploaded
+
+Automatically
+
+Extract
+
+Name
+
+Experience
+
+Skills
+
+Education
+
+Languages
+
+Certifications
+
+Improve profile automatically.
+
+Detect ATS compatibility.
+
+Show
+
+Resume Score
+
+Example
+
+92%
+
+Suggestions
+
+Missing skills
+
+Formatting improvements
+
+Keyword improvements
+
+AI Profile Enhancement
+
+Offer one-click AI improvement.
+
+Improve
+
+Professional Summary
+
+Skills
+
+Achievements
+
+Resume wording
+
+Job Discovery
+
+After profile completion
+
+redirect to
+
+Swipe Jobs
+
+Cards similar to Tinder.
+
+Card includes
+
+Company Logo
+
+Company Name
+
+Industry
+
+Country
+
+City
+
+Employment Type
+
+Required Experience
+
+Job Description
+
+Matching Score
+
+Salary if available
+
+Buttons
+
+Swipe Right
+
+Interested
+
+Swipe Left
+
+Not Interested
+
+Undo (optional premium feature)
+
+Unlimited swipes.
+
+Match Logic
+
+A match occurs when
+
+Job Seeker swipes right
+
+AND
+
+Company accepts candidate.
+
+After match
+
+Both users
+
+Receive notification
+
+Messaging unlocked
+
+Contact details visible.
+
+Job Seeker Dashboard
+
+Sections
+
+Matched Jobs
+
+Applications
+
+Messages
+
+Saved Jobs
+
+Rejected
+
+History
+
+Left Swipes
+
+Analytics
+
+Settings
+
+Left Swipe page
+
+Users can
+
+Apply again
+
+Undo accidental rejection
+
+Job Seeker Analytics
+
+Charts
+
+Applications
+
+Acceptance Rate
+
+Interview Rate
+
+Profile Views
+
+Profile Strength
+
+Top Skills
+
+Application Timeline
+
+Matching Score Trends
+
+Notifications
+
+Push
+
+Email
+
+In-app
+
+Events
+
+New Match
+
+New Message
+
+Interview
+
+Job Accepted
+
+Job Rejected
+
+Profile Viewed
+
+Subscription Renewal
+
+Password Reset
+
+Search
+
+Global search.
+
+Companies
+
+Jobs
+
+Skills
+
+Cities
+
+Industries
+
+Users
+
+Autocomplete
+
+Recent searches
+
+AI Matching Engine
+
+Use AI embeddings plus keyword search.
+
+Score every match.
+
+Continuously improve recommendations based on
+
+Swipe history
+
+Accepted matches
+
+Rejected matches
+
+Skills
+
+Behavior
+
+Preferences
+
+Admin Panel
+
+Super Admin Dashboard
+
+Manage
+
+Companies
+
+Users
+
+Jobs
+
+Subscriptions
+
+Payments
+
+Messages
+
+Reports
+
+Moderation
+
+Analytics
+
+Support tickets
+
+Feature flags
+
+Settings
+
+Language
+
+Dark Mode
+
+Notifications
+
+Privacy
+
+Delete Account
+
+Export Data
+
+Change Password
+
+Two-factor authentication
+
+Accessibility
+
+Support
+
+RTL
+
+Screen readers
+
+Large fonts
+
+Color contrast
+
+Keyboard navigation
+
+Performance
+
+Lazy loading
+
+Caching
+
+Image optimization
+
+Offline support
+
+Infinite scrolling
+
+Fast search
+
+Target page load under 2 seconds.
+
+UI Style
+
+Minimal
+
+Professional
+
+Modern
+
+Rounded cards
+
+Smooth animations
+
+Professional icons
+
+Glassmorphism where appropriate
+
+Material Design 3
+
+Light Mode
+
+Dark Mode
+
+Required Screens
+Shared
+Splash Screen
+Language Selection
+Role Selection
+Login
+Register
+Forgot Password
+Email Verification
+Notifications
+Settings
+Company
+Company Profile
+Dashboard
+Post Vacancy
+Vacancy Details
+Candidate Search
+Candidate Profile
+Messaging
+Analytics
+Subscription
+Company Settings
+Job Seeker
+Profile Creation
+ATS Resume Upload
+Swipe Jobs
+Dashboard
+Matched Jobs
+Messages
+Analytics
+Left Swipe History
+Saved Jobs
+Profile Settings
+Future Scalability
+
+Design the architecture to support future features without major refactoring, including:
+
+AI interview assistant (voice and video)
+AI-powered interview scheduling
+AI CV builder
+AI career coach
+Skills assessments and coding tests
+Personality and behavioral assessments
+Video introductions
+One-click applications
+Referral programs
+Employer branding pages
+Multi-company recruiter accounts
+Recruiter collaboration and hiring pipelines
+HRIS and ATS integrations (Workday, SAP SuccessFactors, Greenhouse, Lever, BambooHR)
+Calendar integrations (Google Calendar, Outlook)
+LinkedIn profile import
+OCR for certificates and IDs
+Multi-country support with localization
+Enterprise SSO (Google, Microsoft, Apple)
+AI fraud detection for fake profiles and duplicate accounts
+Advanced recommendation engine using machine learning
+Gamified candidate profiles with skill badges
+API-first architecture for future third-party integrations
+Success Criteria
+
+The final product should be polished enough to serve as a commercial MVP that can scale into a global recruitment platform. It should prioritize exceptional UX, fast performance, secure authentication, intelligent AI-driven matching, bilingual support (English/Arabic with full RTL), and a premium experience comparable to leading platforms like LinkedIn, Tinder, and Indeed, while maintaining a unique identity centered around swipe-based professional matching.
