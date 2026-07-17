@@ -31,4 +31,5 @@ Build MatchMe - an AI-powered recruitment platform with swipe-based matching bet
 - 2026-07-17: Refactoring complete - web app has new architecture layers (services, stores, types, config, shared components)
 - 2026-07-17: Expo mobile app created with matching architecture (screens, services, stores, theme, navigation)
 - 2026-07-17: Both projects pass TypeScript checks, web app build + lint clean
+- 2026-07-17: Supabase integration complete - migrations, RLS, storage, realtime, edge functions, env config
 

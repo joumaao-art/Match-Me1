@@ -3,7 +3,7 @@
  * All Supabase interactions go through this abstraction layer.
  */
 
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
 import { env } from '@/config/env';
 import { logger } from '@/lib/logger';
 
@@ -20,9 +20,21 @@ export interface ApiError {
 
 class ApiClient {
   private client: SupabaseClient;
+  private channels: Map<string, RealtimeChannel> = new Map();
 
   constructor() {
-    this.client = createClient(env.supabase.url, env.supabase.anonKey);
+    this.client = createClient(env.supabase.url, env.supabase.anonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+      },
+      realtime: {
+        params: {
+          eventsPerSecond: 10,
+        },
+      },
+    });
   }
 
   get supabase(): SupabaseClient {
@@ -42,7 +54,7 @@ class ApiClient {
    */
   async query<T>(
     operation: string,
-    queryFn: () => Promise<{ data: T | null; error: any }>
+    queryFn: () => PromiseLike<{ data: any; error: any }>
   ): Promise<ApiResponse<T>> {
     try {
       const { data, error } = await queryFn();
@@ -71,13 +83,111 @@ class ApiClient {
   }
 
   /**
+   * Call a Supabase Edge Function.
+   */
+  async invokeFunction<T>(functionName: string, body?: Record<string, any>): Promise<ApiResponse<T>> {
+    return this.query(functionName, () =>
+      this.client.functions.invoke(functionName, { body })
+    );
+  }
+
+  /**
+   * Call a PostgreSQL function via RPC.
+   */
+  async rpc<T>(functionName: string, params?: Record<string, any>): Promise<ApiResponse<T>> {
+    return this.query(`rpc:${functionName}`, () =>
+      this.client.rpc(functionName, params) as any
+    );
+  }
+
+  /**
    * Subscribe to real-time changes on a table.
    */
-  subscribe(channel: string, table: string, callback: (payload: any) => void) {
-    return this.client
-      .channel(channel)
-      .on('postgres_changes', { event: '*', schema: 'public', table }, callback)
+  subscribe(
+    channelName: string,
+    table: string,
+    callback: (payload: any) => void,
+    filter?: string
+  ): RealtimeChannel {
+    // Remove existing channel if any
+    const existing = this.channels.get(channelName);
+    if (existing) {
+      this.client.removeChannel(existing);
+    }
+
+    const channelConfig: any = { event: '*', schema: 'public', table };
+    if (filter) {
+      channelConfig.filter = filter;
+    }
+
+    const channel = this.client
+      .channel(channelName)
+      .on('postgres_changes', channelConfig, callback)
       .subscribe();
+
+    this.channels.set(channelName, channel);
+    return channel;
+  }
+
+  /**
+   * Unsubscribe from a channel.
+   */
+  unsubscribe(channelName: string) {
+    const channel = this.channels.get(channelName);
+    if (channel) {
+      this.client.removeChannel(channel);
+      this.channels.delete(channelName);
+    }
+  }
+
+  /**
+   * Unsubscribe from all channels.
+   */
+  unsubscribeAll() {
+    this.channels.forEach((channel) => {
+      this.client.removeChannel(channel);
+    });
+    this.channels.clear();
+  }
+
+  /**
+   * Upload a file to Supabase Storage.
+   */
+  async uploadFile(bucket: string, path: string, file: File): Promise<ApiResponse<{ path: string; publicUrl: string }>> {
+    try {
+      const { data, error } = await this.client.storage.from(bucket).upload(path, file, {
+        cacheControl: '3600',
+        upsert: true,
+      });
+
+      if (error) {
+        return { data: null, error: { message: error.message } };
+      }
+
+      const { data: urlData } = this.client.storage.from(bucket).getPublicUrl(data.path);
+
+      return {
+        data: { path: data.path, publicUrl: urlData.publicUrl },
+        error: null,
+      };
+    } catch (err: any) {
+      return { data: null, error: { message: err.message } };
+    }
+  }
+
+  /**
+   * Delete a file from Supabase Storage.
+   */
+  async deleteFile(bucket: string, paths: string[]): Promise<ApiResponse<null>> {
+    try {
+      const { error } = await this.client.storage.from(bucket).remove(paths);
+      if (error) {
+        return { data: null, error: { message: error.message } };
+      }
+      return { data: null, error: null };
+    } catch (err: any) {
+      return { data: null, error: { message: err.message } };
+    }
   }
 }
 

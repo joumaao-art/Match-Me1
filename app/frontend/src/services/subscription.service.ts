@@ -14,34 +14,34 @@ class SubscriptionService {
         .select('*')
         .eq('user_id', userId)
         .eq('status', 'active')
-        .single()
+        .single() as any
     );
   }
 
+  /**
+   * Create a Stripe checkout session via Edge Function.
+   */
   async createCheckoutSession(plan: SubscriptionPlan, billingCycle: BillingCycle) {
     logger.info('[SubscriptionService] Creating checkout session', { plan, billingCycle });
-    return apiClient.query('createCheckoutSession', () =>
-      apiClient.supabase.functions.invoke('create-checkout-session', {
-        body: { plan, billingCycle },
-      })
-    );
+    return apiClient.invokeFunction<{ url: string; sessionId: string }>('create-checkout-session', {
+      plan,
+      billingCycle,
+    });
   }
 
+  /**
+   * Verify payment after Stripe checkout redirect.
+   */
+  async verifyPayment(sessionId: string) {
+    return apiClient.invokeFunction('verify-payment', { sessionId });
+  }
+
+  /**
+   * Cancel subscription via Edge Function.
+   */
   async cancelSubscription(subscriptionId: string) {
     logger.info('[SubscriptionService] Cancelling subscription');
-    return apiClient.query('cancelSubscription', () =>
-      apiClient.supabase.functions.invoke('cancel-subscription', {
-        body: { subscriptionId },
-      })
-    );
-  }
-
-  async verifyPayment(sessionId: string) {
-    return apiClient.query('verifyPayment', () =>
-      apiClient.supabase.functions.invoke('verify-payment', {
-        body: { sessionId },
-      })
-    );
+    return apiClient.invokeFunction('cancel-subscription', { subscriptionId });
   }
 }
 
