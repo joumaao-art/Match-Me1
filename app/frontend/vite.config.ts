@@ -67,6 +67,7 @@ export default defineConfig(({ command }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        '@matchme/shared': path.resolve(__dirname, './packages/shared/src'),
       },
     },
     server: {
