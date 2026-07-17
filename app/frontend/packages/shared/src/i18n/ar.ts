@@ -432,8 +432,18 @@ export const ar = {
   email_interview_body: '{{company}} ترغب في جدولة مقابلة معك.',
 
   // ============================================================
-  // Matching Engine
+  // AI Matching Engine
   // ============================================================
+  why_recommended: 'لماذا يُوصى بهذا:',
+  why_this_match: 'لماذا هذا التطابق؟',
+  hide_explanation: 'إخفاء التفسير',
+  ai_confidence: 'ثقة الذكاء الاصطناعي',
+  improvement_tips: 'كيف تتحسن',
+  score_factors: 'عوامل النتيجة',
+  personalized: 'مخصص',
+  learning_from_you: 'يتعلم من تفضيلاتك',
+  interactions_today: 'تفاعلات اليوم',
+
   interested: 'مهتم',
   reject: 'تمرير',
   interest_recorded: 'تم تسجيل الاهتمام! في انتظار تطابق متبادل.',

@@ -432,8 +432,18 @@ export const en = {
   email_interview_body: '{{company}} would like to schedule an interview with you.',
 
   // ============================================================
-  // Matching Engine
+  // AI Matching Engine
   // ============================================================
+  why_recommended: 'Why this is recommended:',
+  why_this_match: 'Why this match?',
+  hide_explanation: 'Hide explanation',
+  ai_confidence: 'AI Confidence',
+  improvement_tips: 'How to improve',
+  score_factors: 'Score Factors',
+  personalized: 'Personalized',
+  learning_from_you: 'Learning from your preferences',
+  interactions_today: 'interactions today',
+
   interested: 'Interested',
   reject: 'Pass',
   interest_recorded: 'Interest recorded! Waiting for mutual match.',

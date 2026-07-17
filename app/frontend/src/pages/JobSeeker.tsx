@@ -25,6 +25,8 @@ import {
 } from 'lucide-react';
 import { useMatchingEngine } from '@/lib/useMatchingEngine';
 import { SeekerProfile, VacancyProfile, DEFAULT_WEIGHTS } from '@/lib/matching-engine';
+import { useAIMatching } from '@/lib/useAIMatching';
+import { SeekerAIProfile, VacancyAIProfile, MatchExplanation } from '@/lib/ai-matching-engine';
 
 // ============================================================
 // Mock Data
@@ -201,6 +203,46 @@ const MOCK_VACANCIES: VacancyProfile[] = mockJobs.map(j => ({
   isRemote: j.employment_type === 'remote',
 }));
 
+// AI-enhanced profiles
+const AI_SEEKER: SeekerAIProfile = {
+  id: 'seeker-1',
+  skills: [
+    { name: 'React', level: 'expert', years: 4 },
+    { name: 'TypeScript', level: 'advanced', years: 3 },
+    { name: 'Node.js', level: 'advanced', years: 3 },
+    { name: 'Tailwind CSS', level: 'expert', years: 3 },
+    { name: 'PostgreSQL', level: 'intermediate', years: 2 },
+  ],
+  experienceYears: 5,
+  experienceDetails: 'Full-stack web development with focus on React ecosystem',
+  education: [{ degree: 'bachelors', field: 'Computer Science', institution: 'University of Dubai' }],
+  languages: [{ name: 'Arabic', level: 'native' }, { name: 'English', level: 'advanced' }, { name: 'French', level: 'intermediate' }],
+  expectedSalary: { min: 8000, max: 15000, currency: 'USD' },
+  location: { country: 'UAE', city: 'Dubai', willingToRelocate: true },
+  preferredIndustries: ['Technology', 'Finance', 'E-commerce'],
+  workPreference: 'hybrid',
+  availability: 'two_weeks',
+  summary: 'Senior frontend developer with 5+ years building scalable React applications',
+  preferredRoles: ['Frontend Developer', 'Full Stack Engineer', 'React Developer'],
+};
+
+const AI_VACANCIES: VacancyAIProfile[] = mockJobs.map(j => ({
+  id: j.id,
+  companyId: `company-${j.id}`,
+  companyName: j.company_name,
+  requiredSkills: j.required_skills.map((s, i) => ({ name: s, importance: i === 0 ? 'required' as const : 'preferred' as const })),
+  experienceRange: { min: j.min_experience, max: j.max_experience },
+  educationRequirement: { minDegree: 'bachelors', preferredFields: ['Computer Science', 'Software Engineering'] },
+  requiredLanguages: [{ name: 'English', minLevel: 'advanced' }],
+  salaryRange: { min: j.salary_min, max: j.salary_max, currency: 'USD' },
+  location: { country: j.country, city: j.city },
+  industry: j.industry,
+  workPolicy: j.employment_type === 'remote' ? 'remote' as const : 'hybrid' as const,
+  startDate: 'flexible',
+  description: j.job_description,
+  title: j.job_title,
+}));
+
 // ============================================================
 // Swipe View (with Matching Engine)
 // ============================================================
@@ -249,60 +291,111 @@ function SwipeCard({ job, score, onSwipe }: { job: typeof mockJobs[0]; score: nu
   );
 }
 
+function MatchExplanationPanel({ explanation }: { explanation: MatchExplanation }) {
+  const { t } = useTranslation();
+  return (
+    <div className="space-y-3 mt-3">
+      {/* Top Reasons */}
+      <div className="bg-green-50 dark:bg-green-950/30 rounded-lg p-3">
+        <p className="text-xs font-medium text-green-800 dark:text-green-300 mb-1">{t('why_recommended')}</p>
+        {explanation.topReasons.map((reason, i) => (
+          <p key={i} className="text-xs text-green-700 dark:text-green-400 flex items-start gap-1"><Check className="w-3 h-3 shrink-0 mt-0.5" />{reason}</p>
+        ))}
+      </div>
+      {/* Factor bars */}
+      <div className="space-y-1.5">
+        {explanation.factors.filter(f => f.weight >= 0.07).slice(0, 5).map((f) => (
+          <div key={f.name} className="flex items-center gap-2">
+            <span className="text-[10px] w-16 shrink-0 text-muted-foreground">{f.name}</span>
+            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden"><div className="h-full bg-primary rounded-full transition-all" style={{ width: `${f.score * 100}%` }} /></div>
+            <span className="text-[10px] w-7 text-end font-medium">{Math.round(f.score * 100)}%</span>
+          </div>
+        ))}
+      </div>
+      {/* Confidence */}
+      <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+        <span>{t('ai_confidence')}: {Math.round(explanation.confidence * 100)}%</span>
+        {explanation.improvementTips.length > 0 && <span className="text-amber-600">{t('tip')}: {explanation.improvementTips[0]}</span>}
+      </div>
+    </div>
+  );
+}
+
 function SwipeView() {
   const { t } = useTranslation();
   const engine = useMatchingEngine(CURRENT_SEEKER.id, 'job_seeker');
+  const aiMatching = useAIMatching(CURRENT_SEEKER.id);
   const [showMatch, setShowMatch] = useState(false);
-  const [lastSwipedJob, setLastSwipedJob] = useState<typeof mockJobs[0] | null>(null);
   const [canUndo, setCanUndo] = useState(false);
+  const [showExplanation, setShowExplanation] = useState(false);
+  const [currentExplanation, setCurrentExplanation] = useState<MatchExplanation | null>(null);
 
-  // Get recommended jobs sorted by score
+  // Get AI-recommended jobs sorted by score
   const recommendedJobs = useMemo(() => {
-    return engine.getRecommendedJobs(CURRENT_SEEKER, MOCK_VACANCIES).map(r => {
+    const recommendations = aiMatching.getRecommendations(AI_SEEKER, AI_VACANCIES);
+    return recommendations.map(r => {
       const job = mockJobs.find(j => j.id === r.vacancy.id)!;
-      return { ...job, compatibility_score: r.score };
-    }).filter(Boolean);
+      return { ...job, compatibility_score: r.explanation.overallScore, explanation: r.explanation };
+    }).filter(j => !engine.hasSwipedOn(j.id));
   }, [engine.swipeHistory.length]);
 
   const currentJob = recommendedJobs[0];
 
+  // Calculate explanation for current job
+  useMemo(() => {
+    if (currentJob) {
+      const vacancy = AI_VACANCIES.find(v => v.id === currentJob.id);
+      if (vacancy) {
+        setCurrentExplanation(aiMatching.calculateMatch(AI_SEEKER, vacancy));
+      }
+    }
+  }, [currentJob?.id]);
+
   const handleSwipe = useCallback((dir: 'left' | 'right') => {
     if (!currentJob) return;
+
+    // Record interaction for AI learning
+    const matchContext = currentExplanation ? {
+      skillMatch: currentExplanation.factors.find(f => f.name === 'Skills')?.score || 0,
+      locationMatch: currentExplanation.factors.find(f => f.name === 'Location')?.score || 0,
+      salaryMatch: currentExplanation.factors.find(f => f.name === 'Salary')?.score || 0,
+      remoteMatch: currentExplanation.factors.find(f => f.name === 'Remote/Hybrid/Office')?.score || 0,
+      overallScore: currentExplanation.overallScore,
+    } : {};
+
+    aiMatching.recordInteraction({
+      userId: CURRENT_SEEKER.id,
+      targetId: currentJob.id,
+      action: dir === 'right' ? 'swipe_right' : 'swipe_left',
+      context: matchContext,
+    });
+
     const result = engine.swipe(currentJob.id, 'company', dir, currentJob.id);
-    setLastSwipedJob(currentJob);
     setCanUndo(true);
+    setShowExplanation(false);
 
     if (dir === 'right' && result?.match) {
       setShowMatch(true);
       setTimeout(() => setShowMatch(false), 2500);
       toast.success(t('its_a_match'));
     } else if (dir === 'right') {
-      // Simulate company also swiping right sometimes for demo
       if (Math.random() > 0.5) {
-        setTimeout(() => {
-          engine.swipe(currentJob.id, 'company', 'right');
-          // Now try the seeker swipe again to trigger match check
-        }, 500);
+        setTimeout(() => { engine.swipe(currentJob.id, 'company', 'right'); }, 500);
       }
       toast(t('interest_recorded'));
     } else {
       toast(t('job_skipped'));
     }
-  }, [currentJob, engine, t]);
+  }, [currentJob, engine, aiMatching, currentExplanation, t]);
 
   const handleUndo = useCallback(() => {
     const undone = engine.undoLastSwipe();
-    if (undone) {
-      setCanUndo(false);
-      toast.success(t('swipe_undone'));
-    }
+    if (undone) { setCanUndo(false); toast.success(t('swipe_undone')); }
   }, [engine, t]);
 
   if (!currentJob) return (
     <div className="flex-1 flex items-center justify-center p-8"><div className="text-center"><Heart className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" /><h3 className="text-lg font-semibold font-[Poppins] mb-2">{t('no_more_jobs')}</h3><p className="text-sm text-muted-foreground mb-4">{t('check_back_later')}</p>
-      <div className="flex flex-col gap-2 items-center">
-        {canUndo && <Button variant="outline" onClick={handleUndo} className="cursor-pointer gap-2"><Undo2 className="w-4 h-4" />{t('undo_last_swipe')}</Button>}
-      </div>
+      {canUndo && <Button variant="outline" onClick={handleUndo} className="cursor-pointer gap-2"><Undo2 className="w-4 h-4" />{t('undo_last_swipe')}</Button>}
     </div></div>
   );
 
@@ -316,20 +409,31 @@ function SwipeView() {
         </div>
       </div>
 
-      {/* Swipe stats bar */}
+      {/* AI Learning stats */}
       <div className="flex items-center gap-4 mb-3 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1"><Sparkles className="w-3 h-3 text-primary" />{t('ai_powered')}</span>
         <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" />{t('match_rate')}: {engine.stats.matchRate}%</span>
         <span className="flex items-center gap-1"><Heart className="w-3 h-3" />{engine.stats.rightSwipes} {t('liked')}</span>
-        <span className="flex items-center gap-1"><X className="w-3 h-3" />{engine.stats.leftSwipes} {t('passed')}</span>
+        {aiMatching.learningStats?.isPersonalized && <Badge variant="outline" className="text-[10px] gap-0.5"><Target className="w-2.5 h-2.5" />{t('personalized')}</Badge>}
       </div>
 
-      <div className="flex-1 relative min-h-[500px]">
+      <div className="flex-1 relative min-h-[450px]">
         {recommendedJobs.slice(0, 2).reverse().map((job, i) => (
           <SwipeCard key={job.id} job={job} score={job.compatibility_score} onSwipe={i === Math.min(recommendedJobs.length, 2) - 1 ? handleSwipe : () => {}} />
         ))}
       </div>
 
-      <div className="flex justify-center items-center gap-4 mt-4 pb-4">
+      {/* AI Explanation toggle */}
+      {currentExplanation && (
+        <div className="mt-2">
+          <Button variant="ghost" size="sm" className="cursor-pointer w-full text-xs gap-1" onClick={() => setShowExplanation(!showExplanation)}>
+            <Sparkles className="w-3 h-3" />{showExplanation ? t('hide_explanation') : t('why_this_match')}
+          </Button>
+          {showExplanation && <MatchExplanationPanel explanation={currentExplanation} />}
+        </div>
+      )}
+
+      <div className="flex justify-center items-center gap-4 mt-3 pb-4">
         <Button size="lg" variant="outline" className="w-14 h-14 rounded-full border-2 border-destructive text-destructive hover:bg-destructive hover:text-white cursor-pointer" onClick={() => handleSwipe('left')}><X className="w-6 h-6" /></Button>
         {canUndo && <Button size="lg" variant="outline" className="w-12 h-12 rounded-full cursor-pointer" onClick={handleUndo}><Undo2 className="w-5 h-5" /></Button>}
         <Button size="lg" className="w-14 h-14 rounded-full bg-green-500 hover:bg-green-600 text-white cursor-pointer" onClick={() => handleSwipe('right')}><Check className="w-6 h-6" /></Button>

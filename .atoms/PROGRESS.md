@@ -33,6 +33,7 @@ Build MatchMe - an AI-powered recruitment platform with swipe-based matching bet
 - [x] Build complete Company dashboard (20+ features: profile, branches, recruiters, jobs CRUD, pipeline, matching, analytics, billing, team, settings)
 - [x] Build complete Job Seeker experience (18 sections: profile, CV, experience, education, certificates, skills, languages, portfolio, video intro, preferences, saved jobs, applications, matches, messages, notifications, settings, swipe discover, dashboard)
 - [x] Implement MatchMe matching engine (bidirectional swipe, duplicate prevention, swipe history, undo, match expiration, smart ranking with 7 weighted factors, recommendations, real-time notifications, compatibility scoring)
+- [x] Implement AI-powered matching engine (embeddings, semantic similarity, 10-factor scoring, explainable recommendations, adaptive learning from interactions)
 - [ ] Build Admin dashboard pages (/admin/*)
 - [x] Add comprehensive i18n with Arabic/RTL support to shared package
 
