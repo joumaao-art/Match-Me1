@@ -1,33 +1,45 @@
+/**
+ * Authentication page.
+ * Handles role selection, login, registration, email verification,
+ * and password recovery for Job Seekers and Companies.
+ */
+
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useAuth } from '@/App';
-import { supabase } from '@/lib/supabase';
+import { useAuthStore } from '@/stores';
+import { authService } from '@/services';
 import { changeLanguage } from '@/lib/i18n';
+import { VALIDATION, ROUTES } from '@/config/constants';
 import { toast } from 'sonner';
-import { Sparkles, UserCircle, Building2, ArrowLeft, Globe, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Sparkles, UserCircle, Building2, ArrowLeft, Globe, Mail, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 
 type AuthView = 'role_select' | 'login' | 'register' | 'forgot_password' | 'verify_email';
 
 export default function Auth() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { user, userRole, setUserRole } = useAuth();
-  
+  const { isAuthenticated, userRole, setUserRole, setRememberMe } = useAuthStore();
+
   const [view, setView] = useState<AuthView>('role_select');
   const [selectedRole, setSelectedRole] = useState<'job_seeker' | 'company' | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMeLocal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState(0);
+
+  // Get intended destination from navigation state
+  const from = (location.state as any)?.from?.pathname;
 
   useEffect(() => {
     const roleParam = searchParams.get('role') as 'job_seeker' | 'company' | null;
@@ -37,11 +49,25 @@ export default function Auth() {
     }
   }, [searchParams]);
 
+  // Redirect if already authenticated
   useEffect(() => {
-    if (user && userRole) {
-      navigate(userRole === 'company' ? '/company' : '/seeker');
+    if (isAuthenticated && userRole) {
+      const destination = from || (userRole === 'company' ? ROUTES.COMPANY : ROUTES.SEEKER);
+      navigate(destination, { replace: true });
     }
-  }, [user, userRole, navigate]);
+  }, [isAuthenticated, userRole, navigate, from]);
+
+  // Password strength calculator
+  useEffect(() => {
+    if (!password) { setPasswordStrength(0); return; }
+    let strength = 0;
+    if (password.length >= 6) strength += 1;
+    if (password.length >= 8) strength += 1;
+    if (/[A-Z]/.test(password)) strength += 1;
+    if (/[0-9]/.test(password)) strength += 1;
+    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+    setPasswordStrength(strength);
+  }, [password]);
 
   const handleRoleSelect = (role: 'job_seeker' | 'company') => {
     setSelectedRole(role);
@@ -51,17 +77,46 @@ export default function Auth() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error('Please fill in all fields');
+      toast.error(t('fill_all_fields'));
       return;
     }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      setUserRole(selectedRole);
-      navigate(selectedRole === 'company' ? '/company' : '/seeker');
+      const { data, error } = await authService.signIn({ email, password });
+      if (error) {
+        toast.error(error.message || t('login_failed'));
+        return;
+      }
+
+      // Set remember me preference
+      setRememberMe(rememberMe);
+
+      const session = (data as any)?.session;
+      const user = session?.user;
+
+      if (user) {
+        // Fetch role from database
+        const dbRole = await authService.getUserRole(user.id);
+
+        if (dbRole) {
+          setUserRole(dbRole);
+          // Redirect based on role
+          const destination = dbRole === 'company' ? ROUTES.COMPANY : ROUTES.SEEKER;
+          navigate(from || destination, { replace: true });
+        } else if (selectedRole) {
+          // First login after registration - create profile with selected role
+          await authService.createUserProfile(user.id, selectedRole);
+          await authService.createRoleProfile(user.id, selectedRole, user.email || '');
+          setUserRole(selectedRole);
+          navigate(selectedRole === 'company' ? ROUTES.COMPANY : ROUTES.SEEKER, { replace: true });
+        } else {
+          // No role found and none selected - go to role selection
+          setView('role_select');
+          toast.info(t('select_role'));
+        }
+      }
     } catch (error: any) {
-      toast.error(error.message || 'Login failed');
+      toast.error(error.message || t('login_failed'));
     } finally {
       setLoading(false);
     }
@@ -70,28 +125,45 @@ export default function Auth() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password || !confirmPassword) {
-      toast.error('Please fill in all fields');
+      toast.error(t('fill_all_fields'));
       return;
     }
     if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error(t('passwords_dont_match'));
       return;
     }
-    if (password.length < 6) {
-      toast.error('Password must be at least 6 characters');
+    if (password.length < VALIDATION.MIN_PASSWORD_LENGTH) {
+      toast.error(t('password_too_short'));
       return;
     }
+    if (!selectedRole) {
+      toast.error(t('select_role'));
+      return;
+    }
+
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { emailRedirectTo: window.location.origin }
-      });
-      if (error) throw error;
-      setView('verify_email');
+      const { data, error } = await authService.signUp({ email, password, role: selectedRole });
+      if (error) {
+        toast.error(error.message || t('registration_failed'));
+        return;
+      }
+
+      const user = (data as any)?.user;
+
+      // If email confirmation is required, show verification screen
+      if (user && !user.email_confirmed_at) {
+        setView('verify_email');
+        toast.success(t('verification_email_sent'));
+      } else if (user) {
+        // Email confirmation disabled in Supabase settings - auto-login
+        await authService.createUserProfile(user.id, selectedRole);
+        await authService.createRoleProfile(user.id, selectedRole, email);
+        setUserRole(selectedRole);
+        navigate(selectedRole === 'company' ? ROUTES.COMPANY : ROUTES.SEEKER, { replace: true });
+      }
     } catch (error: any) {
-      toast.error(error.message || 'Registration failed');
+      toast.error(error.message || t('registration_failed'));
     } finally {
       setLoading(false);
     }
@@ -100,19 +172,37 @@ export default function Auth() {
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) {
-      toast.error('Please enter your email');
+      toast.error(t('enter_email'));
       return;
     }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      });
-      if (error) throw error;
-      toast.success('Password reset email sent!');
+      const { error } = await authService.resetPassword(email);
+      if (error) {
+        toast.error(error.message || t('reset_failed'));
+        return;
+      }
+      toast.success(t('reset_email_sent'));
       setView('login');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to send reset email');
+      toast.error(error.message || t('reset_failed'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!email) return;
+    setLoading(true);
+    try {
+      const { error } = await authService.resendVerification(email);
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      toast.success(t('verification_resent'));
+    } catch (error: any) {
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -123,6 +213,22 @@ export default function Auth() {
     changeLanguage(newLang);
   };
 
+  const getPasswordStrengthColor = () => {
+    if (passwordStrength <= 1) return 'bg-red-500';
+    if (passwordStrength <= 2) return 'bg-orange-500';
+    if (passwordStrength <= 3) return 'bg-yellow-500';
+    if (passwordStrength <= 4) return 'bg-green-400';
+    return 'bg-green-600';
+  };
+
+  const getPasswordStrengthText = () => {
+    if (passwordStrength <= 1) return t('weak');
+    if (passwordStrength <= 2) return t('fair');
+    if (passwordStrength <= 3) return t('good');
+    if (passwordStrength <= 4) return t('strong');
+    return t('very_strong');
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Top bar */}
@@ -130,9 +236,20 @@ export default function Auth() {
         <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="cursor-pointer">
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={toggleLang} className="cursor-pointer">
-          <Globe className="w-4 h-4" />
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(ROUTES.ADMIN_LOGIN)}
+            className="cursor-pointer text-xs text-muted-foreground"
+          >
+            <ShieldCheck className="w-3 h-3 me-1" />
+            Admin
+          </Button>
+          <Button variant="ghost" size="icon" onClick={toggleLang} className="cursor-pointer">
+            <Globe className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
       <div className="flex-1 flex items-center justify-center px-4 pb-8">
@@ -150,7 +267,7 @@ export default function Auth() {
             <div className="space-y-4">
               <h2 className="text-xl font-semibold font-[Poppins] text-center mb-6">{t('i_am')}</h2>
               <Card
-                className="cursor-pointer border-2 hover:border-primary/50 transition-smooth"
+                className="cursor-pointer border-2 hover:border-primary/50 transition-all duration-200"
                 onClick={() => handleRoleSelect('job_seeker')}
               >
                 <CardContent className="p-6 flex items-center gap-4">
@@ -164,7 +281,7 @@ export default function Auth() {
                 </CardContent>
               </Card>
               <Card
-                className="cursor-pointer border-2 hover:border-accent/50 transition-smooth"
+                className="cursor-pointer border-2 hover:border-accent/50 transition-all duration-200"
                 onClick={() => handleRoleSelect('company')}
               >
                 <CardContent className="p-6 flex items-center gap-4">
@@ -202,6 +319,7 @@ export default function Auth() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="ps-10"
+                        autoComplete="email"
                       />
                     </div>
                   </div>
@@ -216,6 +334,7 @@ export default function Auth() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="ps-10 pe-10"
+                        autoComplete="current-password"
                       />
                       <Button
                         type="button"
@@ -233,7 +352,7 @@ export default function Auth() {
                       <Checkbox
                         id="remember"
                         checked={rememberMe}
-                        onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                        onCheckedChange={(checked) => setRememberMeLocal(checked as boolean)}
                       />
                       <Label htmlFor="remember" className="text-sm cursor-pointer">{t('remember_me')}</Label>
                     </div>
@@ -290,6 +409,7 @@ export default function Auth() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="ps-10"
+                        autoComplete="email"
                       />
                     </div>
                   </div>
@@ -304,6 +424,7 @@ export default function Auth() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="ps-10 pe-10"
+                        autoComplete="new-password"
                       />
                       <Button
                         type="button"
@@ -315,6 +436,22 @@ export default function Auth() {
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </Button>
                     </div>
+                    {/* Password strength indicator */}
+                    {password && (
+                      <div className="space-y-1">
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map((level) => (
+                            <div
+                              key={level}
+                              className={`h-1 flex-1 rounded-full transition-colors ${
+                                level <= passwordStrength ? getPasswordStrengthColor() : 'bg-muted'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <p className="text-xs text-muted-foreground">{getPasswordStrengthText()}</p>
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="reg-confirm">{t('confirm_password')}</Label>
@@ -324,9 +461,17 @@ export default function Auth() {
                       placeholder="••••••••"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
+                      autoComplete="new-password"
                     />
+                    {confirmPassword && password !== confirmPassword && (
+                      <p className="text-xs text-destructive">{t('passwords_dont_match')}</p>
+                    )}
                   </div>
-                  <Button type="submit" className="w-full cursor-pointer" disabled={loading}>
+                  <Button
+                    type="submit"
+                    className="w-full cursor-pointer"
+                    disabled={loading || (!!confirmPassword && password !== confirmPassword)}
+                  >
                     {loading ? t('loading') : t('register')}
                   </Button>
                 </form>
@@ -345,18 +490,24 @@ export default function Auth() {
             <Card>
               <CardHeader className="text-center">
                 <CardTitle className="font-[Poppins]">{t('reset_password')}</CardTitle>
+                <CardDescription>{t('reset_password_desc')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleForgotPassword} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="reset-email">{t('email')}</Label>
-                    <Input
-                      id="reset-email"
-                      type="email"
-                      placeholder="name@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
+                    <div className="relative">
+                      <Mail className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        id="reset-email"
+                        type="email"
+                        placeholder="name@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="ps-10"
+                        autoComplete="email"
+                      />
+                    </div>
                   </div>
                   <Button type="submit" className="w-full cursor-pointer" disabled={loading}>
                     {loading ? t('loading') : t('send_reset_email')}
@@ -383,9 +534,19 @@ export default function Auth() {
                 </div>
                 <h2 className="text-xl font-semibold font-[Poppins] mb-2">{t('verify_email')}</h2>
                 <p className="text-muted-foreground mb-6">{t('verify_email_msg')}</p>
-                <Button onClick={() => setView('login')} className="cursor-pointer">
-                  {t('back')} {t('login')}
-                </Button>
+                <div className="space-y-3">
+                  <Button onClick={() => setView('login')} className="w-full cursor-pointer">
+                    {t('back_to_login')}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleResendVerification}
+                    disabled={loading}
+                    className="w-full cursor-pointer"
+                  >
+                    {loading ? t('loading') : t('resend_verification')}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}

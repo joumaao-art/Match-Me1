@@ -2,12 +2,26 @@
  * Authentication and user-related types.
  */
 
-export type UserRole = 'job_seeker' | 'company';
+export type UserRole = 'job_seeker' | 'company' | 'admin';
 
 export interface UserProfile {
   id: string;
   user_id: string;
   role: UserRole;
+  avatar_url?: string;
+  display_name?: string;
+  onboarding_completed: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminUser {
+  id: string;
+  user_id: string;
+  display_name: string;
+  permissions: string[];
+  is_active: boolean;
+  last_login_at?: string;
   created_at: string;
   updated_at: string;
 }
@@ -36,6 +50,7 @@ export interface AuthSession {
 export interface LoginCredentials {
   email: string;
   password: string;
+  rememberMe?: boolean;
 }
 
 export interface RegisterCredentials {
@@ -46,4 +61,8 @@ export interface RegisterCredentials {
 
 export interface ResetPasswordRequest {
   email: string;
+}
+
+export interface UpdatePasswordRequest {
+  password: string;
 }
