@@ -30,6 +30,7 @@ Build MatchMe - an AI-powered recruitment platform with swipe-based matching bet
 - [x] Configure pnpm workspace monorepo
 - [x] Refactor web app to import from shared packages
 - [ ] Refactor mobile app to import from shared packages
+- [x] Build complete Company dashboard (20+ features: profile, branches, recruiters, jobs CRUD, pipeline, matching, analytics, billing, team, settings)
 - [ ] Build Admin dashboard pages (/admin/*)
 - [x] Add comprehensive i18n with Arabic/RTL support to shared package
 
