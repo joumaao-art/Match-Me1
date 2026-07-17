@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -20,8 +20,11 @@ import {
   Globe, Moon, Sun, Building2, MapPin, Briefcase, GraduationCap, X, Check,
   ChevronRight, User, BarChart3, CreditCard, Bell, FileText, Award,
   Languages, Video, Sliders, Clock, Plus, Edit, Trash2, Upload,
-  ExternalLink, Star, Eye, Calendar, Download, Link2, Layers
+  ExternalLink, Star, Eye, Calendar, Download, Link2, Layers, Undo2,
+  TrendingUp, Zap, Target, Weight
 } from 'lucide-react';
+import { useMatchingEngine } from '@/lib/useMatchingEngine';
+import { SeekerProfile, VacancyProfile, DEFAULT_WEIGHTS } from '@/lib/matching-engine';
 
 // ============================================================
 // Mock Data
@@ -165,23 +168,69 @@ function SeekerNav({ activeTab, setActiveTab }: { activeTab: NavSection; setActi
 }
 
 // ============================================================
-// Swipe View
+// Mock Seeker Profile (for matching engine)
 // ============================================================
 
-function SwipeCard({ job, onSwipe }: { job: typeof mockJobs[0]; onSwipe: (dir: 'left' | 'right') => void }) {
+const CURRENT_SEEKER: SeekerProfile = {
+  id: 'seeker-1',
+  skills: ['React', 'TypeScript', 'Node.js', 'Tailwind CSS', 'PostgreSQL'],
+  experienceYears: 5,
+  location: { country: 'UAE', city: 'Dubai' },
+  expectedSalaryMin: 8000,
+  expectedSalaryMax: 15000,
+  preferredIndustries: ['Technology', 'Finance', 'E-commerce'],
+  languages: [{ name: 'Arabic', level: 'native' }, { name: 'English', level: 'advanced' }, { name: 'French', level: 'intermediate' }],
+  availability: 'two_weeks',
+  preferredLocations: ['Dubai', 'Abu Dhabi', 'Riyadh'],
+  willingToRelocate: true,
+  openToRemote: true,
+};
+
+const MOCK_VACANCIES: VacancyProfile[] = mockJobs.map(j => ({
+  id: j.id,
+  companyId: `company-${j.id}`,
+  requiredSkills: j.required_skills,
+  minExperience: j.min_experience,
+  maxExperience: j.max_experience,
+  location: { country: j.country, city: j.city },
+  salaryMin: j.salary_min,
+  salaryMax: j.salary_max,
+  industry: j.industry,
+  requiredLanguages: ['English'],
+  employmentType: j.employment_type,
+  isRemote: j.employment_type === 'remote',
+}));
+
+// ============================================================
+// Swipe View (with Matching Engine)
+// ============================================================
+
+function SwipeCard({ job, score, onSwipe }: { job: typeof mockJobs[0]; score: number; onSwipe: (dir: 'left' | 'right') => void }) {
   const { t } = useTranslation();
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-15, 15]);
   const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0.5, 1, 1, 1, 0.5]);
+  const leftIndicatorOpacity = useTransform(x, [-150, -50, 0], [1, 0.5, 0]);
+  const rightIndicatorOpacity = useTransform(x, [0, 50, 150], [0, 0.5, 1]);
   const handleDragEnd = (_: any, info: PanInfo) => { if (info.offset.x > 100) onSwipe('right'); else if (info.offset.x < -100) onSwipe('left'); };
   const typeLabel = (type: string) => { const m: Record<string, string> = { full_time: t('full_time'), part_time: t('part_time'), contract: t('contract'), remote: t('remote'), internship: t('internship') }; return m[type] || type; };
 
+  const scoreColor = score >= 85 ? 'text-green-600' : score >= 70 ? 'text-primary' : score >= 50 ? 'text-amber-600' : 'text-muted-foreground';
+
   return (
     <motion.div className="absolute inset-0 cursor-grab active:cursor-grabbing" style={{ x, rotate, opacity }} drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.7} onDragEnd={handleDragEnd}>
+      {/* Swipe direction indicators */}
+      <motion.div className="absolute top-6 start-6 z-10 px-3 py-1 rounded-lg border-2 border-destructive text-destructive font-bold rotate-[-12deg]" style={{ opacity: leftIndicatorOpacity }}>{t('reject')}</motion.div>
+      <motion.div className="absolute top-6 end-6 z-10 px-3 py-1 rounded-lg border-2 border-green-500 text-green-500 font-bold rotate-[12deg]" style={{ opacity: rightIndicatorOpacity }}>{t('interested')}</motion.div>
+
       <Card className="h-full flex flex-col overflow-hidden border-2"><CardContent className="flex-1 p-6 flex flex-col">
         <div className="flex justify-between items-start mb-4">
           <div className="flex items-center gap-3"><div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center"><Building2 className="w-7 h-7 text-primary" /></div><div><h3 className="font-semibold font-[Poppins]">{job.company_name}</h3><p className="text-sm text-muted-foreground">{job.industry}</p></div></div>
-          <div className="text-end"><div className="text-2xl font-bold text-primary font-[Poppins]">{job.compatibility_score}%</div><p className="text-xs text-muted-foreground">{t('match_score')}</p></div>
+          <div className="text-end">
+            <div className={`text-2xl font-bold font-[Poppins] ${scoreColor}`}>{score}%</div>
+            <p className="text-xs text-muted-foreground">{t('match_score')}</p>
+            <div className="flex items-center gap-0.5 mt-1 justify-end">{[...Array(5)].map((_, i) => <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < Math.round(score / 20) ? 'bg-primary' : 'bg-muted'}`} />)}</div>
+          </div>
         </div>
         <h2 className="text-xl font-bold font-[Poppins] mb-3">{job.job_title}</h2>
         <div className="flex flex-wrap gap-2 mb-4">
@@ -190,7 +239,10 @@ function SwipeCard({ job, onSwipe }: { job: typeof mockJobs[0]; onSwipe: (dir: '
           <Badge variant="secondary" className="gap-1"><GraduationCap className="w-3 h-3" />{job.min_experience}-{job.max_experience} {t('years_exp')}</Badge>
         </div>
         <p className="text-sm text-muted-foreground mb-4 flex-1">{job.job_description}</p>
-        <div className="mb-4"><p className="text-xs font-medium text-muted-foreground mb-2">{t('required_skills')}</p><div className="flex flex-wrap gap-1.5">{job.required_skills.map(s => <Badge key={s} variant="outline" className="text-xs">{s}</Badge>)}</div></div>
+        <div className="mb-4"><p className="text-xs font-medium text-muted-foreground mb-2">{t('required_skills')}</p><div className="flex flex-wrap gap-1.5">{job.required_skills.map(s => {
+          const hasSkill = CURRENT_SEEKER.skills.map(sk => sk.toLowerCase()).includes(s.toLowerCase());
+          return <Badge key={s} variant={hasSkill ? 'default' : 'outline'} className={`text-xs ${hasSkill ? '' : 'opacity-60'}`}>{s}{hasSkill && <Check className="w-2.5 h-2.5 ms-0.5" />}</Badge>;
+        })}</div></div>
         {job.salary_min && <div className="bg-muted/50 rounded-lg p-3 text-center"><p className="text-sm font-medium">${job.salary_min.toLocaleString()} - ${job.salary_max?.toLocaleString()} {t('per_month')}</p></div>}
       </CardContent></Card>
     </motion.div>
@@ -199,24 +251,91 @@ function SwipeCard({ job, onSwipe }: { job: typeof mockJobs[0]; onSwipe: (dir: '
 
 function SwipeView() {
   const { t } = useTranslation();
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const engine = useMatchingEngine(CURRENT_SEEKER.id, 'job_seeker');
   const [showMatch, setShowMatch] = useState(false);
-  const handleSwipe = (dir: 'left' | 'right') => { if (dir === 'right' && Math.random() > 0.6) { setShowMatch(true); setTimeout(() => setShowMatch(false), 2500); } setCurrentIndex(p => p + 1); };
-  const currentJob = mockJobs[currentIndex];
+  const [lastSwipedJob, setLastSwipedJob] = useState<typeof mockJobs[0] | null>(null);
+  const [canUndo, setCanUndo] = useState(false);
+
+  // Get recommended jobs sorted by score
+  const recommendedJobs = useMemo(() => {
+    return engine.getRecommendedJobs(CURRENT_SEEKER, MOCK_VACANCIES).map(r => {
+      const job = mockJobs.find(j => j.id === r.vacancy.id)!;
+      return { ...job, compatibility_score: r.score };
+    }).filter(Boolean);
+  }, [engine.swipeHistory.length]);
+
+  const currentJob = recommendedJobs[0];
+
+  const handleSwipe = useCallback((dir: 'left' | 'right') => {
+    if (!currentJob) return;
+    const result = engine.swipe(currentJob.id, 'company', dir, currentJob.id);
+    setLastSwipedJob(currentJob);
+    setCanUndo(true);
+
+    if (dir === 'right' && result?.match) {
+      setShowMatch(true);
+      setTimeout(() => setShowMatch(false), 2500);
+      toast.success(t('its_a_match'));
+    } else if (dir === 'right') {
+      // Simulate company also swiping right sometimes for demo
+      if (Math.random() > 0.5) {
+        setTimeout(() => {
+          engine.swipe(currentJob.id, 'company', 'right');
+          // Now try the seeker swipe again to trigger match check
+        }, 500);
+      }
+      toast(t('interest_recorded'));
+    } else {
+      toast(t('job_skipped'));
+    }
+  }, [currentJob, engine, t]);
+
+  const handleUndo = useCallback(() => {
+    const undone = engine.undoLastSwipe();
+    if (undone) {
+      setCanUndo(false);
+      toast.success(t('swipe_undone'));
+    }
+  }, [engine, t]);
 
   if (!currentJob) return (
-    <div className="flex-1 flex items-center justify-center p-8"><div className="text-center"><Heart className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" /><h3 className="text-lg font-semibold font-[Poppins] mb-2">{t('no_more_jobs')}</h3><p className="text-sm text-muted-foreground mb-4">{t('check_back_later')}</p><Button onClick={() => setCurrentIndex(0)} className="cursor-pointer">{t('start_over')}</Button></div></div>
+    <div className="flex-1 flex items-center justify-center p-8"><div className="text-center"><Heart className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" /><h3 className="text-lg font-semibold font-[Poppins] mb-2">{t('no_more_jobs')}</h3><p className="text-sm text-muted-foreground mb-4">{t('check_back_later')}</p>
+      <div className="flex flex-col gap-2 items-center">
+        {canUndo && <Button variant="outline" onClick={handleUndo} className="cursor-pointer gap-2"><Undo2 className="w-4 h-4" />{t('undo_last_swipe')}</Button>}
+      </div>
+    </div></div>
   );
 
   return (
     <div className="flex-1 flex flex-col p-4 max-w-lg mx-auto w-full">
-      <h2 className="text-xl font-bold font-[Poppins] mb-4">{t('discover')}</h2>
-      <div className="flex-1 relative min-h-[500px]">{mockJobs.slice(currentIndex, currentIndex + 2).reverse().map((job, i) => <SwipeCard key={job.id} job={job} onSwipe={i === mockJobs.slice(currentIndex, currentIndex + 2).length - 1 ? handleSwipe : () => {}} />)}</div>
-      <div className="flex justify-center gap-6 mt-4 pb-4">
-        <Button size="lg" variant="outline" className="w-16 h-16 rounded-full border-2 border-destructive text-destructive hover:bg-destructive hover:text-white cursor-pointer" onClick={() => handleSwipe('left')}><X className="w-6 h-6" /></Button>
-        <Button size="lg" className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 text-white cursor-pointer" onClick={() => handleSwipe('right')}><Check className="w-6 h-6" /></Button>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold font-[Poppins]">{t('discover')}</h2>
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="text-xs gap-1"><Zap className="w-3 h-3" />{recommendedJobs.length} {t('remaining')}</Badge>
+          {canUndo && <Button size="sm" variant="ghost" onClick={handleUndo} className="cursor-pointer gap-1 text-xs"><Undo2 className="w-3 h-3" />{t('undo')}</Button>}
+        </div>
       </div>
-      {showMatch && <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center"><div className="text-center p-8"><div className="w-24 h-24 rounded-full bg-green-500 flex items-center justify-center mx-auto mb-4"><Heart className="w-12 h-12 text-white fill-white" /></div><h2 className="text-3xl font-bold text-white font-[Poppins] mb-2">{t('its_a_match')}</h2><p className="text-white/80">{t('match_message', { company: currentJob?.company_name })}</p></div></div>}
+
+      {/* Swipe stats bar */}
+      <div className="flex items-center gap-4 mb-3 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" />{t('match_rate')}: {engine.stats.matchRate}%</span>
+        <span className="flex items-center gap-1"><Heart className="w-3 h-3" />{engine.stats.rightSwipes} {t('liked')}</span>
+        <span className="flex items-center gap-1"><X className="w-3 h-3" />{engine.stats.leftSwipes} {t('passed')}</span>
+      </div>
+
+      <div className="flex-1 relative min-h-[500px]">
+        {recommendedJobs.slice(0, 2).reverse().map((job, i) => (
+          <SwipeCard key={job.id} job={job} score={job.compatibility_score} onSwipe={i === Math.min(recommendedJobs.length, 2) - 1 ? handleSwipe : () => {}} />
+        ))}
+      </div>
+
+      <div className="flex justify-center items-center gap-4 mt-4 pb-4">
+        <Button size="lg" variant="outline" className="w-14 h-14 rounded-full border-2 border-destructive text-destructive hover:bg-destructive hover:text-white cursor-pointer" onClick={() => handleSwipe('left')}><X className="w-6 h-6" /></Button>
+        {canUndo && <Button size="lg" variant="outline" className="w-12 h-12 rounded-full cursor-pointer" onClick={handleUndo}><Undo2 className="w-5 h-5" /></Button>}
+        <Button size="lg" className="w-14 h-14 rounded-full bg-green-500 hover:bg-green-600 text-white cursor-pointer" onClick={() => handleSwipe('right')}><Check className="w-6 h-6" /></Button>
+      </div>
+
+      {showMatch && <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center animate-in fade-in"><div className="text-center p-8"><div className="w-24 h-24 rounded-full bg-green-500 flex items-center justify-center mx-auto mb-4"><Heart className="w-12 h-12 text-white fill-white" /></div><h2 className="text-3xl font-bold text-white font-[Poppins] mb-2">{t('its_a_match')}</h2><p className="text-white/80">{t('match_message', { company: currentJob?.company_name })}</p><Button className="mt-4 cursor-pointer" variant="secondary" onClick={() => setShowMatch(false)}>{t('send_message')}</Button></div></div>}
     </div>
   );
 }

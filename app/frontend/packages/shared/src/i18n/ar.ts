@@ -432,6 +432,34 @@ export const ar = {
   email_interview_body: '{{company}} ترغب في جدولة مقابلة معك.',
 
   // ============================================================
+  // Matching Engine
+  // ============================================================
+  interested: 'مهتم',
+  reject: 'تمرير',
+  interest_recorded: 'تم تسجيل الاهتمام! في انتظار تطابق متبادل.',
+  job_skipped: 'تم تخطي الوظيفة',
+  swipe_undone: 'تم التراجع عن آخر تمرير',
+  undo_last_swipe: 'التراجع عن آخر تمرير',
+  undo: 'تراجع',
+  remaining: 'وظائف متبقية',
+  match_rate: 'معدل التطابق',
+  liked: 'أُعجب',
+  passed: 'تم تمريره',
+  send_message: 'إرسال رسالة',
+  matching_weights: 'أوزان التطابق',
+  skills_weight: 'المهارات',
+  experience_weight: 'الخبرة',
+  location_weight: 'الموقع',
+  salary_weight: 'الراتب',
+  industry_weight: 'القطاع',
+  language_weight: 'اللغة',
+  availability_weight: 'التوفر',
+  score_breakdown: 'تفصيل النتيجة',
+  mutual_match_required: 'يجب أن يعبر الطرفان عن اهتمامهما للحصول على تطابق',
+  match_expires_in: 'ينتهي التطابق خلال',
+  days_remaining: 'أيام',
+
+  // ============================================================
   // Job Seeker Extended
   // ============================================================
   profile_views: 'مشاهدات الملف',

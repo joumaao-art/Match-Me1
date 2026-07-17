@@ -432,6 +432,34 @@ export const en = {
   email_interview_body: '{{company}} would like to schedule an interview with you.',
 
   // ============================================================
+  // Matching Engine
+  // ============================================================
+  interested: 'Interested',
+  reject: 'Pass',
+  interest_recorded: 'Interest recorded! Waiting for mutual match.',
+  job_skipped: 'Job skipped',
+  swipe_undone: 'Last swipe undone',
+  undo_last_swipe: 'Undo Last Swipe',
+  undo: 'Undo',
+  remaining: 'jobs left',
+  match_rate: 'Match rate',
+  liked: 'liked',
+  passed: 'passed',
+  send_message: 'Send Message',
+  matching_weights: 'Matching Weights',
+  skills_weight: 'Skills',
+  experience_weight: 'Experience',
+  location_weight: 'Location',
+  salary_weight: 'Salary',
+  industry_weight: 'Industry',
+  language_weight: 'Language',
+  availability_weight: 'Availability',
+  score_breakdown: 'Score Breakdown',
+  mutual_match_required: 'Both sides must express interest for a match',
+  match_expires_in: 'Match expires in',
+  days_remaining: 'days',
+
+  // ============================================================
   // Job Seeker Extended
   // ============================================================
   profile_views: 'Profile Views',
