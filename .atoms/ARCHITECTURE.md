@@ -38,11 +38,46 @@ MatchMe is a bilingual (EN/AR) recruitment platform with swipe-based job matchin
 | Payments | Stripe via Edge Function | Secure server-side, supports Apple/Google Pay |
 
 ## File Tree Plan
+
+### Web App (app/frontend/)
 ```
 src/
+├── config/
+│   ├── env.ts             # Environment variables with validation
+│   └── constants.ts       # App-wide constants (routes, limits, keys)
+├── types/
+│   ├── index.ts           # Barrel export
+│   ├── auth.types.ts      # Auth/user types
+│   ├── job.types.ts       # Job/vacancy/match types
+│   ├── company.types.ts   # Company types
+│   ├── messaging.types.ts # Message/conversation types
+│   └── subscription.types.ts # Billing types
+├── services/
+│   ├── index.ts           # Barrel export
+│   ├── api-client.ts      # Base Supabase client with error handling
+│   ├── auth.service.ts    # Authentication operations
+│   ├── job.service.ts     # Job/vacancy CRUD
+│   ├── message.service.ts # Real-time messaging
+│   └── subscription.service.ts # Billing/Stripe
+├── stores/
+│   ├── index.ts           # Barrel export
+│   ├── auth.store.ts      # Zustand auth state
+│   └── app.store.ts       # Theme/language/UI state
+├── components/
+│   ├── shared/
+│   │   ├── index.ts       # Barrel export
+│   │   ├── ErrorBoundary.tsx
+│   │   ├── PageLayout.tsx
+│   │   ├── Sidebar.tsx
+│   │   ├── EmptyState.tsx
+│   │   ├── StatCard.tsx
+│   │   └── LoadingSpinner.tsx
+│   └── ui/                # Shadcn/ui components
 ├── lib/
-│   ├── supabase.ts        # Supabase client + types
-│   └── i18n.ts            # i18n setup + translations
+│   ├── supabase.ts        # Backward-compat re-export
+│   ├── i18n.ts            # i18n setup + translations
+│   ├── logger.ts          # Structured logging utility
+│   └── utils.ts           # Utility functions
 ├── pages/
 │   ├── Index.tsx          # Landing page
 │   ├── Auth.tsx           # Login/Register/Role selection
@@ -50,8 +85,46 @@ src/
 │   ├── Company.tsx        # Company dashboard + vacancies
 │   ├── Messages.tsx       # Real-time messaging
 │   └── Subscription.tsx   # Plans + Stripe checkout
-├── App.tsx                # Router + providers
+├── App.tsx                # Router + providers + auth init
 └── index.css              # Theme + global styles
+```
+
+### Mobile App (app/mobile/)
+```
+src/
+├── config/
+│   ├── env.ts             # Expo environment variables
+│   └── constants.ts       # App-wide constants
+├── types/
+│   └── index.ts           # All shared types
+├── services/
+│   ├── index.ts           # Barrel export
+│   ├── api-client.ts      # Supabase client with error handling
+│   ├── auth.service.ts    # Authentication operations
+│   ├── job.service.ts     # Job/vacancy operations
+│   └── message.service.ts # Messaging operations
+├── stores/
+│   ├── index.ts           # Barrel export
+│   ├── auth.store.ts      # Zustand + AsyncStorage
+│   └── app.store.ts       # Theme/language state
+├── theme/
+│   ├── index.ts           # Barrel export
+│   ├── colors.ts          # Color palette (light/dark)
+│   └── spacing.ts         # Spacing/typography tokens
+├── hooks/
+│   └── useTheme.ts        # Theme hook
+├── screens/
+│   ├── AuthScreen.tsx     # Login/Register/Role selection
+│   ├── SeekerSwipeScreen.tsx    # Swipe job cards
+│   ├── SeekerDashboardScreen.tsx # Seeker stats
+│   ├── CompanyDashboardScreen.tsx # Company stats
+│   ├── MessagesScreen.tsx  # Chat interface
+│   └── SubscriptionScreen.tsx # Plans/billing
+├── navigation/
+│   └── AppNavigator.tsx   # Stack + Tab navigation
+└── lib/
+    └── logger.ts          # Structured logging
+App.tsx                    # Root component + auth init
 ```
 
 ## Implementation Guide

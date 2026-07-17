@@ -1,13 +1,20 @@
+/**
+ * Application root component.
+ * Sets up providers, routing, and global state initialization.
+ */
+
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '@/lib/supabase';
-import type { User, Session } from '@supabase/supabase-js';
+import { ErrorBoundary } from '@/components/shared';
+import { useAuthStore, useAppStore } from '@/stores';
+import { authService } from '@/services';
 import '@/lib/i18n';
 
+// Page imports
 import Index from './pages/Index';
 import Auth from './pages/Auth';
 import JobSeeker from './pages/JobSeeker';
@@ -15,80 +22,56 @@ import Company from './pages/Company';
 import Messages from './pages/Messages';
 import Subscription from './pages/Subscription';
 
-// Auth Context
-interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  userRole: 'job_seeker' | 'company' | null;
-  setUserRole: (role: 'job_seeker' | 'company' | null) => void;
-  loading: boolean;
-  signOut: () => Promise<void>;
-}
-
-export const AuthContext = createContext<AuthContextType>({
-  user: null,
-  session: null,
-  userRole: null,
-  setUserRole: () => {},
-  loading: true,
-  signOut: async () => {},
+// Query client configuration
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 2,
+      refetchOnWindowFocus: false,
+    },
+  },
 });
 
-export const useAuth = () => useContext(AuthContext);
-
-const queryClient = new QueryClient();
-
-function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [userRole, setUserRole] = useState<'job_seeker' | 'company' | null>(
-    (localStorage.getItem('matchme-role') as 'job_seeker' | 'company') || null
-  );
-  const [loading, setLoading] = useState(true);
+/**
+ * Auth initialization hook.
+ * Listens to Supabase auth state changes and syncs with Zustand store.
+ */
+function useAuthInit() {
+  const { setUser, setLoading, reset } = useAuthStore();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+    // Get initial session
+    authService.getSession().then(({ data }) => {
+      const session = (data as any)?.session;
+      if (session?.user) {
+        setUser(session.user.id, session.user.email || '');
+      } else {
+        setLoading(false);
+      }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+    // Listen for auth changes
+    const { data: { subscription } } = authService.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser(session.user.id, session.user.email || '');
+      } else {
+        reset();
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
-
-  const handleSetRole = (role: 'job_seeker' | 'company' | null) => {
-    setUserRole(role);
-    if (role) {
-      localStorage.setItem('matchme-role', role);
-    } else {
-      localStorage.removeItem('matchme-role');
-    }
-  };
-
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
-    handleSetRole(null);
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, session, userRole, setUserRole: handleSetRole, loading, signOut }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  }, [setUser, setLoading, reset]);
 }
 
+/**
+ * Protected route wrapper.
+ * Redirects unauthenticated users to login.
+ */
 function ProtectedRoute({ children, requiredRole }: { children: React.ReactNode; requiredRole?: string }) {
-  const { user, userRole, loading } = useAuth();
+  const { isAuthenticated, userRole, isLoading } = useAuthStore();
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -96,64 +79,20 @@ function ProtectedRoute({ children, requiredRole }: { children: React.ReactNode;
     );
   }
 
-  if (!user) return <Navigate to="/auth" replace />;
+  if (!isAuthenticated) return <Navigate to="/auth" replace />;
   if (requiredRole && userRole !== requiredRole) return <Navigate to="/auth" replace />;
 
   return <>{children}</>;
 }
 
-const AppRoutes = () => (
-  <Routes>
-    <Route path="/" element={<Index />} />
-    <Route path="/auth" element={<Auth />} />
-    <Route path="/auth/callback" element={<AuthCallbackHandler />} />
-    <Route
-      path="/seeker/*"
-      element={
-        <ProtectedRoute requiredRole="job_seeker">
-          <JobSeeker />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/company/*"
-      element={
-        <ProtectedRoute requiredRole="company">
-          <Company />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/messages/*"
-      element={
-        <ProtectedRoute>
-          <Messages />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/subscription"
-      element={
-        <ProtectedRoute>
-          <Subscription />
-        </ProtectedRoute>
-      }
-    />
-    <Route path="*" element={<Navigate to="/" replace />} />
-  </Routes>
-);
-
+/**
+ * Auth callback handler for email verification and password reset.
+ */
 function AuthCallbackHandler() {
-  const { userRole } = useAuth();
-  
+  const { userRole } = useAuthStore();
+
   useEffect(() => {
-    const handleCallback = async () => {
-      const { error } = await supabase.auth.getSession();
-      if (error) {
-        window.location.href = '/auth?error=callback_failed';
-      }
-    };
-    handleCallback();
+    authService.getSession();
   }, []);
 
   if (userRole === 'company') return <Navigate to="/company" replace />;
@@ -161,26 +100,96 @@ function AuthCallbackHandler() {
   return <Navigate to="/auth" replace />;
 }
 
+/**
+ * Application routes configuration.
+ */
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route path="/auth" element={<Auth />} />
+      <Route path="/auth/callback" element={<AuthCallbackHandler />} />
+      <Route
+        path="/seeker/*"
+        element={
+          <ProtectedRoute requiredRole="job_seeker">
+            <JobSeeker />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/company/*"
+        element={
+          <ProtectedRoute requiredRole="company">
+            <Company />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/messages/*"
+        element={
+          <ProtectedRoute>
+            <Messages />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/subscription"
+        element={
+          <ProtectedRoute>
+            <Subscription />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
+/**
+ * Root App component.
+ */
 const App = () => {
   const { i18n } = useTranslation();
+  const { language } = useAppStore();
 
+  // Initialize auth state
+  useAuthInit();
+
+  // Sync language direction
   useEffect(() => {
     document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = i18n.language;
-  }, [i18n.language]);
+  }, [i18n.language, language]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <Toaster />
           <BrowserRouter>
             <AppRoutes />
           </BrowserRouter>
         </TooltipProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 };
 
 export default App;
+
+// Re-export for backward compatibility with existing pages
+export const useAuth = () => {
+  const store = useAuthStore();
+  return {
+    user: store.userId ? { id: store.userId, email: store.email } : null,
+    session: null,
+    userRole: store.userRole,
+    setUserRole: store.setUserRole,
+    loading: store.isLoading,
+    signOut: store.signOut,
+  };
+};
+
+// Legacy AuthContext export for gradual migration
+export const AuthContext = {} as any;
