@@ -35,6 +35,7 @@ Build MatchMe - an AI-powered recruitment platform with swipe-based matching bet
 - [x] Implement MatchMe matching engine (bidirectional swipe, duplicate prevention, swipe history, undo, match expiration, smart ranking with 7 weighted factors, recommendations, real-time notifications, compatibility scoring)
 - [x] Implement AI-powered matching engine (embeddings, semantic similarity, 10-factor scoring, explainable recommendations, adaptive learning from interactions)
 - [x] Build complete messaging system (realtime, read receipts, typing indicators, file/CV/image sharing, push notifications, conversation archive, block users, report users)
+- [x] Build notification center (email/push/in-app/SMS-ready channels, 8 event types, preferences, quiet hours, history, grouped timeline)
 - [ ] Build Admin dashboard pages (/admin/*)
 - [x] Add comprehensive i18n with Arabic/RTL support to shared package
 

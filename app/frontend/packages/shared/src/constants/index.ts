@@ -41,6 +41,7 @@ export const ROUTES = {
   COMPANY_PROFILE: '/company/profile',
   MESSAGES: '/messages',
   SUBSCRIPTION: '/subscription',
+  NOTIFICATIONS: '/notifications',
 } as const;
 
 // Pagination

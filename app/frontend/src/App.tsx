@@ -25,6 +25,7 @@ import JobSeeker from './pages/JobSeeker';
 import Company from './pages/Company';
 import Messages from './pages/Messages';
 import Subscription from './pages/Subscription';
+import Notifications from './pages/Notifications';
 
 // Query client configuration
 const queryClient = new QueryClient({
@@ -240,6 +241,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['job_seeker', 'company']}>
             <Subscription />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/notifications"
+        element={
+          <ProtectedRoute allowedRoles={['job_seeker', 'company', 'admin']}>
+            <Notifications />
           </ProtectedRoute>
         }
       />
