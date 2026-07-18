@@ -848,6 +848,35 @@ export const ar = {
   ai_powered: 'مدعوم بالذكاء الاصطناعي',
 
   // ============================================================
+  // Change Password
+  // ============================================================
+  change_password: 'تغيير كلمة المرور',
+  change_password_desc: 'قم بتحديث كلمة المرور للحفاظ على أمان حسابك.',
+  current_password: 'كلمة المرور الحالية',
+  enter_current_password: 'أدخل كلمة المرور الحالية',
+  enter_new_password: 'أدخل كلمة مرور جديدة',
+  confirm_new_password_placeholder: 'أعد إدخال كلمة المرور الجديدة',
+  password_strength: 'قوة كلمة المرور',
+  password_weak: 'ضعيفة',
+  password_medium: 'متوسطة',
+  password_strong: 'قوية',
+  password_very_strong: 'قوية جداً',
+  req_min_8_chars: '8 أحرف على الأقل',
+  req_uppercase: 'حرف كبير واحد على الأقل',
+  req_lowercase: 'حرف صغير واحد على الأقل',
+  req_number: 'رقم واحد على الأقل',
+  req_special_char: 'رمز خاص واحد على الأقل (!@#$%...)',
+  password_requirements_not_met: 'كلمة المرور لا تستوفي جميع المتطلبات',
+  new_password_same_as_current: 'يجب أن تكون كلمة المرور الجديدة مختلفة عن الحالية',
+  incorrect_current_password: 'كلمة المرور الحالية غير صحيحة',
+  password_too_weak: 'كلمة المرور ضعيفة جداً. يرجى اختيار كلمة مرور أقوى.',
+  password_changed_success: 'تم تغيير كلمة المرور بنجاح! حسابك مؤمن الآن بكلمة المرور الجديدة.',
+  password_change_failed: 'فشل تغيير كلمة المرور. يرجى المحاولة مرة أخرى.',
+  passwords_match: 'كلمات المرور متطابقة',
+  show_password: 'إظهار كلمة المرور',
+  hide_password: 'إخفاء كلمة المرور',
+
+  // ============================================================
   // CRUD Operations - Job Seeker
   // ============================================================
   edit_experience: 'تعديل الخبرة',

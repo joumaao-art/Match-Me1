@@ -27,6 +27,7 @@ import { useMatchingEngine } from '@/lib/useMatchingEngine';
 import { SeekerProfile, VacancyProfile, DEFAULT_WEIGHTS } from '@/lib/matching-engine';
 import { useAIMatching } from '@/lib/useAIMatching';
 import { SeekerAIProfile, VacancyAIProfile, MatchExplanation } from '@/lib/ai-matching-engine';
+import { ChangePassword } from '@/components/shared/ChangePassword';
 
 // ============================================================
 // Types
@@ -1371,6 +1372,7 @@ function SettingsView() {
           <div className="flex items-center justify-between"><Label>{t('show_online_status')}</Label><Switch checked={settings.showOnline} onCheckedChange={(v) => setSettings({...settings, showOnline: v})} /></div>
         </CardContent></Card>
         <Button className="cursor-pointer" onClick={handleSave} disabled={saving}>{saving ? t('loading') : t('save')}</Button>
+        <ChangePassword />
         <Card><CardHeader><CardTitle className="text-sm">{t('danger_zone')}</CardTitle></CardHeader><CardContent>
           <Button variant="destructive" className="cursor-pointer" onClick={() => toast.error(t('delete_account_warning'))}>{t('delete_account')}</Button>
           <p className="text-xs text-muted-foreground mt-2">{t('delete_account_warning')}</p>

@@ -848,6 +848,35 @@ export const en = {
   ai_powered: 'AI Powered',
 
   // ============================================================
+  // Change Password
+  // ============================================================
+  change_password: 'Change Password',
+  change_password_desc: 'Update your password to keep your account secure.',
+  current_password: 'Current Password',
+  enter_current_password: 'Enter your current password',
+  enter_new_password: 'Enter a new password',
+  confirm_new_password_placeholder: 'Re-enter your new password',
+  password_strength: 'Password Strength',
+  password_weak: 'Weak',
+  password_medium: 'Medium',
+  password_strong: 'Strong',
+  password_very_strong: 'Very Strong',
+  req_min_8_chars: 'At least 8 characters',
+  req_uppercase: 'At least one uppercase letter',
+  req_lowercase: 'At least one lowercase letter',
+  req_number: 'At least one number',
+  req_special_char: 'At least one special character (!@#$%...)',
+  password_requirements_not_met: 'Password does not meet all requirements',
+  new_password_same_as_current: 'New password must be different from current password',
+  incorrect_current_password: 'Current password is incorrect',
+  password_too_weak: 'Password is too weak. Please choose a stronger password.',
+  password_changed_success: 'Password changed successfully! Your account is now secured with the new password.',
+  password_change_failed: 'Failed to change password. Please try again.',
+  passwords_match: 'Passwords match',
+  show_password: 'Show password',
+  hide_password: 'Hide password',
+
+  // ============================================================
   // CRUD Operations - Job Seeker
   // ============================================================
   edit_experience: 'Edit Experience',

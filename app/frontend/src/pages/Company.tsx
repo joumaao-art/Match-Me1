@@ -23,6 +23,7 @@ import {
   TrendingUp, Calendar, Download, Filter, Search, MoreVertical, Star,
   GitBranch, Lock, Unlock, Receipt, PieChart, UserCheck, Layers
 } from 'lucide-react';
+import { ChangePassword } from '@/components/shared/ChangePassword';
 
 // ============================================================
 // Types
@@ -1021,6 +1022,7 @@ function SettingsView() {
           <div className="flex items-center justify-between"><Label>{t('show_salary_range')}</Label><Switch checked={settings.showSalary} onCheckedChange={(v) => setSettings({...settings, showSalary: v})} /></div>
         </CardContent></Card>
         <Button className="cursor-pointer" onClick={handleSave} disabled={saving}>{saving ? t('loading') : t('save')}</Button>
+        <ChangePassword />
         <Card><CardHeader><CardTitle className="text-sm">{t('danger_zone')}</CardTitle></CardHeader><CardContent>
           <Button variant="destructive" className="cursor-pointer" onClick={() => toast.error(t('delete_account_warning'))}>{t('delete_account')}</Button>
           <p className="text-xs text-muted-foreground mt-2">{t('delete_account_warning')}</p>

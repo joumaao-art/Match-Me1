@@ -10,6 +10,7 @@ import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores';
+import { ChangePassword } from '@/components/shared/ChangePassword';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -1210,6 +1211,11 @@ function SettingsSection() {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Admin Change Password */}
+      <div className="max-w-lg">
+        <ChangePassword />
       </div>
 
       <div className="flex justify-end gap-3">
