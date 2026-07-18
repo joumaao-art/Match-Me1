@@ -1,10 +1,12 @@
 /**
- * Message service - handles real-time messaging operations.
+ * Message service - handles real-time messaging operations
+ * with hiring workflow state management.
  */
 
 import { apiClient } from './api-client';
 import { logger } from '@/lib/logger';
 import type { Message } from '@/types';
+import type { ConversationWorkflow, ConversationStatus, HiringStage } from '@/types/messaging.types';
 
 class MessageService {
   async getConversations(userId: string) {
@@ -60,6 +62,101 @@ class MessageService {
   }
 
   /**
+   * Get the conversation workflow state for a match.
+   */
+  async getConversationWorkflow(matchId: string): Promise<ConversationWorkflow | null> {
+    logger.info('[MessageService] Fetching conversation workflow', { matchId });
+    const result = await apiClient.query('getConversationWorkflow', () =>
+      apiClient.supabase
+        .from('conversation_workflows')
+        .select('*')
+        .eq('match_id', matchId)
+        .single() as any
+    );
+    return result?.data || null;
+  }
+
+  /**
+   * Update the conversation workflow status (e.g., company contacts first, reject, close).
+   */
+  async updateConversationStatus(
+    matchId: string,
+    newStatus: ConversationStatus,
+    updatedBy: string,
+    closedReason?: string
+  ) {
+    logger.info('[MessageService] Updating conversation status', { matchId, newStatus });
+    const updatePayload: Record<string, unknown> = {
+      conversation_status: newStatus,
+      updated_by: updatedBy,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (closedReason) {
+      updatePayload.closed_reason = closedReason;
+      updatePayload.closed_at = new Date().toISOString();
+      updatePayload.closed_by = updatedBy;
+    }
+
+    // If company sends first message, unlock seeker messaging
+    if (newStatus === 'company_contacted') {
+      updatePayload.first_message_sent_at = new Date().toISOString();
+      updatePayload.company_first_message_sent = true;
+      updatePayload.seeker_can_message = true;
+    }
+
+    // If conversation is being closed, disable messaging for both
+    const closedStatuses: ConversationStatus[] = ['rejected', 'withdrawn', 'job_closed', 'conversation_closed', 'blocked'];
+    if (closedStatuses.includes(newStatus)) {
+      updatePayload.company_can_message = false;
+      updatePayload.seeker_can_message = false;
+    }
+
+    return apiClient.query('updateConversationStatus', () =>
+      apiClient.supabase
+        .from('conversation_workflows')
+        .update(updatePayload)
+        .eq('match_id', matchId) as any
+    );
+  }
+
+  /**
+   * Update the hiring stage (application_status) for a conversation.
+   */
+  async updateHiringStage(matchId: string, stage: HiringStage, updatedBy: string) {
+    logger.info('[MessageService] Updating hiring stage', { matchId, stage });
+    return apiClient.query('updateHiringStage', () =>
+      apiClient.supabase
+        .from('conversation_workflows')
+        .update({
+          application_status: stage,
+          updated_by: updatedBy,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('match_id', matchId) as any
+    );
+  }
+
+  /**
+   * Check if a user can send a message based on workflow permissions.
+   */
+  async canUserSendMessage(matchId: string, userId: string, userRole: 'company' | 'job_seeker'): Promise<boolean> {
+    const workflow = await this.getConversationWorkflow(matchId);
+    if (!workflow) return true; // Backward compat: no workflow means unrestricted
+
+    // Check if conversation is closed
+    const closedStatuses: ConversationStatus[] = ['rejected', 'withdrawn', 'job_closed', 'conversation_closed', 'blocked'];
+    if (closedStatuses.includes(workflow.conversation_status)) return false;
+
+    if (userRole === 'company') {
+      return workflow.permissions.company_can_message;
+    } else {
+      // Seeker can only message if company has sent first message
+      return workflow.permissions.seeker_can_message && workflow.permissions.company_first_message_sent;
+    }
+  }
+
+  /**
    * Subscribe to new messages in a match.
    */
   subscribeToMessages(matchId: string, callback: (message: any) => void) {
@@ -76,10 +173,33 @@ class MessageService {
   }
 
   /**
+   * Subscribe to workflow status changes for a conversation.
+   */
+  subscribeToWorkflowChanges(matchId: string, callback: (workflow: any) => void) {
+    return apiClient.subscribe(
+      `workflow:${matchId}`,
+      'conversation_workflows',
+      (payload) => {
+        if (payload.new?.match_id === matchId) {
+          callback(payload.new);
+        }
+      },
+      `match_id=eq.${matchId}`
+    );
+  }
+
+  /**
    * Unsubscribe from a message channel.
    */
   unsubscribeFromMessages(matchId: string) {
     apiClient.unsubscribe(`messages:${matchId}`);
+  }
+
+  /**
+   * Unsubscribe from workflow changes.
+   */
+  unsubscribeFromWorkflow(matchId: string) {
+    apiClient.unsubscribe(`workflow:${matchId}`);
   }
 
   /**

@@ -574,6 +574,36 @@ export const en = {
   select_conversation_desc: 'Choose a conversation from the list to start messaging',
 
   // ============================================================
+  // Messaging Workflow States
+  // ============================================================
+  workflow_new_match: 'New Match',
+  workflow_waiting_for_company: 'Waiting for Company',
+  workflow_company_contacted: 'Company Contacted',
+  workflow_under_review: 'Under Review',
+  workflow_interview_scheduled: 'Interview Scheduled',
+  workflow_interview_completed: 'Interview Completed',
+  workflow_offer_sent: 'Offer Sent',
+  workflow_hired: 'Hired',
+  workflow_rejected: 'Rejected',
+  workflow_withdrawn: 'Withdrawn',
+  workflow_job_closed: 'Job Closed',
+  workflow_conversation_closed: 'Conversation Closed',
+  workflow_blocked: 'Blocked',
+  workflow_waiting_message: 'The company needs to initiate the first message. You will be able to reply once they reach out.',
+  workflow_closed_generic: 'This conversation has been closed.',
+  workflow_closed_by_company: 'The company has closed this conversation.',
+  workflow_closed_by_seeker: 'You withdrew from this conversation.',
+  workflow_job_closed_message: 'This position has been closed.',
+  workflow_cannot_send: 'You cannot send messages in this conversation.',
+  workflow_messaging_unlocked: 'Messaging unlocked! The candidate can now reply.',
+  workflow_reject_candidate: 'Reject Candidate',
+  workflow_close_conversation: 'Close Conversation',
+  workflow_candidate_rejected: 'Candidate rejected. Conversation closed.',
+  workflow_conversation_closed_toast: 'Conversation closed.',
+  workflow_withdrawn_toast: 'You have withdrawn from this conversation.',
+  no_messages_yet: 'No messages yet',
+
+  // ============================================================
   // Notification Center
   // ============================================================
   all_notifications: 'All',

@@ -574,6 +574,36 @@ export const ar = {
   select_conversation_desc: 'اختر محادثة من القائمة لبدء المراسلة',
 
   // ============================================================
+  // Messaging Workflow States
+  // ============================================================
+  workflow_new_match: 'تطابق جديد',
+  workflow_waiting_for_company: 'في انتظار الشركة',
+  workflow_company_contacted: 'تواصلت الشركة',
+  workflow_under_review: 'قيد المراجعة',
+  workflow_interview_scheduled: 'تم جدولة مقابلة',
+  workflow_interview_completed: 'اكتملت المقابلة',
+  workflow_offer_sent: 'تم إرسال العرض',
+  workflow_hired: 'تم التوظيف',
+  workflow_rejected: 'مرفوض',
+  workflow_withdrawn: 'تم الانسحاب',
+  workflow_job_closed: 'الوظيفة مغلقة',
+  workflow_conversation_closed: 'المحادثة مغلقة',
+  workflow_blocked: 'محظور',
+  workflow_waiting_message: 'يجب أن تبدأ الشركة الرسالة الأولى. ستتمكن من الرد بمجرد تواصلهم معك.',
+  workflow_closed_generic: 'تم إغلاق هذه المحادثة.',
+  workflow_closed_by_company: 'أغلقت الشركة هذه المحادثة.',
+  workflow_closed_by_seeker: 'لقد انسحبت من هذه المحادثة.',
+  workflow_job_closed_message: 'تم إغلاق هذه الوظيفة.',
+  workflow_cannot_send: 'لا يمكنك إرسال رسائل في هذه المحادثة.',
+  workflow_messaging_unlocked: 'تم فتح المراسلة! يمكن للمرشح الآن الرد.',
+  workflow_reject_candidate: 'رفض المرشح',
+  workflow_close_conversation: 'إغلاق المحادثة',
+  workflow_candidate_rejected: 'تم رفض المرشح. المحادثة مغلقة.',
+  workflow_conversation_closed_toast: 'تم إغلاق المحادثة.',
+  workflow_withdrawn_toast: 'لقد انسحبت من هذه المحادثة.',
+  no_messages_yet: 'لا توجد رسائل بعد',
+
+  // ============================================================
   // Notification Center
   // ============================================================
   all_notifications: 'الكل',
