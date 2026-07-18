@@ -18,12 +18,17 @@ export interface ApiError {
   status?: number;
 }
 
+// Fallback values to prevent createClient from throwing when env vars are missing.
+// The app will render but API calls will fail gracefully.
+const SUPABASE_URL = env.supabase.url || 'https://placeholder.supabase.co';
+const SUPABASE_ANON_KEY = env.supabase.anonKey || 'placeholder-anon-key';
+
 class ApiClient {
   private client: SupabaseClient;
   private channels: Map<string, RealtimeChannel> = new Map();
 
   constructor() {
-    this.client = createClient(env.supabase.url, env.supabase.anonKey, {
+    this.client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
