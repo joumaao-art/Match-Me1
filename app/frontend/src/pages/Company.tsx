@@ -211,16 +211,61 @@ function CompanyNav({ activeTab, setActiveTab }: { activeTab: NavSection; setAct
 }
 
 // ============================================================
+// Interactive Stat Card Component (Reusable Dashboard Framework)
+// ============================================================
+
+interface InteractiveStatProps {
+  label: string;
+  value: string | number;
+  icon: React.ElementType;
+  color: string;
+  onClick?: () => void;
+}
+
+function InteractiveStatCard({ label, value, icon: Icon, color, onClick }: InteractiveStatProps) {
+  return (
+    <Card
+      className={`group transition-all duration-200 ${onClick ? 'cursor-pointer hover:shadow-lg hover:border-primary/40 hover:scale-[1.02] active:scale-[0.98]' : ''}`}
+      onClick={onClick}
+      tabIndex={onClick ? 0 : undefined}
+      role={onClick ? 'button' : undefined}
+      aria-label={onClick ? `${label}: ${value}` : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
+    >
+      <CardContent className="p-4 flex items-center gap-3">
+        <div className={`w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center transition-colors duration-200 ${onClick ? 'group-hover:bg-primary/20' : ''}`}>
+          <Icon className={`w-5 h-5 ${color}`} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className={`text-2xl font-bold font-[Poppins] ${color}`}>{value}</p>
+          <p className="text-xs text-muted-foreground truncate">{label}</p>
+        </div>
+        {onClick && (
+          <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ============================================================
 // Dashboard Overview
 // ============================================================
 
-function DashboardView() {
+function DashboardView({ onNavigate }: { onNavigate: (tab: NavSection) => void }) {
   const { t } = useTranslation();
-  const stats = [
-    { label: t('active_vacancies'), value: '5', icon: FileText, color: 'text-primary' },
-    { label: t('total_applications'), value: '156', icon: Users, color: 'text-accent' },
-    { label: t('interviews'), value: '8', icon: Calendar, color: 'text-green-600' },
-    { label: t('hired'), value: '3', icon: UserCheck, color: 'text-purple-600' },
+
+  // Stats derived from mock data (in production, these come from Supabase)
+  const activeVacanciesCount = initialVacancies.filter(v => v.status === 'open').length;
+  const totalApplicationsCount = mockCandidates.length;
+  const interviewsCount = mockCandidates.filter(c => c.status === 'interview').length;
+  const hiredCount = mockCandidates.filter(c => c.status === 'accepted').length;
+
+  const stats: (InteractiveStatProps & { navigateTo: NavSection })[] = [
+    { label: t('active_vacancies'), value: activeVacanciesCount, icon: FileText, color: 'text-primary', navigateTo: 'vacancies' },
+    { label: t('total_applications'), value: totalApplicationsCount, icon: Users, color: 'text-accent', navigateTo: 'candidates' },
+    { label: t('interviews'), value: interviewsCount, icon: Calendar, color: 'text-green-600', navigateTo: 'pipeline' },
+    { label: t('hired'), value: hiredCount, icon: UserCheck, color: 'text-purple-600', navigateTo: 'pipeline' },
   ];
 
   return (
@@ -228,14 +273,19 @@ function DashboardView() {
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('dashboard')}</h2>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {stats.map((s) => (
-          <Card key={s.label}><CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><s.icon className={`w-5 h-5 ${s.color}`} /></div>
-            <div><p className={`text-2xl font-bold font-[Poppins] ${s.color}`}>{s.value}</p><p className="text-xs text-muted-foreground">{s.label}</p></div>
-          </CardContent></Card>
+          <InteractiveStatCard
+            key={s.label}
+            label={s.label}
+            value={s.value}
+            icon={s.icon}
+            color={s.color}
+            onClick={() => onNavigate(s.navigateTo)}
+          />
         ))}
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card><CardHeader><CardTitle className="text-sm font-[Poppins]">{t('top_matched_candidates')}</CardTitle></CardHeader><CardContent className="space-y-3">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200" onClick={() => onNavigate('matching')} tabIndex={0} role="button" onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onNavigate('matching'); } }}>
+          <CardHeader><CardTitle className="text-sm font-[Poppins]">{t('top_matched_candidates')}</CardTitle></CardHeader><CardContent className="space-y-3">
           {mockCandidates.slice(0, 3).map((c) => (
             <div key={c.id} className="flex items-center justify-between">
               <div className="flex items-center gap-2"><div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center"><Users className="w-4 h-4 text-primary" /></div><div><p className="text-sm font-medium">{c.name}</p><p className="text-xs text-muted-foreground">{c.appliedFor}</p></div></div>
@@ -243,7 +293,8 @@ function DashboardView() {
             </div>
           ))}
         </CardContent></Card>
-        <Card><CardHeader><CardTitle className="text-sm font-[Poppins]">{t('recent_activity')}</CardTitle></CardHeader><CardContent className="space-y-3">
+        <Card className="cursor-pointer hover:shadow-md transition-all duration-200" onClick={() => onNavigate('notifications')} tabIndex={0} role="button" onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onNavigate('notifications'); } }}>
+          <CardHeader><CardTitle className="text-sm font-[Poppins]">{t('recent_activity')}</CardTitle></CardHeader><CardContent className="space-y-3">
           {mockNotifications.slice(0, 4).map((n) => (
             <div key={n.id} className="flex items-start gap-2">
               <div className={`w-2 h-2 rounded-full mt-2 ${n.read ? 'bg-muted' : 'bg-primary'}`} />
@@ -1062,7 +1113,7 @@ export default function Company() {
 
   const renderContent = () => {
     switch(activeTab) {
-      case 'dashboard': return <DashboardView />;
+      case 'dashboard': return <DashboardView onNavigate={setActiveTab} />;
       case 'profile': return <ProfileView />;
       case 'branches': return <BranchesView />;
       case 'recruiters': return <RecruitersView />;
