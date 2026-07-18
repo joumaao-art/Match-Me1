@@ -1221,4 +1221,21 @@ export const ar = {
   error_invalid_file_type: 'نوع ملف غير صالح. الأنواع المسموحة: {{types}}.',
   error_session_expired: 'انتهت جلستك. يرجى تسجيل الدخول مرة أخرى.',
   error_rate_limit: 'طلبات كثيرة جداً. يرجى الانتظار لحظة.',
+
+  // Search & Filter keys
+  clear_filters: 'مسح الفلاتر',
+  no_candidates_found: 'لم يتم العثور على مرشحين',
+  try_different_search: 'حاول تعديل البحث أو الفلاتر',
+  sort_by: 'ترتيب حسب',
+  filtered: 'مفلتر',
+  entry_level: 'مبتدئ',
+  junior: 'مبتدئ',
+  mid_level: 'متوسط',
+  senior: 'خبير',
+  lead: 'قائد',
+  last_7_days: 'آخر 7 أيام',
+  last_30_days: 'آخر 30 يوم',
+  date_applied: 'تاريخ التقديم',
+  date: 'التاريخ',
+  name: 'الاسم',
 } as const;

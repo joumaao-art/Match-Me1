@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -641,15 +641,175 @@ function VacanciesView() {
 }
 
 // ============================================================
-// Candidates / Applicant Tracking
+// Candidates / Applicant Tracking (Full Search, Filter, Sort, Pagination)
 // ============================================================
+
+const CANDIDATES_PER_PAGE = 10;
+const SEARCH_DEBOUNCE_MS = 300;
+
+type SortField = 'score' | 'name' | 'appliedDate' | 'experience';
+type SortOrder = 'asc' | 'desc';
+
+interface CandidateFilters {
+  status: string;
+  minScore: number;
+  maxScore: number;
+  skills: string[];
+  experience: string;
+  location: string;
+  dateRange: string;
+}
+
+const DEFAULT_FILTERS: CandidateFilters = {
+  status: 'all',
+  minScore: 0,
+  maxScore: 100,
+  skills: [],
+  experience: 'all',
+  location: 'all',
+  dateRange: 'all',
+};
+
+// Reusable debounce hook
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+  return debouncedValue;
+}
 
 function CandidatesView() {
   const { t } = useTranslation();
   const [candidates, setCandidates] = useState(mockCandidates);
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState<CandidateFilters>(DEFAULT_FILTERS);
+  const [sortField, setSortField] = useState<SortField>('score');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showFilters, setShowFilters] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
-  const filtered = statusFilter === 'all' ? candidates : candidates.filter(c => c.status === statusFilter);
+  // Debounced search for performance
+  const debouncedSearch = useDebounce(searchQuery, SEARCH_DEBOUNCE_MS);
+
+  // Show loading indicator while debouncing
+  useEffect(() => {
+    if (searchQuery !== debouncedSearch) setIsSearching(true);
+    else setIsSearching(false);
+  }, [searchQuery, debouncedSearch]);
+
+  // Reset to page 1 when search/filters change
+  useEffect(() => { setCurrentPage(1); }, [debouncedSearch, filters, sortField, sortOrder]);
+
+  // All unique skills from candidates for filter options
+  const allSkills = Array.from(new Set(candidates.flatMap(c => c.skills)));
+  // All unique locations
+  const allLocations = Array.from(new Set(candidates.map(c => c.location)));
+
+  // Combined search + filter + sort logic
+  const processedCandidates = (() => {
+    let result = [...candidates];
+
+    // 1. Search (case-insensitive, partial match across multiple fields)
+    if (debouncedSearch.trim()) {
+      const query = debouncedSearch.toLowerCase().trim();
+      result = result.filter(c => {
+        const searchableFields = [
+          c.name,
+          c.appliedFor,
+          c.summary,
+          c.location,
+          c.education,
+          ...c.skills,
+        ].map(f => f.toLowerCase());
+        return searchableFields.some(field => field.includes(query));
+      });
+    }
+
+    // 2. Status filter
+    if (filters.status !== 'all') {
+      result = result.filter(c => c.status === filters.status);
+    }
+
+    // 3. Score range filter
+    result = result.filter(c => c.score >= filters.minScore && c.score <= filters.maxScore);
+
+    // 4. Skills filter (candidate must have ALL selected skills)
+    if (filters.skills.length > 0) {
+      result = result.filter(c =>
+        filters.skills.every(skill => c.skills.some(s => s.toLowerCase() === skill.toLowerCase()))
+      );
+    }
+
+    // 5. Experience filter
+    if (filters.experience !== 'all') {
+      const expRanges: Record<string, [number, number]> = {
+        'entry': [0, 1], 'junior': [1, 3], 'mid': [3, 5], 'senior': [5, 8], 'lead': [8, 100],
+      };
+      const range = expRanges[filters.experience];
+      if (range) {
+        result = result.filter(c => c.experience >= range[0] && c.experience < range[1]);
+      }
+    }
+
+    // 6. Location filter
+    if (filters.location !== 'all') {
+      result = result.filter(c => c.location === filters.location);
+    }
+
+    // 7. Date range filter
+    if (filters.dateRange !== 'all') {
+      const now = new Date();
+      let cutoff: Date;
+      switch (filters.dateRange) {
+        case 'today': cutoff = new Date(now.setHours(0, 0, 0, 0)); break;
+        case '7days': cutoff = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); break;
+        case '30days': cutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); break;
+        default: cutoff = new Date(0);
+      }
+      result = result.filter(c => new Date(c.appliedDate) >= cutoff);
+    }
+
+    // 8. Sort
+    result.sort((a, b) => {
+      let cmp = 0;
+      switch (sortField) {
+        case 'score': cmp = a.score - b.score; break;
+        case 'name': cmp = a.name.localeCompare(b.name); break;
+        case 'appliedDate': cmp = new Date(a.appliedDate).getTime() - new Date(b.appliedDate).getTime(); break;
+        case 'experience': cmp = a.experience - b.experience; break;
+      }
+      return sortOrder === 'asc' ? cmp : -cmp;
+    });
+
+    return result;
+  })();
+
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(processedCandidates.length / CANDIDATES_PER_PAGE));
+  const paginatedCandidates = processedCandidates.slice(
+    (currentPage - 1) * CANDIDATES_PER_PAGE,
+    currentPage * CANDIDATES_PER_PAGE
+  );
+
+  // Check if any filters are active
+  const hasActiveFilters = filters.status !== 'all' || filters.minScore > 0 || filters.maxScore < 100 || filters.skills.length > 0 || filters.experience !== 'all' || filters.location !== 'all' || filters.dateRange !== 'all';
+
+  const clearAllFilters = () => {
+    setFilters(DEFAULT_FILTERS);
+    setSearchQuery('');
+  };
+
+  const toggleSkillFilter = (skill: string) => {
+    setFilters(prev => ({
+      ...prev,
+      skills: prev.skills.includes(skill)
+        ? prev.skills.filter(s => s !== skill)
+        : [...prev.skills, skill],
+    }));
+  };
 
   const updateStatus = (id: string, status: string) => {
     setCandidates(prev => prev.map(c => c.id === id ? { ...c, status: status as any } : c));
@@ -660,36 +820,279 @@ function CandidatesView() {
     toast.success(t('invitation_sent_to', { name }));
   };
 
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('desc');
+    }
+  };
+
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <div className="flex justify-between items-center mb-6">
+      {/* Header with Search */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
         <h2 className="text-xl font-bold font-[Poppins]">{t('applicant_tracking')}</h2>
-        <div className="flex items-center gap-2"><Input placeholder={t('search')} className="w-48 h-9" /><Button variant="outline" size="sm" className="cursor-pointer gap-1"><Filter className="w-3 h-3" />{t('filter')}</Button></div>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="relative flex-1 sm:flex-initial">
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t('search')}
+              className="ps-9 w-full sm:w-64 h-9"
+              aria-label={t('search')}
+            />
+            {isSearching && <div className="absolute end-3 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />}
+          </div>
+          <Button
+            variant={showFilters ? 'default' : 'outline'}
+            size="sm"
+            className="cursor-pointer gap-1 shrink-0"
+            onClick={() => setShowFilters(!showFilters)}
+            aria-expanded={showFilters}
+          >
+            <Filter className="w-3 h-3" />
+            {t('filter')}
+            {hasActiveFilters && <span className="w-2 h-2 rounded-full bg-destructive" />}
+          </Button>
+        </div>
       </div>
-      <div className="flex flex-wrap gap-2 mb-4">
-        {['all', 'new', 'interview', 'accepted', 'offered', 'rejected'].map((f) => (
-          <Badge key={f} variant={statusFilter === f ? 'default' : 'outline'} className="cursor-pointer" onClick={() => setStatusFilter(f)}>{f === 'all' ? t('all') : f === 'new' ? t('new_status') : t(f)}</Badge>
-        ))}
+
+      {/* Active Filter Chips */}
+      {(hasActiveFilters || searchQuery) && (
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          {searchQuery && (
+            <Badge variant="secondary" className="gap-1 cursor-pointer" onClick={() => setSearchQuery('')}>
+              {t('search')}: "{searchQuery}" <X className="w-3 h-3" />
+            </Badge>
+          )}
+          {filters.status !== 'all' && (
+            <Badge variant="secondary" className="gap-1 cursor-pointer" onClick={() => setFilters(p => ({ ...p, status: 'all' }))}>
+              {t('status')}: {filters.status === 'new' ? t('new_status') : t(filters.status)} <X className="w-3 h-3" />
+            </Badge>
+          )}
+          {filters.skills.map(skill => (
+            <Badge key={skill} variant="secondary" className="gap-1 cursor-pointer" onClick={() => toggleSkillFilter(skill)}>
+              {skill} <X className="w-3 h-3" />
+            </Badge>
+          ))}
+          {filters.experience !== 'all' && (
+            <Badge variant="secondary" className="gap-1 cursor-pointer" onClick={() => setFilters(p => ({ ...p, experience: 'all' }))}>
+              {t('experience')}: {filters.experience} <X className="w-3 h-3" />
+            </Badge>
+          )}
+          {filters.location !== 'all' && (
+            <Badge variant="secondary" className="gap-1 cursor-pointer" onClick={() => setFilters(p => ({ ...p, location: 'all' }))}>
+              {t('location')}: {filters.location} <X className="w-3 h-3" />
+            </Badge>
+          )}
+          {(filters.minScore > 0 || filters.maxScore < 100) && (
+            <Badge variant="secondary" className="gap-1 cursor-pointer" onClick={() => setFilters(p => ({ ...p, minScore: 0, maxScore: 100 }))}>
+              {t('match_score')}: {filters.minScore}-{filters.maxScore}% <X className="w-3 h-3" />
+            </Badge>
+          )}
+          {filters.dateRange !== 'all' && (
+            <Badge variant="secondary" className="gap-1 cursor-pointer" onClick={() => setFilters(p => ({ ...p, dateRange: 'all' }))}>
+              {t('date')}: {filters.dateRange} <X className="w-3 h-3" />
+            </Badge>
+          )}
+          <Button variant="ghost" size="sm" className="cursor-pointer text-xs h-6" onClick={clearAllFilters}>
+            {t('clear_filters')}
+          </Button>
+        </div>
+      )}
+
+      {/* Filter Panel */}
+      {showFilters && (
+        <Card className="mb-4">
+          <CardContent className="p-4 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Status Filter */}
+              <div>
+                <Label className="text-xs font-medium mb-1 block">{t('status')}</Label>
+                <Select value={filters.status} onValueChange={(v) => setFilters(p => ({ ...p, status: v }))}>
+                  <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t('all')}</SelectItem>
+                    <SelectItem value="new">{t('new_status')}</SelectItem>
+                    <SelectItem value="interview">{t('interview')}</SelectItem>
+                    <SelectItem value="offered">{t('offered')}</SelectItem>
+                    <SelectItem value="accepted">{t('hired')}</SelectItem>
+                    <SelectItem value="rejected">{t('rejected')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Experience Filter */}
+              <div>
+                <Label className="text-xs font-medium mb-1 block">{t('experience')}</Label>
+                <Select value={filters.experience} onValueChange={(v) => setFilters(p => ({ ...p, experience: v }))}>
+                  <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t('all')}</SelectItem>
+                    <SelectItem value="entry">{t('entry_level')}</SelectItem>
+                    <SelectItem value="junior">{t('junior')}</SelectItem>
+                    <SelectItem value="mid">{t('mid_level')}</SelectItem>
+                    <SelectItem value="senior">{t('senior')}</SelectItem>
+                    <SelectItem value="lead">{t('lead')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Location Filter */}
+              <div>
+                <Label className="text-xs font-medium mb-1 block">{t('location')}</Label>
+                <Select value={filters.location} onValueChange={(v) => setFilters(p => ({ ...p, location: v }))}>
+                  <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t('all')}</SelectItem>
+                    {allLocations.map(loc => (
+                      <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Date Range Filter */}
+              <div>
+                <Label className="text-xs font-medium mb-1 block">{t('date_applied')}</Label>
+                <Select value={filters.dateRange} onValueChange={(v) => setFilters(p => ({ ...p, dateRange: v }))}>
+                  <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t('all')}</SelectItem>
+                    <SelectItem value="today">{t('today')}</SelectItem>
+                    <SelectItem value="7days">{t('last_7_days')}</SelectItem>
+                    <SelectItem value="30days">{t('last_30_days')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Match Score Range */}
+            <div>
+              <Label className="text-xs font-medium mb-1 block">{t('match_score')}: {filters.minScore}% - {filters.maxScore}%</Label>
+              <div className="flex items-center gap-3">
+                <Input type="number" min={0} max={100} value={filters.minScore} onChange={(e) => setFilters(p => ({ ...p, minScore: Math.max(0, Math.min(100, parseInt(e.target.value) || 0)) }))} className="w-20 h-8 text-sm" />
+                <span className="text-muted-foreground text-sm">—</span>
+                <Input type="number" min={0} max={100} value={filters.maxScore} onChange={(e) => setFilters(p => ({ ...p, maxScore: Math.max(0, Math.min(100, parseInt(e.target.value) || 100)) }))} className="w-20 h-8 text-sm" />
+              </div>
+            </div>
+
+            {/* Skills Filter */}
+            <div>
+              <Label className="text-xs font-medium mb-2 block">{t('skills')}</Label>
+              <div className="flex flex-wrap gap-2">
+                {allSkills.map(skill => (
+                  <Badge
+                    key={skill}
+                    variant={filters.skills.includes(skill) ? 'default' : 'outline'}
+                    className="cursor-pointer text-xs"
+                    onClick={() => toggleSkillFilter(skill)}
+                  >
+                    {skill}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Sort & Results Count */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+        <p className="text-sm text-muted-foreground">
+          {processedCandidates.length} {t('candidates')} {hasActiveFilters || debouncedSearch ? `(${t('filtered')})` : ''}
+        </p>
+        <div className="flex items-center gap-2">
+          <Label className="text-xs text-muted-foreground shrink-0">{t('sort_by')}:</Label>
+          <Select value={`${sortField}-${sortOrder}`} onValueChange={(v) => { const [f, o] = v.split('-'); setSortField(f as SortField); setSortOrder(o as SortOrder); }}>
+            <SelectTrigger className="h-8 w-44 text-xs"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="score-desc">{t('match_score')} ↓</SelectItem>
+              <SelectItem value="score-asc">{t('match_score')} ↑</SelectItem>
+              <SelectItem value="name-asc">{t('name')} A-Z</SelectItem>
+              <SelectItem value="name-desc">{t('name')} Z-A</SelectItem>
+              <SelectItem value="appliedDate-desc">{t('date_applied')} ↓</SelectItem>
+              <SelectItem value="appliedDate-asc">{t('date_applied')} ↑</SelectItem>
+              <SelectItem value="experience-desc">{t('experience')} ↓</SelectItem>
+              <SelectItem value="experience-asc">{t('experience')} ↑</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
+
+      {/* Candidate List */}
       <div className="space-y-3">
-        {filtered.map((c) => (
-          <Card key={c.id}><CardContent className="p-4">
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center"><Users className="w-5 h-5 text-primary" /></div><div><p className="font-semibold text-sm">{c.name}</p><p className="text-xs text-muted-foreground">{c.appliedFor} · {c.appliedDate}</p></div></div>
-              <div className="text-end"><span className="text-lg font-bold text-primary">{c.score}%</span><Badge variant="secondary" className="text-xs block mt-1">{c.status === 'new' ? t('new_status') : t(c.status)}</Badge></div>
-            </div>
-            <p className="text-sm text-muted-foreground mb-2">{c.summary}</p>
-            <div className="flex flex-wrap gap-1 mb-3">{c.skills.map(s => <Badge key={s} variant="outline" className="text-xs">{s}</Badge>)}</div>
-            <div className="flex flex-wrap gap-2">
-              {c.status === 'new' && <><Button size="sm" className="cursor-pointer gap-1" onClick={() => updateStatus(c.id, 'interview')}><Calendar className="w-3 h-3" />{t('schedule_interview')}</Button><Button size="sm" variant="outline" className="cursor-pointer gap-1" onClick={() => updateStatus(c.id, 'rejected')}><X className="w-3 h-3" />{t('reject')}</Button></>}
-              {c.status === 'interview' && <><Button size="sm" className="cursor-pointer gap-1" onClick={() => updateStatus(c.id, 'offered')}><Check className="w-3 h-3" />{t('make_offer')}</Button><Button size="sm" variant="outline" className="cursor-pointer gap-1" onClick={() => updateStatus(c.id, 'rejected')}><X className="w-3 h-3" />{t('reject')}</Button></>}
-              {c.status === 'offered' && <Button size="sm" className="cursor-pointer gap-1" onClick={() => updateStatus(c.id, 'accepted')}><UserCheck className="w-3 h-3" />{t('mark_hired')}</Button>}
-              <Button size="sm" variant="ghost" className="cursor-pointer" onClick={() => toast.success(t('candidate_saved'))}><Heart className="w-3 h-3" /></Button>
-              <Button size="sm" variant="ghost" className="cursor-pointer" onClick={() => inviteCandidate(c.name)}><Send className="w-3 h-3" /></Button>
-            </div>
-          </CardContent></Card>
-        ))}
+        {paginatedCandidates.length === 0 ? (
+          <div className="text-center py-12">
+            <Users className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+            <p className="text-muted-foreground font-medium">{t('no_candidates_found')}</p>
+            <p className="text-sm text-muted-foreground mt-1">{t('try_different_search')}</p>
+            {(hasActiveFilters || searchQuery) && (
+              <Button variant="outline" size="sm" className="cursor-pointer mt-4" onClick={clearAllFilters}>
+                {t('clear_filters')}
+              </Button>
+            )}
+          </div>
+        ) : (
+          paginatedCandidates.map((c) => (
+            <Card key={c.id} className="hover:shadow-sm transition-shadow"><CardContent className="p-4">
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center"><Users className="w-5 h-5 text-primary" /></div><div><p className="font-semibold text-sm">{c.name}</p><p className="text-xs text-muted-foreground">{c.appliedFor} · {c.appliedDate} · {c.location}</p></div></div>
+                <div className="text-end"><span className="text-lg font-bold text-primary">{c.score}%</span><Badge variant="secondary" className="text-xs block mt-1">{c.status === 'new' ? t('new_status') : t(c.status)}</Badge></div>
+              </div>
+              <p className="text-sm text-muted-foreground mb-2">{c.summary}</p>
+              <div className="flex flex-wrap gap-1 mb-3">{c.skills.map(s => <Badge key={s} variant="outline" className="text-xs">{s}</Badge>)}</div>
+              <div className="flex flex-wrap gap-2">
+                {c.status === 'new' && <><Button size="sm" className="cursor-pointer gap-1" onClick={() => updateStatus(c.id, 'interview')}><Calendar className="w-3 h-3" />{t('schedule_interview')}</Button><Button size="sm" variant="outline" className="cursor-pointer gap-1" onClick={() => updateStatus(c.id, 'rejected')}><X className="w-3 h-3" />{t('reject')}</Button></>}
+                {c.status === 'interview' && <><Button size="sm" className="cursor-pointer gap-1" onClick={() => updateStatus(c.id, 'offered')}><Check className="w-3 h-3" />{t('make_offer')}</Button><Button size="sm" variant="outline" className="cursor-pointer gap-1" onClick={() => updateStatus(c.id, 'rejected')}><X className="w-3 h-3" />{t('reject')}</Button></>}
+                {c.status === 'offered' && <Button size="sm" className="cursor-pointer gap-1" onClick={() => updateStatus(c.id, 'accepted')}><UserCheck className="w-3 h-3" />{t('mark_hired')}</Button>}
+                <Button size="sm" variant="ghost" className="cursor-pointer" onClick={() => toast.success(t('candidate_saved'))}><Heart className="w-3 h-3" /></Button>
+                <Button size="sm" variant="ghost" className="cursor-pointer" onClick={() => inviteCandidate(c.name)}><Send className="w-3 h-3" /></Button>
+              </div>
+            </CardContent></Card>
+          ))
+        )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <Button
+            variant="outline"
+            size="sm"
+            className="cursor-pointer"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+          >
+            {t('previous')}
+          </Button>
+          <div className="flex items-center gap-1">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              <Button
+                key={page}
+                variant={page === currentPage ? 'default' : 'ghost'}
+                size="sm"
+                className="cursor-pointer w-8 h-8 p-0"
+                onClick={() => setCurrentPage(page)}
+              >
+                {page}
+              </Button>
+            ))}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="cursor-pointer"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+          >
+            {t('next')}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

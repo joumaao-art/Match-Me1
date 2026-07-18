@@ -1221,4 +1221,21 @@ export const en = {
   error_invalid_file_type: 'Invalid file type. Allowed types: {{types}}.',
   error_session_expired: 'Your session has expired. Please log in again.',
   error_rate_limit: 'Too many requests. Please wait a moment.',
+
+  // Search & Filter keys
+  clear_filters: 'Clear Filters',
+  no_candidates_found: 'No candidates found',
+  try_different_search: 'Try adjusting your search or filters',
+  sort_by: 'Sort by',
+  filtered: 'filtered',
+  entry_level: 'Entry Level',
+  junior: 'Junior',
+  mid_level: 'Mid-Level',
+  senior: 'Senior',
+  lead: 'Lead',
+  last_7_days: 'Last 7 Days',
+  last_30_days: 'Last 30 Days',
+  date_applied: 'Date Applied',
+  date: 'Date',
+  name: 'Name',
 } as const;
