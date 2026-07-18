@@ -1022,6 +1022,79 @@ export const en = {
   team_members: 'Team Members',
 
   // ============================================================
+  // Profile Completion & Strength
+  // ============================================================
+  pc_title: 'Profile Completion',
+  pc_checklist: 'Completion Checklist',
+  pc_recommendations: 'AI Recommendations',
+  pc_matching_impact: 'Complete your profile to improve AI match accuracy and recruiter visibility.',
+  // Completion Status
+  getting_started: 'Getting Started',
+  building_profile: 'Building Your Profile',
+  almost_ready: 'Almost Ready',
+  nearly_complete: 'Nearly Complete',
+  profile_complete: 'Profile Complete 🎉',
+  // Strength Levels
+  strength_needs_improvement: 'Needs Improvement',
+  strength_fair: 'Fair',
+  strength_strong: 'Strong',
+  strength_excellent: 'Excellent',
+  // Strength Descriptions
+  strength_desc_needs_improvement: 'Your profile needs more information before companies can properly evaluate you.',
+  strength_desc_fair: 'Your profile is progressing, but adding more details will improve your visibility.',
+  strength_desc_strong: 'You have a solid profile that is attractive to recruiters. Completing the remaining sections will improve your matching.',
+  strength_desc_excellent: 'Your profile is highly complete and professionally presented, giving you the best opportunity to be discovered by companies.',
+  // Checklist Items
+  pc_basic_info: 'Basic Information',
+  pc_photo: 'Profile Photo',
+  pc_headline: 'Professional Headline',
+  pc_about_me: 'About Me',
+  pc_location: 'Location',
+  pc_phone: 'Phone Number',
+  pc_verified_email: 'Verified Email',
+  pc_resume: 'Resume Uploaded',
+  pc_experience: 'Work Experience',
+  pc_education: 'Education',
+  pc_skills: 'Skills (at least 3)',
+  pc_languages: 'Languages',
+  pc_certificates: 'Certifications',
+  pc_portfolio: 'Portfolio / Projects',
+  pc_preferences: 'Job Preferences',
+  pc_salary: 'Salary Expectations',
+  pc_availability: 'Availability',
+  // Recommendations
+  pc_rec_basic_info: 'Complete your basic information to help recruiters find you.',
+  pc_rec_photo: 'Upload a professional profile photo.',
+  pc_rec_headline: 'Add a professional headline to stand out.',
+  pc_rec_about_me: 'Write an About Me section to showcase your personality.',
+  pc_rec_location: 'Add your location to improve local job matches.',
+  pc_rec_phone: 'Add your phone number for direct contact.',
+  pc_rec_verified_email: 'Verify your email address for security.',
+  pc_rec_resume: 'Upload your resume to apply faster.',
+  pc_rec_experience: 'Add your work experience.',
+  pc_rec_education: 'Add your education background.',
+  pc_rec_skills: 'Add at least 3 skills to improve matching.',
+  pc_rec_languages: 'Add languages you speak.',
+  pc_rec_certificates: 'Add certifications to boost credibility.',
+  pc_rec_portfolio: 'Showcase your projects in the portfolio.',
+  pc_rec_preferences: 'Complete your job preferences.',
+  pc_rec_salary: 'Set your salary expectations.',
+  pc_rec_availability: 'Indicate your availability to start.',
+  // Milestones
+  pc_milestone_25: 'Great start! Keep going to improve your visibility.',
+  pc_milestone_50: "You're halfway there! Add more details to stand out.",
+  pc_milestone_75: 'Great progress! Just a few more steps to complete your profile.',
+  pc_milestone_100: 'Profile Complete! You have the best chance of being discovered by companies.',
+  // Admin Analytics
+  admin_profile_analytics: 'Profile Completion Analytics',
+  admin_avg_completion: 'Avg. Completion',
+  admin_avg_strength: 'Avg. Strength',
+  admin_below_50: 'Below 50%',
+  admin_above_90: 'Above 90%',
+  admin_strength_distribution: 'Strength Distribution',
+  admin_top_incomplete: 'Most Commonly Incomplete Sections',
+
+  // ============================================================
   // Error Messages
   // ============================================================
   error_generic: 'Something went wrong. Please try again.',

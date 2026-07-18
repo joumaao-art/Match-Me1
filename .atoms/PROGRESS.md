@@ -30,6 +30,7 @@ Build MatchMe - an AI-powered recruitment platform with swipe-based matching bet
 - [x] Configure pnpm workspace monorepo
 - [x] Refactor web app to import from shared packages
 - [ ] Refactor mobile app to import from shared packages
+- [x] Implement Profile Completion and Strength system (ProfileCompletionCard, ProfileCompletionMini, ProfileStrengthBadge, CandidateProfileStrength, AdminProfileAnalytics)
 - [x] Refactor messaging system with controlled messaging based on hiring workflow (workflow states, permissions, status badges, locked conversations)
 - [x] Navigation audit - consistent BackButton usage across all pages with role-aware fallback routes
 - [x] Fix Messages page crash - backFallback not passed as prop to ConversationList child component

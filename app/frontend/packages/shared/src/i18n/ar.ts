@@ -1022,6 +1022,79 @@ export const ar = {
   team_members: 'أعضاء الفريق',
 
   // ============================================================
+  // Profile Completion & Strength
+  // ============================================================
+  pc_title: 'اكتمال الملف الشخصي',
+  pc_checklist: 'قائمة الاكتمال',
+  pc_recommendations: 'توصيات الذكاء الاصطناعي',
+  pc_matching_impact: 'أكمل ملفك الشخصي لتحسين دقة التطابق وظهورك أمام المسؤولين عن التوظيف.',
+  // Completion Status
+  getting_started: 'البداية',
+  building_profile: 'بناء ملفك الشخصي',
+  almost_ready: 'شبه جاهز',
+  nearly_complete: 'قريب من الاكتمال',
+  profile_complete: 'الملف مكتمل 🎉',
+  // Strength Levels
+  strength_needs_improvement: 'يحتاج تحسين',
+  strength_fair: 'مقبول',
+  strength_strong: 'قوي',
+  strength_excellent: 'ممتاز',
+  // Strength Descriptions
+  strength_desc_needs_improvement: 'ملفك الشخصي يحتاج المزيد من المعلومات قبل أن تتمكن الشركات من تقييمك بشكل صحيح.',
+  strength_desc_fair: 'ملفك الشخصي يتقدم، لكن إضافة المزيد من التفاصيل ستحسن ظهورك.',
+  strength_desc_strong: 'لديك ملف شخصي قوي وجذاب للمسؤولين عن التوظيف. إكمال الأقسام المتبقية سيحسن تطابقك.',
+  strength_desc_excellent: 'ملفك الشخصي مكتمل بشكل كبير ومقدم بشكل احترافي، مما يمنحك أفضل فرصة للاكتشاف من قبل الشركات.',
+  // Checklist Items
+  pc_basic_info: 'المعلومات الأساسية',
+  pc_photo: 'صورة الملف الشخصي',
+  pc_headline: 'العنوان المهني',
+  pc_about_me: 'نبذة عني',
+  pc_location: 'الموقع',
+  pc_phone: 'رقم الهاتف',
+  pc_verified_email: 'البريد الإلكتروني الموثق',
+  pc_resume: 'السيرة الذاتية مرفوعة',
+  pc_experience: 'الخبرة العملية',
+  pc_education: 'التعليم',
+  pc_skills: 'المهارات (3 على الأقل)',
+  pc_languages: 'اللغات',
+  pc_certificates: 'الشهادات',
+  pc_portfolio: 'معرض الأعمال / المشاريع',
+  pc_preferences: 'تفضيلات الوظيفة',
+  pc_salary: 'توقعات الراتب',
+  pc_availability: 'التوفر',
+  // Recommendations
+  pc_rec_basic_info: 'أكمل معلوماتك الأساسية لمساعدة المسؤولين عن التوظيف في إيجادك.',
+  pc_rec_photo: 'ارفع صورة شخصية احترافية.',
+  pc_rec_headline: 'أضف عنواناً مهنياً للتميز.',
+  pc_rec_about_me: 'اكتب قسم "نبذة عني" لإبراز شخصيتك.',
+  pc_rec_location: 'أضف موقعك لتحسين تطابق الوظائف المحلية.',
+  pc_rec_phone: 'أضف رقم هاتفك للتواصل المباشر.',
+  pc_rec_verified_email: 'وثّق بريدك الإلكتروني للأمان.',
+  pc_rec_resume: 'ارفع سيرتك الذاتية للتقديم بشكل أسرع.',
+  pc_rec_experience: 'أضف خبرتك العملية.',
+  pc_rec_education: 'أضف خلفيتك التعليمية.',
+  pc_rec_skills: 'أضف 3 مهارات على الأقل لتحسين التطابق.',
+  pc_rec_languages: 'أضف اللغات التي تتحدثها.',
+  pc_rec_certificates: 'أضف شهادات لتعزيز مصداقيتك.',
+  pc_rec_portfolio: 'اعرض مشاريعك في معرض الأعمال.',
+  pc_rec_preferences: 'أكمل تفضيلات وظيفتك.',
+  pc_rec_salary: 'حدد توقعات راتبك.',
+  pc_rec_availability: 'حدد توفرك للبدء.',
+  // Milestones
+  pc_milestone_25: 'بداية رائعة! استمر لتحسين ظهورك.',
+  pc_milestone_50: 'أنت في منتصف الطريق! أضف المزيد من التفاصيل للتميز.',
+  pc_milestone_75: 'تقدم رائع! بضع خطوات أخرى لإكمال ملفك.',
+  pc_milestone_100: 'الملف مكتمل! لديك أفضل فرصة للاكتشاف من قبل الشركات.',
+  // Admin Analytics
+  admin_profile_analytics: 'تحليلات اكتمال الملف الشخصي',
+  admin_avg_completion: 'متوسط الاكتمال',
+  admin_avg_strength: 'متوسط القوة',
+  admin_below_50: 'أقل من 50%',
+  admin_above_90: 'أكثر من 90%',
+  admin_strength_distribution: 'توزيع القوة',
+  admin_top_incomplete: 'الأقسام الأكثر عدم اكتمالاً',
+
+  // ============================================================
   // Error Messages
   // ============================================================
   error_generic: 'حدث خطأ ما. يرجى المحاولة مرة أخرى.',

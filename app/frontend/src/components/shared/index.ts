@@ -10,3 +10,5 @@ export { EmptyState } from './EmptyState';
 export { StatCard } from './StatCard';
 export { LoadingSpinner } from './LoadingSpinner';
 export { BackButton } from './BackButton';
+export { ProfileCompletionCard, ProfileCompletionMini, ProfileStrengthBadge, CandidateProfileStrength, AdminProfileAnalytics, calculateProfileCompletion } from './ProfileCompletion';
+export type { ProfileData, ProfileCompletionResult, StrengthLevel, CompletionStatus } from './ProfileCompletion';

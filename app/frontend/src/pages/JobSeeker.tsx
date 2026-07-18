@@ -28,6 +28,7 @@ import { SeekerProfile, VacancyProfile, DEFAULT_WEIGHTS } from '@/lib/matching-e
 import { useAIMatching } from '@/lib/useAIMatching';
 import { SeekerAIProfile, VacancyAIProfile, MatchExplanation } from '@/lib/ai-matching-engine';
 import { ChangePassword } from '@/components/shared/ChangePassword';
+import { ProfileCompletionCard, ProfileCompletionMini, type ProfileData } from '@/components/shared/ProfileCompletion';
 
 // ============================================================
 // Types
@@ -498,8 +499,35 @@ function SwipeView() {
 // Dashboard
 // ============================================================
 
-function DashboardView() {
+// Mock profile data for demonstration (in production, this comes from state/API)
+function useMockProfileData(): ProfileData {
+  return {
+    hasBasicInfo: true,
+    hasPhoto: false,
+    hasHeadline: true,
+    hasAboutMe: true,
+    hasLocation: true,
+    hasPhone: true,
+    hasVerifiedEmail: true,
+    hasResume: true,
+    experienceCount: 2,
+    educationCount: 1,
+    skillsCount: 5,
+    languagesCount: 3,
+    certificatesCount: 2,
+    portfolioCount: 2,
+    hasJobPreferences: true,
+    hasSalaryExpectations: true,
+    hasAvailability: true,
+    headlineLength: 50,
+    aboutMeLength: 150,
+    avgExperienceDescLength: 60,
+  };
+}
+
+function DashboardView({ onNavigateToSection }: { onNavigateToSection?: (section: string) => void }) {
   const { t } = useTranslation();
+  const profileData = useMockProfileData();
   const stats = [
     { label: t('matched_jobs'), value: '12', color: 'text-primary' },
     { label: t('applications'), value: '28', color: 'text-accent' },
@@ -507,13 +535,20 @@ function DashboardView() {
     { label: t('profile_views'), value: '89', color: 'text-purple-600' },
   ];
 
+  const handleNavigate = (section: string) => {
+    if (onNavigateToSection) onNavigateToSection(section);
+  };
+
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('dashboard')}</h2>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {stats.map(s => <Card key={s.label}><CardContent className="p-4 text-center"><p className={`text-2xl font-bold font-[Poppins] ${s.color}`}>{s.value}</p><p className="text-xs text-muted-foreground mt-1">{s.label}</p></CardContent></Card>)}
       </div>
-      <Card className="mb-6"><CardContent className="p-4"><div className="flex justify-between items-center mb-2"><span className="text-sm font-medium">{t('profile_strength')}</span><span className="text-sm font-bold text-primary">75%</span></div><Progress value={75} className="h-2" /><p className="text-xs text-muted-foreground mt-2">{t('add_certifications_tip')}</p></CardContent></Card>
+      {/* Profile Completion Card */}
+      <div className="mb-6">
+        <ProfileCompletionCard profileData={profileData} onNavigateToSection={handleNavigate} />
+      </div>
       <h3 className="text-lg font-semibold font-[Poppins] mb-3">{t('recent_matches')}</h3>
       <div className="space-y-3">{mockMatches.map(m => (
         <Card key={m.id}><CardContent className="p-4 flex items-center justify-between"><div className="flex items-center gap-3"><div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><Building2 className="w-5 h-5 text-primary" /></div><div><p className="font-medium text-sm">{m.role}</p><p className="text-xs text-muted-foreground">{m.company}</p></div></div><div className="flex items-center gap-2"><span className="text-sm font-bold text-primary">{m.score}%</span>{m.hasMessage && <Badge variant="default" className="text-xs">{t('new_message')}</Badge>}</div></CardContent></Card>
@@ -526,8 +561,9 @@ function DashboardView() {
 // Profile
 // ============================================================
 
-function ProfileView() {
+function ProfileView({ onNavigateToSection }: { onNavigateToSection?: (section: string) => void }) {
   const { t } = useTranslation();
+  const profileData = useMockProfileData();
   const [profile, setProfile] = useState({
     firstName: 'Ahmed', lastName: 'Hassan', email: 'ahmed@example.com',
     mobile: '+971 50 123 4567', country: 'UAE', city: 'Dubai',
@@ -546,10 +582,16 @@ function ProfileView() {
     }, 800);
   };
 
+  const handleNavigate = (section: string) => {
+    if (onNavigateToSection) onNavigateToSection(section);
+  };
+
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('profile')}</h2>
       <div className="max-w-2xl space-y-6">
+        {/* Profile Completion Mini */}
+        <ProfileCompletionMini profileData={profileData} onNavigateToSection={handleNavigate} />
         <Card><CardContent className="p-6">
           <div className="flex items-center gap-4 mb-6"><div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center"><User className="w-10 h-10 text-primary" /></div><div><Button variant="outline" size="sm" className="cursor-pointer" onClick={() => toast.success(t('photo_upload_started'))}>{t('upload_photo')}</Button><p className="text-xs text-muted-foreground mt-1">{t('photo_hint')}</p></div></div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1388,7 +1430,7 @@ function SettingsView() {
 
 export default function JobSeeker() {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<NavSection>('swipe');
+  const [activeTab, setActiveTab] = useState<NavSection>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const getTabTitle = (tab: NavSection) => {
@@ -1399,8 +1441,8 @@ export default function JobSeeker() {
   const renderContent = () => {
     switch(activeTab) {
       case 'swipe': return <SwipeView />;
-      case 'dashboard': return <DashboardView />;
-      case 'profile': return <ProfileView />;
+      case 'dashboard': return <DashboardView onNavigateToSection={(section) => setActiveTab(section as NavSection)} />;
+      case 'profile': return <ProfileView onNavigateToSection={(section) => setActiveTab(section as NavSection)} />;
       case 'cv': return <CVView />;
       case 'experience': return <ExperienceView />;
       case 'education': return <EducationView />;
