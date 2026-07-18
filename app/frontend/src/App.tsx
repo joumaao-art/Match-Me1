@@ -14,6 +14,7 @@ import { ErrorBoundary } from '@/components/shared';
 import { useAuthStore, useAppStore } from '@/stores';
 import { authService } from '@/services';
 import { ROUTES } from '@/config/constants';
+import { initializeSecurity, sessionManager, auditLogger } from '@/lib/security';
 import '@/lib/i18n';
 
 // Page imports
@@ -285,9 +286,38 @@ function AppRoutes() {
 const App = () => {
   const { i18n } = useTranslation();
   const { language } = useAppStore();
+  const { signOut, isAuthenticated } = useAuthStore();
 
   // Initialize auth state
   useAuthInit();
+
+  // Initialize security measures
+  useEffect(() => {
+    initializeSecurity();
+  }, []);
+
+  // Session management - start monitoring when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      sessionManager.start({
+        onExpire: () => {
+          auditLogger.log({
+            action: 'session_auto_expired',
+            category: 'auth',
+            severity: 'info',
+          });
+          signOut();
+        },
+        onWarning: (remainingMs) => {
+          const mins = Math.ceil(remainingMs / 60000);
+          console.warn(`[Session] Expiring in ${mins} minute(s)`);
+        },
+      });
+    } else {
+      sessionManager.stop();
+    }
+    return () => sessionManager.stop();
+  }, [isAuthenticated, signOut]);
 
   // Sync language direction
   useEffect(() => {
