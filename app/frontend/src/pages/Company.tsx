@@ -24,6 +24,8 @@ import {
   GitBranch, Lock, Unlock, Receipt, PieChart, UserCheck, Layers
 } from 'lucide-react';
 import { ChangePassword } from '@/components/shared/ChangePassword';
+import CandidateDirectory from '@/components/shared/CandidateDirectory';
+import type { DirectoryView } from '@/components/shared/CandidateDirectory';
 
 // ============================================================
 // Types
@@ -128,7 +130,7 @@ const mockBilling = [
 // Navigation
 // ============================================================
 
-type NavSection = 'dashboard' | 'profile' | 'branches' | 'recruiters' | 'vacancies' | 'candidates' | 'pipeline' | 'saved' | 'matching' | 'messages' | 'notifications' | 'analytics' | 'subscription' | 'billing' | 'reports' | 'team' | 'settings';
+type NavSection = 'dashboard' | 'profile' | 'branches' | 'recruiters' | 'vacancies' | 'candidates' | 'pipeline' | 'saved' | 'matching' | 'messages' | 'notifications' | 'analytics' | 'subscription' | 'billing' | 'reports' | 'team' | 'settings' | 'directory' | 'dir_saved' | 'dir_viewed' | 'dir_contacts' | 'dir_pipeline';
 
 function CompanyNav({ activeTab, setActiveTab }: { activeTab: NavSection; setActiveTab: (tab: NavSection) => void }) {
   const { t, i18n } = useTranslation();
@@ -149,11 +151,17 @@ function CompanyNav({ activeTab, setActiveTab }: { activeTab: NavSection; setAct
     { label: t('vacancies'), items: [
       { id: 'vacancies' as NavSection, icon: FileText, label: t('vacancies') },
     ]},
-    { label: t('candidates'), items: [
-      { id: 'candidates' as NavSection, icon: Users, label: t('candidates') },
+    { label: t('applicants'), items: [
+      { id: 'candidates' as NavSection, icon: Users, label: t('applicants') },
       { id: 'pipeline' as NavSection, icon: Layers, label: t('hiring_pipeline') },
-      { id: 'saved' as NavSection, icon: Heart, label: t('saved_candidates') },
       { id: 'matching' as NavSection, icon: Sparkles, label: t('matching_queue') },
+    ]},
+    { label: t('candidate_directory'), items: [
+      { id: 'directory' as NavSection, icon: Search, label: t('candidate_directory') },
+      { id: 'dir_saved' as NavSection, icon: Heart, label: t('saved_candidates') },
+      { id: 'dir_viewed' as NavSection, icon: Eye, label: t('viewed_candidates') },
+      { id: 'dir_contacts' as NavSection, icon: Send, label: t('contact_requests') },
+      { id: 'dir_pipeline' as NavSection, icon: Layers, label: t('talent_pipeline') },
     ]},
     { label: t('messages'), items: [
       { id: 'messages' as NavSection, icon: MessageSquare, label: t('messages') },
@@ -1510,11 +1518,25 @@ export default function Company() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const getTabTitle = (tab: NavSection) => {
-    const map: Record<string, string> = { dashboard: t('dashboard'), profile: t('company_profile'), branches: t('branches'), recruiters: t('recruiters'), vacancies: t('vacancies'), candidates: t('applicant_tracking'), pipeline: t('hiring_pipeline'), saved: t('saved_candidates'), matching: t('matching_queue'), messages: t('messages'), notifications: t('notifications'), analytics: t('analytics'), subscription: t('subscription'), billing: t('billing'), reports: t('reports'), team: t('team_members'), settings: t('settings') };
+    const map: Record<string, string> = { dashboard: t('dashboard'), profile: t('company_profile'), branches: t('branches'), recruiters: t('recruiters'), vacancies: t('vacancies'), candidates: t('applicant_tracking'), pipeline: t('hiring_pipeline'), saved: t('saved_candidates'), matching: t('matching_queue'), messages: t('messages'), notifications: t('notifications'), analytics: t('analytics'), subscription: t('subscription'), billing: t('billing'), reports: t('reports'), team: t('team_members'), settings: t('settings'), directory: t('candidate_directory'), dir_saved: t('saved_candidates'), dir_viewed: t('viewed_candidates'), dir_contacts: t('contact_requests'), dir_pipeline: t('talent_pipeline') };
     return map[tab] || tab;
   };
 
+  // Map nav sections to directory views
+  const directoryViewMap: Record<string, DirectoryView> = {
+    directory: 'directory',
+    dir_saved: 'saved',
+    dir_viewed: 'viewed',
+    dir_contacts: 'contacts',
+    dir_pipeline: 'pipeline',
+  };
+
   const renderContent = () => {
+    // Handle directory views
+    if (activeTab in directoryViewMap) {
+      return <CandidateDirectory activeView={directoryViewMap[activeTab]} companyTier="premium" />;
+    }
+
     switch(activeTab) {
       case 'dashboard': return <DashboardView onNavigate={setActiveTab} />;
       case 'profile': return <ProfileView />;
@@ -1533,7 +1555,7 @@ export default function Company() {
       case 'reports': return <ReportsView />;
       case 'team': return <TeamView />;
       case 'settings': return <SettingsView />;
-      default: return <DashboardView />;
+      default: return <DashboardView onNavigate={setActiveTab} />;
     }
   };
 

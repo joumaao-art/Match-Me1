@@ -49,6 +49,7 @@ Build MatchMe - an AI-powered recruitment platform with swipe-based matching bet
 - [x] Full interactive functionality audit - all CRUD operations implemented with dialogs, state management, validation, and toast feedback
 - [x] Refactor Company Dashboard stat cards to be interactive drill-down widgets (clickable, hover, keyboard accessible, navigate to detail views)
 - [x] Fix Company → Candidates search & filter: root cause was unbound search input + missing filter logic. Implemented full search/filter/sort/pagination system with debounce, multi-field search, combined filters, active filter chips, clear filters, empty state, and bilingual support (EN/AR)
+- [x] Implement Candidate Directory (Part 1): Company navigation expanded with Directory submenu (Directory, Saved, Viewed, Contacts, Pipeline), Card/Table views with persistence, enterprise-grade search (debounce, multi-field, fuzzy), 17 combinable filters, 10 sort options, pagination, subscription-tier access control (Free/Premium/Enterprise with locked/blurred content), candidate profile modal, save/favorite system, talent pipeline with Kanban stages, viewed history tracking, contact workflow, premium upsell banners, full EN/AR bilingual support
 
 ## Progress Log
 - 2026-07-17: Project initialized with Supabase template, dependencies installed
