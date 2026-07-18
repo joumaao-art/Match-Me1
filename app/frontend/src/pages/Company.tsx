@@ -30,6 +30,10 @@ import {
   AIRecommendationsView, CompanyInvitationsView, EnhancedSavedCandidatesView,
   AdvancedTalentPipelineView, TeamCollaborationView, TalentAnalyticsView,
 } from '@/components/shared/AITalentIntelligence';
+import {
+  RoleManagementView, TeamManagementView, DepartmentManagementView,
+  AuditLogsView, FeatureFlagsView, OrganizationSettingsView, SecurityDashboardView,
+} from '@/components/shared/EnterpriseRBAC';
 
 // ============================================================
 // Types
@@ -134,7 +138,7 @@ const mockBilling = [
 // Navigation
 // ============================================================
 
-type NavSection = 'dashboard' | 'profile' | 'branches' | 'recruiters' | 'vacancies' | 'candidates' | 'pipeline' | 'saved' | 'matching' | 'messages' | 'notifications' | 'analytics' | 'subscription' | 'billing' | 'reports' | 'team' | 'settings' | 'directory' | 'dir_saved' | 'dir_viewed' | 'dir_contacts' | 'dir_pipeline' | 'ai_recommendations' | 'invitations' | 'enhanced_saved' | 'advanced_pipeline' | 'team_collab' | 'talent_analytics';
+type NavSection = 'dashboard' | 'profile' | 'branches' | 'recruiters' | 'vacancies' | 'candidates' | 'pipeline' | 'saved' | 'matching' | 'messages' | 'notifications' | 'analytics' | 'subscription' | 'billing' | 'reports' | 'team' | 'settings' | 'directory' | 'dir_saved' | 'dir_viewed' | 'dir_contacts' | 'dir_pipeline' | 'ai_recommendations' | 'invitations' | 'enhanced_saved' | 'advanced_pipeline' | 'team_collab' | 'talent_analytics' | 'role_management' | 'enterprise_team' | 'departments' | 'audit_logs' | 'feature_flags' | 'org_settings' | 'security';
 
 function CompanyNav({ activeTab, setActiveTab }: { activeTab: NavSection; setActiveTab: (tab: NavSection) => void }) {
   const { t, i18n } = useTranslation();
@@ -186,6 +190,15 @@ function CompanyNav({ activeTab, setActiveTab }: { activeTab: NavSection; setAct
     { label: t('subscription'), items: [
       { id: 'subscription' as NavSection, icon: CreditCard, label: t('subscription') },
       { id: 'billing' as NavSection, icon: Receipt, label: t('billing') },
+    ]},
+    { label: t('enterprise'), items: [
+      { id: 'role_management' as NavSection, icon: Shield, label: t('role_management') },
+      { id: 'enterprise_team' as NavSection, icon: Users, label: t('team_management') },
+      { id: 'departments' as NavSection, icon: Building2, label: t('departments') },
+      { id: 'audit_logs' as NavSection, icon: Clock, label: t('audit_logs') },
+      { id: 'feature_flags' as NavSection, icon: TrendingUp, label: t('feature_flags') },
+      { id: 'org_settings' as NavSection, icon: Settings, label: t('organization_settings') },
+      { id: 'security' as NavSection, icon: Lock, label: t('security_dashboard') },
     ]},
     { label: t('settings'), items: [
       { id: 'team' as NavSection, icon: Shield, label: t('team_members') },
@@ -1530,7 +1543,7 @@ export default function Company() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const getTabTitle = (tab: NavSection) => {
-    const map: Record<string, string> = { dashboard: t('dashboard'), profile: t('company_profile'), branches: t('branches'), recruiters: t('recruiters'), vacancies: t('vacancies'), candidates: t('applicant_tracking'), pipeline: t('hiring_pipeline'), saved: t('saved_candidates'), matching: t('matching_queue'), messages: t('messages'), notifications: t('notifications'), analytics: t('analytics'), subscription: t('subscription'), billing: t('billing'), reports: t('reports'), team: t('team_members'), settings: t('settings'), directory: t('candidate_directory'), dir_saved: t('saved_candidates'), dir_viewed: t('viewed_candidates'), dir_contacts: t('contact_requests'), dir_pipeline: t('talent_pipeline'), ai_recommendations: t('ai_recommendations'), invitations: t('invitations_sent'), enhanced_saved: t('saved_folders'), advanced_pipeline: t('advanced_pipeline'), team_collab: t('team_collaboration'), talent_analytics: t('talent_analytics') };
+    const map: Record<string, string> = { dashboard: t('dashboard'), profile: t('company_profile'), branches: t('branches'), recruiters: t('recruiters'), vacancies: t('vacancies'), candidates: t('applicant_tracking'), pipeline: t('hiring_pipeline'), saved: t('saved_candidates'), matching: t('matching_queue'), messages: t('messages'), notifications: t('notifications'), analytics: t('analytics'), subscription: t('subscription'), billing: t('billing'), reports: t('reports'), team: t('team_members'), settings: t('settings'), directory: t('candidate_directory'), dir_saved: t('saved_candidates'), dir_viewed: t('viewed_candidates'), dir_contacts: t('contact_requests'), dir_pipeline: t('talent_pipeline'), ai_recommendations: t('ai_recommendations'), invitations: t('invitations_sent'), enhanced_saved: t('saved_folders'), advanced_pipeline: t('advanced_pipeline'), team_collab: t('team_collaboration'), talent_analytics: t('talent_analytics'), role_management: t('role_management'), enterprise_team: t('team_management'), departments: t('departments'), audit_logs: t('audit_logs'), feature_flags: t('feature_flags'), org_settings: t('organization_settings'), security: t('security_dashboard') };
     return map[tab] || tab;
   };
 
@@ -1573,6 +1586,13 @@ export default function Company() {
       case 'advanced_pipeline': return <AdvancedTalentPipelineView tier="premium" />;
       case 'team_collab': return <TeamCollaborationView tier="premium" />;
       case 'talent_analytics': return <TalentAnalyticsView tier="premium" />;
+      case 'role_management': return <RoleManagementView />;
+      case 'enterprise_team': return <TeamManagementView />;
+      case 'departments': return <DepartmentManagementView />;
+      case 'audit_logs': return <AuditLogsView />;
+      case 'feature_flags': return <FeatureFlagsView />;
+      case 'org_settings': return <OrganizationSettingsView />;
+      case 'security': return <SecurityDashboardView />;
       default: return <DashboardView onNavigate={setActiveTab} />;
     }
   };
