@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
+import { BackButton } from '@/components/shared';
+import { useAuthStore } from '@/stores';
 import {
   Bell, BellOff, Check, CheckCheck, Trash2, Archive, Settings,
   Heart, Calendar, MessageSquare, FileText, Building, Clock,
@@ -245,6 +247,8 @@ function PreferencesPanel({
 export default function Notifications() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { userRole } = useAuthStore();
+  const backFallback = userRole === 'company' ? '/company' : userRole === 'admin' ? '/admin' : '/seeker';
   const {
     notifications, unreadCount, preferences, grouped,
     markAsRead, markAllAsRead, archiveNotification, deleteNotification,
@@ -278,6 +282,7 @@ export default function Notifications() {
         <div className="max-w-3xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+              <BackButton fallbackRoute={backFallback} />
               <Bell className="w-5 h-5 text-primary" />
               <h1 className="text-lg font-bold font-[Poppins]">{t('notifications')}</h1>
               {unreadCount > 0 && <Badge className="text-xs">{unreadCount} {t('unread')}</Badge>}

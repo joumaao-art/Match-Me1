@@ -8,8 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/App';
+import { useAuthStore } from '@/stores';
 import { changeLanguage } from '@/lib/i18n';
 import { toast } from 'sonner';
+import { BackButton } from '@/components/shared';
 import {
   Sparkles, MessageSquare, Send, Paperclip, Image, FileText, Check, CheckCheck,
   Search, MoreVertical, Phone, Video, Archive, Flag, Ban, ArrowLeft,
@@ -234,7 +236,10 @@ function ConversationList({
   return (
     <div className="flex flex-col h-full border-e border-border">
       <div className="p-4 border-b border-border">
-        <h2 className="text-lg font-bold font-[Poppins] mb-3">{t('messages')}</h2>
+        <div className="flex items-center gap-2 mb-3">
+          <BackButton fallbackRoute={backFallback} />
+          <h2 className="text-lg font-bold font-[Poppins]">{t('messages')}</h2>
+        </div>
         <div className="relative"><Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground" /><Input placeholder={t('search_conversations')} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="ps-9 h-9" /></div>
         <div className="flex gap-2 mt-3">
           <Badge variant={!showArchived ? 'default' : 'outline'} className="cursor-pointer text-xs" onClick={() => setShowArchived(false)}>{t('active')}</Badge>
@@ -454,6 +459,8 @@ function ChatView({
 export default function Messages() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { userRole } = useAuthStore();
+  const backFallback = userRole === 'company' ? '/company' : userRole === 'admin' ? '/admin' : '/seeker';
   const [conversations, setConversations] = useState(mockConversations);
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
   const [allMessages, setAllMessages] = useState<Record<string, Message[]>>(mockMessages);

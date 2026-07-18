@@ -9,3 +9,4 @@ export type { NavItem } from './Sidebar';
 export { EmptyState } from './EmptyState';
 export { StatCard } from './StatCard';
 export { LoadingSpinner } from './LoadingSpinner';
+export { BackButton } from './BackButton';

@@ -14,8 +14,9 @@ import { Label } from '@/components/ui/label';
 import { useAuthStore } from '@/stores';
 import { authService } from '@/services';
 import { ROUTES } from '@/config/constants';
+import { BackButton } from '@/components/shared';
 import { toast } from 'sonner';
-import { ShieldCheck, ArrowLeft, Mail, Lock, Eye, EyeOff, AlertTriangle } from 'lucide-react';
+import { ShieldCheck, Mail, Lock, Eye, EyeOff, AlertTriangle } from 'lucide-react';
 
 export default function AdminLogin() {
   const { t } = useTranslation();
@@ -62,9 +63,7 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Top bar */}
       <div className="p-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate(ROUTES.AUTH)} className="cursor-pointer">
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
+        <BackButton fallbackRoute={ROUTES.AUTH} />
       </div>
 
       <div className="flex-1 flex items-center justify-center px-4 pb-8">

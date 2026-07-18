@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { authService } from '@/services';
 import { ROUTES, VALIDATION } from '@/config/constants';
 import { toast } from 'sonner';
+import { BackButton } from '@/components/shared';
 import { Sparkles, Lock, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 
 export default function ResetPassword() {
@@ -97,6 +98,9 @@ export default function ResetPassword() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-md">
+        <div className="flex items-center justify-between mb-6">
+          <BackButton fallbackRoute="/auth" showLabel label={t('back_to_login')} size="sm" />
+        </div>
         <div className="text-center mb-8">
           <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mx-auto mb-3">
             <Sparkles className="w-7 h-7 text-primary-foreground" />

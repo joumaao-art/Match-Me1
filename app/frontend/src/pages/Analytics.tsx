@@ -15,8 +15,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { BackButton } from '@/components/shared';
 import {
-  ArrowLeft, Users, Activity, Heart, FileText, TrendingUp, TrendingDown,
+  Users, Activity, Heart, FileText, TrendingUp, TrendingDown,
   Target, Clock, DollarSign, UserCheck, UserMinus, Building2, Briefcase,
   Star, Award, Zap, BarChart3, PieChart, LineChart, Download, RefreshCw,
   Calendar, Globe, Crown, Medal, Trophy
@@ -335,9 +336,7 @@ export default function Analytics() {
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="h-14 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" className="cursor-pointer" onClick={() => navigate('/admin')}>
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
+              <BackButton fallbackRoute="/admin" />
               <div>
                 <h1 className="text-lg font-bold font-[Poppins]">Analytics Dashboard</h1>
                 <p className="text-xs text-muted-foreground">Platform performance & KPIs</p>

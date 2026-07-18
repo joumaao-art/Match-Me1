@@ -9,10 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
+import { BackButton } from '@/components/shared';
+import { useAuthStore } from '@/stores';
 import {
   Crown, Check, X, Zap, Building, Rocket, Star, CreditCard, Receipt,
   Tag, Clock, BarChart3, Shield, Users, Briefcase, Eye, MessageSquare,
-  Download, ChevronRight, Sparkles, Gift, Percent, ArrowLeft
+  Download, ChevronRight, Sparkles, Gift, Percent
 } from 'lucide-react';
 import { useAuth } from '@/App';
 
@@ -591,6 +593,8 @@ function CheckoutDialog({
 
 export default function Subscription() {
   const { t } = useTranslation();
+  const { userRole } = useAuthStore();
+  const backFallback = userRole === 'company' ? '/company' : userRole === 'admin' ? '/admin' : '/seeker';
   const [isYearly, setIsYearly] = useState(true);
   const [activeTab, setActiveTab] = useState('plans');
   const [currentPlan] = useState('professional');
@@ -617,6 +621,7 @@ export default function Subscription() {
         <div className="max-w-6xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+              <BackButton fallbackRoute={backFallback} />
               <Crown className="w-5 h-5 text-primary" />
               <h1 className="text-lg font-bold font-[Poppins]">{t('subscription_plans')}</h1>
             </div>
