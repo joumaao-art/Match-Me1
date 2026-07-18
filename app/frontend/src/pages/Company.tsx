@@ -579,13 +579,14 @@ function ReportsView() {
 
 function SubscriptionView() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('subscription')}</h2>
       <Card className="border-primary border-2 mb-6"><CardContent className="p-6">
-        <div className="flex items-center justify-between mb-4"><div><Badge className="mb-2">{t('current_plan')}</Badge><h3 className="text-2xl font-bold font-[Poppins]">{t('premium_plan')}</h3><p className="text-sm text-muted-foreground">$49{t('per_month')}</p></div><CreditCard className="w-10 h-10 text-primary" /></div>
+        <div className="flex items-center justify-between mb-4"><div><Badge className="mb-2">{t('current_plan')}</Badge><h3 className="text-2xl font-bold font-[Poppins]">Professional</h3><p className="text-sm text-muted-foreground">$49{t('per_month')}</p></div><CreditCard className="w-10 h-10 text-primary" /></div>
         <div className="flex items-center gap-4 text-sm text-muted-foreground"><span>{t('next_billing')}: 2026-08-01</span><span>·</span><span>{t('auto_renew')}: {t('active')}</span></div>
-        <div className="flex gap-2 mt-4"><Button variant="outline" className="cursor-pointer">{t('change_plan')}</Button><Button variant="ghost" className="cursor-pointer text-destructive">{t('cancel_subscription')}</Button></div>
+        <div className="flex gap-2 mt-4"><Button className="cursor-pointer" onClick={() => navigate('/company/subscription')}>{t('view_all_plans')}</Button><Button variant="ghost" className="cursor-pointer text-destructive">{t('cancel_subscription')}</Button></div>
       </CardContent></Card>
       <h3 className="font-semibold mb-3">{t('plan_features')}</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

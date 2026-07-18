@@ -236,6 +236,39 @@ function AppRoutes() {
         }
       />
 
+      {/* Role-specific subscription routes (must be before wildcards) */}
+      <Route
+        path="/seeker/subscription"
+        element={
+          <ProtectedRoute allowedRoles={['job_seeker']}>
+            <Suspense fallback={<PageLoader />}>
+              <Subscription />
+            </Suspense>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/company/subscription"
+        element={
+          <ProtectedRoute allowedRoles={['company']}>
+            <Suspense fallback={<PageLoader />}>
+              <Subscription />
+            </Suspense>
+          </ProtectedRoute>
+        }
+      />
+      {/* Legacy /subscription route - role-aware display */}
+      <Route
+        path="/subscription"
+        element={
+          <ProtectedRoute allowedRoles={['job_seeker', 'company']}>
+            <Suspense fallback={<PageLoader />}>
+              <Subscription />
+            </Suspense>
+          </ProtectedRoute>
+        }
+      />
+
       {/* Protected routes - Job Seekers only */}
       <Route
         path="/seeker/*"
@@ -267,16 +300,6 @@ function AppRoutes() {
           <ProtectedRoute allowedRoles={['job_seeker', 'company']}>
             <Suspense fallback={<PageLoader />}>
               <Messages />
-            </Suspense>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/subscription"
-        element={
-          <ProtectedRoute allowedRoles={['job_seeker', 'company']}>
-            <Suspense fallback={<PageLoader />}>
-              <Subscription />
             </Suspense>
           </ProtectedRoute>
         }

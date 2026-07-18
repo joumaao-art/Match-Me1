@@ -162,7 +162,7 @@ function SeekerNav({ activeTab, setActiveTab }: { activeTab: NavSection; setActi
         ))}
       </nav>
       <div className="p-4 border-t border-border space-y-1">
-        <button onClick={() => navigate('/subscription')} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted transition-smooth cursor-pointer"><CreditCard className="w-4 h-4" /><span>{t('subscription')}</span></button>
+        <button onClick={() => navigate('/seeker/subscription')} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted transition-smooth cursor-pointer"><CreditCard className="w-4 h-4" /><span>{t('subscription')}</span></button>
         <button onClick={signOut} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-destructive hover:bg-destructive/10 transition-smooth cursor-pointer"><LogOut className="w-4 h-4" /><span>{t('logout')}</span></button>
       </div>
     </div>
