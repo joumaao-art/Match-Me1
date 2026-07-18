@@ -2,50 +2,86 @@
  * Application root component.
  * Sets up providers, routing, and global state initialization.
  * Implements complete route protection with role-based access.
+ * OPTIMIZED: Lazy loading, code splitting, performance monitoring.
  */
 
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@/components/shared';
 import { useAuthStore, useAppStore } from '@/stores';
 import { authService } from '@/services';
 import { ROUTES } from '@/config/constants';
 import { initializeSecurity, sessionManager, auditLogger } from '@/lib/security';
+import { optimizeStartup, trackPerformance, updateSEO } from '@/lib/performance';
 import '@/lib/i18n';
 
-// Page imports
-import Index from './pages/Index';
-import Auth from './pages/Auth';
-import AdminLogin from './pages/AdminLogin';
-import ResetPassword from './pages/ResetPassword';
-import JobSeeker from './pages/JobSeeker';
-import Company from './pages/Company';
-import Messages from './pages/Messages';
-import Subscription from './pages/Subscription';
-import Notifications from './pages/Notifications';
-import Admin from './pages/Admin';
-import Analytics from './pages/Analytics';
+// ============================================================
+// LAZY LOADED PAGES - Code splitting for smaller initial bundle
+// ============================================================
 
-// Query client configuration
+// Critical path - loaded eagerly (landing page)
+import Index from './pages/Index';
+
+// Auth pages - small, load on demand
+const Auth = lazy(() => import('./pages/Auth'));
+const AdminLogin = lazy(() => import('./pages/AdminLogin'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+
+// Feature pages - large, lazy loaded
+const JobSeeker = lazy(() => import('./pages/JobSeeker'));
+const Company = lazy(() => import('./pages/Company'));
+const Messages = lazy(() => import('./pages/Messages'));
+const Subscription = lazy(() => import('./pages/Subscription'));
+const Notifications = lazy(() => import('./pages/Notifications'));
+const Admin = lazy(() => import('./pages/Admin'));
+const Analytics = lazy(() => import('./pages/Analytics'));
+
+// ============================================================
+// LOADING FALLBACK
+// ============================================================
+
+const PageLoader = memo(() => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="flex flex-col items-center gap-3">
+      <div className="relative">
+        <div className="animate-spin rounded-full h-10 w-10 border-2 border-muted border-t-primary" />
+      </div>
+      <p className="text-sm text-muted-foreground animate-pulse">Loading...</p>
+    </div>
+  </div>
+));
+PageLoader.displayName = 'PageLoader';
+
+// ============================================================
+// QUERY CLIENT - Optimized caching configuration
+// ============================================================
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000,
+      staleTime: 5 * 60 * 1000, // 5 min before refetch
+      gcTime: 30 * 60 * 1000, // 30 min garbage collection (was cacheTime)
       retry: 2,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
       refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
+      // Structural sharing reduces re-renders for unchanged data
+      structuralSharing: true,
+    },
+    mutations: {
+      retry: 1,
     },
   },
 });
 
-/**
- * Auth initialization hook.
- * Listens to Supabase auth state changes, fetches role from DB,
- * and syncs with Zustand store.
- */
+// ============================================================
+// AUTH INITIALIZATION
+// ============================================================
+
 function useAuthInit() {
   const { setUser, setLoading, setEmailVerified, fetchAndSetRole, reset } = useAuthStore();
   const [initialized, setInitialized] = useState(false);
@@ -60,7 +96,6 @@ function useAuthInit() {
       if (session?.user) {
         const user = session.user;
         setUser(user.id, user.email || '', !!user.email_confirmed_at);
-        // Fetch role from database
         await fetchAndSetRole(user.id);
       } else {
         setLoading(false);
@@ -81,7 +116,7 @@ function useAuthInit() {
       } else if (_event === 'TOKEN_REFRESHED' && session?.user) {
         setUser(session.user.id, session.user.email || '', !!session.user.email_confirmed_at);
       } else if (_event === 'PASSWORD_RECOVERY') {
-        // User clicked password reset link - handled by ResetPassword page
+        // Handled by ResetPassword page
       } else if (_event === 'USER_UPDATED' && session?.user) {
         setEmailVerified(!!session.user.email_confirmed_at);
       }
@@ -96,11 +131,10 @@ function useAuthInit() {
   return initialized;
 }
 
-/**
- * Protected route wrapper.
- * Redirects unauthenticated users to login.
- * Enforces role-based access control.
- */
+// ============================================================
+// ROUTE GUARDS
+// ============================================================
+
 function ProtectedRoute({
   children,
   allowedRoles,
@@ -112,23 +146,14 @@ function ProtectedRoute({
   const location = useLocation();
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-        </div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (!isAuthenticated) {
-    // Redirect to login, preserving the intended destination
     return <Navigate to={ROUTES.AUTH} state={{ from: location }} replace />;
   }
 
-  // Role-based access check
   if (allowedRoles && userRole && !allowedRoles.includes(userRole)) {
-    // Redirect to appropriate dashboard based on role
     if (userRole === 'admin') return <Navigate to={ROUTES.ADMIN_DASHBOARD} replace />;
     if (userRole === 'company') return <Navigate to={ROUTES.COMPANY} replace />;
     if (userRole === 'job_seeker') return <Navigate to={ROUTES.SEEKER} replace />;
@@ -138,19 +163,11 @@ function ProtectedRoute({
   return <>{children}</>;
 }
 
-/**
- * Guest-only route wrapper.
- * Redirects authenticated users to their dashboard.
- */
 function GuestRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, userRole, isLoading } = useAuthStore();
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (isAuthenticated && userRole) {
@@ -162,9 +179,6 @@ function GuestRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-/**
- * Auth callback handler for email verification and password reset.
- */
 function AuthCallbackHandler() {
   const { userRole, isAuthenticated } = useAuthStore();
 
@@ -179,21 +193,24 @@ function AuthCallbackHandler() {
   return <Navigate to={ROUTES.AUTH} replace />;
 }
 
-/**
- * Application routes configuration with full protection.
- */
+// ============================================================
+// ROUTES - With Suspense boundaries for lazy components
+// ============================================================
+
 function AppRoutes() {
   return (
     <Routes>
-      {/* Public routes */}
+      {/* Public routes - Index loaded eagerly for fast LCP */}
       <Route path={ROUTES.HOME} element={<Index />} />
 
-      {/* Guest-only routes (redirect if already logged in) */}
+      {/* Guest-only routes */}
       <Route
         path={ROUTES.AUTH}
         element={
           <GuestRoute>
-            <Auth />
+            <Suspense fallback={<PageLoader />}>
+              <Auth />
+            </Suspense>
           </GuestRoute>
         }
       />
@@ -201,21 +218,32 @@ function AppRoutes() {
         path={ROUTES.ADMIN_LOGIN}
         element={
           <GuestRoute>
-            <AdminLogin />
+            <Suspense fallback={<PageLoader />}>
+              <AdminLogin />
+            </Suspense>
           </GuestRoute>
         }
       />
 
       {/* Auth utility routes */}
       <Route path={ROUTES.AUTH_CALLBACK} element={<AuthCallbackHandler />} />
-      <Route path={ROUTES.AUTH_RESET_PASSWORD} element={<ResetPassword />} />
+      <Route
+        path={ROUTES.AUTH_RESET_PASSWORD}
+        element={
+          <Suspense fallback={<PageLoader />}>
+            <ResetPassword />
+          </Suspense>
+        }
+      />
 
       {/* Protected routes - Job Seekers only */}
       <Route
         path="/seeker/*"
         element={
           <ProtectedRoute allowedRoles={['job_seeker']}>
-            <JobSeeker />
+            <Suspense fallback={<PageLoader />}>
+              <JobSeeker />
+            </Suspense>
           </ProtectedRoute>
         }
       />
@@ -225,7 +253,9 @@ function AppRoutes() {
         path="/company/*"
         element={
           <ProtectedRoute allowedRoles={['company']}>
-            <Company />
+            <Suspense fallback={<PageLoader />}>
+              <Company />
+            </Suspense>
           </ProtectedRoute>
         }
       />
@@ -235,7 +265,9 @@ function AppRoutes() {
         path="/messages/*"
         element={
           <ProtectedRoute allowedRoles={['job_seeker', 'company']}>
-            <Messages />
+            <Suspense fallback={<PageLoader />}>
+              <Messages />
+            </Suspense>
           </ProtectedRoute>
         }
       />
@@ -243,7 +275,9 @@ function AppRoutes() {
         path="/subscription"
         element={
           <ProtectedRoute allowedRoles={['job_seeker', 'company']}>
-            <Subscription />
+            <Suspense fallback={<PageLoader />}>
+              <Subscription />
+            </Suspense>
           </ProtectedRoute>
         }
       />
@@ -251,7 +285,9 @@ function AppRoutes() {
         path="/notifications"
         element={
           <ProtectedRoute allowedRoles={['job_seeker', 'company', 'admin']}>
-            <Notifications />
+            <Suspense fallback={<PageLoader />}>
+              <Notifications />
+            </Suspense>
           </ProtectedRoute>
         }
       />
@@ -261,7 +297,9 @@ function AppRoutes() {
         path="/admin/analytics"
         element={
           <ProtectedRoute allowedRoles={['admin']}>
-            <Analytics />
+            <Suspense fallback={<PageLoader />}>
+              <Analytics />
+            </Suspense>
           </ProtectedRoute>
         }
       />
@@ -269,7 +307,9 @@ function AppRoutes() {
         path="/admin/*"
         element={
           <ProtectedRoute allowedRoles={['admin']}>
-            <Admin />
+            <Suspense fallback={<PageLoader />}>
+              <Admin />
+            </Suspense>
           </ProtectedRoute>
         }
       />
@@ -280,9 +320,10 @@ function AppRoutes() {
   );
 }
 
-/**
- * Root App component.
- */
+// ============================================================
+// ROOT APP COMPONENT
+// ============================================================
+
 const App = () => {
   const { i18n } = useTranslation();
   const { language } = useAppStore();
@@ -291,12 +332,26 @@ const App = () => {
   // Initialize auth state
   useAuthInit();
 
-  // Initialize security measures
+  // Initialize security + performance on mount
   useEffect(() => {
     initializeSecurity();
+    optimizeStartup();
+
+    // Track Core Web Vitals in development
+    if (import.meta.env.DEV) {
+      trackPerformance();
+    }
+
+    // Set default SEO
+    updateSEO({
+      title: 'MatchMe - AI-Powered Recruitment Platform',
+      description: 'Find your perfect job match with AI-powered recruitment. Swipe-based matching for job seekers and companies.',
+      keywords: ['recruitment', 'jobs', 'AI matching', 'career', 'hiring', 'job search'],
+      ogType: 'website',
+    });
   }, []);
 
-  // Session management - start monitoring when authenticated
+  // Session management
   useEffect(() => {
     if (isAuthenticated) {
       sessionManager.start({
