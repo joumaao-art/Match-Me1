@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useAuth } from '@/App';
 import { changeLanguage } from '@/lib/i18n';
 import { toast } from 'sonner';
@@ -19,14 +19,69 @@ import {
   Sparkles, Home, Heart, MessageSquare, Bookmark, Settings, LogOut,
   Globe, Moon, Sun, Building2, MapPin, Briefcase, GraduationCap, X, Check,
   ChevronRight, User, BarChart3, CreditCard, Bell, FileText, Award,
-  Languages, Video, Sliders, Clock, Plus, Edit, Trash2, Upload,
+  Languages as LanguagesIcon, Video, Sliders, Clock, Plus, Edit, Trash2, Upload,
   ExternalLink, Star, Eye, Calendar, Download, Link2, Layers, Undo2,
-  TrendingUp, Zap, Target, Weight
+  TrendingUp, Zap, Target
 } from 'lucide-react';
 import { useMatchingEngine } from '@/lib/useMatchingEngine';
 import { SeekerProfile, VacancyProfile, DEFAULT_WEIGHTS } from '@/lib/matching-engine';
 import { useAIMatching } from '@/lib/useAIMatching';
 import { SeekerAIProfile, VacancyAIProfile, MatchExplanation } from '@/lib/ai-matching-engine';
+
+// ============================================================
+// Types
+// ============================================================
+
+interface Experience {
+  id: string;
+  company: string;
+  title: string;
+  type: string;
+  from: string;
+  to: string;
+  current: boolean;
+  description: string;
+}
+
+interface Education {
+  id: string;
+  institution: string;
+  degree: string;
+  field: string;
+  from: string;
+  to: string;
+  grade: string;
+}
+
+interface Certificate {
+  id: string;
+  name: string;
+  issuer: string;
+  date: string;
+  expiry: string | null;
+  verified: boolean;
+}
+
+interface Skill {
+  id: string;
+  name: string;
+  level: string;
+  years: number;
+  endorsed: number;
+}
+
+interface Language {
+  id: string;
+  name: string;
+  level: string;
+}
+
+interface PortfolioItem {
+  id: string;
+  title: string;
+  desc: string;
+  url: string;
+}
 
 // ============================================================
 // Mock Data
@@ -65,21 +120,21 @@ const mockNotifications = [
   { id: '4', type: 'message', message: 'New message from DataFlow recruiter', time: '2 days ago', read: true },
 ];
 
-const mockExperience = [
+const initialExperience: Experience[] = [
   { id: '1', company: 'StartupX', title: 'Frontend Developer', type: 'Full-time', from: '2023-01', to: '2026-07', current: true, description: 'Building modern web applications with React and TypeScript.' },
   { id: '2', company: 'WebAgency', title: 'Junior Developer', type: 'Full-time', from: '2021-06', to: '2023-01', current: false, description: 'Developed responsive websites and e-commerce platforms.' },
 ];
 
-const mockEducation = [
+const initialEducation: Education[] = [
   { id: '1', institution: 'University of Dubai', degree: "Bachelor's", field: 'Computer Science', from: '2017', to: '2021', grade: '3.8 GPA' },
 ];
 
-const mockCertificates = [
+const initialCertificates: Certificate[] = [
   { id: '1', name: 'AWS Solutions Architect', issuer: 'Amazon Web Services', date: '2025-03', expiry: '2028-03', verified: true },
   { id: '2', name: 'React Advanced Patterns', issuer: 'Frontend Masters', date: '2024-11', expiry: null, verified: true },
 ];
 
-const mockSkills = [
+const initialSkills: Skill[] = [
   { id: '1', name: 'React', level: 'expert', years: 4, endorsed: 12 },
   { id: '2', name: 'TypeScript', level: 'advanced', years: 3, endorsed: 8 },
   { id: '3', name: 'Node.js', level: 'advanced', years: 3, endorsed: 6 },
@@ -87,10 +142,15 @@ const mockSkills = [
   { id: '5', name: 'PostgreSQL', level: 'intermediate', years: 2, endorsed: 3 },
 ];
 
-const mockLanguages = [
+const initialLanguages: Language[] = [
   { id: '1', name: 'Arabic', level: 'native' },
   { id: '2', name: 'English', level: 'advanced' },
   { id: '3', name: 'French', level: 'intermediate' },
+];
+
+const initialPortfolio: PortfolioItem[] = [
+  { id: '1', title: 'E-commerce Platform', desc: 'Full-stack e-commerce with React & Node.js', url: 'https://github.com/ahmed/ecommerce' },
+  { id: '2', title: 'Task Management App', desc: 'Kanban-style project management tool', url: 'https://taskapp.demo.com' },
 ];
 
 // ============================================================
@@ -118,7 +178,7 @@ function SeekerNav({ activeTab, setActiveTab }: { activeTab: NavSection; setActi
       { id: 'education' as NavSection, icon: GraduationCap, label: t('education') },
       { id: 'certificates' as NavSection, icon: Award, label: t('certificates') },
       { id: 'skills' as NavSection, icon: Star, label: t('skills') },
-      { id: 'languages' as NavSection, icon: Languages, label: t('languages') },
+      { id: 'languages' as NavSection, icon: LanguagesIcon, label: t('languages') },
       { id: 'portfolio' as NavSection, icon: Layers, label: t('portfolio') },
       { id: 'video' as NavSection, icon: Video, label: t('video_intro') },
     ]},
@@ -261,7 +321,6 @@ function SwipeCard({ job, score, onSwipe }: { job: typeof mockJobs[0]; score: nu
 
   return (
     <motion.div className="absolute inset-0 cursor-grab active:cursor-grabbing" style={{ x, rotate, opacity }} drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.7} onDragEnd={handleDragEnd}>
-      {/* Swipe direction indicators */}
       <motion.div className="absolute top-6 start-6 z-10 px-3 py-1 rounded-lg border-2 border-destructive text-destructive font-bold rotate-[-12deg]" style={{ opacity: leftIndicatorOpacity }}>{t('reject')}</motion.div>
       <motion.div className="absolute top-6 end-6 z-10 px-3 py-1 rounded-lg border-2 border-green-500 text-green-500 font-bold rotate-[12deg]" style={{ opacity: rightIndicatorOpacity }}>{t('interested')}</motion.div>
 
@@ -271,7 +330,6 @@ function SwipeCard({ job, score, onSwipe }: { job: typeof mockJobs[0]; score: nu
           <div className="text-end">
             <div className={`text-2xl font-bold font-[Poppins] ${scoreColor}`}>{score}%</div>
             <p className="text-xs text-muted-foreground">{t('match_score')}</p>
-            <div className="flex items-center gap-0.5 mt-1 justify-end">{[...Array(5)].map((_, i) => <div key={i} className={`w-1.5 h-1.5 rounded-full ${i < Math.round(score / 20) ? 'bg-primary' : 'bg-muted'}`} />)}</div>
           </div>
         </div>
         <h2 className="text-xl font-bold font-[Poppins] mb-3">{job.job_title}</h2>
@@ -295,14 +353,12 @@ function MatchExplanationPanel({ explanation }: { explanation: MatchExplanation 
   const { t } = useTranslation();
   return (
     <div className="space-y-3 mt-3">
-      {/* Top Reasons */}
       <div className="bg-green-50 dark:bg-green-950/30 rounded-lg p-3">
         <p className="text-xs font-medium text-green-800 dark:text-green-300 mb-1">{t('why_recommended')}</p>
         {explanation.topReasons.map((reason, i) => (
           <p key={i} className="text-xs text-green-700 dark:text-green-400 flex items-start gap-1"><Check className="w-3 h-3 shrink-0 mt-0.5" />{reason}</p>
         ))}
       </div>
-      {/* Factor bars */}
       <div className="space-y-1.5">
         {explanation.factors.filter(f => f.weight >= 0.07).slice(0, 5).map((f) => (
           <div key={f.name} className="flex items-center gap-2">
@@ -312,7 +368,6 @@ function MatchExplanationPanel({ explanation }: { explanation: MatchExplanation 
           </div>
         ))}
       </div>
-      {/* Confidence */}
       <div className="flex items-center justify-between text-[10px] text-muted-foreground">
         <span>{t('ai_confidence')}: {Math.round(explanation.confidence * 100)}%</span>
         {explanation.improvementTips.length > 0 && <span className="text-amber-600">{t('tip')}: {explanation.improvementTips[0]}</span>}
@@ -330,7 +385,6 @@ function SwipeView() {
   const [showExplanation, setShowExplanation] = useState(false);
   const [currentExplanation, setCurrentExplanation] = useState<MatchExplanation | null>(null);
 
-  // Get AI-recommended jobs sorted by score
   const recommendedJobs = useMemo(() => {
     const recommendations = aiMatching.getRecommendations(AI_SEEKER, AI_VACANCIES);
     return recommendations.map(r => {
@@ -341,7 +395,6 @@ function SwipeView() {
 
   const currentJob = recommendedJobs[0];
 
-  // Calculate explanation for current job
   useMemo(() => {
     if (currentJob) {
       const vacancy = AI_VACANCIES.find(v => v.id === currentJob.id);
@@ -353,8 +406,6 @@ function SwipeView() {
 
   const handleSwipe = useCallback((dir: 'left' | 'right') => {
     if (!currentJob) return;
-
-    // Record interaction for AI learning
     const matchContext = currentExplanation ? {
       skillMatch: currentExplanation.factors.find(f => f.name === 'Skills')?.score || 0,
       locationMatch: currentExplanation.factors.find(f => f.name === 'Location')?.score || 0,
@@ -409,7 +460,6 @@ function SwipeView() {
         </div>
       </div>
 
-      {/* AI Learning stats */}
       <div className="flex items-center gap-4 mb-3 text-xs text-muted-foreground">
         <span className="flex items-center gap-1"><Sparkles className="w-3 h-3 text-primary" />{t('ai_powered')}</span>
         <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" />{t('match_rate')}: {engine.stats.matchRate}%</span>
@@ -423,7 +473,6 @@ function SwipeView() {
         ))}
       </div>
 
-      {/* AI Explanation toggle */}
       {currentExplanation && (
         <div className="mt-2">
           <Button variant="ghost" size="sm" className="cursor-pointer w-full text-xs gap-1" onClick={() => setShowExplanation(!showExplanation)}>
@@ -478,26 +527,44 @@ function DashboardView() {
 
 function ProfileView() {
   const { t } = useTranslation();
+  const [profile, setProfile] = useState({
+    firstName: 'Ahmed', lastName: 'Hassan', email: 'ahmed@example.com',
+    mobile: '+971 50 123 4567', country: 'UAE', city: 'Dubai',
+    nationality: 'Egyptian', dob: '1995-03-15',
+    headline: 'Senior Frontend Developer | React & TypeScript Expert',
+    summary: 'Passionate frontend developer with 5+ years of experience building scalable web applications...',
+    openToWork: true,
+  });
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = () => {
+    setSaving(true);
+    setTimeout(() => {
+      setSaving(false);
+      toast.success(t('profile_saved'));
+    }, 800);
+  };
+
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('profile')}</h2>
       <div className="max-w-2xl space-y-6">
         <Card><CardContent className="p-6">
-          <div className="flex items-center gap-4 mb-6"><div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center"><User className="w-10 h-10 text-primary" /></div><div><Button variant="outline" size="sm" className="cursor-pointer">{t('upload_photo')}</Button><p className="text-xs text-muted-foreground mt-1">{t('photo_hint')}</p></div></div>
+          <div className="flex items-center gap-4 mb-6"><div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center"><User className="w-10 h-10 text-primary" /></div><div><Button variant="outline" size="sm" className="cursor-pointer" onClick={() => toast.success(t('photo_upload_started'))}>{t('upload_photo')}</Button><p className="text-xs text-muted-foreground mt-1">{t('photo_hint')}</p></div></div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div><Label>{t('first_name')}</Label><Input defaultValue="Ahmed" className="mt-1" /></div>
-            <div><Label>{t('last_name')}</Label><Input defaultValue="Hassan" className="mt-1" /></div>
-            <div><Label>{t('email')}</Label><Input defaultValue="ahmed@example.com" className="mt-1" disabled /></div>
-            <div><Label>{t('mobile')}</Label><Input defaultValue="+971 50 123 4567" className="mt-1" /></div>
-            <div><Label>{t('country')}</Label><Input defaultValue="UAE" className="mt-1" /></div>
-            <div><Label>{t('city')}</Label><Input defaultValue="Dubai" className="mt-1" /></div>
-            <div><Label>{t('nationality')}</Label><Input defaultValue="Egyptian" className="mt-1" /></div>
-            <div><Label>{t('date_of_birth')}</Label><Input type="date" defaultValue="1995-03-15" className="mt-1" /></div>
+            <div><Label>{t('first_name')}</Label><Input value={profile.firstName} onChange={(e) => setProfile({...profile, firstName: e.target.value})} className="mt-1" /></div>
+            <div><Label>{t('last_name')}</Label><Input value={profile.lastName} onChange={(e) => setProfile({...profile, lastName: e.target.value})} className="mt-1" /></div>
+            <div><Label>{t('email')}</Label><Input value={profile.email} className="mt-1" disabled /></div>
+            <div><Label>{t('mobile')}</Label><Input value={profile.mobile} onChange={(e) => setProfile({...profile, mobile: e.target.value})} className="mt-1" /></div>
+            <div><Label>{t('country')}</Label><Input value={profile.country} onChange={(e) => setProfile({...profile, country: e.target.value})} className="mt-1" /></div>
+            <div><Label>{t('city')}</Label><Input value={profile.city} onChange={(e) => setProfile({...profile, city: e.target.value})} className="mt-1" /></div>
+            <div><Label>{t('nationality')}</Label><Input value={profile.nationality} onChange={(e) => setProfile({...profile, nationality: e.target.value})} className="mt-1" /></div>
+            <div><Label>{t('date_of_birth')}</Label><Input type="date" value={profile.dob} onChange={(e) => setProfile({...profile, dob: e.target.value})} className="mt-1" /></div>
           </div>
-          <div className="mt-4"><Label>{t('headline')}</Label><Input defaultValue="Senior Frontend Developer | React & TypeScript Expert" className="mt-1" /></div>
-          <div className="mt-4"><Label>{t('professional_summary')}</Label><Textarea defaultValue="Passionate frontend developer with 5+ years of experience building scalable web applications..." className="mt-1" rows={4} /></div>
-          <div className="flex items-center gap-3 mt-4"><Switch defaultChecked /><Label>{t('open_to_work')}</Label></div>
-          <Button className="mt-4 cursor-pointer">{t('save')}</Button>
+          <div className="mt-4"><Label>{t('headline')}</Label><Input value={profile.headline} onChange={(e) => setProfile({...profile, headline: e.target.value})} className="mt-1" /></div>
+          <div className="mt-4"><Label>{t('professional_summary')}</Label><Textarea value={profile.summary} onChange={(e) => setProfile({...profile, summary: e.target.value})} className="mt-1" rows={4} /></div>
+          <div className="flex items-center gap-3 mt-4"><Switch checked={profile.openToWork} onCheckedChange={(v) => setProfile({...profile, openToWork: v})} /><Label>{t('open_to_work')}</Label></div>
+          <Button className="mt-4 cursor-pointer" onClick={handleSave} disabled={saving}>{saving ? t('loading') : t('save')}</Button>
         </CardContent></Card>
       </div>
     </div>
@@ -510,6 +577,25 @@ function ProfileView() {
 
 function CVView() {
   const { t } = useTranslation();
+  const [resumes, setResumes] = useState([
+    { id: '1', name: 'Ahmed_Hassan_CV_2026.pdf', size: '2.4 MB', date: 'Jul 10, 2026', primary: true },
+  ]);
+
+  const handleUpload = () => {
+    const newResume = { id: Date.now().toString(), name: `Resume_${new Date().toISOString().slice(0, 10)}.pdf`, size: '1.8 MB', date: new Date().toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' }), primary: resumes.length === 0 };
+    setResumes([...resumes, newResume]);
+    toast.success(t('resume_uploaded'));
+  };
+
+  const handleDelete = (id: string) => {
+    setResumes(resumes.filter(r => r.id !== id));
+    toast.success(t('resume_deleted'));
+  };
+
+  const handleDownload = (name: string) => {
+    toast.success(t('download_started'));
+  };
+
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('my_resume')}</h2>
@@ -518,12 +604,14 @@ function CVView() {
           <Upload className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
           <h3 className="font-medium mb-1">{t('upload_resume')}</h3>
           <p className="text-sm text-muted-foreground mb-4">{t('resume_formats')}</p>
-          <Button className="cursor-pointer gap-2"><Upload className="w-4 h-4" />{t('upload')}</Button>
+          <Button className="cursor-pointer gap-2" onClick={handleUpload}><Upload className="w-4 h-4" />{t('upload')}</Button>
         </CardContent></Card>
-        <Card><CardContent className="p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3"><FileText className="w-8 h-8 text-primary" /><div><p className="font-medium text-sm">Ahmed_Hassan_CV_2026.pdf</p><p className="text-xs text-muted-foreground">2.4 MB · {t('uploaded')} Jul 10, 2026</p></div></div>
-          <div className="flex items-center gap-2"><Badge variant="default" className="text-xs">{t('primary')}</Badge><Button size="sm" variant="ghost" className="cursor-pointer"><Download className="w-4 h-4" /></Button><Button size="sm" variant="ghost" className="cursor-pointer text-destructive"><Trash2 className="w-4 h-4" /></Button></div>
-        </CardContent></Card>
+        {resumes.map(resume => (
+          <Card key={resume.id}><CardContent className="p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3"><FileText className="w-8 h-8 text-primary" /><div><p className="font-medium text-sm">{resume.name}</p><p className="text-xs text-muted-foreground">{resume.size} · {t('uploaded')} {resume.date}</p></div></div>
+            <div className="flex items-center gap-2">{resume.primary && <Badge variant="default" className="text-xs">{t('primary')}</Badge>}<Button size="sm" variant="ghost" className="cursor-pointer" onClick={() => handleDownload(resume.name)}><Download className="w-4 h-4" /></Button><Button size="sm" variant="ghost" className="cursor-pointer text-destructive" onClick={() => handleDelete(resume.id)}><Trash2 className="w-4 h-4" /></Button></div>
+          </CardContent></Card>
+        ))}
         <Card><CardContent className="p-4"><div className="flex items-center justify-between"><div><p className="font-medium text-sm">{t('ai_resume_score')}</p><p className="text-xs text-muted-foreground">{t('ai_resume_score_desc')}</p></div><div className="text-2xl font-bold text-primary font-[Poppins]">82/100</div></div><Progress value={82} className="h-2 mt-3" /></CardContent></Card>
       </div>
     </div>
@@ -531,134 +619,486 @@ function CVView() {
 }
 
 // ============================================================
-// Experience
+// Experience (Full CRUD)
 // ============================================================
 
 function ExperienceView() {
   const { t } = useTranslation();
+  const [experiences, setExperiences] = useState<Experience[]>(initialExperience);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingExp, setEditingExp] = useState<Experience | null>(null);
+  const [form, setForm] = useState<Omit<Experience, 'id'>>({ company: '', title: '', type: 'Full-time', from: '', to: '', current: false, description: '' });
+
+  const openAdd = () => {
+    setEditingExp(null);
+    setForm({ company: '', title: '', type: 'Full-time', from: '', to: '', current: false, description: '' });
+    setDialogOpen(true);
+  };
+
+  const openEdit = (exp: Experience) => {
+    setEditingExp(exp);
+    setForm({ company: exp.company, title: exp.title, type: exp.type, from: exp.from, to: exp.to, current: exp.current, description: exp.description });
+    setDialogOpen(true);
+  };
+
+  const handleSave = () => {
+    if (!form.company || !form.title || !form.from) {
+      toast.error(t('fill_all_fields'));
+      return;
+    }
+    if (editingExp) {
+      setExperiences(prev => prev.map(e => e.id === editingExp.id ? { ...e, ...form } : e));
+      toast.success(t('experience_updated'));
+    } else {
+      setExperiences(prev => [...prev, { id: Date.now().toString(), ...form }]);
+      toast.success(t('experience_added'));
+    }
+    setDialogOpen(false);
+  };
+
+  const handleDelete = (id: string) => {
+    setExperiences(prev => prev.filter(e => e.id !== id));
+    toast.success(t('experience_deleted'));
+  };
+
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold font-[Poppins]">{t('experience')}</h2><Button className="cursor-pointer gap-2"><Plus className="w-4 h-4" />{t('add_experience')}</Button></div>
+      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold font-[Poppins]">{t('experience')}</h2><Button className="cursor-pointer gap-2" onClick={openAdd}><Plus className="w-4 h-4" />{t('add_experience')}</Button></div>
       <div className="max-w-2xl space-y-4">
-        {mockExperience.map(exp => (
+        {experiences.map(exp => (
           <Card key={exp.id}><CardContent className="p-4">
-            <div className="flex items-start justify-between mb-2"><div><p className="font-semibold">{exp.title}</p><p className="text-sm text-muted-foreground">{exp.company} · {exp.type}</p><p className="text-xs text-muted-foreground flex items-center gap-1"><Calendar className="w-3 h-3" />{exp.from} - {exp.current ? t('present') : exp.to}</p></div><div className="flex gap-1"><Button size="sm" variant="ghost" className="cursor-pointer"><Edit className="w-3 h-3" /></Button><Button size="sm" variant="ghost" className="cursor-pointer text-destructive"><Trash2 className="w-3 h-3" /></Button></div></div>
+            <div className="flex items-start justify-between mb-2"><div><p className="font-semibold">{exp.title}</p><p className="text-sm text-muted-foreground">{exp.company} · {exp.type}</p><p className="text-xs text-muted-foreground flex items-center gap-1"><Calendar className="w-3 h-3" />{exp.from} - {exp.current ? t('present') : exp.to}</p></div><div className="flex gap-1"><Button size="sm" variant="ghost" className="cursor-pointer" onClick={() => openEdit(exp)}><Edit className="w-3 h-3" /></Button><Button size="sm" variant="ghost" className="cursor-pointer text-destructive" onClick={() => handleDelete(exp.id)}><Trash2 className="w-3 h-3" /></Button></div></div>
             <p className="text-sm text-muted-foreground">{exp.description}</p>
             {exp.current && <Badge variant="default" className="mt-2 text-xs">{t('current_position')}</Badge>}
           </CardContent></Card>
         ))}
+        {experiences.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_experience_yet')}</p>}
       </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle className="font-[Poppins]">{editingExp ? t('edit_experience') : t('add_experience')}</DialogTitle></DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div><Label>{t('job_title')}</Label><Input value={form.title} onChange={(e) => setForm({...form, title: e.target.value})} className="mt-1" placeholder={t('job_title_placeholder')} /></div>
+            <div><Label>{t('company_name')}</Label><Input value={form.company} onChange={(e) => setForm({...form, company: e.target.value})} className="mt-1" /></div>
+            <div><Label>{t('employment_type')}</Label>
+              <Select value={form.type} onValueChange={(v) => setForm({...form, type: v})}>
+                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent><SelectItem value="Full-time">{t('full_time')}</SelectItem><SelectItem value="Part-time">{t('part_time')}</SelectItem><SelectItem value="Contract">{t('contract')}</SelectItem><SelectItem value="Remote">{t('remote')}</SelectItem><SelectItem value="Internship">{t('internship')}</SelectItem></SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>{t('from')}</Label><Input type="month" value={form.from} onChange={(e) => setForm({...form, from: e.target.value})} className="mt-1" /></div>
+              <div><Label>{t('to')}</Label><Input type="month" value={form.to} onChange={(e) => setForm({...form, to: e.target.value})} className="mt-1" disabled={form.current} /></div>
+            </div>
+            <div className="flex items-center gap-3"><Switch checked={form.current} onCheckedChange={(v) => setForm({...form, current: v, to: v ? '' : form.to})} /><Label>{t('current_position')}</Label></div>
+            <div><Label>{t('description')}</Label><Textarea value={form.description} onChange={(e) => setForm({...form, description: e.target.value})} className="mt-1" rows={3} /></div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setDialogOpen(false)} className="cursor-pointer">{t('cancel')}</Button>
+            <Button onClick={handleSave} className="cursor-pointer">{t('save')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
 // ============================================================
-// Education
+// Education (Full CRUD)
 // ============================================================
 
 function EducationView() {
   const { t } = useTranslation();
+  const [educations, setEducations] = useState<Education[]>(initialEducation);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingEdu, setEditingEdu] = useState<Education | null>(null);
+  const [form, setForm] = useState<Omit<Education, 'id'>>({ institution: '', degree: '', field: '', from: '', to: '', grade: '' });
+
+  const openAdd = () => {
+    setEditingEdu(null);
+    setForm({ institution: '', degree: '', field: '', from: '', to: '', grade: '' });
+    setDialogOpen(true);
+  };
+
+  const openEdit = (edu: Education) => {
+    setEditingEdu(edu);
+    setForm({ institution: edu.institution, degree: edu.degree, field: edu.field, from: edu.from, to: edu.to, grade: edu.grade });
+    setDialogOpen(true);
+  };
+
+  const handleSave = () => {
+    if (!form.institution || !form.degree || !form.field) {
+      toast.error(t('fill_all_fields'));
+      return;
+    }
+    if (editingEdu) {
+      setEducations(prev => prev.map(e => e.id === editingEdu.id ? { ...e, ...form } : e));
+      toast.success(t('education_updated'));
+    } else {
+      setEducations(prev => [...prev, { id: Date.now().toString(), ...form }]);
+      toast.success(t('education_added'));
+    }
+    setDialogOpen(false);
+  };
+
+  const handleDelete = (id: string) => {
+    setEducations(prev => prev.filter(e => e.id !== id));
+    toast.success(t('education_deleted'));
+  };
+
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold font-[Poppins]">{t('education')}</h2><Button className="cursor-pointer gap-2"><Plus className="w-4 h-4" />{t('add_education')}</Button></div>
+      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold font-[Poppins]">{t('education')}</h2><Button className="cursor-pointer gap-2" onClick={openAdd}><Plus className="w-4 h-4" />{t('add_education')}</Button></div>
       <div className="max-w-2xl space-y-4">
-        {mockEducation.map(edu => (
+        {educations.map(edu => (
           <Card key={edu.id}><CardContent className="p-4">
-            <div className="flex items-start justify-between"><div><p className="font-semibold">{edu.degree} - {edu.field}</p><p className="text-sm text-muted-foreground">{edu.institution}</p><p className="text-xs text-muted-foreground">{edu.from} - {edu.to} · {edu.grade}</p></div><div className="flex gap-1"><Button size="sm" variant="ghost" className="cursor-pointer"><Edit className="w-3 h-3" /></Button><Button size="sm" variant="ghost" className="cursor-pointer text-destructive"><Trash2 className="w-3 h-3" /></Button></div></div>
+            <div className="flex items-start justify-between"><div><p className="font-semibold">{edu.degree} - {edu.field}</p><p className="text-sm text-muted-foreground">{edu.institution}</p><p className="text-xs text-muted-foreground">{edu.from} - {edu.to} · {edu.grade}</p></div><div className="flex gap-1"><Button size="sm" variant="ghost" className="cursor-pointer" onClick={() => openEdit(edu)}><Edit className="w-3 h-3" /></Button><Button size="sm" variant="ghost" className="cursor-pointer text-destructive" onClick={() => handleDelete(edu.id)}><Trash2 className="w-3 h-3" /></Button></div></div>
           </CardContent></Card>
         ))}
+        {educations.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_education_yet')}</p>}
       </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle className="font-[Poppins]">{editingEdu ? t('edit_education') : t('add_education')}</DialogTitle></DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div><Label>{t('institution')}</Label><Input value={form.institution} onChange={(e) => setForm({...form, institution: e.target.value})} className="mt-1" /></div>
+            <div><Label>{t('degree')}</Label>
+              <Select value={form.degree} onValueChange={(v) => setForm({...form, degree: v})}>
+                <SelectTrigger className="mt-1"><SelectValue placeholder={t('select_degree')} /></SelectTrigger>
+                <SelectContent><SelectItem value="High School">{t('high_school')}</SelectItem><SelectItem value="Associate's">{t('associates')}</SelectItem><SelectItem value="Bachelor's">{t('bachelors')}</SelectItem><SelectItem value="Master's">{t('masters')}</SelectItem><SelectItem value="PhD">{t('phd')}</SelectItem></SelectContent>
+              </Select>
+            </div>
+            <div><Label>{t('field_of_study')}</Label><Input value={form.field} onChange={(e) => setForm({...form, field: e.target.value})} className="mt-1" /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>{t('from')}</Label><Input type="number" value={form.from} onChange={(e) => setForm({...form, from: e.target.value})} className="mt-1" placeholder="2020" /></div>
+              <div><Label>{t('to')}</Label><Input type="number" value={form.to} onChange={(e) => setForm({...form, to: e.target.value})} className="mt-1" placeholder="2024" /></div>
+            </div>
+            <div><Label>{t('grade')}</Label><Input value={form.grade} onChange={(e) => setForm({...form, grade: e.target.value})} className="mt-1" placeholder="3.8 GPA" /></div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setDialogOpen(false)} className="cursor-pointer">{t('cancel')}</Button>
+            <Button onClick={handleSave} className="cursor-pointer">{t('save')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
 // ============================================================
-// Certificates
+// Certificates (Full CRUD)
 // ============================================================
 
 function CertificatesView() {
   const { t } = useTranslation();
+  const [certificates, setCertificates] = useState<Certificate[]>(initialCertificates);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingCert, setEditingCert] = useState<Certificate | null>(null);
+  const [form, setForm] = useState<Omit<Certificate, 'id' | 'verified'>>({ name: '', issuer: '', date: '', expiry: null });
+
+  const openAdd = () => {
+    setEditingCert(null);
+    setForm({ name: '', issuer: '', date: '', expiry: null });
+    setDialogOpen(true);
+  };
+
+  const openEdit = (cert: Certificate) => {
+    setEditingCert(cert);
+    setForm({ name: cert.name, issuer: cert.issuer, date: cert.date, expiry: cert.expiry });
+    setDialogOpen(true);
+  };
+
+  const handleSave = () => {
+    if (!form.name || !form.issuer || !form.date) {
+      toast.error(t('fill_all_fields'));
+      return;
+    }
+    if (editingCert) {
+      setCertificates(prev => prev.map(c => c.id === editingCert.id ? { ...c, ...form } : c));
+      toast.success(t('certificate_updated'));
+    } else {
+      setCertificates(prev => [...prev, { id: Date.now().toString(), ...form, verified: false }]);
+      toast.success(t('certificate_added'));
+    }
+    setDialogOpen(false);
+  };
+
+  const handleDelete = (id: string) => {
+    setCertificates(prev => prev.filter(c => c.id !== id));
+    toast.success(t('certificate_deleted'));
+  };
+
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold font-[Poppins]">{t('certificates')}</h2><Button className="cursor-pointer gap-2"><Plus className="w-4 h-4" />{t('add_certificate')}</Button></div>
+      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold font-[Poppins]">{t('certificates')}</h2><Button className="cursor-pointer gap-2" onClick={openAdd}><Plus className="w-4 h-4" />{t('add_certificate')}</Button></div>
       <div className="max-w-2xl space-y-4">
-        {mockCertificates.map(cert => (
+        {certificates.map(cert => (
           <Card key={cert.id}><CardContent className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center"><Award className="w-5 h-5 text-accent" /></div><div><p className="font-medium text-sm">{cert.name}</p><p className="text-xs text-muted-foreground">{cert.issuer} · {cert.date}</p></div></div>
-            <div className="flex items-center gap-2">{cert.verified && <Badge variant="default" className="text-xs gap-1"><Check className="w-3 h-3" />{t('verified')}</Badge>}<Button size="sm" variant="ghost" className="cursor-pointer"><Edit className="w-3 h-3" /></Button></div>
+            <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center"><Award className="w-5 h-5 text-accent" /></div><div><p className="font-medium text-sm">{cert.name}</p><p className="text-xs text-muted-foreground">{cert.issuer} · {cert.date}{cert.expiry ? ` - ${cert.expiry}` : ''}</p></div></div>
+            <div className="flex items-center gap-2">{cert.verified && <Badge variant="default" className="text-xs gap-1"><Check className="w-3 h-3" />{t('verified')}</Badge>}<Button size="sm" variant="ghost" className="cursor-pointer" onClick={() => openEdit(cert)}><Edit className="w-3 h-3" /></Button><Button size="sm" variant="ghost" className="cursor-pointer text-destructive" onClick={() => handleDelete(cert.id)}><Trash2 className="w-3 h-3" /></Button></div>
           </CardContent></Card>
         ))}
+        {certificates.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_certificates_yet')}</p>}
       </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle className="font-[Poppins]">{editingCert ? t('edit_certificate') : t('add_certificate')}</DialogTitle></DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div><Label>{t('certificate_name')}</Label><Input value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} className="mt-1" /></div>
+            <div><Label>{t('issuing_organization')}</Label><Input value={form.issuer} onChange={(e) => setForm({...form, issuer: e.target.value})} className="mt-1" /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>{t('issue_date')}</Label><Input type="month" value={form.date} onChange={(e) => setForm({...form, date: e.target.value})} className="mt-1" /></div>
+              <div><Label>{t('expiry_date')}</Label><Input type="month" value={form.expiry || ''} onChange={(e) => setForm({...form, expiry: e.target.value || null})} className="mt-1" /></div>
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setDialogOpen(false)} className="cursor-pointer">{t('cancel')}</Button>
+            <Button onClick={handleSave} className="cursor-pointer">{t('save')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
 // ============================================================
-// Skills
+// Skills (Full CRUD)
 // ============================================================
 
 function SkillsView() {
   const { t } = useTranslation();
+  const [skills, setSkills] = useState<Skill[]>(initialSkills);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
+  const [form, setForm] = useState<{ name: string; level: string; years: number }>({ name: '', level: 'intermediate', years: 1 });
+
   const levelColor = (l: string) => { switch(l) { case 'expert': return 'text-green-600'; case 'advanced': return 'text-primary'; case 'intermediate': return 'text-accent'; default: return 'text-muted-foreground'; } };
+
+  const openAdd = () => {
+    setEditingSkill(null);
+    setForm({ name: '', level: 'intermediate', years: 1 });
+    setDialogOpen(true);
+  };
+
+  const openEdit = (skill: Skill) => {
+    setEditingSkill(skill);
+    setForm({ name: skill.name, level: skill.level, years: skill.years });
+    setDialogOpen(true);
+  };
+
+  const handleSave = () => {
+    if (!form.name) {
+      toast.error(t('fill_all_fields'));
+      return;
+    }
+    if (editingSkill) {
+      setSkills(prev => prev.map(s => s.id === editingSkill.id ? { ...s, ...form } : s));
+      toast.success(t('skill_updated'));
+    } else {
+      setSkills(prev => [...prev, { id: Date.now().toString(), ...form, endorsed: 0 }]);
+      toast.success(t('skill_added'));
+    }
+    setDialogOpen(false);
+  };
+
+  const handleDelete = (id: string) => {
+    setSkills(prev => prev.filter(s => s.id !== id));
+    toast.success(t('skill_deleted'));
+  };
+
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold font-[Poppins]">{t('skills')}</h2><Button className="cursor-pointer gap-2"><Plus className="w-4 h-4" />{t('add_skill')}</Button></div>
+      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold font-[Poppins]">{t('skills')}</h2><Button className="cursor-pointer gap-2" onClick={openAdd}><Plus className="w-4 h-4" />{t('add_skill')}</Button></div>
       <div className="max-w-2xl space-y-3">
-        {mockSkills.map(skill => (
+        {skills.map(skill => (
           <Card key={skill.id}><CardContent className="p-4 flex items-center justify-between">
             <div><p className="font-medium">{skill.name}</p><p className="text-xs text-muted-foreground">{skill.years} {t('years_exp')} · {skill.endorsed} {t('endorsements')}</p></div>
-            <div className="flex items-center gap-2"><Badge variant="outline" className={`text-xs ${levelColor(skill.level)}`}>{t(skill.level)}</Badge><Button size="sm" variant="ghost" className="cursor-pointer"><Edit className="w-3 h-3" /></Button></div>
+            <div className="flex items-center gap-2"><Badge variant="outline" className={`text-xs ${levelColor(skill.level)}`}>{t(skill.level)}</Badge><Button size="sm" variant="ghost" className="cursor-pointer" onClick={() => openEdit(skill)}><Edit className="w-3 h-3" /></Button><Button size="sm" variant="ghost" className="cursor-pointer text-destructive" onClick={() => handleDelete(skill.id)}><Trash2 className="w-3 h-3" /></Button></div>
           </CardContent></Card>
         ))}
+        {skills.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_skills_yet')}</p>}
       </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle className="font-[Poppins]">{editingSkill ? t('edit_skill') : t('add_skill')}</DialogTitle></DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div><Label>{t('skill_name')}</Label><Input value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} className="mt-1" placeholder="React, Python, etc." /></div>
+            <div><Label>{t('proficiency_level')}</Label>
+              <Select value={form.level} onValueChange={(v) => setForm({...form, level: v})}>
+                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent><SelectItem value="beginner">{t('beginner')}</SelectItem><SelectItem value="intermediate">{t('intermediate')}</SelectItem><SelectItem value="advanced">{t('advanced')}</SelectItem><SelectItem value="expert">{t('expert')}</SelectItem></SelectContent>
+              </Select>
+            </div>
+            <div><Label>{t('years_of_experience')}</Label><Input type="number" min={0} value={form.years} onChange={(e) => setForm({...form, years: parseInt(e.target.value) || 0})} className="mt-1" /></div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setDialogOpen(false)} className="cursor-pointer">{t('cancel')}</Button>
+            <Button onClick={handleSave} className="cursor-pointer">{t('save')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
 // ============================================================
-// Languages
+// Languages (Full CRUD)
 // ============================================================
 
 function LanguagesView() {
   const { t } = useTranslation();
+  const [languages, setLanguages] = useState<Language[]>(initialLanguages);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingLang, setEditingLang] = useState<Language | null>(null);
+  const [form, setForm] = useState<{ name: string; level: string }>({ name: '', level: 'intermediate' });
+
+  const openAdd = () => {
+    setEditingLang(null);
+    setForm({ name: '', level: 'intermediate' });
+    setDialogOpen(true);
+  };
+
+  const openEdit = (lang: Language) => {
+    setEditingLang(lang);
+    setForm({ name: lang.name, level: lang.level });
+    setDialogOpen(true);
+  };
+
+  const handleSave = () => {
+    if (!form.name) {
+      toast.error(t('fill_all_fields'));
+      return;
+    }
+    if (editingLang) {
+      setLanguages(prev => prev.map(l => l.id === editingLang.id ? { ...l, ...form } : l));
+      toast.success(t('language_updated'));
+    } else {
+      setLanguages(prev => [...prev, { id: Date.now().toString(), ...form }]);
+      toast.success(t('language_added'));
+    }
+    setDialogOpen(false);
+  };
+
+  const handleDelete = (id: string) => {
+    setLanguages(prev => prev.filter(l => l.id !== id));
+    toast.success(t('language_deleted'));
+  };
+
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold font-[Poppins]">{t('languages')}</h2><Button className="cursor-pointer gap-2"><Plus className="w-4 h-4" />{t('add_language')}</Button></div>
+      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold font-[Poppins]">{t('languages')}</h2><Button className="cursor-pointer gap-2" onClick={openAdd}><Plus className="w-4 h-4" />{t('add_language')}</Button></div>
       <div className="max-w-2xl space-y-3">
-        {mockLanguages.map(lang => (
+        {languages.map(lang => (
           <Card key={lang.id}><CardContent className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3"><Languages className="w-5 h-5 text-primary" /><div><p className="font-medium">{lang.name}</p></div></div>
-            <div className="flex items-center gap-2"><Badge variant="secondary" className="text-xs">{t(lang.level)}</Badge><Button size="sm" variant="ghost" className="cursor-pointer"><Edit className="w-3 h-3" /></Button></div>
+            <div className="flex items-center gap-3"><LanguagesIcon className="w-5 h-5 text-primary" /><div><p className="font-medium">{lang.name}</p></div></div>
+            <div className="flex items-center gap-2"><Badge variant="secondary" className="text-xs">{t(lang.level)}</Badge><Button size="sm" variant="ghost" className="cursor-pointer" onClick={() => openEdit(lang)}><Edit className="w-3 h-3" /></Button><Button size="sm" variant="ghost" className="cursor-pointer text-destructive" onClick={() => handleDelete(lang.id)}><Trash2 className="w-3 h-3" /></Button></div>
           </CardContent></Card>
         ))}
+        {languages.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_languages_yet')}</p>}
       </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle className="font-[Poppins]">{editingLang ? t('edit_language') : t('add_language')}</DialogTitle></DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div><Label>{t('language_name')}</Label><Input value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} className="mt-1" placeholder="English, Arabic, etc." /></div>
+            <div><Label>{t('proficiency_level')}</Label>
+              <Select value={form.level} onValueChange={(v) => setForm({...form, level: v})}>
+                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent><SelectItem value="beginner">{t('beginner')}</SelectItem><SelectItem value="intermediate">{t('intermediate')}</SelectItem><SelectItem value="advanced">{t('advanced')}</SelectItem><SelectItem value="native">{t('native')}</SelectItem></SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setDialogOpen(false)} className="cursor-pointer">{t('cancel')}</Button>
+            <Button onClick={handleSave} className="cursor-pointer">{t('save')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
 // ============================================================
-// Portfolio
+// Portfolio (Full CRUD)
 // ============================================================
 
 function PortfolioView() {
   const { t } = useTranslation();
-  const projects = [
-    { id: '1', title: 'E-commerce Platform', desc: 'Full-stack e-commerce with React & Node.js', url: 'https://github.com/ahmed/ecommerce', image: '' },
-    { id: '2', title: 'Task Management App', desc: 'Kanban-style project management tool', url: 'https://taskapp.demo.com', image: '' },
-  ];
+  const [projects, setProjects] = useState<PortfolioItem[]>(initialPortfolio);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<PortfolioItem | null>(null);
+  const [form, setForm] = useState<{ title: string; desc: string; url: string }>({ title: '', desc: '', url: '' });
+
+  const openAdd = () => {
+    setEditingProject(null);
+    setForm({ title: '', desc: '', url: '' });
+    setDialogOpen(true);
+  };
+
+  const openEdit = (project: PortfolioItem) => {
+    setEditingProject(project);
+    setForm({ title: project.title, desc: project.desc, url: project.url });
+    setDialogOpen(true);
+  };
+
+  const handleSave = () => {
+    if (!form.title || !form.desc) {
+      toast.error(t('fill_all_fields'));
+      return;
+    }
+    if (editingProject) {
+      setProjects(prev => prev.map(p => p.id === editingProject.id ? { ...p, ...form } : p));
+      toast.success(t('project_updated'));
+    } else {
+      setProjects(prev => [...prev, { id: Date.now().toString(), ...form }]);
+      toast.success(t('project_added'));
+    }
+    setDialogOpen(false);
+  };
+
+  const handleDelete = (id: string) => {
+    setProjects(prev => prev.filter(p => p.id !== id));
+    toast.success(t('project_deleted'));
+  };
+
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold font-[Poppins]">{t('portfolio')}</h2><Button className="cursor-pointer gap-2"><Plus className="w-4 h-4" />{t('add_project')}</Button></div>
+      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold font-[Poppins]">{t('portfolio')}</h2><Button className="cursor-pointer gap-2" onClick={openAdd}><Plus className="w-4 h-4" />{t('add_project')}</Button></div>
       <div className="max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-4">
         {projects.map(p => (
           <Card key={p.id} className="hover:shadow-md transition-smooth"><CardContent className="p-4">
             <div className="w-full h-32 bg-muted rounded-lg mb-3 flex items-center justify-center"><Layers className="w-8 h-8 text-muted-foreground/30" /></div>
             <p className="font-semibold text-sm">{p.title}</p>
             <p className="text-xs text-muted-foreground mb-2">{p.desc}</p>
-            <div className="flex gap-2"><Button size="sm" variant="outline" className="cursor-pointer gap-1 text-xs"><ExternalLink className="w-3 h-3" />{t('view_project')}</Button><Button size="sm" variant="ghost" className="cursor-pointer"><Edit className="w-3 h-3" /></Button></div>
+            <div className="flex gap-2">
+              {p.url && <Button size="sm" variant="outline" className="cursor-pointer gap-1 text-xs" onClick={() => window.open(p.url, '_blank')}><ExternalLink className="w-3 h-3" />{t('view_project')}</Button>}
+              <Button size="sm" variant="ghost" className="cursor-pointer" onClick={() => openEdit(p)}><Edit className="w-3 h-3" /></Button>
+              <Button size="sm" variant="ghost" className="cursor-pointer text-destructive" onClick={() => handleDelete(p.id)}><Trash2 className="w-3 h-3" /></Button>
+            </div>
           </CardContent></Card>
         ))}
       </div>
+      {projects.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_projects_yet')}</p>}
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle className="font-[Poppins]">{editingProject ? t('edit_project') : t('add_project')}</DialogTitle></DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div><Label>{t('project_title')}</Label><Input value={form.title} onChange={(e) => setForm({...form, title: e.target.value})} className="mt-1" /></div>
+            <div><Label>{t('description')}</Label><Textarea value={form.desc} onChange={(e) => setForm({...form, desc: e.target.value})} className="mt-1" rows={3} /></div>
+            <div><Label>{t('project_url')}</Label><Input value={form.url} onChange={(e) => setForm({...form, url: e.target.value})} className="mt-1" placeholder="https://..." /></div>
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setDialogOpen(false)} className="cursor-pointer">{t('cancel')}</Button>
+            <Button onClick={handleSave} className="cursor-pointer">{t('save')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -669,16 +1109,41 @@ function PortfolioView() {
 
 function VideoIntroView() {
   const { t } = useTranslation();
+  const [hasVideo, setHasVideo] = useState(false);
+
+  const handleUpload = () => {
+    setHasVideo(true);
+    toast.success(t('video_uploaded'));
+  };
+
+  const handleDelete = () => {
+    setHasVideo(false);
+    toast.success(t('video_deleted'));
+  };
+
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('video_intro')}</h2>
       <div className="max-w-2xl">
-        <Card className="border-dashed border-2 mb-4"><CardContent className="p-8 text-center">
-          <Video className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
-          <h3 className="font-medium mb-1">{t('upload_video')}</h3>
-          <p className="text-sm text-muted-foreground mb-4">{t('video_hint')}</p>
-          <Button className="cursor-pointer gap-2"><Upload className="w-4 h-4" />{t('upload')}</Button>
-        </CardContent></Card>
+        {!hasVideo ? (
+          <Card className="border-dashed border-2 mb-4"><CardContent className="p-8 text-center">
+            <Video className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
+            <h3 className="font-medium mb-1">{t('upload_video')}</h3>
+            <p className="text-sm text-muted-foreground mb-4">{t('video_hint')}</p>
+            <Button className="cursor-pointer gap-2" onClick={handleUpload}><Upload className="w-4 h-4" />{t('upload')}</Button>
+          </CardContent></Card>
+        ) : (
+          <Card className="mb-4"><CardContent className="p-4">
+            <div className="w-full h-48 bg-muted rounded-lg mb-3 flex items-center justify-center"><Video className="w-12 h-12 text-primary" /></div>
+            <div className="flex items-center justify-between">
+              <div><p className="font-medium text-sm">{t('video_intro')}</p><p className="text-xs text-muted-foreground">1:30 · {t('uploaded')} Jul 15, 2026</p></div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" className="cursor-pointer" onClick={handleUpload}>{t('replace')}</Button>
+                <Button size="sm" variant="ghost" className="cursor-pointer text-destructive" onClick={handleDelete}><Trash2 className="w-4 h-4" /></Button>
+              </div>
+            </div>
+          </CardContent></Card>
+        )}
         <Card><CardContent className="p-4">
           <h3 className="font-medium text-sm mb-2">{t('video_tips_title')}</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
@@ -699,23 +1164,38 @@ function VideoIntroView() {
 
 function PreferencesView() {
   const { t } = useTranslation();
+  const [prefs, setPrefs] = useState({
+    titles: 'Frontend Developer, Full Stack Engineer',
+    industries: 'Technology, Finance, E-commerce',
+    minSalary: '8000', maxSalary: '15000',
+    locations: 'Dubai, Abu Dhabi, Riyadh',
+    type: 'full-time',
+    relocate: true, remote: true,
+  });
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = () => {
+    setSaving(true);
+    setTimeout(() => { setSaving(false); toast.success(t('preferences_saved')); }, 800);
+  };
+
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('preferences')}</h2>
       <div className="max-w-2xl space-y-6">
         <Card><CardHeader><CardTitle className="text-sm">{t('job_preferences')}</CardTitle></CardHeader><CardContent className="space-y-4">
-          <div><Label>{t('preferred_job_titles')}</Label><Input defaultValue="Frontend Developer, Full Stack Engineer" className="mt-1" /></div>
-          <div><Label>{t('preferred_industries')}</Label><Input defaultValue="Technology, Finance, E-commerce" className="mt-1" /></div>
+          <div><Label>{t('preferred_job_titles')}</Label><Input value={prefs.titles} onChange={(e) => setPrefs({...prefs, titles: e.target.value})} className="mt-1" /></div>
+          <div><Label>{t('preferred_industries')}</Label><Input value={prefs.industries} onChange={(e) => setPrefs({...prefs, industries: e.target.value})} className="mt-1" /></div>
           <div className="grid grid-cols-2 gap-4">
-            <div><Label>{t('min_salary')}</Label><Input type="number" defaultValue="8000" className="mt-1" /></div>
-            <div><Label>{t('max_salary')}</Label><Input type="number" defaultValue="15000" className="mt-1" /></div>
+            <div><Label>{t('min_salary')}</Label><Input type="number" value={prefs.minSalary} onChange={(e) => setPrefs({...prefs, minSalary: e.target.value})} className="mt-1" /></div>
+            <div><Label>{t('max_salary')}</Label><Input type="number" value={prefs.maxSalary} onChange={(e) => setPrefs({...prefs, maxSalary: e.target.value})} className="mt-1" /></div>
           </div>
-          <div><Label>{t('preferred_locations')}</Label><Input defaultValue="Dubai, Abu Dhabi, Riyadh" className="mt-1" /></div>
-          <div><Label>{t('employment_type')}</Label><Select defaultValue="full-time"><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="full-time">{t('full_time')}</SelectItem><SelectItem value="part-time">{t('part_time')}</SelectItem><SelectItem value="contract">{t('contract')}</SelectItem><SelectItem value="remote">{t('remote')}</SelectItem></SelectContent></Select></div>
-          <div className="flex items-center gap-3"><Switch defaultChecked /><Label>{t('willing_to_relocate')}</Label></div>
-          <div className="flex items-center gap-3"><Switch defaultChecked /><Label>{t('open_to_remote')}</Label></div>
+          <div><Label>{t('preferred_locations')}</Label><Input value={prefs.locations} onChange={(e) => setPrefs({...prefs, locations: e.target.value})} className="mt-1" /></div>
+          <div><Label>{t('employment_type')}</Label><Select value={prefs.type} onValueChange={(v) => setPrefs({...prefs, type: v})}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="full-time">{t('full_time')}</SelectItem><SelectItem value="part-time">{t('part_time')}</SelectItem><SelectItem value="contract">{t('contract')}</SelectItem><SelectItem value="remote">{t('remote')}</SelectItem></SelectContent></Select></div>
+          <div className="flex items-center gap-3"><Switch checked={prefs.relocate} onCheckedChange={(v) => setPrefs({...prefs, relocate: v})} /><Label>{t('willing_to_relocate')}</Label></div>
+          <div className="flex items-center gap-3"><Switch checked={prefs.remote} onCheckedChange={(v) => setPrefs({...prefs, remote: v})} /><Label>{t('open_to_remote')}</Label></div>
         </CardContent></Card>
-        <Button className="cursor-pointer">{t('save')}</Button>
+        <Button className="cursor-pointer" onClick={handleSave} disabled={saving}>{saving ? t('loading') : t('save')}</Button>
       </div>
     </div>
   );
@@ -727,16 +1207,24 @@ function PreferencesView() {
 
 function SavedJobsView() {
   const { t } = useTranslation();
+  const [savedJobs, setSavedJobs] = useState(mockSavedJobs);
+
+  const handleRemove = (id: string) => {
+    setSavedJobs(prev => prev.filter(j => j.id !== id));
+    toast.success(t('job_removed'));
+  };
+
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('saved_jobs')}</h2>
       <div className="space-y-3">
-        {mockSavedJobs.map(job => (
+        {savedJobs.map(job => (
           <Card key={job.id}><CardContent className="p-4 flex items-center justify-between">
             <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><Building2 className="w-5 h-5 text-primary" /></div><div><p className="font-medium text-sm">{job.title}</p><p className="text-xs text-muted-foreground">{job.company} · {job.location} · {job.salary}</p></div></div>
-            <div className="flex items-center gap-2"><Badge variant={job.status === 'open' ? 'default' : 'secondary'} className="text-xs">{t(job.status)}</Badge><Button size="sm" variant="ghost" className="cursor-pointer text-destructive"><Trash2 className="w-3 h-3" /></Button></div>
+            <div className="flex items-center gap-2"><Badge variant={job.status === 'open' ? 'default' : 'secondary'} className="text-xs">{t(job.status)}</Badge><Button size="sm" variant="ghost" className="cursor-pointer text-destructive" onClick={() => handleRemove(job.id)}><Trash2 className="w-3 h-3" /></Button></div>
           </CardContent></Card>
         ))}
+        {savedJobs.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_saved_jobs')}</p>}
       </div>
     </div>
   );
@@ -748,17 +1236,28 @@ function SavedJobsView() {
 
 function ApplicationsView() {
   const { t } = useTranslation();
+  const [applications, setApplications] = useState(mockApplications);
   const statusColor = (s: string) => { switch(s) { case 'interview': return 'default'; case 'reviewed': return 'secondary'; case 'pending': return 'outline'; case 'rejected': return 'destructive'; default: return 'secondary'; } };
+
+  const handleWithdraw = (id: string) => {
+    setApplications(prev => prev.filter(a => a.id !== id));
+    toast.success(t('application_withdrawn'));
+  };
+
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('applications')}</h2>
       <div className="space-y-3">
-        {mockApplications.map(app => (
+        {applications.map(app => (
           <Card key={app.id}><CardContent className="p-4 flex items-center justify-between">
             <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><FileText className="w-5 h-5 text-primary" /></div><div><p className="font-medium text-sm">{app.title}</p><p className="text-xs text-muted-foreground">{app.company} · {t('applied')}: {app.appliedDate}</p></div></div>
-            <Badge variant={statusColor(app.status) as any} className="text-xs">{t(app.status)}</Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant={statusColor(app.status) as any} className="text-xs">{t(app.status)}</Badge>
+              {app.status === 'pending' && <Button size="sm" variant="ghost" className="cursor-pointer text-destructive text-xs" onClick={() => handleWithdraw(app.id)}>{t('withdraw')}</Button>}
+            </div>
           </CardContent></Card>
         ))}
+        {applications.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_applications')}</p>}
       </div>
     </div>
   );
@@ -770,14 +1269,15 @@ function ApplicationsView() {
 
 function MatchesView() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('matches')}</h2>
       <div className="space-y-3">
         {mockMatches.map(m => (
-          <Card key={m.id} className="hover:shadow-md transition-smooth"><CardContent className="p-4 flex items-center justify-between">
+          <Card key={m.id} className="hover:shadow-md transition-smooth cursor-pointer" onClick={() => navigate('/messages')}><CardContent className="p-4 flex items-center justify-between">
             <div className="flex items-center gap-3"><div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center"><Building2 className="w-6 h-6 text-primary" /></div><div><p className="font-semibold text-sm">{m.role}</p><p className="text-xs text-muted-foreground">{m.company} · {t('matched')}: {m.matchedDate}</p></div></div>
-            <div className="flex items-center gap-3"><span className="text-xl font-bold text-primary font-[Poppins]">{m.score}%</span><Button size="sm" className="cursor-pointer gap-1"><MessageSquare className="w-3 h-3" />{t('send')}</Button></div>
+            <div className="flex items-center gap-3"><span className="text-xl font-bold text-primary font-[Poppins]">{m.score}%</span><Button size="sm" className="cursor-pointer gap-1" onClick={(e) => { e.stopPropagation(); navigate('/messages'); }}><MessageSquare className="w-3 h-3" />{t('send')}</Button></div>
           </CardContent></Card>
         ))}
       </div>
@@ -791,16 +1291,34 @@ function MatchesView() {
 
 function NotificationsView() {
   const { t } = useTranslation();
+  const [notifications, setNotifications] = useState(mockNotifications);
+
+  const markAllRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    toast.success(t('all_marked_read'));
+  };
+
+  const deleteNotification = (id: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+    toast.success(t('notification_deleted'));
+  };
+
+  const markAsRead = (id: string) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+  };
+
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold font-[Poppins]">{t('notifications')}</h2><Button variant="ghost" size="sm" className="cursor-pointer">{t('mark_all_read')}</Button></div>
+      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold font-[Poppins]">{t('notifications')}</h2><Button variant="ghost" size="sm" className="cursor-pointer" onClick={markAllRead}>{t('mark_all_read')}</Button></div>
       <div className="space-y-2">
-        {mockNotifications.map(n => (
-          <Card key={n.id} className={!n.read ? 'border-primary/30 bg-primary/5' : ''}><CardContent className="p-4 flex items-start gap-3">
+        {notifications.map(n => (
+          <Card key={n.id} className={`${!n.read ? 'border-primary/30 bg-primary/5' : ''} cursor-pointer`} onClick={() => markAsRead(n.id)}><CardContent className="p-4 flex items-start gap-3">
             <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${n.read ? 'bg-muted-foreground/30' : 'bg-primary'}`} />
             <div className="flex-1"><p className="text-sm">{n.message}</p><p className="text-xs text-muted-foreground mt-1">{n.time}</p></div>
+            <Button size="sm" variant="ghost" className="cursor-pointer text-destructive shrink-0" onClick={(e) => { e.stopPropagation(); deleteNotification(n.id); }}><Trash2 className="w-3 h-3" /></Button>
           </CardContent></Card>
         ))}
+        {notifications.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_notifications')}</p>}
       </div>
     </div>
   );
@@ -826,22 +1344,35 @@ function MessagesPlaceholder() {
 
 function SettingsView() {
   const { t } = useTranslation();
+  const [settings, setSettings] = useState({
+    emailMatches: true, emailApps: true, emailMessages: true, push: true,
+    showPublic: true, allowDM: true, showOnline: true,
+  });
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = () => {
+    setSaving(true);
+    setTimeout(() => { setSaving(false); toast.success(t('settings_saved')); }, 800);
+  };
+
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('settings')}</h2>
       <div className="max-w-2xl space-y-6">
         <Card><CardHeader><CardTitle className="text-sm">{t('notification_settings')}</CardTitle></CardHeader><CardContent className="space-y-4">
-          {[{ label: t('email_new_matches'), key: '1' }, { label: t('email_new_applications'), key: '2' }, { label: t('email_messages'), key: '3' }, { label: t('push_notifications'), key: '4' }].map(s => (
-            <div key={s.key} className="flex items-center justify-between"><Label>{s.label}</Label><Switch defaultChecked /></div>
-          ))}
+          <div className="flex items-center justify-between"><Label>{t('email_new_matches')}</Label><Switch checked={settings.emailMatches} onCheckedChange={(v) => setSettings({...settings, emailMatches: v})} /></div>
+          <div className="flex items-center justify-between"><Label>{t('email_new_applications')}</Label><Switch checked={settings.emailApps} onCheckedChange={(v) => setSettings({...settings, emailApps: v})} /></div>
+          <div className="flex items-center justify-between"><Label>{t('email_messages')}</Label><Switch checked={settings.emailMessages} onCheckedChange={(v) => setSettings({...settings, emailMessages: v})} /></div>
+          <div className="flex items-center justify-between"><Label>{t('push_notifications')}</Label><Switch checked={settings.push} onCheckedChange={(v) => setSettings({...settings, push: v})} /></div>
         </CardContent></Card>
         <Card><CardHeader><CardTitle className="text-sm">{t('privacy_settings')}</CardTitle></CardHeader><CardContent className="space-y-4">
-          <div className="flex items-center justify-between"><Label>{t('show_profile_public')}</Label><Switch defaultChecked /></div>
-          <div className="flex items-center justify-between"><Label>{t('allow_direct_messages')}</Label><Switch defaultChecked /></div>
-          <div className="flex items-center justify-between"><Label>{t('show_online_status')}</Label><Switch defaultChecked /></div>
+          <div className="flex items-center justify-between"><Label>{t('show_profile_public')}</Label><Switch checked={settings.showPublic} onCheckedChange={(v) => setSettings({...settings, showPublic: v})} /></div>
+          <div className="flex items-center justify-between"><Label>{t('allow_direct_messages')}</Label><Switch checked={settings.allowDM} onCheckedChange={(v) => setSettings({...settings, allowDM: v})} /></div>
+          <div className="flex items-center justify-between"><Label>{t('show_online_status')}</Label><Switch checked={settings.showOnline} onCheckedChange={(v) => setSettings({...settings, showOnline: v})} /></div>
         </CardContent></Card>
+        <Button className="cursor-pointer" onClick={handleSave} disabled={saving}>{saving ? t('loading') : t('save')}</Button>
         <Card><CardHeader><CardTitle className="text-sm">{t('danger_zone')}</CardTitle></CardHeader><CardContent>
-          <Button variant="destructive" className="cursor-pointer">{t('delete_account')}</Button>
+          <Button variant="destructive" className="cursor-pointer" onClick={() => toast.error(t('delete_account_warning'))}>{t('delete_account')}</Button>
           <p className="text-xs text-muted-foreground mt-2">{t('delete_account_warning')}</p>
         </CardContent></Card>
       </div>
