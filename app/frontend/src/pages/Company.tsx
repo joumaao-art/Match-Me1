@@ -26,6 +26,10 @@ import {
 import { ChangePassword } from '@/components/shared/ChangePassword';
 import CandidateDirectory from '@/components/shared/CandidateDirectory';
 import type { DirectoryView } from '@/components/shared/CandidateDirectory';
+import {
+  AIRecommendationsView, CompanyInvitationsView, EnhancedSavedCandidatesView,
+  AdvancedTalentPipelineView, TeamCollaborationView, TalentAnalyticsView,
+} from '@/components/shared/AITalentIntelligence';
 
 // ============================================================
 // Types
@@ -130,7 +134,7 @@ const mockBilling = [
 // Navigation
 // ============================================================
 
-type NavSection = 'dashboard' | 'profile' | 'branches' | 'recruiters' | 'vacancies' | 'candidates' | 'pipeline' | 'saved' | 'matching' | 'messages' | 'notifications' | 'analytics' | 'subscription' | 'billing' | 'reports' | 'team' | 'settings' | 'directory' | 'dir_saved' | 'dir_viewed' | 'dir_contacts' | 'dir_pipeline';
+type NavSection = 'dashboard' | 'profile' | 'branches' | 'recruiters' | 'vacancies' | 'candidates' | 'pipeline' | 'saved' | 'matching' | 'messages' | 'notifications' | 'analytics' | 'subscription' | 'billing' | 'reports' | 'team' | 'settings' | 'directory' | 'dir_saved' | 'dir_viewed' | 'dir_contacts' | 'dir_pipeline' | 'ai_recommendations' | 'invitations' | 'enhanced_saved' | 'advanced_pipeline' | 'team_collab' | 'talent_analytics';
 
 function CompanyNav({ activeTab, setActiveTab }: { activeTab: NavSection; setActiveTab: (tab: NavSection) => void }) {
   const { t, i18n } = useTranslation();
@@ -162,6 +166,14 @@ function CompanyNav({ activeTab, setActiveTab }: { activeTab: NavSection; setAct
       { id: 'dir_viewed' as NavSection, icon: Eye, label: t('viewed_candidates') },
       { id: 'dir_contacts' as NavSection, icon: Send, label: t('contact_requests') },
       { id: 'dir_pipeline' as NavSection, icon: Layers, label: t('talent_pipeline') },
+    ]},
+    { label: t('ai_talent_intelligence'), items: [
+      { id: 'ai_recommendations' as NavSection, icon: Sparkles, label: t('ai_recommendations') },
+      { id: 'invitations' as NavSection, icon: Mail, label: t('invitations_sent') },
+      { id: 'enhanced_saved' as NavSection, icon: BookmarkPlus, label: t('saved_folders') },
+      { id: 'advanced_pipeline' as NavSection, icon: Layers, label: t('advanced_pipeline') },
+      { id: 'team_collab' as NavSection, icon: Users, label: t('team_collaboration') },
+      { id: 'talent_analytics' as NavSection, icon: TrendingUp, label: t('talent_analytics') },
     ]},
     { label: t('messages'), items: [
       { id: 'messages' as NavSection, icon: MessageSquare, label: t('messages') },
@@ -1518,7 +1530,7 @@ export default function Company() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const getTabTitle = (tab: NavSection) => {
-    const map: Record<string, string> = { dashboard: t('dashboard'), profile: t('company_profile'), branches: t('branches'), recruiters: t('recruiters'), vacancies: t('vacancies'), candidates: t('applicant_tracking'), pipeline: t('hiring_pipeline'), saved: t('saved_candidates'), matching: t('matching_queue'), messages: t('messages'), notifications: t('notifications'), analytics: t('analytics'), subscription: t('subscription'), billing: t('billing'), reports: t('reports'), team: t('team_members'), settings: t('settings'), directory: t('candidate_directory'), dir_saved: t('saved_candidates'), dir_viewed: t('viewed_candidates'), dir_contacts: t('contact_requests'), dir_pipeline: t('talent_pipeline') };
+    const map: Record<string, string> = { dashboard: t('dashboard'), profile: t('company_profile'), branches: t('branches'), recruiters: t('recruiters'), vacancies: t('vacancies'), candidates: t('applicant_tracking'), pipeline: t('hiring_pipeline'), saved: t('saved_candidates'), matching: t('matching_queue'), messages: t('messages'), notifications: t('notifications'), analytics: t('analytics'), subscription: t('subscription'), billing: t('billing'), reports: t('reports'), team: t('team_members'), settings: t('settings'), directory: t('candidate_directory'), dir_saved: t('saved_candidates'), dir_viewed: t('viewed_candidates'), dir_contacts: t('contact_requests'), dir_pipeline: t('talent_pipeline'), ai_recommendations: t('ai_recommendations'), invitations: t('invitations_sent'), enhanced_saved: t('saved_folders'), advanced_pipeline: t('advanced_pipeline'), team_collab: t('team_collaboration'), talent_analytics: t('talent_analytics') };
     return map[tab] || tab;
   };
 
@@ -1555,6 +1567,12 @@ export default function Company() {
       case 'reports': return <ReportsView />;
       case 'team': return <TeamView />;
       case 'settings': return <SettingsView />;
+      case 'ai_recommendations': return <AIRecommendationsView tier="premium" />;
+      case 'invitations': return <CompanyInvitationsView tier="premium" />;
+      case 'enhanced_saved': return <EnhancedSavedCandidatesView tier="premium" />;
+      case 'advanced_pipeline': return <AdvancedTalentPipelineView tier="premium" />;
+      case 'team_collab': return <TeamCollaborationView tier="premium" />;
+      case 'talent_analytics': return <TalentAnalyticsView tier="premium" />;
       default: return <DashboardView onNavigate={setActiveTab} />;
     }
   };

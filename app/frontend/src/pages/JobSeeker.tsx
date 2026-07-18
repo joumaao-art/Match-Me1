@@ -28,6 +28,7 @@ import { SeekerProfile, VacancyProfile, DEFAULT_WEIGHTS } from '@/lib/matching-e
 import { useAIMatching } from '@/lib/useAIMatching';
 import { SeekerAIProfile, VacancyAIProfile, MatchExplanation } from '@/lib/ai-matching-engine';
 import { ChangePassword } from '@/components/shared/ChangePassword';
+import { SeekerInvitationsView } from '@/components/shared/SeekerInvitations';
 import {
   ProfileVisibilitySettings, ContactRequestsView, ExposureDashboard,
   RecruiterVisibilityView, DiscoverabilityUpgradeBanner, DiscoverabilityNotifications,
@@ -164,7 +165,7 @@ const initialPortfolio: PortfolioItem[] = [
 // Navigation
 // ============================================================
 
-type NavSection = 'swipe' | 'dashboard' | 'profile' | 'cv' | 'experience' | 'education' | 'certificates' | 'skills' | 'languages' | 'portfolio' | 'video' | 'preferences' | 'saved' | 'applications' | 'matches' | 'messages' | 'notifications' | 'settings' | 'visibility' | 'exposure' | 'contact_requests' | 'who_viewed';
+type NavSection = 'swipe' | 'dashboard' | 'profile' | 'cv' | 'experience' | 'education' | 'certificates' | 'skills' | 'languages' | 'portfolio' | 'video' | 'preferences' | 'saved' | 'applications' | 'matches' | 'messages' | 'notifications' | 'settings' | 'visibility' | 'exposure' | 'contact_requests' | 'who_viewed' | 'invitations';
 
 function SeekerNav({ activeTab, setActiveTab }: { activeTab: NavSection; setActiveTab: (tab: NavSection) => void }) {
   const { t, i18n } = useTranslation();
@@ -200,6 +201,7 @@ function SeekerNav({ activeTab, setActiveTab }: { activeTab: NavSection; setActi
       { id: 'exposure' as NavSection, icon: BarChart3, label: t('exposure_dashboard') },
       { id: 'contact_requests' as NavSection, icon: Send, label: t('contact_requests') },
       { id: 'who_viewed' as NavSection, icon: Users, label: t('who_viewed_profile') },
+      { id: 'invitations' as NavSection, icon: Send, label: t('invitations') },
     ]},
     { items: [
       { id: 'messages' as NavSection, icon: MessageSquare, label: t('messages') },
@@ -1447,7 +1449,7 @@ export default function JobSeeker() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const getTabTitle = (tab: NavSection) => {
-    const map: Record<string, string> = { swipe: t('discover'), dashboard: t('dashboard'), profile: t('profile'), cv: t('my_resume'), experience: t('experience'), education: t('education'), certificates: t('certificates'), skills: t('skills'), languages: t('languages'), portfolio: t('portfolio'), video: t('video_intro'), preferences: t('preferences'), saved: t('saved_jobs'), applications: t('applications'), matches: t('matches'), messages: t('messages'), notifications: t('notifications'), settings: t('settings'), visibility: t('profile_visibility'), exposure: t('exposure_dashboard'), contact_requests: t('contact_requests'), who_viewed: t('who_viewed_profile') };
+    const map: Record<string, string> = { swipe: t('discover'), dashboard: t('dashboard'), profile: t('profile'), cv: t('my_resume'), experience: t('experience'), education: t('education'), certificates: t('certificates'), skills: t('skills'), languages: t('languages'), portfolio: t('portfolio'), video: t('video_intro'), preferences: t('preferences'), saved: t('saved_jobs'), applications: t('applications'), matches: t('matches'), messages: t('messages'), notifications: t('notifications'), settings: t('settings'), visibility: t('profile_visibility'), exposure: t('exposure_dashboard'), contact_requests: t('contact_requests'), who_viewed: t('who_viewed_profile'), invitations: t('invitations') };
     return map[tab] || tab;
   };
 
@@ -1478,6 +1480,7 @@ export default function JobSeeker() {
       case 'exposure': return <ExposureDashboard tier={seekerTier} />;
       case 'contact_requests': return <ContactRequestsView tier={seekerTier} />;
       case 'who_viewed': return <RecruiterVisibilityView tier={seekerTier} />;
+      case 'invitations': return <SeekerInvitationsView />;
       default: return <SwipeView />;
     }
   };
