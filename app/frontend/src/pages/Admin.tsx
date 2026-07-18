@@ -699,9 +699,14 @@ function SupportSection() {
 }
 
 function AnalyticsSection() {
+  const navigate = useNavigate();
   return (
     <div className="space-y-6">
-      <SectionHeader title="Analytics & Insights" description="Platform performance metrics" />
+      <SectionHeader
+        title="Analytics & Insights"
+        description="Platform performance metrics"
+        action={<Button size="sm" className="gap-2 cursor-pointer" onClick={() => navigate('/admin/analytics')}><BarChart3 className="w-4 h-4" /> Full Dashboard</Button>}
+      />
 
       <Tabs defaultValue="overview">
         <TabsList>

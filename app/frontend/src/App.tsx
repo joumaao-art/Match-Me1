@@ -27,6 +27,7 @@ import Messages from './pages/Messages';
 import Subscription from './pages/Subscription';
 import Notifications from './pages/Notifications';
 import Admin from './pages/Admin';
+import Analytics from './pages/Analytics';
 
 // Query client configuration
 const queryClient = new QueryClient({
@@ -255,6 +256,14 @@ function AppRoutes() {
       />
 
       {/* Protected routes - Admin only */}
+      <Route
+        path="/admin/analytics"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Analytics />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/admin/*"
         element={
