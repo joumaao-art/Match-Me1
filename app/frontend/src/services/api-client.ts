@@ -18,17 +18,22 @@ export interface ApiError {
   status?: number;
 }
 
-// Fallback values to prevent createClient from throwing when env vars are missing.
-// The app will render but API calls will fail gracefully.
-const SUPABASE_URL = env.supabase.url || 'https://placeholder.supabase.co';
-const SUPABASE_ANON_KEY = env.supabase.anonKey || 'placeholder-anon-key';
+// Validate Supabase configuration
+const SUPABASE_URL = env.supabase.url;
+const SUPABASE_ANON_KEY = env.supabase.anonKey;
+
+const isConfigured = !!(SUPABASE_URL && SUPABASE_ANON_KEY && !SUPABASE_URL.includes('placeholder'));
 
 class ApiClient {
   private client: SupabaseClient;
   private channels: Map<string, RealtimeChannel> = new Map();
 
   constructor() {
-    this.client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    // Use real credentials or safe fallbacks that won't cause fetch errors
+    const url = SUPABASE_URL || 'https://placeholder.supabase.co';
+    const key = SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder';
+
+    this.client = createClient(url, key, {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
@@ -61,6 +66,18 @@ class ApiClient {
     operation: string,
     queryFn: () => PromiseLike<{ data: any; error: any }>
   ): Promise<ApiResponse<T>> {
+    // Guard: check if Supabase is properly configured
+    if (!isConfigured) {
+      logger.error(`[API] ${operation}: Supabase is not configured. Check environment variables.`);
+      return {
+        data: null,
+        error: {
+          message: 'Service is not configured. Please contact support.',
+          code: 'NOT_CONFIGURED',
+        },
+      };
+    }
+
     try {
       const { data, error } = await queryFn();
       if (error) {
@@ -77,10 +94,17 @@ class ApiClient {
       return { data, error: null };
     } catch (err: any) {
       logger.error(`[API] ${operation} threw:`, err);
+
+      // Provide user-friendly messages for common network errors
+      let message = err.message || 'Network error';
+      if (message === 'Failed to fetch' || message.includes('NetworkError')) {
+        message = 'Unable to connect to the server. Please check your internet connection and try again.';
+      }
+
       return {
         data: null,
         error: {
-          message: err.message || 'Network error',
+          message,
           code: 'NETWORK_ERROR',
         },
       };
