@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores';
 import { ChangePassword } from '@/components/shared/ChangePassword';
+import BillingAnalyticsDashboard from '@/components/shared/BillingAnalytics';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -42,7 +43,7 @@ import {
 
 type AdminSection =
   | 'dashboard' | 'users' | 'companies' | 'jobs' | 'matches'
-  | 'subscriptions' | 'payments' | 'support' | 'analytics'
+  | 'subscriptions' | 'payments' | 'billing_analytics' | 'support' | 'analytics'
   | 'content' | 'reports' | 'announcements' | 'feature-flags'
   | 'audit-logs' | 'settings';
 
@@ -1245,6 +1246,7 @@ export default function Admin() {
     { id: 'matches', label: 'Matches', icon: <Heart className="w-4 h-4" /> },
     { id: 'subscriptions', label: 'Subscriptions', icon: <CreditCard className="w-4 h-4" /> },
     { id: 'payments', label: 'Payments', icon: <DollarSign className="w-4 h-4" /> },
+    { id: 'billing_analytics', label: 'Billing Analytics', icon: <TrendingUp className="w-4 h-4" /> },
     { id: 'support', label: 'Support', icon: <HeadphonesIcon className="w-4 h-4" />, badge: 23 },
     { id: 'analytics', label: 'Analytics', icon: <BarChart3 className="w-4 h-4" /> },
     { id: 'content', label: 'Content', icon: <FileText className="w-4 h-4" /> },
@@ -1264,6 +1266,7 @@ export default function Admin() {
       case 'matches': return <MatchesSection />;
       case 'subscriptions': return <SubscriptionsSection />;
       case 'payments': return <PaymentsSection />;
+      case 'billing_analytics': return <BillingAnalyticsDashboard />;
       case 'support': return <SupportSection />;
       case 'analytics': return <AnalyticsSection />;
       case 'content': return <ContentSection />;
