@@ -21,13 +21,18 @@ import {
   ChevronRight, User, BarChart3, CreditCard, Bell, FileText, Award,
   Languages as LanguagesIcon, Video, Sliders, Clock, Plus, Edit, Trash2, Upload,
   ExternalLink, Star, Eye, Calendar, Download, Link2, Layers, Undo2,
-  TrendingUp, Zap, Target
+  TrendingUp, Zap, Target, Send, Users
 } from 'lucide-react';
 import { useMatchingEngine } from '@/lib/useMatchingEngine';
 import { SeekerProfile, VacancyProfile, DEFAULT_WEIGHTS } from '@/lib/matching-engine';
 import { useAIMatching } from '@/lib/useAIMatching';
 import { SeekerAIProfile, VacancyAIProfile, MatchExplanation } from '@/lib/ai-matching-engine';
 import { ChangePassword } from '@/components/shared/ChangePassword';
+import {
+  ProfileVisibilitySettings, ContactRequestsView, ExposureDashboard,
+  RecruiterVisibilityView, DiscoverabilityUpgradeBanner, DiscoverabilityNotifications,
+  type SeekerTier
+} from '@/components/shared/CandidateDiscoverability';
 import { ProfileCompletionCard, ProfileCompletionMini, type ProfileData } from '@/components/shared/ProfileCompletion';
 
 // ============================================================
@@ -159,7 +164,7 @@ const initialPortfolio: PortfolioItem[] = [
 // Navigation
 // ============================================================
 
-type NavSection = 'swipe' | 'dashboard' | 'profile' | 'cv' | 'experience' | 'education' | 'certificates' | 'skills' | 'languages' | 'portfolio' | 'video' | 'preferences' | 'saved' | 'applications' | 'matches' | 'messages' | 'notifications' | 'settings';
+type NavSection = 'swipe' | 'dashboard' | 'profile' | 'cv' | 'experience' | 'education' | 'certificates' | 'skills' | 'languages' | 'portfolio' | 'video' | 'preferences' | 'saved' | 'applications' | 'matches' | 'messages' | 'notifications' | 'settings' | 'visibility' | 'exposure' | 'contact_requests' | 'who_viewed';
 
 function SeekerNav({ activeTab, setActiveTab }: { activeTab: NavSection; setActiveTab: (tab: NavSection) => void }) {
   const { t, i18n } = useTranslation();
@@ -189,6 +194,12 @@ function SeekerNav({ activeTab, setActiveTab }: { activeTab: NavSection; setActi
       { id: 'saved' as NavSection, icon: Bookmark, label: t('saved_jobs') },
       { id: 'applications' as NavSection, icon: FileText, label: t('applications') },
       { id: 'matches' as NavSection, icon: Sparkles, label: t('matches') },
+    ]},
+    { items: [
+      { id: 'visibility' as NavSection, icon: Eye, label: t('profile_visibility') },
+      { id: 'exposure' as NavSection, icon: BarChart3, label: t('exposure_dashboard') },
+      { id: 'contact_requests' as NavSection, icon: Send, label: t('contact_requests') },
+      { id: 'who_viewed' as NavSection, icon: Users, label: t('who_viewed_profile') },
     ]},
     { items: [
       { id: 'messages' as NavSection, icon: MessageSquare, label: t('messages') },
@@ -1385,7 +1396,7 @@ function MessagesPlaceholder() {
 // Settings
 // ============================================================
 
-function SettingsView() {
+function SettingsView({ seekerTier }: { seekerTier?: SeekerTier }) {
   const { t } = useTranslation();
   const [settings, setSettings] = useState({
     emailMatches: true, emailApps: true, emailMessages: true, push: true,
@@ -1413,6 +1424,8 @@ function SettingsView() {
           <div className="flex items-center justify-between"><Label>{t('allow_direct_messages')}</Label><Switch checked={settings.allowDM} onCheckedChange={(v) => setSettings({...settings, allowDM: v})} /></div>
           <div className="flex items-center justify-between"><Label>{t('show_online_status')}</Label><Switch checked={settings.showOnline} onCheckedChange={(v) => setSettings({...settings, showOnline: v})} /></div>
         </CardContent></Card>
+        {/* Discoverability Notification Preferences */}
+        {seekerTier && <DiscoverabilityNotifications tier={seekerTier} />}
         <Button className="cursor-pointer" onClick={handleSave} disabled={saving}>{saving ? t('loading') : t('save')}</Button>
         <ChangePassword />
         <Card><CardHeader><CardTitle className="text-sm">{t('danger_zone')}</CardTitle></CardHeader><CardContent>
@@ -1434,9 +1447,12 @@ export default function JobSeeker() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const getTabTitle = (tab: NavSection) => {
-    const map: Record<string, string> = { swipe: t('discover'), dashboard: t('dashboard'), profile: t('profile'), cv: t('my_resume'), experience: t('experience'), education: t('education'), certificates: t('certificates'), skills: t('skills'), languages: t('languages'), portfolio: t('portfolio'), video: t('video_intro'), preferences: t('preferences'), saved: t('saved_jobs'), applications: t('applications'), matches: t('matches'), messages: t('messages'), notifications: t('notifications'), settings: t('settings') };
+    const map: Record<string, string> = { swipe: t('discover'), dashboard: t('dashboard'), profile: t('profile'), cv: t('my_resume'), experience: t('experience'), education: t('education'), certificates: t('certificates'), skills: t('skills'), languages: t('languages'), portfolio: t('portfolio'), video: t('video_intro'), preferences: t('preferences'), saved: t('saved_jobs'), applications: t('applications'), matches: t('matches'), messages: t('messages'), notifications: t('notifications'), settings: t('settings'), visibility: t('profile_visibility'), exposure: t('exposure_dashboard'), contact_requests: t('contact_requests'), who_viewed: t('who_viewed_profile') };
     return map[tab] || tab;
   };
+
+  // Simulated seeker tier - in production this comes from subscription state
+  const seekerTier: SeekerTier = 'premium';
 
   const renderContent = () => {
     switch(activeTab) {
@@ -1457,7 +1473,11 @@ export default function JobSeeker() {
       case 'matches': return <MatchesView />;
       case 'messages': return <MessagesPlaceholder />;
       case 'notifications': return <NotificationsView />;
-      case 'settings': return <SettingsView />;
+      case 'settings': return <SettingsView seekerTier={seekerTier} />;
+      case 'visibility': return <ProfileVisibilitySettings tier={seekerTier} />;
+      case 'exposure': return <ExposureDashboard tier={seekerTier} />;
+      case 'contact_requests': return <ContactRequestsView tier={seekerTier} />;
+      case 'who_viewed': return <RecruiterVisibilityView tier={seekerTier} />;
       default: return <SwipeView />;
     }
   };

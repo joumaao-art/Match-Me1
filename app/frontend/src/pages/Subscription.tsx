@@ -67,43 +67,43 @@ interface Coupon {
 const SEEKER_PLANS: SubscriptionPlan[] = [
   {
     id: 'seeker_free',
-    name: 'Basic',
-    description: 'seeker_plan_basic_desc',
+    name: 'Free',
+    description: 'seeker_plan_free_desc',
     monthlyPrice: 0,
     yearlyPrice: 0,
     currency: 'USD',
     icon: <Zap className="w-5 h-5" />,
     color: '#64748B',
-    features: ['seeker_feat_5_swipes', 'seeker_feat_basic_profile', 'seeker_feat_5_messages', 'seeker_feat_job_alerts', 'seeker_feat_basic_matching'],
-    limits: { swipesPerDay: 5, messagesPerDay: 5, profileViews: 10, savedJobs: 10, aiMatchesPerDay: 3 },
+    features: ['seeker_feat_create_profile', 'seeker_feat_upload_cv', 'seeker_feat_search_jobs', 'seeker_feat_save_jobs', 'seeker_feat_apply_jobs', 'seeker_feat_ai_matches', 'seeker_feat_messaging', 'seeker_feat_interviews'],
+    limits: { swipesPerDay: 10, messagesPerDay: 10, profileViews: 10, savedJobs: 20, aiMatchesPerDay: 5 },
     trialDays: 0,
-    targetRole: 'job_seeker',
-  },
-  {
-    id: 'seeker_plus',
-    name: 'Plus',
-    description: 'seeker_plan_plus_desc',
-    monthlyPrice: 14.99,
-    yearlyPrice: 9.99,
-    currency: 'USD',
-    icon: <Star className="w-5 h-5" />,
-    color: '#3B82F6',
-    popular: true,
-    features: ['seeker_feat_unlimited_swipes', 'seeker_feat_enhanced_profile', 'seeker_feat_unlimited_messages', 'seeker_feat_priority_visibility', 'seeker_feat_ai_matching', 'seeker_feat_who_viewed', 'seeker_feat_read_receipts'],
-    limits: { swipesPerDay: -1, messagesPerDay: -1, profileViews: -1, savedJobs: 100, aiMatchesPerDay: 25 },
-    trialDays: 7,
     targetRole: 'job_seeker',
   },
   {
     id: 'seeker_premium',
     name: 'Premium',
-    description: 'seeker_plan_premium_desc',
-    monthlyPrice: 29.99,
-    yearlyPrice: 19.99,
+    description: 'seeker_plan_premium_new_desc',
+    monthlyPrice: 19.99,
+    yearlyPrice: 14.99,
+    currency: 'USD',
+    icon: <Star className="w-5 h-5" />,
+    color: '#3B82F6',
+    popular: true,
+    features: ['seeker_feat_all_free', 'seeker_feat_directory_visibility', 'seeker_feat_discoverability', 'seeker_feat_visibility_settings', 'seeker_feat_contact_requests', 'seeker_feat_ai_recommendations', 'seeker_feat_profile_views', 'seeker_feat_exposure_analytics', 'seeker_feat_unlimited_swipes', 'seeker_feat_unlimited_messages'],
+    limits: { swipesPerDay: -1, messagesPerDay: -1, profileViews: -1, savedJobs: -1, aiMatchesPerDay: 50 },
+    trialDays: 7,
+    targetRole: 'job_seeker',
+  },
+  {
+    id: 'seeker_premium_plus',
+    name: 'Premium+',
+    description: 'seeker_plan_premium_plus_desc',
+    monthlyPrice: 39.99,
+    yearlyPrice: 29.99,
     currency: 'USD',
     icon: <Crown className="w-5 h-5" />,
     color: '#8B5CF6',
-    features: ['seeker_feat_unlimited_swipes', 'seeker_feat_spotlight_profile', 'seeker_feat_unlimited_messages', 'seeker_feat_top_visibility', 'seeker_feat_advanced_ai', 'seeker_feat_who_viewed', 'seeker_feat_read_receipts', 'seeker_feat_video_intro', 'seeker_feat_salary_insights', 'seeker_feat_interview_prep'],
+    features: ['seeker_feat_all_premium', 'seeker_feat_featured_candidate', 'seeker_feat_featured_badge', 'seeker_feat_priority_visibility', 'seeker_feat_higher_ai_visibility', 'seeker_feat_featured_placement', 'seeker_feat_recruiter_engagement', 'seeker_feat_advanced_analytics', 'seeker_feat_unlimited_everything'],
     limits: { swipesPerDay: -1, messagesPerDay: -1, profileViews: -1, savedJobs: -1, aiMatchesPerDay: -1 },
     trialDays: 7,
     targetRole: 'job_seeker',
@@ -700,7 +700,7 @@ export default function Subscription() {
   // Role-specific data
   const plans = effectiveRole === 'company' ? COMPANY_PLANS : SEEKER_PLANS;
   const featureComparison = effectiveRole === 'company' ? COMPANY_FEATURE_COMPARISON : SEEKER_FEATURE_COMPARISON;
-  const planNames = effectiveRole === 'company' ? ['Starter', 'Professional', 'Business', 'Enterprise'] : ['Basic', 'Plus', 'Premium'];
+  const planNames = effectiveRole === 'company' ? ['Starter', 'Professional', 'Business', 'Enterprise'] : ['Free', 'Premium', 'Premium+'];
   const invoices = effectiveRole === 'company' ? COMPANY_INVOICES : SEEKER_INVOICES;
   const currentPlanId = effectiveRole === 'company' ? 'company_professional' : 'seeker_plus';
 

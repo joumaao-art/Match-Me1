@@ -26,6 +26,9 @@ export type CompanyTier = 'free' | 'premium' | 'enterprise';
 export type DirectoryView = 'directory' | 'saved' | 'viewed' | 'contacts' | 'pipeline';
 export type CardViewMode = 'card' | 'table';
 
+type VisibilityMode = 'public' | 'anonymous' | 'private';
+type SeekerSubscriptionTier = 'free' | 'premium' | 'premium_plus';
+
 interface DirectoryCandidate {
   id: string;
   name: string;
@@ -57,6 +60,11 @@ interface DirectoryCandidate {
   resume?: string;
   about?: string;
   certifications?: string[];
+  // Discoverability fields (Part 2)
+  visibilityMode: VisibilityMode;
+  seekerTier: SeekerSubscriptionTier;
+  discoverable: boolean;
+  allowAIRecommendations: boolean;
 }
 
 interface SavedFolder {
@@ -83,14 +91,14 @@ interface CandidateView {
 // ============================================================
 
 const mockDirectoryCandidates: DirectoryCandidate[] = [
-  { id: 'd1', name: 'Fatima Al-Rashid', headline: 'Senior Full-Stack Developer', currentPosition: 'Lead Engineer', company: 'TechVentures', experience: 7, industry: 'Technology', location: 'Dubai, UAE', employmentPref: 'Full-time', availability: 'Immediate', skills: ['React', 'TypeScript', 'Node.js', 'AWS', 'PostgreSQL'], languages: ['Arabic', 'English', 'French'], education: "Master's in CS", profileCompletion: 95, profileStrength: 92, matchScore: 96, verified: true, openToWork: true, featured: true, recentlyActive: true, lastActive: '2026-07-18', joinedDate: '2025-11-01', salaryExpectation: 18000, email: 'fatima@email.com', phone: '+971501234567', portfolio: 'https://fatima.dev', resume: 'fatima_cv.pdf', about: 'Passionate full-stack developer with 7 years of experience building scalable web applications.', certifications: ['AWS Solutions Architect', 'Google Cloud Professional'] },
-  { id: 'd2', name: 'Khalid Mohammed', headline: 'DevOps & Cloud Architect', currentPosition: 'Senior DevOps Engineer', company: 'CloudFirst', experience: 6, industry: 'Technology', location: 'Riyadh, KSA', employmentPref: 'Full-time', availability: '2 Weeks', skills: ['Kubernetes', 'Terraform', 'AWS', 'Docker', 'CI/CD'], languages: ['Arabic', 'English'], education: "Bachelor's in IT", profileCompletion: 88, profileStrength: 85, matchScore: 91, verified: true, openToWork: true, featured: false, recentlyActive: true, lastActive: '2026-07-17', joinedDate: '2026-01-15', salaryExpectation: 15000, email: 'khalid@email.com', phone: '+966551234567', about: 'Cloud infrastructure expert specializing in Kubernetes and multi-cloud architectures.', certifications: ['CKA', 'AWS DevOps Professional'] },
-  { id: 'd3', name: 'Sara Hassan', headline: 'UX/UI Design Lead', currentPosition: 'Design Director', company: 'DesignStudio', experience: 8, industry: 'Design', location: 'Abu Dhabi, UAE', employmentPref: 'Full-time', availability: '1 Month', skills: ['Figma', 'UI/UX', 'Design Systems', 'Prototyping', 'User Research'], languages: ['Arabic', 'English', 'Spanish'], education: "Master's in Design", profileCompletion: 100, profileStrength: 98, matchScore: 88, verified: true, openToWork: false, featured: true, recentlyActive: true, lastActive: '2026-07-18', joinedDate: '2025-08-20', salaryExpectation: 20000, email: 'sara@email.com', phone: '+971521234567', portfolio: 'https://sara-design.com', about: 'Award-winning design leader with expertise in creating intuitive digital experiences.', certifications: ['Google UX Design', 'Nielsen Norman Group'] },
-  { id: 'd4', name: 'Omar Al-Jabri', headline: 'Data Scientist & ML Engineer', currentPosition: 'Senior Data Scientist', company: 'DataInsights', experience: 5, industry: 'Technology', location: 'Doha, Qatar', employmentPref: 'Remote', availability: 'Immediate', skills: ['Python', 'TensorFlow', 'SQL', 'ML', 'NLP', 'Statistics'], languages: ['Arabic', 'English'], education: "PhD in Data Science", profileCompletion: 92, profileStrength: 90, matchScore: 84, verified: true, openToWork: true, featured: false, recentlyActive: false, lastActive: '2026-07-14', joinedDate: '2026-03-10', salaryExpectation: 16000, email: 'omar@email.com', about: 'Data scientist passionate about applying ML to solve real-world business problems.', certifications: ['TensorFlow Developer', 'AWS ML Specialty'] },
-  { id: 'd5', name: 'Layla Nasser', headline: 'Product Manager', currentPosition: 'Senior PM', company: 'ProductCo', experience: 6, industry: 'Technology', location: 'Jeddah, KSA', employmentPref: 'Hybrid', availability: '2 Weeks', skills: ['Product Strategy', 'Agile', 'Analytics', 'Roadmapping', 'Stakeholder Management'], languages: ['Arabic', 'English', 'Turkish'], education: "MBA", profileCompletion: 85, profileStrength: 82, matchScore: 79, verified: false, openToWork: true, featured: false, recentlyActive: true, lastActive: '2026-07-16', joinedDate: '2026-02-01', salaryExpectation: 14000, email: 'layla@email.com', about: 'Product leader focused on building products that users love.', certifications: ['CSPO', 'SAFe Agilist'] },
-  { id: 'd6', name: 'Ahmed Mansour', headline: 'Backend Engineer', currentPosition: 'Software Engineer', company: 'StartupXYZ', experience: 3, industry: 'Technology', location: 'Cairo, Egypt', employmentPref: 'Remote', availability: 'Immediate', skills: ['Java', 'Spring Boot', 'Microservices', 'Kafka', 'Redis'], languages: ['Arabic', 'English'], education: "Bachelor's in CS", profileCompletion: 78, profileStrength: 75, matchScore: 72, verified: false, openToWork: true, featured: false, recentlyActive: true, lastActive: '2026-07-18', joinedDate: '2026-05-20', salaryExpectation: 8000, email: 'ahmed@email.com', about: 'Backend developer with strong microservices experience.' },
-  { id: 'd7', name: 'Noor Al-Qasim', headline: 'Cybersecurity Analyst', currentPosition: 'Security Engineer', company: 'SecureNet', experience: 4, industry: 'Cybersecurity', location: 'Manama, Bahrain', employmentPref: 'Full-time', availability: '1 Month', skills: ['Penetration Testing', 'SIEM', 'Incident Response', 'Cloud Security', 'SOC'], languages: ['Arabic', 'English', 'Hindi'], education: "Master's in Cybersecurity", profileCompletion: 90, profileStrength: 87, matchScore: 81, verified: true, openToWork: true, featured: false, recentlyActive: false, lastActive: '2026-07-12', joinedDate: '2025-12-05', salaryExpectation: 13000, email: 'noor@email.com', about: 'Cybersecurity professional with expertise in threat detection and incident response.', certifications: ['CISSP', 'CEH', 'OSCP'] },
-  { id: 'd8', name: 'Youssef Ibrahim', headline: 'Mobile Developer', currentPosition: 'iOS Developer', company: 'AppFactory', experience: 4, industry: 'Technology', location: 'Kuwait City, Kuwait', employmentPref: 'Full-time', availability: '2 Weeks', skills: ['Swift', 'React Native', 'Flutter', 'iOS', 'Android'], languages: ['Arabic', 'English'], education: "Bachelor's in SE", profileCompletion: 82, profileStrength: 80, matchScore: 77, verified: false, openToWork: true, featured: false, recentlyActive: true, lastActive: '2026-07-17', joinedDate: '2026-04-15', salaryExpectation: 10000, email: 'youssef@email.com', about: 'Cross-platform mobile developer building beautiful native experiences.' },
+  { id: 'd1', name: 'Fatima Al-Rashid', headline: 'Senior Full-Stack Developer', currentPosition: 'Lead Engineer', company: 'TechVentures', experience: 7, industry: 'Technology', location: 'Dubai, UAE', employmentPref: 'Full-time', availability: 'Immediate', skills: ['React', 'TypeScript', 'Node.js', 'AWS', 'PostgreSQL'], languages: ['Arabic', 'English', 'French'], education: "Master's in CS", profileCompletion: 95, profileStrength: 92, matchScore: 96, verified: true, openToWork: true, featured: true, recentlyActive: true, lastActive: '2026-07-18', joinedDate: '2025-11-01', salaryExpectation: 18000, email: 'fatima@email.com', phone: '+971501234567', portfolio: 'https://fatima.dev', resume: 'fatima_cv.pdf', about: 'Passionate full-stack developer with 7 years of experience building scalable web applications.', certifications: ['AWS Solutions Architect', 'Google Cloud Professional'], visibilityMode: 'public', seekerTier: 'premium_plus', discoverable: true, allowAIRecommendations: true },
+  { id: 'd2', name: 'Khalid Mohammed', headline: 'DevOps & Cloud Architect', currentPosition: 'Senior DevOps Engineer', company: 'CloudFirst', experience: 6, industry: 'Technology', location: 'Riyadh, KSA', employmentPref: 'Full-time', availability: '2 Weeks', skills: ['Kubernetes', 'Terraform', 'AWS', 'Docker', 'CI/CD'], languages: ['Arabic', 'English'], education: "Bachelor's in IT", profileCompletion: 88, profileStrength: 85, matchScore: 91, verified: true, openToWork: true, featured: false, recentlyActive: true, lastActive: '2026-07-17', joinedDate: '2026-01-15', salaryExpectation: 15000, email: 'khalid@email.com', phone: '+966551234567', about: 'Cloud infrastructure expert specializing in Kubernetes and multi-cloud architectures.', certifications: ['CKA', 'AWS DevOps Professional'], visibilityMode: 'public', seekerTier: 'premium', discoverable: true, allowAIRecommendations: true },
+  { id: 'd3', name: 'Sara Hassan', headline: 'UX/UI Design Lead', currentPosition: 'Design Director', company: 'DesignStudio', experience: 8, industry: 'Design', location: 'Abu Dhabi, UAE', employmentPref: 'Full-time', availability: '1 Month', skills: ['Figma', 'UI/UX', 'Design Systems', 'Prototyping', 'User Research'], languages: ['Arabic', 'English', 'Spanish'], education: "Master's in Design", profileCompletion: 100, profileStrength: 98, matchScore: 88, verified: true, openToWork: false, featured: true, recentlyActive: true, lastActive: '2026-07-18', joinedDate: '2025-08-20', salaryExpectation: 20000, email: 'sara@email.com', phone: '+971521234567', portfolio: 'https://sara-design.com', about: 'Award-winning design leader with expertise in creating intuitive digital experiences.', certifications: ['Google UX Design', 'Nielsen Norman Group'], visibilityMode: 'public', seekerTier: 'premium_plus', discoverable: true, allowAIRecommendations: true },
+  { id: 'd4', name: 'Omar Al-Jabri', headline: 'Data Scientist & ML Engineer', currentPosition: 'Senior Data Scientist', company: 'DataInsights', experience: 5, industry: 'Technology', location: 'Doha, Qatar', employmentPref: 'Remote', availability: 'Immediate', skills: ['Python', 'TensorFlow', 'SQL', 'ML', 'NLP', 'Statistics'], languages: ['Arabic', 'English'], education: "PhD in Data Science", profileCompletion: 92, profileStrength: 90, matchScore: 84, verified: true, openToWork: true, featured: false, recentlyActive: false, lastActive: '2026-07-14', joinedDate: '2026-03-10', salaryExpectation: 16000, email: 'omar@email.com', about: 'Data scientist passionate about applying ML to solve real-world business problems.', certifications: ['TensorFlow Developer', 'AWS ML Specialty'], visibilityMode: 'anonymous', seekerTier: 'premium', discoverable: true, allowAIRecommendations: true },
+  { id: 'd5', name: 'Layla Nasser', headline: 'Product Manager', currentPosition: 'Senior PM', company: 'ProductCo', experience: 6, industry: 'Technology', location: 'Jeddah, KSA', employmentPref: 'Hybrid', availability: '2 Weeks', skills: ['Product Strategy', 'Agile', 'Analytics', 'Roadmapping', 'Stakeholder Management'], languages: ['Arabic', 'English', 'Turkish'], education: "MBA", profileCompletion: 85, profileStrength: 82, matchScore: 79, verified: false, openToWork: true, featured: false, recentlyActive: true, lastActive: '2026-07-16', joinedDate: '2026-02-01', salaryExpectation: 14000, email: 'layla@email.com', about: 'Product leader focused on building products that users love.', certifications: ['CSPO', 'SAFe Agilist'], visibilityMode: 'public', seekerTier: 'premium', discoverable: true, allowAIRecommendations: false },
+  { id: 'd6', name: 'Ahmed Mansour', headline: 'Backend Engineer', currentPosition: 'Software Engineer', company: 'StartupXYZ', experience: 3, industry: 'Technology', location: 'Cairo, Egypt', employmentPref: 'Remote', availability: 'Immediate', skills: ['Java', 'Spring Boot', 'Microservices', 'Kafka', 'Redis'], languages: ['Arabic', 'English'], education: "Bachelor's in CS", profileCompletion: 78, profileStrength: 75, matchScore: 72, verified: false, openToWork: true, featured: false, recentlyActive: true, lastActive: '2026-07-18', joinedDate: '2026-05-20', salaryExpectation: 8000, email: 'ahmed@email.com', about: 'Backend developer with strong microservices experience.', visibilityMode: 'public', seekerTier: 'premium', discoverable: true, allowAIRecommendations: true },
+  { id: 'd7', name: 'Noor Al-Qasim', headline: 'Cybersecurity Analyst', currentPosition: 'Security Engineer', company: 'SecureNet', experience: 4, industry: 'Cybersecurity', location: 'Manama, Bahrain', employmentPref: 'Full-time', availability: '1 Month', skills: ['Penetration Testing', 'SIEM', 'Incident Response', 'Cloud Security', 'SOC'], languages: ['Arabic', 'English', 'Hindi'], education: "Master's in Cybersecurity", profileCompletion: 90, profileStrength: 87, matchScore: 81, verified: true, openToWork: true, featured: false, recentlyActive: false, lastActive: '2026-07-12', joinedDate: '2025-12-05', salaryExpectation: 13000, email: 'noor@email.com', about: 'Cybersecurity professional with expertise in threat detection and incident response.', certifications: ['CISSP', 'CEH', 'OSCP'], visibilityMode: 'anonymous', seekerTier: 'premium', discoverable: true, allowAIRecommendations: true },
+  { id: 'd8', name: 'Youssef Ibrahim', headline: 'Mobile Developer', currentPosition: 'iOS Developer', company: 'AppFactory', experience: 4, industry: 'Technology', location: 'Kuwait City, Kuwait', employmentPref: 'Full-time', availability: '2 Weeks', skills: ['Swift', 'React Native', 'Flutter', 'iOS', 'Android'], languages: ['Arabic', 'English'], education: "Bachelor's in SE", profileCompletion: 82, profileStrength: 80, matchScore: 77, verified: false, openToWork: true, featured: false, recentlyActive: true, lastActive: '2026-07-17', joinedDate: '2026-04-15', salaryExpectation: 10000, email: 'youssef@email.com', about: 'Cross-platform mobile developer building beautiful native experiences.', visibilityMode: 'public', seekerTier: 'premium', discoverable: true, allowAIRecommendations: true },
 ];
 
 const PIPELINE_STAGES: PipelineStage[] = [
@@ -186,8 +194,9 @@ function CandidateCard({ candidate, tier, onView, onSave, onPipeline, onContact,
   isSaved: boolean;
 }) {
   const { t } = useTranslation();
-  const canSeeIdentity = tier !== 'free';
-  const canContact = tier !== 'free';
+  const isAnonymous = candidate.visibilityMode === 'anonymous';
+  const canSeeIdentity = tier !== 'free' && !isAnonymous;
+  const canContact = tier !== 'free' && !isAnonymous;
 
   return (
     <Card className="hover:shadow-md transition-all duration-200 group relative">
@@ -295,17 +304,18 @@ function CandidateTableRow({ candidate, tier, onView, onSave, isSaved }: {
   isSaved: boolean;
 }) {
   const { t } = useTranslation();
-  const canSeeIdentity = tier !== 'free';
+  const isAnonymous = candidate.visibilityMode === 'anonymous';
+  const canSeeIdentity = tier !== 'free' && !isAnonymous;
 
   return (
     <tr className="border-b border-border hover:bg-muted/50 transition-colors">
       <td className="p-3">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-            {canSeeIdentity ? <span className="text-sm font-bold text-primary">{candidate.name.charAt(0)}</span> : <Lock className="w-3.5 h-3.5 text-muted-foreground" />}
+            {canSeeIdentity ? <span className="text-sm font-bold text-primary">{candidate.name.charAt(0)}</span> : isAnonymous ? <Shield className="w-3.5 h-3.5 text-amber-500" /> : <Lock className="w-3.5 h-3.5 text-muted-foreground" />}
           </div>
           <div>
-            <p className="text-sm font-medium">{canSeeIdentity ? candidate.name : '🔒 ' + t('premium_required')}</p>
+            <p className="text-sm font-medium">{canSeeIdentity ? candidate.name : isAnonymous ? t('anonymous_mode') + ' ' + t('candidate') : '🔒 ' + t('premium_required')}</p>
             <p className="text-xs text-muted-foreground">{candidate.headline}</p>
           </div>
         </div>
@@ -339,8 +349,9 @@ function CandidateProfileModal({ candidate, tier, open, onClose }: {
 }) {
   const { t } = useTranslation();
   if (!candidate) return null;
-  const canSeeIdentity = tier !== 'free';
-  const canSeeContact = tier !== 'free';
+  const isAnonymous = candidate.visibilityMode === 'anonymous';
+  const canSeeIdentity = tier !== 'free' && !isAnonymous;
+  const canSeeContact = tier !== 'free' && !isAnonymous;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -503,13 +514,15 @@ export default function CandidateDirectory({ activeView, companyTier = 'premium'
   const allLocations = useMemo(() => Array.from(new Set(mockDirectoryCandidates.map(c => c.location))), []);
   const allIndustries = useMemo(() => Array.from(new Set(mockDirectoryCandidates.map(c => c.industry))), []);
 
-  // Get candidates based on active view
+  // Get candidates based on active view (exclude private & non-discoverable from directory)
   const baseCandidates = useMemo(() => {
+    const discoverableOnly = (candidates: DirectoryCandidate[]) =>
+      candidates.filter(c => c.visibilityMode !== 'private' && c.discoverable);
     switch (activeView) {
       case 'saved': return mockDirectoryCandidates.filter(c => savedCandidates.includes(c.id));
       case 'viewed': return mockDirectoryCandidates.filter(c => viewedCandidates.some(v => v.candidateId === c.id));
       case 'pipeline': return mockDirectoryCandidates.filter(c => c.id in pipelineCandidates);
-      default: return mockDirectoryCandidates;
+      default: return discoverableOnly(mockDirectoryCandidates);
     }
   }, [activeView, savedCandidates, viewedCandidates, pipelineCandidates]);
 
