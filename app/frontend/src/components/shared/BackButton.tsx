@@ -9,7 +9,7 @@
  * - Preserves entered data by using history.back() instead of navigate()
  */
 
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -38,10 +38,12 @@ export function BackButton({
   size = 'icon',
 }: BackButtonProps) {
   const navigate = useNavigate();
-  const location = useLocation();
   const { t } = useTranslation();
 
   const displayLabel = label || t('back');
+
+  // Defensive: ensure fallbackRoute is always a valid string
+  const safeFallback = fallbackRoute && typeof fallbackRoute === 'string' ? fallbackRoute : '/';
 
   const handleBack = () => {
     // Check if there's actual navigation history within our app
@@ -51,7 +53,7 @@ export function BackButton({
       navigate(-1);
     } else {
       // No history (direct URL access) - navigate to fallback parent route
-      navigate(fallbackRoute, { replace: true });
+      navigate(safeFallback, { replace: true });
     }
   };
 

@@ -205,7 +205,7 @@ function FileMessage({ msg }: { msg: Message }) {
 }
 
 function ConversationList({
-  conversations, activeId, onSelect, searchQuery, setSearchQuery, showArchived, setShowArchived
+  conversations, activeId, onSelect, searchQuery, setSearchQuery, showArchived, setShowArchived, backFallback
 }: {
   conversations: Conversation[];
   activeId: string | null;
@@ -214,6 +214,7 @@ function ConversationList({
   setSearchQuery: (q: string) => void;
   showArchived: boolean;
   setShowArchived: (v: boolean) => void;
+  backFallback: string;
 }) {
   const { t } = useTranslation();
 
@@ -560,6 +561,7 @@ export default function Messages() {
           setSearchQuery={setSearchQuery}
           showArchived={showArchived}
           setShowArchived={setShowArchived}
+          backFallback={backFallback}
         />
       </div>
 
