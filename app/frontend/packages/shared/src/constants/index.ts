@@ -42,6 +42,7 @@ export const ROUTES = {
   MESSAGES: '/messages',
   SUBSCRIPTION: '/subscription',
   NOTIFICATIONS: '/notifications',
+  LEARN_MORE: '/learn-more',
 } as const;
 
 // Pagination

@@ -31,6 +31,9 @@ const Auth = lazy(() => import('./pages/Auth'));
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 
+// Marketing pages
+const LearnMore = lazy(() => import('./pages/LearnMore'));
+
 // Feature pages - large, lazy loaded
 const JobSeeker = lazy(() => import('./pages/JobSeeker'));
 const Company = lazy(() => import('./pages/Company'));
@@ -202,6 +205,14 @@ function AppRoutes() {
     <Routes>
       {/* Public routes - Index loaded eagerly for fast LCP */}
       <Route path={ROUTES.HOME} element={<Index />} />
+      <Route
+        path={ROUTES.LEARN_MORE}
+        element={
+          <Suspense fallback={<PageLoader />}>
+            <LearnMore />
+          </Suspense>
+        }
+      />
 
       {/* Guest-only routes */}
       <Route

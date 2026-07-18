@@ -32,6 +32,7 @@ Build MatchMe - an AI-powered recruitment platform with swipe-based matching bet
 - [ ] Refactor mobile app to import from shared packages
 - [x] Implement Profile Completion and Strength system (ProfileCompletionCard, ProfileCompletionMini, ProfileStrengthBadge, CandidateProfileStrength, AdminProfileAnalytics)
 - [x] Refactor messaging system with controlled messaging based on hiring workflow (workflow states, permissions, status badges, locked conversations)
+- [x] Implement Learn More page (/learn-more) with hero, how it works, features, benefits, AI matching, security, FAQ, CTA sections + full EN/AR translations
 - [x] Navigation audit - consistent BackButton usage across all pages with role-aware fallback routes
 - [x] Fix Messages page crash - backFallback not passed as prop to ConversationList child component
 - [x] Build complete Company dashboard (20+ features: profile, branches, recruiters, jobs CRUD, pipeline, matching, analytics, billing, team, settings)
