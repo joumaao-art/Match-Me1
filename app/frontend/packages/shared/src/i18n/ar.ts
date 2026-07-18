@@ -274,7 +274,7 @@ export const ar = {
   redirecting_checkout: 'جاري التوجيه للدفع...',
   secure_payment: 'دفع آمن مدعوم من Stripe',
 
-  // Subscription Features - Company
+  // Subscription Features - Company (legacy)
   limited_job_postings: 'نشر وظائف محدود (3/شهر)',
   message_matched_only: 'مراسلة المرشحين المتطابقين فقط',
   hidden_contact_info: 'معلومات الاتصال مخفية',
@@ -286,7 +286,7 @@ export const ar = {
   priority_ranking: 'أولوية في نتائج البحث',
   export_candidate_data: 'تصدير بيانات المرشحين (CSV/PDF)',
 
-  // Subscription Features - Job Seeker
+  // Subscription Features - Job Seeker (legacy)
   unlimited_swipes: 'تصفح غير محدود',
   basic_profile_visibility: 'ظهور أساسي للملف',
   message_matched_companies: 'مراسلة الشركات المتطابقة',
@@ -296,6 +296,110 @@ export const ar = {
   detailed_analytics: 'تحليلات ورؤى مفصلة',
   ai_profile_enhancement: 'تحسين الملف بالذكاء الاصطناعي',
   see_profile_viewers: 'معرفة من شاهد ملفك',
+
+  // ============================================================
+  // Subscription - Job Seeker Plans & Features
+  // ============================================================
+  seeker_subscription_plans: 'خطط الباحثين عن عمل',
+  seeker_subscription_subtitle: 'اعثر على وظيفة أحلامك أسرع مع الخطة المناسبة',
+  seeker_plan_basic_desc: 'مثالي للبدء في البحث عن عمل.',
+  seeker_plan_plus_desc: 'افتح المزيد من الفرص وحسّن ظهورك.',
+  seeker_plan_premium_desc: 'أقصى ظهور وأدوات متقدمة للباحثين الجادين عن عمل.',
+  // Seeker plan features
+  seeker_feat_5_swipes: '5 تمريرات وظائف يومياً',
+  seeker_feat_basic_profile: 'ملف شخصي أساسي',
+  seeker_feat_5_messages: 'حتى 5 رسائل يومياً',
+  seeker_feat_job_alerts: 'تنبيهات الوظائف',
+  seeker_feat_basic_matching: 'مطابقة أساسية',
+  seeker_feat_unlimited_swipes: 'تمريرات وظائف غير محدودة',
+  seeker_feat_enhanced_profile: 'ملف شخصي محسّن',
+  seeker_feat_unlimited_messages: 'رسائل غير محدودة',
+  seeker_feat_priority_visibility: 'أولوية في الظهور',
+  seeker_feat_ai_matching: 'مطابقة وظائف بالذكاء الاصطناعي',
+  seeker_feat_who_viewed: 'معرفة من شاهد ملفك',
+  seeker_feat_read_receipts: 'إيصالات القراءة',
+  seeker_feat_spotlight_profile: 'ملف شخصي مميز',
+  seeker_feat_top_visibility: 'أعلى ظهور في البحث',
+  seeker_feat_advanced_ai: 'مطابقة ذكاء اصطناعي متقدمة ورؤى',
+  seeker_feat_video_intro: 'مقدمة فيديو',
+  seeker_feat_salary_insights: 'رؤى الرواتب',
+  seeker_feat_interview_prep: 'أدوات التحضير للمقابلات',
+  // Seeker feature comparison rows
+  seeker_feat_daily_swipes: 'التمريرات اليومية',
+  seeker_feat_daily_messages_row: 'الرسائل اليومية',
+  seeker_feat_profile_views_row: 'مشاهدات الملف',
+  seeker_feat_saved_jobs_row: 'الوظائف المحفوظة',
+  seeker_feat_ai_matches_row: 'تطابقات الذكاء الاصطناعي',
+  seeker_feat_who_viewed_row: 'من شاهد ملفك',
+  seeker_feat_read_receipts_row: 'إيصالات القراءة',
+  seeker_feat_priority_visibility_row: 'أولوية الظهور',
+  seeker_feat_video_intro_row: 'مقدمة فيديو',
+  seeker_feat_salary_insights_row: 'رؤى الرواتب',
+  seeker_feat_interview_prep_row: 'التحضير للمقابلات',
+
+  // ============================================================
+  // Subscription - Company Plans & Features
+  // ============================================================
+  company_subscription_plans: 'خطط الشركات',
+  company_subscription_subtitle: 'وظّف أفضل المواهب أسرع مع الخطة المناسبة',
+  company_plan_starter_desc: 'مثالي للفرق الصغيرة التي بدأت للتو في التوظيف.',
+  company_plan_professional_desc: 'الأفضل للشركات النامية ذات احتياجات التوظيف النشطة.',
+  company_plan_business_desc: 'للشركات الراسخة ذات التوظيف بكميات كبيرة.',
+  company_plan_enterprise_desc: 'حلول مخصصة للمؤسسات الكبيرة.',
+  // Company plan features
+  company_feat_3_jobs: '3 إعلانات وظيفية',
+  company_feat_50_views: '50 مشاهدة مرشح/شهر',
+  company_feat_10_messages: '10 رسائل/يوم',
+  company_feat_basic_matching: 'خوارزمية مطابقة أساسية',
+  company_feat_email_support: 'دعم عبر البريد الإلكتروني',
+  company_feat_15_jobs: '15 إعلان وظيفي',
+  company_feat_500_views: '500 مشاهدة مرشح/شهر',
+  company_feat_unlimited_messages: 'رسائل غير محدودة',
+  company_feat_ai_matching: 'مطابقة بالذكاء الاصطناعي',
+  company_feat_priority_support: 'دعم ذو أولوية',
+  company_feat_analytics: 'لوحة تحليلات',
+  company_feat_3_team: '3 أعضاء فريق',
+  company_feat_50_jobs: '50 إعلان وظيفي',
+  company_feat_unlimited_views: 'مشاهدات مرشحين غير محدودة',
+  company_feat_advanced_ai: 'ذكاء اصطناعي متقدم + رؤى',
+  company_feat_dedicated_support: 'مدير حساب مخصص',
+  company_feat_full_analytics: 'مجموعة تحليلات كاملة',
+  company_feat_10_team: '10 أعضاء فريق',
+  company_feat_api_access: 'وصول API',
+  company_feat_custom_branding: 'علامة تجارية مخصصة',
+  company_feat_unlimited_jobs: 'إعلانات وظيفية غير محدودة',
+  company_feat_custom_ai: 'تدريب نموذج ذكاء اصطناعي مخصص',
+  company_feat_sla_support: 'دعم مع اتفاقية مستوى الخدمة',
+  company_feat_unlimited_team: 'أعضاء فريق غير محدودين',
+  company_feat_full_api: 'وصول API كامل',
+  company_feat_white_label: 'حل العلامة البيضاء',
+  company_feat_onboarding: 'تأهيل مخصص',
+  company_feat_custom_integrations: 'تكاملات مخصصة',
+  // Company feature comparison rows
+  company_feat_job_postings_row: 'الإعلانات الوظيفية',
+  company_feat_candidate_views_row: 'مشاهدات المرشحين',
+  company_feat_daily_messages_row: 'الرسائل اليومية',
+  company_feat_ai_matches_row: 'تطابقات الذكاء الاصطناعي',
+  company_feat_team_members_row: 'أعضاء الفريق',
+  company_feat_cv_downloads_row: 'تحميل السير الذاتية',
+  company_feat_analytics_row: 'التحليلات',
+  company_feat_api_access_row: 'وصول API',
+  company_feat_custom_branding_row: 'علامة تجارية مخصصة',
+  company_feat_white_label_row: 'العلامة البيضاء',
+  company_feat_dedicated_manager_row: 'مدير مخصص',
+  company_feat_sla_row: 'دعم SLA',
+
+  // ============================================================
+  // Subscription - Misc UI Keys
+  // ============================================================
+  payment_method: 'طريقة الدفع',
+  change_plan: 'تغيير الخطة',
+  billing: 'الفوترة',
+  admin_subscription_redirect: 'وصول المدير',
+  admin_subscription_redirect_desc: 'إدارة الاشتراكات متاحة في لوحة تحكم المدير.',
+  go_to_admin: 'الذهاب للوحة تحكم المدير',
+  daily_swipes: 'التمريرات اليومية',
+  paid: 'مدفوع',
 
   // ============================================================
   // Admin
@@ -738,6 +842,10 @@ export const ar = {
   delete_account: 'حذف الحساب',
   delete_account_warning: 'هذا الإجراء لا رجعة فيه. سيتم حذف جميع البيانات نهائياً.',
   open_messages: 'فتح الرسائل',
+  mark_all_read: 'تحديد الكل كمقروء',
+  push_notifications: 'الإشعارات الفورية',
+  view_all_plans: 'عرض جميع الخطط',
+  ai_powered: 'مدعوم بالذكاء الاصطناعي',
 
   // ============================================================
   // Error Messages

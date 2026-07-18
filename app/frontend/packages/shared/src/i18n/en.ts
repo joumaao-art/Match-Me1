@@ -274,7 +274,7 @@ export const en = {
   redirecting_checkout: 'Redirecting to checkout...',
   secure_payment: 'Secure payment powered by Stripe',
 
-  // Subscription Features - Company
+  // Subscription Features - Company (legacy)
   limited_job_postings: 'Limited job postings (3/month)',
   message_matched_only: 'Message matched candidates only',
   hidden_contact_info: 'Hidden contact information',
@@ -286,7 +286,7 @@ export const en = {
   priority_ranking: 'Priority ranking in search',
   export_candidate_data: 'Export candidate data (CSV/PDF)',
 
-  // Subscription Features - Job Seeker
+  // Subscription Features - Job Seeker (legacy)
   unlimited_swipes: 'Unlimited swipes',
   basic_profile_visibility: 'Basic profile visibility',
   message_matched_companies: 'Message matched companies',
@@ -296,6 +296,110 @@ export const en = {
   detailed_analytics: 'Detailed analytics & insights',
   ai_profile_enhancement: 'AI profile enhancement',
   see_profile_viewers: 'See who viewed your profile',
+
+  // ============================================================
+  // Subscription - Job Seeker Plans & Features
+  // ============================================================
+  seeker_subscription_plans: 'Job Seeker Plans',
+  seeker_subscription_subtitle: 'Find your dream job faster with the right plan',
+  seeker_plan_basic_desc: 'Perfect for getting started with your job search.',
+  seeker_plan_plus_desc: 'Unlock more opportunities and improve your visibility.',
+  seeker_plan_premium_desc: 'Maximum exposure and advanced tools for serious job seekers.',
+  // Seeker plan features
+  seeker_feat_5_swipes: '5 job swipes per day',
+  seeker_feat_basic_profile: 'Basic profile',
+  seeker_feat_5_messages: 'Up to 5 messages per day',
+  seeker_feat_job_alerts: 'Job alerts',
+  seeker_feat_basic_matching: 'Basic matching',
+  seeker_feat_unlimited_swipes: 'Unlimited job swipes',
+  seeker_feat_enhanced_profile: 'Enhanced profile',
+  seeker_feat_unlimited_messages: 'Unlimited messaging',
+  seeker_feat_priority_visibility: 'Priority visibility',
+  seeker_feat_ai_matching: 'AI-powered job matching',
+  seeker_feat_who_viewed: 'See who viewed your profile',
+  seeker_feat_read_receipts: 'Read receipts',
+  seeker_feat_spotlight_profile: 'Spotlight profile',
+  seeker_feat_top_visibility: 'Top visibility in search',
+  seeker_feat_advanced_ai: 'Advanced AI matching & insights',
+  seeker_feat_video_intro: 'Video introduction',
+  seeker_feat_salary_insights: 'Salary insights',
+  seeker_feat_interview_prep: 'Interview preparation tools',
+  // Seeker feature comparison rows
+  seeker_feat_daily_swipes: 'Daily Swipes',
+  seeker_feat_daily_messages_row: 'Daily Messages',
+  seeker_feat_profile_views_row: 'Profile Views',
+  seeker_feat_saved_jobs_row: 'Saved Jobs',
+  seeker_feat_ai_matches_row: 'AI Matches',
+  seeker_feat_who_viewed_row: 'See Who Viewed',
+  seeker_feat_read_receipts_row: 'Read Receipts',
+  seeker_feat_priority_visibility_row: 'Priority Visibility',
+  seeker_feat_video_intro_row: 'Video Introduction',
+  seeker_feat_salary_insights_row: 'Salary Insights',
+  seeker_feat_interview_prep_row: 'Interview Prep',
+
+  // ============================================================
+  // Subscription - Company Plans & Features
+  // ============================================================
+  company_subscription_plans: 'Company Plans',
+  company_subscription_subtitle: 'Hire top talent faster with the right plan',
+  company_plan_starter_desc: 'Perfect for small teams just getting started with hiring.',
+  company_plan_professional_desc: 'Best for growing companies with active hiring needs.',
+  company_plan_business_desc: 'For established companies with high-volume recruitment.',
+  company_plan_enterprise_desc: 'Custom solutions for large organizations.',
+  // Company plan features
+  company_feat_3_jobs: '3 job postings',
+  company_feat_50_views: '50 candidate views/month',
+  company_feat_10_messages: '10 messages/day',
+  company_feat_basic_matching: 'Basic matching algorithm',
+  company_feat_email_support: 'Email support',
+  company_feat_15_jobs: '15 job postings',
+  company_feat_500_views: '500 candidate views/month',
+  company_feat_unlimited_messages: 'Unlimited messages',
+  company_feat_ai_matching: 'AI-powered matching',
+  company_feat_priority_support: 'Priority support',
+  company_feat_analytics: 'Analytics dashboard',
+  company_feat_3_team: '3 team members',
+  company_feat_50_jobs: '50 job postings',
+  company_feat_unlimited_views: 'Unlimited candidate views',
+  company_feat_advanced_ai: 'Advanced AI matching + insights',
+  company_feat_dedicated_support: 'Dedicated account manager',
+  company_feat_full_analytics: 'Full analytics suite',
+  company_feat_10_team: '10 team members',
+  company_feat_api_access: 'API access',
+  company_feat_custom_branding: 'Custom branding',
+  company_feat_unlimited_jobs: 'Unlimited job postings',
+  company_feat_custom_ai: 'Custom AI model training',
+  company_feat_sla_support: 'SLA-backed support',
+  company_feat_unlimited_team: 'Unlimited team members',
+  company_feat_full_api: 'Full API access',
+  company_feat_white_label: 'White-label solution',
+  company_feat_onboarding: 'Dedicated onboarding',
+  company_feat_custom_integrations: 'Custom integrations',
+  // Company feature comparison rows
+  company_feat_job_postings_row: 'Job Postings',
+  company_feat_candidate_views_row: 'Candidate Views',
+  company_feat_daily_messages_row: 'Daily Messages',
+  company_feat_ai_matches_row: 'AI Matches',
+  company_feat_team_members_row: 'Team Members',
+  company_feat_cv_downloads_row: 'CV Downloads',
+  company_feat_analytics_row: 'Analytics',
+  company_feat_api_access_row: 'API Access',
+  company_feat_custom_branding_row: 'Custom Branding',
+  company_feat_white_label_row: 'White Label',
+  company_feat_dedicated_manager_row: 'Dedicated Manager',
+  company_feat_sla_row: 'SLA Support',
+
+  // ============================================================
+  // Subscription - Misc UI Keys
+  // ============================================================
+  payment_method: 'Payment Method',
+  change_plan: 'Change Plan',
+  billing: 'Billing',
+  admin_subscription_redirect: 'Admin Access',
+  admin_subscription_redirect_desc: 'Subscription management is available in the admin dashboard.',
+  go_to_admin: 'Go to Admin Dashboard',
+  daily_swipes: 'Daily Swipes',
+  paid: 'Paid',
 
   // ============================================================
   // Admin
@@ -738,6 +842,10 @@ export const en = {
   delete_account: 'Delete Account',
   delete_account_warning: 'This action is irreversible. All data will be permanently deleted.',
   open_messages: 'Open Messages',
+  mark_all_read: 'Mark all as read',
+  push_notifications: 'Push notifications',
+  view_all_plans: 'View All Plans',
+  ai_powered: 'AI Powered',
 
   // ============================================================
   // Error Messages
