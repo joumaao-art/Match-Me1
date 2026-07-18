@@ -46,6 +46,7 @@ Build MatchMe - an AI-powered recruitment platform with swipe-based matching bet
 - [x] Build Admin dashboard pages (/admin/*)
 - [x] Add comprehensive i18n with Arabic/RTL support to shared package
 - [x] Complete i18n audit - all missing translation keys added (billing, mark_all_read, push_notifications, view_all_plans, ai_powered)
+- [x] Localization audit for Invitations to Apply page - fixed subtitle showing translation key, added missing keys (new, saved, type, expires, saved_for_later), removed duplicate keys (decline, expires), verified all t() calls have corresponding EN/AR translations
 - [x] Full interactive functionality audit - all CRUD operations implemented with dialogs, state management, validation, and toast feedback
 - [x] Refactor Company Dashboard stat cards to be interactive drill-down widgets (clickable, hover, keyboard accessible, navigate to detail views)
 - [x] Fix Company → Candidates search & filter: root cause was unbound search input + missing filter logic. Implemented full search/filter/sort/pagination system with debounce, multi-field search, combined filters, active filter chips, clear filters, empty state, and bilingual support (EN/AR)

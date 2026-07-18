@@ -1525,6 +1525,44 @@ export const en = {
   no_invitations: 'No invitations yet',
   invitation_details: 'Invitation Details',
 
+  // Seeker Invitations Page
+  new: 'New',
+  saved: 'Saved',
+  type: 'Type',
+  expires: 'Expires',
+  saved_for_later: 'Saved for Later',
+  invitations_to_apply: 'Invitations to Apply',
+  invitations_to_apply_desc: 'Review invitations sent by companies and decide whether to apply.',
+  no_invitations_desc: 'Companies will send you invitations when they find your profile interesting.',
+  job_summary: 'Job Summary',
+  personal_message: 'Personal Message',
+  high_compatibility_with_profile: 'High compatibility with your profile',
+  expires_on: 'Expires on',
+  accept_and_view_job: 'Accept & View Job',
+  invitation_accepted_success: 'Invitation accepted! You can now view the job details.',
+  responded_on: 'Responded on',
+
+  // Seeker Career Analytics
+  invitations_received: 'Invitations Received',
+  offers_received: 'Offers Received',
+  resume_views: 'Resume Views',
+  resume_downloads: 'Resume Downloads',
+  profile_saves: 'Profile Saves',
+  featured_performance: 'Featured Performance',
+  career_analytics: 'Career Analytics',
+  weekly_profile_views: 'Weekly Profile Views',
+  last_7_days_performance: 'Your profile performance over the last 7 days',
+  top_companies_viewing: 'Top Companies Viewing Your Profile',
+
+  // Days of week
+  mon: 'Mon',
+  tue: 'Tue',
+  wed: 'Wed',
+  thu: 'Thu',
+  fri: 'Fri',
+  sat: 'Sat',
+  sun: 'Sun',
+
   // Enterprise RBAC
   enterprise: 'Enterprise',
   role_management: 'Role Management',

@@ -1525,6 +1525,44 @@ export const ar = {
   no_invitations: 'لا توجد دعوات بعد',
   invitation_details: 'تفاصيل الدعوة',
 
+  // Seeker Invitations Page
+  new: 'جديد',
+  saved: 'المحفوظة',
+  type: 'النوع',
+  expires: 'ينتهي',
+  saved_for_later: 'محفوظة لاحقاً',
+  invitations_to_apply: 'دعوات التقديم',
+  invitations_to_apply_desc: 'راجع الدعوات المرسلة من الشركات وقرر ما إذا كنت ترغب في التقديم.',
+  no_invitations_desc: 'ستصلك دعوات من الشركات عندما يجدون ملفك الشخصي مثيراً للاهتمام.',
+  job_summary: 'ملخص الوظيفة',
+  personal_message: 'رسالة شخصية',
+  high_compatibility_with_profile: 'توافق عالي مع ملفك الشخصي',
+  expires_on: 'ينتهي في',
+  accept_and_view_job: 'قبول وعرض الوظيفة',
+  invitation_accepted_success: 'تم قبول الدعوة! يمكنك الآن عرض تفاصيل الوظيفة.',
+  responded_on: 'تم الرد في',
+
+  // Seeker Career Analytics
+  invitations_received: 'الدعوات المستلمة',
+  offers_received: 'العروض المستلمة',
+  resume_views: 'مشاهدات السيرة الذاتية',
+  resume_downloads: 'تحميلات السيرة الذاتية',
+  profile_saves: 'حفظ الملف الشخصي',
+  featured_performance: 'أداء التمييز',
+  career_analytics: 'تحليلات المسار المهني',
+  weekly_profile_views: 'مشاهدات الملف الأسبوعية',
+  last_7_days_performance: 'أداء ملفك الشخصي خلال الأيام السبعة الماضية',
+  top_companies_viewing: 'أكثر الشركات مشاهدة لملفك',
+
+  // Days of week
+  mon: 'الإثنين',
+  tue: 'الثلاثاء',
+  wed: 'الأربعاء',
+  thu: 'الخميس',
+  fri: 'الجمعة',
+  sat: 'السبت',
+  sun: 'الأحد',
+
   // Enterprise RBAC
   enterprise: 'المؤسسة',
   role_management: 'إدارة الأدوار',
