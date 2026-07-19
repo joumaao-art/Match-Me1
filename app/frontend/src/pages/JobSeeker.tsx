@@ -322,11 +322,17 @@ const AI_VACANCIES: VacancyAIProfile[] = mockJobs.map(j => ({
 }));
 
 // ============================================================
-// Swipe View (with Matching Engine)
+// Swipe View (with Matching Engine) — Two-Level Card Architecture
+// Level 1: Decision Card (fits in viewport, no scrolling)
+// Level 2: Details View (Bottom Sheet, lazy loaded)
 // ============================================================
 
-function SwipeCard({ job, score, onSwipe }: { job: typeof mockJobs[0]; score: number; onSwipe: (dir: 'left' | 'right') => void }) {
+import { BottomSheet } from '@/components/shared/BottomSheet';
+
+/** Level 1 — Decision Card (Mobile-optimized, viewport-fit) */
+function SwipeCard({ job, score, onSwipe, onViewDetails }: { job: typeof mockJobs[0]; score: number; onSwipe: (dir: 'left' | 'right') => void; onViewDetails: () => void }) {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-15, 15]);
   const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0.5, 1, 1, 1, 0.5]);
@@ -335,60 +341,151 @@ function SwipeCard({ job, score, onSwipe }: { job: typeof mockJobs[0]; score: nu
   const handleDragEnd = (_: any, info: PanInfo) => { if (info.offset.x > 100) onSwipe('right'); else if (info.offset.x < -100) onSwipe('left'); };
   const typeLabel = (type: string) => { const m: Record<string, string> = { full_time: t('full_time'), part_time: t('part_time'), contract: t('contract'), remote: t('remote'), internship: t('internship') }; return m[type] || type; };
 
-  const scoreColor = score >= 85 ? 'text-green-600' : score >= 70 ? 'text-primary' : score >= 50 ? 'text-amber-600' : 'text-muted-foreground';
+  const scoreColor = score >= 85 ? 'text-green-600 bg-green-50 dark:bg-green-950/30' : score >= 70 ? 'text-primary bg-primary/5' : score >= 50 ? 'text-amber-600 bg-amber-50 dark:bg-amber-950/30' : 'text-muted-foreground bg-muted';
+  const topSkills = job.required_skills.slice(0, 3);
 
   return (
     <motion.div className="absolute inset-0 cursor-grab active:cursor-grabbing" style={{ x, rotate, opacity }} drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.7} onDragEnd={handleDragEnd}>
-      <motion.div className="absolute top-6 start-6 z-10 px-3 py-1 rounded-lg border-2 border-destructive text-destructive font-bold rotate-[-12deg]" style={{ opacity: leftIndicatorOpacity }}>{t('reject')}</motion.div>
-      <motion.div className="absolute top-6 end-6 z-10 px-3 py-1 rounded-lg border-2 border-green-500 text-green-500 font-bold rotate-[12deg]" style={{ opacity: rightIndicatorOpacity }}>{t('interested')}</motion.div>
+      {/* Swipe indicators */}
+      <motion.div className="absolute top-4 start-4 z-10 px-2.5 py-1 rounded-lg border-2 border-destructive text-destructive font-bold text-sm rotate-[-12deg]" style={{ opacity: leftIndicatorOpacity }}>{t('reject')}</motion.div>
+      <motion.div className="absolute top-4 end-4 z-10 px-2.5 py-1 rounded-lg border-2 border-green-500 text-green-500 font-bold text-sm rotate-[12deg]" style={{ opacity: rightIndicatorOpacity }}>{t('interested')}</motion.div>
 
-      <Card className="h-full flex flex-col overflow-hidden border-2"><CardContent className="flex-1 p-6 flex flex-col">
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex items-center gap-3"><div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center"><Building2 className="w-7 h-7 text-primary" /></div><div><h3 className="font-semibold font-[Poppins]">{job.company_name}</h3><p className="text-sm text-muted-foreground">{job.industry}</p></div></div>
-          <div className="text-end">
-            <div className={`text-2xl font-bold font-[Poppins] ${scoreColor}`}>{score}%</div>
-            <p className="text-xs text-muted-foreground">{t('match_score')}</p>
+      <Card className="h-full flex flex-col overflow-hidden border-2 shadow-lg">
+        <CardContent className={`flex-1 flex flex-col justify-between ${isMobile ? 'p-4' : 'p-6'}`}>
+          {/* Top section: Company + Match Score */}
+          <div>
+            {/* Job Title — Priority 1 */}
+            <h2 className={`font-bold font-[Poppins] mb-2 ${isMobile ? 'text-lg' : 'text-xl'}`}>{job.job_title}</h2>
+
+            {/* Company — Priority 2 */}
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className={`rounded-lg bg-primary/10 flex items-center justify-center shrink-0 ${isMobile ? 'w-10 h-10' : 'w-12 h-12'}`}>
+                <Building2 className={`text-primary ${isMobile ? 'w-5 h-5' : 'w-6 h-6'}`} />
+              </div>
+              <div className="min-w-0">
+                <p className="font-medium text-sm truncate">{job.company_name}</p>
+                <p className="text-xs text-muted-foreground truncate">{job.industry}</p>
+              </div>
+              {/* Match Score — Priority 3 */}
+              <div className={`ms-auto px-2.5 py-1.5 rounded-xl ${scoreColor} shrink-0`}>
+                <p className="text-lg font-bold font-[Poppins] leading-none">{score}%</p>
+                <p className="text-[9px] text-center opacity-70">{t('match_score')}</p>
+              </div>
+            </div>
+
+            {/* Meta chips: Location, Type, Experience — Priority 4-6 */}
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              <Badge variant="secondary" className="gap-1 text-xs py-0.5 px-2"><MapPin className="w-3 h-3" />{job.city}, {job.country}</Badge>
+              <Badge variant="secondary" className="gap-1 text-xs py-0.5 px-2"><Briefcase className="w-3 h-3" />{typeLabel(job.employment_type)}</Badge>
+              <Badge variant="secondary" className="gap-1 text-xs py-0.5 px-2"><GraduationCap className="w-3 h-3" />{job.min_experience}-{job.max_experience} {t('years_exp')}</Badge>
+            </div>
+
+            {/* Top 3 Skills — Priority 7 */}
+            <div className="flex flex-wrap gap-1.5">
+              {topSkills.map(s => {
+                const hasSkill = CURRENT_SEEKER.skills.map(sk => sk.toLowerCase()).includes(s.toLowerCase());
+                return <Badge key={s} variant={hasSkill ? 'default' : 'outline'} className={`text-xs py-0.5 ${hasSkill ? '' : 'opacity-60'}`}>{s}{hasSkill && <Check className="w-2.5 h-2.5 ms-0.5" />}</Badge>;
+              })}
+              {job.required_skills.length > 3 && (
+                <Badge variant="outline" className="text-xs py-0.5 opacity-50">+{job.required_skills.length - 3}</Badge>
+              )}
+            </div>
           </div>
-        </div>
-        <h2 className="text-xl font-bold font-[Poppins] mb-3">{job.job_title}</h2>
-        <div className="flex flex-wrap gap-2 mb-4">
-          <Badge variant="secondary" className="gap-1"><MapPin className="w-3 h-3" />{job.city}, {job.country}</Badge>
-          <Badge variant="secondary" className="gap-1"><Briefcase className="w-3 h-3" />{typeLabel(job.employment_type)}</Badge>
-          <Badge variant="secondary" className="gap-1"><GraduationCap className="w-3 h-3" />{job.min_experience}-{job.max_experience} {t('years_exp')}</Badge>
-        </div>
-        <p className="text-sm text-muted-foreground mb-4 flex-1">{job.job_description}</p>
-        <div className="mb-4"><p className="text-xs font-medium text-muted-foreground mb-2">{t('required_skills')}</p><div className="flex flex-wrap gap-1.5">{job.required_skills.map(s => {
-          const hasSkill = CURRENT_SEEKER.skills.map(sk => sk.toLowerCase()).includes(s.toLowerCase());
-          return <Badge key={s} variant={hasSkill ? 'default' : 'outline'} className={`text-xs ${hasSkill ? '' : 'opacity-60'}`}>{s}{hasSkill && <Check className="w-2.5 h-2.5 ms-0.5" />}</Badge>;
-        })}</div></div>
-        {job.salary_min && <div className="bg-muted/50 rounded-lg p-3 text-center"><p className="text-sm font-medium">${job.salary_min.toLocaleString()} - ${job.salary_max?.toLocaleString()} {t('per_month')}</p></div>}
-      </CardContent></Card>
+
+          {/* View Details affordance */}
+          <button
+            onClick={(e) => { e.stopPropagation(); onViewDetails(); }}
+            className="w-full mt-3 py-2 text-xs text-primary font-medium text-center rounded-lg bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer"
+            aria-label={t('view_details')}
+          >
+            {t('tap_for_details')}
+          </button>
+        </CardContent>
+      </Card>
     </motion.div>
   );
 }
 
-function MatchExplanationPanel({ explanation }: { explanation: MatchExplanation }) {
+/** Level 2 — Job Details View (Bottom Sheet content) */
+function JobDetailsContent({ job, explanation }: { job: typeof mockJobs[0] & { compatibility_score: number; explanation?: MatchExplanation }; explanation: MatchExplanation | null }) {
   const { t } = useTranslation();
+
   return (
-    <div className="space-y-3 mt-3">
-      <div className="bg-green-50 dark:bg-green-950/30 rounded-lg p-3">
-        <p className="text-xs font-medium text-green-800 dark:text-green-300 mb-1">{t('why_recommended')}</p>
-        {explanation.topReasons.map((reason, i) => (
-          <p key={i} className="text-xs text-green-700 dark:text-green-400 flex items-start gap-1"><Check className="w-3 h-3 shrink-0 mt-0.5" />{reason}</p>
-        ))}
+    <div className="space-y-5">
+      {/* Salary */}
+      {job.salary_min && (
+        <div className="bg-green-50 dark:bg-green-950/30 rounded-xl p-4">
+          <p className="text-xs font-medium text-green-800 dark:text-green-300 mb-1">{t('salary_range')}</p>
+          <p className="text-lg font-bold text-green-700 dark:text-green-400 font-[Poppins]">
+            ${job.salary_min.toLocaleString()} - ${job.salary_max?.toLocaleString()} <span className="text-sm font-normal">/ {t('per_month')}</span>
+          </p>
+        </div>
+      )}
+
+      {/* Job Description */}
+      <div>
+        <h4 className="text-sm font-semibold mb-2">{t('job_description')}</h4>
+        <p className="text-sm text-muted-foreground leading-relaxed">{job.job_description}</p>
       </div>
-      <div className="space-y-1.5">
-        {explanation.factors.filter(f => f.weight >= 0.07).slice(0, 5).map((f) => (
-          <div key={f.name} className="flex items-center gap-2">
-            <span className="text-[10px] w-16 shrink-0 text-muted-foreground">{f.name}</span>
-            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden"><div className="h-full bg-primary rounded-full transition-all" style={{ width: `${f.score * 100}%` }} /></div>
-            <span className="text-[10px] w-7 text-end font-medium">{Math.round(f.score * 100)}%</span>
+
+      {/* All Required Skills */}
+      <div>
+        <h4 className="text-sm font-semibold mb-2">{t('required_skills')}</h4>
+        <div className="flex flex-wrap gap-2">
+          {job.required_skills.map(s => {
+            const hasSkill = CURRENT_SEEKER.skills.map(sk => sk.toLowerCase()).includes(s.toLowerCase());
+            return (
+              <Badge key={s} variant={hasSkill ? 'default' : 'outline'} className={`text-xs ${hasSkill ? '' : 'opacity-60'}`}>
+                {s}{hasSkill && <Check className="w-2.5 h-2.5 ms-0.5" />}
+              </Badge>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* AI Match Explanation */}
+      {explanation && (
+        <div className="space-y-3">
+          <h4 className="text-sm font-semibold">{t('why_recommended')}</h4>
+          <div className="bg-primary/5 rounded-xl p-4 space-y-2">
+            {explanation.topReasons.map((reason, i) => (
+              <p key={i} className="text-xs text-foreground flex items-start gap-2">
+                <Check className="w-3.5 h-3.5 shrink-0 mt-0.5 text-green-600" />{reason}
+              </p>
+            ))}
           </div>
-        ))}
-      </div>
-      <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-        <span>{t('ai_confidence')}: {Math.round(explanation.confidence * 100)}%</span>
-        {explanation.improvementTips.length > 0 && <span className="text-amber-600">{t('tip')}: {explanation.improvementTips[0]}</span>}
+          <div className="space-y-2">
+            {explanation.factors.filter(f => f.weight >= 0.07).slice(0, 5).map((f) => (
+              <div key={f.name} className="flex items-center gap-2">
+                <span className="text-xs w-20 shrink-0 text-muted-foreground">{f.name}</span>
+                <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                  <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${f.score * 100}%` }} />
+                </div>
+                <span className="text-xs w-8 text-end font-medium">{Math.round(f.score * 100)}%</span>
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+            <span>{t('ai_confidence')}: {Math.round(explanation.confidence * 100)}%</span>
+            {explanation.improvementTips.length > 0 && (
+              <span className="text-amber-600 text-[11px]">{t('tip')}: {explanation.improvementTips[0]}</span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Company Info */}
+      <div>
+        <h4 className="text-sm font-semibold mb-2">{t('company_info')}</h4>
+        <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl">
+          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Building2 className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <p className="font-medium text-sm">{job.company_name}</p>
+            <p className="text-xs text-muted-foreground">{job.industry} · {job.city}, {job.country}</p>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -396,11 +493,12 @@ function MatchExplanationPanel({ explanation }: { explanation: MatchExplanation 
 
 function SwipeView() {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
   const engine = useMatchingEngine(CURRENT_SEEKER.id, 'job_seeker');
   const aiMatching = useAIMatching(CURRENT_SEEKER.id);
   const [showMatch, setShowMatch] = useState(false);
   const [canUndo, setCanUndo] = useState(false);
-  const [showExplanation, setShowExplanation] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   const [currentExplanation, setCurrentExplanation] = useState<MatchExplanation | null>(null);
 
   const recommendedJobs = useMemo(() => {
@@ -441,7 +539,7 @@ function SwipeView() {
 
     const result = engine.swipe(currentJob.id, 'company', dir, currentJob.id);
     setCanUndo(true);
-    setShowExplanation(false);
+    setShowDetails(false);
 
     if (dir === 'right' && result?.match) {
       setShowMatch(true);
@@ -469,44 +567,89 @@ function SwipeView() {
   );
 
   return (
-    <div className="flex-1 flex flex-col p-4 max-w-lg mx-auto w-full">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold font-[Poppins]">{t('discover')}</h2>
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="text-xs gap-1"><Zap className="w-3 h-3" />{recommendedJobs.length} {t('remaining')}</Badge>
-          {canUndo && <Button size="sm" variant="ghost" onClick={handleUndo} className="cursor-pointer gap-1 text-xs"><Undo2 className="w-3 h-3" />{t('undo')}</Button>}
+    <div className={`flex-1 flex flex-col max-w-lg mx-auto w-full ${isMobile ? 'p-3 pb-0' : 'p-4'}`}>
+      {/* Compact Header */}
+      <div className="flex justify-between items-center mb-2">
+        <h2 className={`font-bold font-[Poppins] ${isMobile ? 'text-lg' : 'text-xl'}`}>{t('discover')}</h2>
+        <div className="flex items-center gap-1.5">
+          <Badge variant="secondary" className="text-[11px] gap-1 py-0.5"><Zap className="w-3 h-3" />{recommendedJobs.length}</Badge>
+          {canUndo && <Button size="sm" variant="ghost" onClick={handleUndo} className="cursor-pointer h-7 w-7 p-0"><Undo2 className="w-3.5 h-3.5" /></Button>}
         </div>
       </div>
 
-      <div className="flex items-center gap-4 mb-3 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1"><Sparkles className="w-3 h-3 text-primary" />{t('ai_powered')}</span>
-        <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" />{t('match_rate')}: {engine.stats.matchRate}%</span>
-        <span className="flex items-center gap-1"><Heart className="w-3 h-3" />{engine.stats.rightSwipes} {t('liked')}</span>
-        {aiMatching.learningStats?.isPersonalized && <Badge variant="outline" className="text-[10px] gap-0.5"><Target className="w-2.5 h-2.5" />{t('personalized')}</Badge>}
+      {/* Compact AI Summary Row — chips only */}
+      <div className="flex items-center gap-2 mb-2 overflow-x-auto scrollbar-hide">
+        <Badge variant="outline" className="text-[10px] gap-1 py-0.5 px-1.5 shrink-0 border-primary/30 text-primary"><Sparkles className="w-2.5 h-2.5" />{t('ai_powered')}</Badge>
+        <Badge variant="outline" className="text-[10px] gap-1 py-0.5 px-1.5 shrink-0"><TrendingUp className="w-2.5 h-2.5" />{engine.stats.matchRate}%</Badge>
+        <Badge variant="outline" className="text-[10px] gap-1 py-0.5 px-1.5 shrink-0"><Heart className="w-2.5 h-2.5" />{engine.stats.rightSwipes}</Badge>
+        {aiMatching.learningStats?.isPersonalized && <Badge variant="outline" className="text-[10px] gap-1 py-0.5 px-1.5 shrink-0 border-green-500/30 text-green-600"><Target className="w-2.5 h-2.5" />{t('personalized')}</Badge>}
       </div>
 
-      <div className="flex-1 relative min-h-[450px]">
+      {/* Decision Card Area — fills remaining space */}
+      <div className={`flex-1 relative ${isMobile ? 'min-h-[280px] max-h-[380px]' : 'min-h-[400px]'}`}>
         {recommendedJobs.slice(0, 2).reverse().map((job, i) => (
-          <SwipeCard key={job.id} job={job} score={job.compatibility_score} onSwipe={i === Math.min(recommendedJobs.length, 2) - 1 ? handleSwipe : () => {}} />
+          <SwipeCard
+            key={job.id}
+            job={job}
+            score={job.compatibility_score}
+            onSwipe={i === Math.min(recommendedJobs.length, 2) - 1 ? handleSwipe : () => {}}
+            onViewDetails={() => setShowDetails(true)}
+          />
         ))}
       </div>
 
-      {currentExplanation && (
-        <div className="mt-2">
-          <Button variant="ghost" size="sm" className="cursor-pointer w-full text-xs gap-1" onClick={() => setShowExplanation(!showExplanation)}>
-            <Sparkles className="w-3 h-3" />{showExplanation ? t('hide_explanation') : t('why_this_match')}
-          </Button>
-          {showExplanation && <MatchExplanationPanel explanation={currentExplanation} />}
-        </div>
-      )}
-
-      <div className="flex justify-center items-center gap-4 mt-3 pb-4">
-        <Button size="lg" variant="outline" className="w-14 h-14 rounded-full border-2 border-destructive text-destructive hover:bg-destructive hover:text-white cursor-pointer" onClick={() => handleSwipe('left')}><X className="w-6 h-6" /></Button>
-        {canUndo && <Button size="lg" variant="outline" className="w-12 h-12 rounded-full cursor-pointer" onClick={handleUndo}><Undo2 className="w-5 h-5" /></Button>}
-        <Button size="lg" className="w-14 h-14 rounded-full bg-green-500 hover:bg-green-600 text-white cursor-pointer" onClick={() => handleSwipe('right')}><Check className="w-6 h-6" /></Button>
+      {/* Primary Action Buttons — always visible, thumb-friendly */}
+      <div className={`flex justify-center items-center gap-4 ${isMobile ? 'py-3' : 'py-4'}`}>
+        <Button
+          size="lg"
+          variant="outline"
+          className="w-14 h-14 rounded-full border-2 border-destructive text-destructive hover:bg-destructive hover:text-white cursor-pointer shadow-sm"
+          onClick={() => handleSwipe('left')}
+          aria-label={t('reject')}
+        >
+          <X className="w-6 h-6" />
+        </Button>
+        <Button
+          size="lg"
+          variant="outline"
+          className="w-11 h-11 rounded-full cursor-pointer shadow-sm"
+          onClick={() => setShowDetails(true)}
+          aria-label={t('view_details')}
+        >
+          <Eye className="w-5 h-5" />
+        </Button>
+        <Button
+          size="lg"
+          className="w-14 h-14 rounded-full bg-green-500 hover:bg-green-600 text-white cursor-pointer shadow-sm"
+          onClick={() => handleSwipe('right')}
+          aria-label={t('interested')}
+        >
+          <Check className="w-6 h-6" />
+        </Button>
       </div>
 
-      {showMatch && <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center animate-in fade-in"><div className="text-center p-8"><div className="w-24 h-24 rounded-full bg-green-500 flex items-center justify-center mx-auto mb-4"><Heart className="w-12 h-12 text-white fill-white" /></div><h2 className="text-3xl font-bold text-white font-[Poppins] mb-2">{t('its_a_match')}</h2><p className="text-white/80">{t('match_message', { company: currentJob?.company_name })}</p><Button className="mt-4 cursor-pointer" variant="secondary" onClick={() => setShowMatch(false)}>{t('send_message')}</Button></div></div>}
+      {/* Level 2 — Details Bottom Sheet (lazy loaded) */}
+      <BottomSheet
+        open={showDetails}
+        onClose={() => setShowDetails(false)}
+        title={currentJob.job_title}
+      >
+        <JobDetailsContent job={currentJob} explanation={currentExplanation} />
+      </BottomSheet>
+
+      {/* Match Celebration Overlay */}
+      {showMatch && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center animate-in fade-in">
+          <div className="text-center p-8">
+            <div className="w-24 h-24 rounded-full bg-green-500 flex items-center justify-center mx-auto mb-4">
+              <Heart className="w-12 h-12 text-white fill-white" />
+            </div>
+            <h2 className="text-3xl font-bold text-white font-[Poppins] mb-2">{t('its_a_match')}</h2>
+            <p className="text-white/80">{t('match_message', { company: currentJob?.company_name })}</p>
+            <Button className="mt-4 cursor-pointer" variant="secondary" onClick={() => setShowMatch(false)}>{t('send_message')}</Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

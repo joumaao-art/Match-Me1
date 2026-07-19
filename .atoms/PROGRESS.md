@@ -6,6 +6,13 @@
 - [x] Add new i18n translation keys for mobile UX (EN/AR)
 - [x] Mobile typography, spacing, and touch target improvements across all views
 - [x] Build and lint verification
+- [x] Redesign Discover experience — Two-Level Card Architecture
+- [x] Create reusable BottomSheet component (swipe-to-close, drag handle, animations, RTL, dark mode, accessibility)
+- [x] Optimize SwipeCard Level 1 (viewport-fit decision card: title, company, score, badges, top 3 skills)
+- [x] Implement Level 2 JobDetailsContent (salary, description, all skills, AI explanation, company info)
+- [x] Add View Details button (eye icon) to action bar
+- [x] Add i18n keys for Discover redesign (EN/AR)
+- [x] Build and lint verification for Discover redesign
 
 ## Progress Log
 - 2026-07-17: Project initialized with Supabase template, dependencies installed
@@ -36,3 +43,4 @@
 - 2026-07-19: Created MatchMe Engineering Charter (docs/enterprise/Engineering Charter.md). Defines mandatory engineering principles: 10 core principles (reuse-first, config-over-hardcode, composable architecture, platform-first, mobile-first, localization-first, accessibility-first, security-first, performance-first, documentation-first), Platform Engine Rule, Experience Engine Rule, Database/API/Supabase/React/Design System/Localization/Performance/Testing rules, Architectural Review Checklist, Prohibited Practices, Definition of Done, Mandatory Pre-Implementation Review sequence, Platform Engines Registry. No code changes.
 - 2026-07-19: Starting Mobile Experience Optimization - Mobile First, Desktop Enhanced standard implementation for Job Seeker portal.
 - 2026-07-19: Mobile Experience complete - MobileBottomNav (5 tabs, badges, haptic feedback, dark mode, RTL), MobileDashboard (greeting, quick actions, stats, recommendations, career tips), JobSeeker.tsx refactored (bottom nav integration, mobile-first layout, safe area padding, responsive stat cards), use-mobile hook, 13 new i18n keys (EN/AR). Lint + build pass cleanly.
+- 2026-07-19: Discover Redesign complete — Two-Level Card Architecture. Created reusable BottomSheet component (swipe-to-close, drag handle, spring animations, backdrop blur, RTL/dark mode/accessibility). Redesigned SwipeCard as compact Level 1 decision card (40-50% height reduction): prioritized info hierarchy (title→company→score→badges→skills), viewport-fit without scrolling, "Tap for details" affordance. Level 2 JobDetailsContent in BottomSheet: salary range, full description, all skills with match indicators, AI explanation panel (reasons + factor bars + confidence + tips), company info. Added View Details (eye) button to action bar. Mobile-responsive with isMobile hook for adaptive sizing. 5 new i18n keys (EN/AR). Lint + build pass cleanly.

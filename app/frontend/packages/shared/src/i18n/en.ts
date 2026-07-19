@@ -2024,6 +2024,12 @@ export const en = {
   translation_coverage: 'Translation Coverage',
   keys_needing_attention: 'Keys Needing Attention',
   languages_overview: 'Languages Overview',
+  // Discover Two-Level Card Keys
+  tap_for_details: 'Tap for details',
+  view_details: 'View Details',
+  salary_range: 'Salary Range',
+  company_info: 'Company Information',
+  details: 'Details',
   // Mobile Experience Keys
   greeting_morning: 'Good morning',
   dashboard_subtitle: 'Here\'s your daily career update',

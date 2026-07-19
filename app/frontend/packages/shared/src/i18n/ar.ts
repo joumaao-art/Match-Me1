@@ -2024,6 +2024,12 @@ export const ar = {
   translation_coverage: 'تغطية الترجمة',
   keys_needing_attention: 'مفاتيح تحتاج اهتمام',
   languages_overview: 'نظرة عامة على اللغات',
+  // Discover Two-Level Card Keys
+  tap_for_details: 'اضغط للتفاصيل',
+  view_details: 'عرض التفاصيل',
+  salary_range: 'نطاق الراتب',
+  company_info: 'معلومات الشركة',
+  details: 'التفاصيل',
   // Mobile Experience Keys
   greeting_morning: 'صباح الخير',
   dashboard_subtitle: 'إليك تحديثك المهني اليومي',
