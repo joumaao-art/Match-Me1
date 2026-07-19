@@ -934,10 +934,14 @@ export interface CollectionEngineProps {
   onCollectionsChange: (collections: Collection[]) => void;
   getEntitiesForCollection: (collectionId: string) => Record<string, unknown>[];
   className?: string;
+  enableEnterprise?: boolean;
+  renderEnterpriseSidebar?: (collectionId: string, collection: Collection) => ReactNode;
+  renderAISuggestions?: () => ReactNode;
 }
 
 const CollectionEngine = memo(function CollectionEngine({
-  config, collections, onCollectionsChange, getEntitiesForCollection, className
+  config, collections, onCollectionsChange, getEntitiesForCollection, className,
+  enableEnterprise, renderEnterpriseSidebar, renderAISuggestions
 }: CollectionEngineProps) {
   const { t } = useTranslation();
   const [activeCollectionId, setActiveCollectionId] = useState<string | null>(null);
@@ -1024,21 +1028,34 @@ const CollectionEngine = memo(function CollectionEngine({
   // Render
   if (activeCollection) {
     return (
-      <div className={className}>
-        <CollectionDetail
-          collection={activeCollection}
-          entities={activeEntities}
-          config={config}
-          onBack={() => setActiveCollectionId(null)}
-          onRemoveEntity={handleRemoveEntity}
-          onEditCollection={handleEditCollection}
-        />
+      <div className={`flex ${className || ''}`}>
+        <div className={enableEnterprise ? 'flex-1 min-w-0' : 'flex-1'}>
+          <CollectionDetail
+            collection={activeCollection}
+            entities={activeEntities}
+            config={config}
+            onBack={() => setActiveCollectionId(null)}
+            onRemoveEntity={handleRemoveEntity}
+            onEditCollection={handleEditCollection}
+          />
+        </div>
+        {enableEnterprise && renderEnterpriseSidebar && (
+          <div className="hidden lg:block w-80 shrink-0 p-4 overflow-y-auto border-s">
+            {renderEnterpriseSidebar(activeCollection.id, activeCollection)}
+          </div>
+        )}
       </div>
     );
   }
 
   return (
     <div className={`flex-1 p-4 sm:p-6 overflow-y-auto ${className || ''}`}>
+      {/* AI Suggestions section */}
+      {enableEnterprise && renderAISuggestions && (
+        <div className="mb-6">
+          {renderAISuggestions()}
+        </div>
+      )}
       <CollectionGrid
         collections={collections}
         onOpenCollection={setActiveCollectionId}

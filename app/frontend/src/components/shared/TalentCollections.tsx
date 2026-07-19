@@ -24,6 +24,7 @@ import CollectionEngine, {
   type Collection, type CollectionEngineConfig, type CollectionStatistics,
   type EntityFieldConfig, type EntityActionConfig
 } from './CollectionEngine';
+import { CollectionEnterpriseSidebar, AISuggestions } from './CollectionEnterprise';
 import { toast } from 'sonner';
 
 // ============================================================
@@ -350,12 +351,27 @@ export default function TalentCollections() {
     enableSharing: true,
   }), [candidateActions]);
 
+  const handleAcceptAISuggestion = useCallback((newCollection: Collection) => {
+    setCollections(prev => [...prev, newCollection]);
+  }, []);
+
   return (
     <CollectionEngine
       config={config}
       collections={collections}
       onCollectionsChange={setCollections}
       getEntitiesForCollection={getEntitiesForCollection}
+      enableEnterprise
+      renderEnterpriseSidebar={(collectionId, collection) => (
+        <CollectionEnterpriseSidebar
+          collectionId={collectionId}
+          collection={collection}
+          onAcceptAISuggestion={handleAcceptAISuggestion}
+        />
+      )}
+      renderAISuggestions={() => (
+        <AISuggestions onAccept={handleAcceptAISuggestion} />
+      )}
     />
   );
 }
