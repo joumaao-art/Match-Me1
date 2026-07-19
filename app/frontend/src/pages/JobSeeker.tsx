@@ -1541,16 +1541,7 @@ function NotificationsView() {
   );
 }
 
-// ============================================================
-// Messages — One Tap = One Destination (navigates directly)
-// ============================================================
 
-function MessagesRedirect() {
-  const navigate = useNavigate();
-  // Immediately navigate to Messages inbox — no intermediate screen
-  useEffect(() => { navigate('/messages'); }, [navigate]);
-  return null;
-}
 
 // ============================================================
 // Settings
@@ -1603,14 +1594,23 @@ function SettingsView({ seekerTier }: { seekerTier?: SeekerTier }) {
 
 export default function JobSeeker() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<NavSection>('dashboard');
   const isMobile = useIsMobile();
 
   // Simulated seeker tier - in production this comes from subscription state
   const seekerTier: SeekerTier = 'premium';
 
+  // Navigation Reliability: Intercept 'messages' tab at all entry points
+  // If activeTab is ever set to 'messages' (from sidebar or any source), navigate immediately
+  useEffect(() => {
+    if (activeTab === 'messages') {
+      navigate('/messages');
+    }
+  }, [activeTab, navigate]);
+
   // Handle bottom nav tab changes - maps MobileNavTab to NavSection
-  // One Tap = One Destination: Messages navigates directly to inbox
+  // One Tap = One Destination: Messages navigates directly to /messages route
   const handleMobileTabChange = (tab: MobileNavTab) => {
     if (tab === 'messages') {
       navigate('/messages');
@@ -1644,7 +1644,7 @@ export default function JobSeeker() {
       case 'saved': return <SavedJobsView />;
       case 'applications': return <ApplicationsView />;
       case 'matches': return <MatchesView />;
-      case 'messages': return <MessagesRedirect />;
+      case 'messages': return null; // Handled by useEffect — navigates to /messages
       case 'notifications': return <NotificationsView />;
       case 'settings': return <SettingsView seekerTier={seekerTier} />;
       case 'visibility': return <ProfileVisibilitySettings tier={seekerTier} />;

@@ -19,6 +19,7 @@
 - [x] DecisionScreenLayout reusable component (Experience Engine standard)
 - [x] Zero scrolling on 390×844 viewport
 - [x] Remove "Open Messages" intermediate screen — one-tap navigation to Messages Inbox
+- [x] Fix Messages navigation regression — add useNavigate to main JobSeeker/Company components, useEffect intercept for sidebar clicks
 
 ## Progress Log
 - 2026-07-17: Project initialized with Supabase template, dependencies installed

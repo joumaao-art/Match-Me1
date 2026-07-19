@@ -1487,16 +1487,7 @@ function SettingsView() {
   );
 }
 
-// ============================================================
-// Messages — One Tap = One Destination (navigates directly)
-// ============================================================
 
-function MessagesRedirect() {
-  const navigate = useNavigate();
-  // Immediately navigate to Messages inbox — no intermediate screen
-  useEffect(() => { navigate('/messages'); }, [navigate]);
-  return null;
-}
 
 // ============================================================
 // Main Company Component
@@ -1504,7 +1495,16 @@ function MessagesRedirect() {
 
 export default function Company() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<NavSection>('dashboard');
+
+  // Navigation Reliability: Intercept 'messages' tab at all entry points
+  // If activeTab is ever set to 'messages' (from sidebar or any source), navigate immediately
+  useEffect(() => {
+    if (activeTab === 'messages') {
+      navigate('/messages');
+    }
+  }, [activeTab, navigate]);
 
   // Map nav sections to directory views
   const directoryViewMap: Record<string, DirectoryView> = {
@@ -1531,7 +1531,7 @@ export default function Company() {
       case 'pipeline': return <PipelineView />;
       case 'saved': return <TalentCollections />;
       case 'matching': return <MatchingQueueView />;
-      case 'messages': return <MessagesRedirect />;
+      case 'messages': return null; // Handled by useEffect — navigates to /messages
       case 'notifications': return <NotificationsView />;
       case 'analytics': return <AnalyticsView />;
       case 'subscription': return <SubscriptionView />;
