@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores';
 import { ChangePassword } from '@/components/shared/ChangePassword';
 import BillingAnalyticsDashboard from '@/components/shared/BillingAnalytics';
+import LocalizationManagement from '@/components/shared/LocalizationManagement';
 import {
   adminPlatformService,
   mockPlatformMetrics,
@@ -66,7 +67,7 @@ type AdminSection =
   | 'dashboard' | 'global_search' | 'companies' | 'verification'
   | 'job_seekers' | 'subscriptions' | 'billing' | 'billing_analytics'
   | 'analytics' | 'impersonation' | 'notifications' | 'feature_flags'
-  | 'support' | 'audit_logs' | 'settings';
+  | 'support' | 'audit_logs' | 'settings' | 'localization';
 
 interface NavItem {
   id: AdminSection;
@@ -1208,6 +1209,7 @@ export default function Admin() {
     { id: 'notifications', label: 'Notifications', icon: <Megaphone className="w-4 h-4" /> },
     { id: 'feature_flags', label: 'Feature Flags', icon: <ToggleLeft className="w-4 h-4" /> },
     { id: 'support', label: 'Support', icon: <HeadphonesIcon className="w-4 h-4" />, badge: 3 },
+    { id: 'localization', label: 'Localization', icon: <Globe className="w-4 h-4" /> },
     { id: 'audit_logs', label: 'Audit Logs', icon: <ScrollText className="w-4 h-4" /> },
     { id: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4" /> },
   ];
@@ -1227,6 +1229,7 @@ export default function Admin() {
       case 'notifications': return <PlatformNotificationsSection />;
       case 'feature_flags': return <FeatureFlagsSection />;
       case 'support': return <SupportCenterSection />;
+      case 'localization': return <LocalizationManagement />;
       case 'audit_logs': return <AuditLogsSection />;
       case 'settings': return <SettingsSection />;
       default: return <DashboardSection />;
