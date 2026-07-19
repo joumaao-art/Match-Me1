@@ -28,9 +28,10 @@ import CandidateDirectory from '@/components/shared/CandidateDirectory';
 import PortalBrand, { getPortalBrandConfig } from '@/components/shared/PortalBrand';
 import type { DirectoryView } from '@/components/shared/CandidateDirectory';
 import {
-  AIRecommendationsView, CompanyInvitationsView, EnhancedSavedCandidatesView,
+  AIRecommendationsView, CompanyInvitationsView,
   AdvancedTalentPipelineView, TeamCollaborationView, TalentAnalyticsView,
 } from '@/components/shared/AITalentIntelligence';
+import TalentCollections from '@/components/shared/TalentCollections';
 import {
   RoleManagementView, TeamManagementView, DepartmentManagementView,
   AuditLogsView, FeatureFlagsView, OrganizationSettingsView, SecurityDashboardView,
@@ -1531,7 +1532,7 @@ export default function Company() {
       case 'vacancies': return <VacanciesView />;
       case 'candidates': return <CandidatesView />;
       case 'pipeline': return <PipelineView />;
-      case 'saved': return <SavedCandidatesView />;
+      case 'saved': return <TalentCollections />;
       case 'matching': return <MatchingQueueView />;
       case 'messages': return <MessagesPlaceholder />;
       case 'notifications': return <NotificationsView />;
@@ -1543,7 +1544,7 @@ export default function Company() {
       case 'settings': return <SettingsView />;
       case 'ai_recommendations': return <AIRecommendationsView tier="premium" />;
       case 'invitations': return <CompanyInvitationsView tier="premium" />;
-      case 'enhanced_saved': return <EnhancedSavedCandidatesView tier="premium" />;
+      case 'enhanced_saved': return <TalentCollections />;
       case 'advanced_pipeline': return <AdvancedTalentPipelineView tier="premium" />;
       case 'team_collab': return <TeamCollaborationView tier="premium" />;
       case 'talent_analytics': return <TalentAnalyticsView tier="premium" />;
