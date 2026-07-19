@@ -140,107 +140,72 @@ const mockBilling = [
 
 type NavSection = 'dashboard' | 'profile' | 'branches' | 'recruiters' | 'vacancies' | 'candidates' | 'pipeline' | 'saved' | 'matching' | 'messages' | 'notifications' | 'analytics' | 'subscription' | 'billing' | 'reports' | 'team' | 'settings' | 'directory' | 'dir_saved' | 'dir_viewed' | 'dir_contacts' | 'dir_pipeline' | 'ai_recommendations' | 'invitations' | 'enhanced_saved' | 'advanced_pipeline' | 'team_collab' | 'talent_analytics' | 'role_management' | 'enterprise_team' | 'departments' | 'audit_logs' | 'feature_flags' | 'org_settings' | 'security';
 
-function CompanyNav({ activeTab, setActiveTab }: { activeTab: NavSection; setActiveTab: (tab: NavSection) => void }) {
-  const { t, i18n } = useTranslation();
-  const { signOut } = useAuth();
-  const [isDark, setIsDark] = useState(document.documentElement.classList.contains('dark'));
+// Company Portal Navigation Configuration (uses shared Enterprise Navigation Framework)
+import { EnterpriseNavigation, type NavigationConfig, type NavSectionConfig } from '@/components/shared/EnterpriseNavigation';
 
-  const toggleDark = () => { document.documentElement.classList.toggle('dark'); setIsDark(!isDark); };
-
-  const navGroups = [
-    { label: t('dashboard'), items: [
-      { id: 'dashboard' as NavSection, icon: Home, label: t('dashboard') },
+function getCompanyNavConfig(): NavigationConfig {
+  const sections: NavSectionConfig[] = [
+    { id: 'overview', titleKey: 'dashboard', icon: Home, items: [
+      { id: 'dashboard', titleKey: 'dashboard', icon: Home },
     ]},
-    { label: t('company_profile'), items: [
-      { id: 'profile' as NavSection, icon: Building2, label: t('company_profile') },
-      { id: 'branches' as NavSection, icon: GitBranch, label: t('branches') },
-      { id: 'recruiters' as NavSection, icon: UserPlus, label: t('recruiters') },
+    { id: 'recruitment_jobs', titleKey: 'vacancies', icon: Briefcase, items: [
+      { id: 'vacancies', titleKey: 'vacancies', icon: FileText },
+      { id: 'candidates', titleKey: 'applicants', icon: Users },
+      { id: 'pipeline', titleKey: 'hiring_pipeline', icon: Layers },
+      { id: 'matching', titleKey: 'matching_queue', icon: Sparkles },
     ]},
-    { label: t('vacancies'), items: [
-      { id: 'vacancies' as NavSection, icon: FileText, label: t('vacancies') },
+    { id: 'talent', titleKey: 'candidate_directory', icon: Search, items: [
+      { id: 'directory', titleKey: 'candidate_directory', icon: Search },
+      { id: 'dir_saved', titleKey: 'saved_candidates', icon: Heart },
+      { id: 'dir_viewed', titleKey: 'viewed_candidates', icon: Eye },
+      { id: 'dir_contacts', titleKey: 'contact_requests', icon: Send },
+      { id: 'dir_pipeline', titleKey: 'talent_pipeline', icon: Layers },
     ]},
-    { label: t('applicants'), items: [
-      { id: 'candidates' as NavSection, icon: Users, label: t('applicants') },
-      { id: 'pipeline' as NavSection, icon: Layers, label: t('hiring_pipeline') },
-      { id: 'matching' as NavSection, icon: Sparkles, label: t('matching_queue') },
+    { id: 'ai_intelligence', titleKey: 'ai_talent_intelligence', icon: Sparkles, subscriptionTier: ['Business', 'Enterprise'], items: [
+      { id: 'ai_recommendations', titleKey: 'ai_recommendations', icon: Sparkles },
+      { id: 'invitations', titleKey: 'invitations_sent', icon: Mail },
+      { id: 'enhanced_saved', titleKey: 'saved_folders', icon: BookmarkPlus },
+      { id: 'advanced_pipeline', titleKey: 'advanced_pipeline', icon: Layers },
+      { id: 'team_collab', titleKey: 'team_collaboration', icon: Users, subscriptionTier: ['Enterprise'] },
+      { id: 'talent_analytics', titleKey: 'talent_analytics', icon: TrendingUp },
     ]},
-    { label: t('candidate_directory'), items: [
-      { id: 'directory' as NavSection, icon: Search, label: t('candidate_directory') },
-      { id: 'dir_saved' as NavSection, icon: Heart, label: t('saved_candidates') },
-      { id: 'dir_viewed' as NavSection, icon: Eye, label: t('viewed_candidates') },
-      { id: 'dir_contacts' as NavSection, icon: Send, label: t('contact_requests') },
-      { id: 'dir_pipeline' as NavSection, icon: Layers, label: t('talent_pipeline') },
+    { id: 'communication', titleKey: 'messages', icon: MessageSquare, items: [
+      { id: 'messages', titleKey: 'messages', icon: MessageSquare },
+      { id: 'notifications', titleKey: 'notifications', icon: Bell },
     ]},
-    { label: t('ai_talent_intelligence'), items: [
-      { id: 'ai_recommendations' as NavSection, icon: Sparkles, label: t('ai_recommendations') },
-      { id: 'invitations' as NavSection, icon: Mail, label: t('invitations_sent') },
-      { id: 'enhanced_saved' as NavSection, icon: BookmarkPlus, label: t('saved_folders') },
-      { id: 'advanced_pipeline' as NavSection, icon: Layers, label: t('advanced_pipeline') },
-      { id: 'team_collab' as NavSection, icon: Users, label: t('team_collaboration') },
-      { id: 'talent_analytics' as NavSection, icon: TrendingUp, label: t('talent_analytics') },
+    { id: 'analytics_reports', titleKey: 'analytics', icon: BarChart3, items: [
+      { id: 'analytics', titleKey: 'analytics', icon: BarChart3 },
+      { id: 'reports', titleKey: 'reports', icon: PieChart },
     ]},
-    { label: t('messages'), items: [
-      { id: 'messages' as NavSection, icon: MessageSquare, label: t('messages') },
-      { id: 'notifications' as NavSection, icon: Bell, label: t('notifications') },
+    { id: 'organization', titleKey: 'enterprise', icon: Shield, items: [
+      { id: 'profile', titleKey: 'company_profile', icon: Building2 },
+      { id: 'branches', titleKey: 'branches', icon: GitBranch },
+      { id: 'recruiters', titleKey: 'recruiters', icon: UserPlus },
+      { id: 'team', titleKey: 'team_members', icon: UserCheck },
+      { id: 'role_management', titleKey: 'role_management', icon: Shield },
+      { id: 'enterprise_team', titleKey: 'team_management', icon: Users },
+      { id: 'departments', titleKey: 'departments', icon: Building2 },
     ]},
-    { label: t('analytics'), items: [
-      { id: 'analytics' as NavSection, icon: BarChart3, label: t('analytics') },
-      { id: 'reports' as NavSection, icon: PieChart, label: t('reports') },
+    { id: 'billing_section', titleKey: 'subscription', icon: CreditCard, items: [
+      { id: 'subscription', titleKey: 'subscription', icon: CreditCard },
+      { id: 'billing', titleKey: 'billing', icon: Receipt },
     ]},
-    { label: t('subscription'), items: [
-      { id: 'subscription' as NavSection, icon: CreditCard, label: t('subscription') },
-      { id: 'billing' as NavSection, icon: Receipt, label: t('billing') },
-    ]},
-    { label: t('enterprise'), items: [
-      { id: 'role_management' as NavSection, icon: Shield, label: t('role_management') },
-      { id: 'enterprise_team' as NavSection, icon: Users, label: t('team_management') },
-      { id: 'departments' as NavSection, icon: Building2, label: t('departments') },
-      { id: 'audit_logs' as NavSection, icon: Clock, label: t('audit_logs') },
-      { id: 'feature_flags' as NavSection, icon: TrendingUp, label: t('feature_flags') },
-      { id: 'org_settings' as NavSection, icon: Settings, label: t('organization_settings') },
-      { id: 'security' as NavSection, icon: Lock, label: t('security_dashboard') },
-    ]},
-    { label: t('settings'), items: [
-      { id: 'team' as NavSection, icon: Shield, label: t('team_members') },
-      { id: 'settings' as NavSection, icon: Settings, label: t('settings') },
+    { id: 'administration', titleKey: 'settings', icon: Settings, items: [
+      { id: 'settings', titleKey: 'settings', icon: Settings },
+      { id: 'org_settings', titleKey: 'organization_settings', icon: Settings },
+      { id: 'audit_logs', titleKey: 'audit_logs', icon: Clock },
+      { id: 'feature_flags', titleKey: 'feature_flags', icon: TrendingUp },
+      { id: 'security', titleKey: 'security_dashboard', icon: Lock },
     ]},
   ];
 
-  return (
-    <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-border">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-primary-foreground" />
-          </div>
-          <span className="text-lg font-bold font-[Poppins]">{t('app_name')}</span>
-        </div>
-        <div className="flex gap-1">
-          <Button variant="ghost" size="icon" onClick={() => changeLanguage(i18n.language === 'en' ? 'ar' : 'en')} className="cursor-pointer h-8 w-8" aria-label={t('language')}><Globe className="w-4 h-4" /></Button>
-          <Button variant="ghost" size="icon" onClick={toggleDark} className="cursor-pointer h-8 w-8" aria-label={isDark ? t('light_mode') : t('dark_mode')}>{isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}</Button>
-        </div>
-      </div>
-
-      <nav className="flex-1 overflow-y-auto p-2 space-y-4">
-        {navGroups.map((group, gi) => (
-          <div key={gi}>
-            {gi > 0 && <div className="border-t border-border my-2" />}
-            {group.items.map((item) => (
-              <button key={item.id} onClick={() => setActiveTab(item.id)} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-smooth cursor-pointer ${activeTab === item.id ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-muted'}`}>
-                <item.icon className="w-4 h-4" /><span>{item.label}</span>
-              </button>
-            ))}
-          </div>
-        ))}
-      </nav>
-
-      <div className="p-4 border-t border-border">
-        <button onClick={signOut} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-destructive hover:bg-destructive/10 transition-smooth cursor-pointer">
-          <LogOut className="w-4 h-4" /><span>{t('logout')}</span>
-        </button>
-      </div>
-    </div>
-  );
+  return {
+    portalId: 'company',
+    logo: <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0"><Sparkles className="w-5 h-5 text-primary-foreground" /></div>,
+    title: 'MatchMe',
+    subtitle: 'Company Portal',
+    sections,
+  };
 }
 
 // ============================================================
@@ -1540,12 +1505,6 @@ function MessagesPlaceholder() {
 export default function Company() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<NavSection>('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const getTabTitle = (tab: NavSection) => {
-    const map: Record<string, string> = { dashboard: t('dashboard'), profile: t('company_profile'), branches: t('branches'), recruiters: t('recruiters'), vacancies: t('vacancies'), candidates: t('applicant_tracking'), pipeline: t('hiring_pipeline'), saved: t('saved_candidates'), matching: t('matching_queue'), messages: t('messages'), notifications: t('notifications'), analytics: t('analytics'), subscription: t('subscription'), billing: t('billing'), reports: t('reports'), team: t('team_members'), settings: t('settings'), directory: t('candidate_directory'), dir_saved: t('saved_candidates'), dir_viewed: t('viewed_candidates'), dir_contacts: t('contact_requests'), dir_pipeline: t('talent_pipeline'), ai_recommendations: t('ai_recommendations'), invitations: t('invitations_sent'), enhanced_saved: t('saved_folders'), advanced_pipeline: t('advanced_pipeline'), team_collab: t('team_collaboration'), talent_analytics: t('talent_analytics'), role_management: t('role_management'), enterprise_team: t('team_management'), departments: t('departments'), audit_logs: t('audit_logs'), feature_flags: t('feature_flags'), org_settings: t('organization_settings'), security: t('security_dashboard') };
-    return map[tab] || tab;
-  };
 
   // Map nav sections to directory views
   const directoryViewMap: Record<string, DirectoryView> = {
@@ -1597,25 +1556,18 @@ export default function Company() {
     }
   };
 
+  const companyNavConfig = getCompanyNavConfig();
+  const { signOut } = useAuth();
+
   return (
     <div className="min-h-screen bg-background flex">
-      <aside className="hidden md:flex w-64 border-e border-border flex-col bg-sidebar-background">
-        <CompanyNav activeTab={activeTab} setActiveTab={setActiveTab} />
-      </aside>
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-          <aside className="absolute start-0 top-0 bottom-0 w-64 bg-sidebar-background border-e border-border overflow-y-auto">
-            <CompanyNav activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setSidebarOpen(false); }} />
-          </aside>
-        </div>
-      )}
-      <main className="flex-1 flex flex-col min-h-screen">
-        <header className="md:hidden flex items-center justify-between p-4 border-b border-border">
-          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)} className="cursor-pointer"><ChevronRight className="w-5 h-5" /></Button>
-          <span className="font-bold font-[Poppins] text-sm">{getTabTitle(activeTab)}</span>
-          <div className="w-9" />
-        </header>
+      <EnterpriseNavigation
+        config={companyNavConfig}
+        activeItemId={activeTab}
+        onNavigate={(id) => setActiveTab(id as NavSection)}
+        onSignOut={signOut}
+      />
+      <main className="flex-1 flex flex-col min-h-screen min-w-0">
         {renderContent()}
       </main>
     </div>

@@ -56,6 +56,7 @@ Build MatchMe - an AI-powered recruitment platform with swipe-based matching bet
 - [x] Implement Enterprise RBAC (Part 4A): Role Management (7 default roles + custom), Team Management (invite/suspend/reactivate/remove), Departments (CRUD), Audit Logs (10 event types, filters), Feature Flags (12 flags, tier-based), Organization Settings (company info, hiring prefs, security, notifications), Security Dashboard (8 checks), full EN/AR bilingual support
 - [x] Implement Enterprise Part 4B: Subscription Engine, Billing Platform, Feature Entitlements, Payment Provider Layer, Add-ons, Trials, Usage Tracking, Billing Dashboards, Billing Analytics, Compliance, Production Readiness
 - [x] Part 5A: Super Admin Platform - Enhanced Platform Owner Portal with Global Search, User Impersonation, Company Verification, Platform Notifications, Support Center, enhanced Company/Seeker management
+- [x] Enterprise Navigation Framework - Shared collapsible accordion sidebar (EnterpriseNavigation component) with config-driven sections, permission/feature-flag/subscription-tier guards, state persistence, RTL support, mobile drawer, ARIA accessibility. Integrated into Company portal.
 
 ## Progress Log
 - 2026-07-17: Project initialized with Supabase template, dependencies installed
