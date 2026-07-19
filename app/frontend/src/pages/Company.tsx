@@ -1488,17 +1488,14 @@ function SettingsView() {
 }
 
 // ============================================================
-// Messages (placeholder - uses dedicated Messages page)
+// Messages — One Tap = One Destination (navigates directly)
 // ============================================================
 
-function MessagesPlaceholder() {
-  const { t } = useTranslation();
+function MessagesRedirect() {
   const navigate = useNavigate();
-  return (
-    <div className="flex-1 flex items-center justify-center p-8 text-center">
-      <div><MessageSquare className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" /><p className="text-muted-foreground mb-4">{t('no_messages_desc')}</p><Button onClick={() => navigate('/messages')} className="cursor-pointer">{t('open_messages')}</Button></div>
-    </div>
-  );
+  // Immediately navigate to Messages inbox — no intermediate screen
+  useEffect(() => { navigate('/messages'); }, [navigate]);
+  return null;
 }
 
 // ============================================================
@@ -1534,7 +1531,7 @@ export default function Company() {
       case 'pipeline': return <PipelineView />;
       case 'saved': return <TalentCollections />;
       case 'matching': return <MatchingQueueView />;
-      case 'messages': return <MessagesPlaceholder />;
+      case 'messages': return <MessagesRedirect />;
       case 'notifications': return <NotificationsView />;
       case 'analytics': return <AnalyticsView />;
       case 'subscription': return <SubscriptionView />;

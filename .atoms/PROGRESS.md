@@ -18,6 +18,7 @@
 - [x] Ultra-compact card (reduced padding, gap-2, h-5 badges, text-base title, w-8 logo)
 - [x] DecisionScreenLayout reusable component (Experience Engine standard)
 - [x] Zero scrolling on 390×844 viewport
+- [x] Remove "Open Messages" intermediate screen — one-tap navigation to Messages Inbox
 
 ## Progress Log
 - 2026-07-17: Project initialized with Supabase template, dependencies installed

@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -1542,17 +1542,14 @@ function NotificationsView() {
 }
 
 // ============================================================
-// Messages Placeholder
+// Messages — One Tap = One Destination (navigates directly)
 // ============================================================
 
-function MessagesPlaceholder() {
-  const { t } = useTranslation();
+function MessagesRedirect() {
   const navigate = useNavigate();
-  return (
-    <div className="flex-1 flex items-center justify-center p-8 text-center">
-      <div><MessageSquare className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" /><p className="text-muted-foreground mb-4">{t('no_messages_desc')}</p><Button onClick={() => navigate('/messages')} className="cursor-pointer">{t('open_messages')}</Button></div>
-    </div>
-  );
+  // Immediately navigate to Messages inbox — no intermediate screen
+  useEffect(() => { navigate('/messages'); }, [navigate]);
+  return null;
 }
 
 // ============================================================
@@ -1613,7 +1610,12 @@ export default function JobSeeker() {
   const seekerTier: SeekerTier = 'premium';
 
   // Handle bottom nav tab changes - maps MobileNavTab to NavSection
+  // One Tap = One Destination: Messages navigates directly to inbox
   const handleMobileTabChange = (tab: MobileNavTab) => {
+    if (tab === 'messages') {
+      navigate('/messages');
+      return;
+    }
     setActiveTab(tab as NavSection);
   };
 
@@ -1642,7 +1644,7 @@ export default function JobSeeker() {
       case 'saved': return <SavedJobsView />;
       case 'applications': return <ApplicationsView />;
       case 'matches': return <MatchesView />;
-      case 'messages': return <MessagesPlaceholder />;
+      case 'messages': return <MessagesRedirect />;
       case 'notifications': return <NotificationsView />;
       case 'settings': return <SettingsView seekerTier={seekerTier} />;
       case 'visibility': return <ProfileVisibilitySettings tier={seekerTier} />;
