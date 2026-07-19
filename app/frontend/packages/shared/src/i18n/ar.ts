@@ -14,6 +14,23 @@ export const ar = {
   copyright: '© 2026 ماتش مي. جميع الحقوق محفوظة.',
 
   // ============================================================
+  // Portal Branding
+  // ============================================================
+  portal_company: 'بوابة الشركة',
+  portal_job_seeker: 'بوابة الباحث عن عمل',
+  portal_super_admin: 'بوابة المشرف العام',
+  portal_agency: 'بوابة الوكالة',
+  portal_university: 'بوابة الجامعة',
+  portal_government: 'بوابة الحكومة',
+  portal_white_label: 'بوابة العلامة البيضاء',
+  portal_workspace_personal: 'مساحة العمل الشخصية',
+  portal_workspace_platform: 'إدارة المنصة',
+  env_production: 'الإنتاج',
+  env_staging: 'التجريب',
+  env_development: 'التطوير',
+  env_local: 'محلي',
+
+  // ============================================================
   // Auth
   // ============================================================
   login: 'تسجيل الدخول',

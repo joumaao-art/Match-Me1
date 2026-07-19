@@ -58,6 +58,8 @@ export interface NavigationConfig {
   logo?: ReactNode;
   title: string;
   subtitle?: string;
+  /** Optional custom brand element (e.g. PortalBrand) to replace default logo+title rendering */
+  brandElement?: ReactNode;
   sections: NavSectionConfig[];
   footerActions?: ReactNode;
 }
@@ -224,13 +226,17 @@ const NavigationSidebar = memo(function NavigationSidebar({
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="p-4 border-b border-border shrink-0">
-        <div className="flex items-center gap-2 mb-2">
-          {config.logo}
-          <div className="min-w-0">
-            <p className="text-sm font-bold font-[Poppins] truncate">{config.title}</p>
-            {config.subtitle && <p className="text-[10px] text-muted-foreground truncate">{config.subtitle}</p>}
+        {config.brandElement ? (
+          <div className="mb-2">{config.brandElement}</div>
+        ) : (
+          <div className="flex items-center gap-2 mb-2">
+            {config.logo}
+            <div className="min-w-0">
+              <p className="text-sm font-bold font-[Poppins] truncate">{config.title}</p>
+              {config.subtitle && <p className="text-[10px] text-muted-foreground truncate">{config.subtitle}</p>}
+            </div>
           </div>
-        </div>
+        )}
         <div className="flex gap-1">
           <Button variant="ghost" size="icon" onClick={() => changeLanguage(i18n.language === 'en' ? 'ar' : 'en')} className="cursor-pointer h-7 w-7" aria-label={t('language')}><Globe className="w-3.5 h-3.5" /></Button>
           <Button variant="ghost" size="icon" onClick={toggleDark} className="cursor-pointer h-7 w-7" aria-label={isDark ? t('light_mode') : t('dark_mode')}>{isDark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}</Button>

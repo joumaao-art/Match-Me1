@@ -15,6 +15,7 @@ import { useAuthStore } from '@/stores';
 import { ChangePassword } from '@/components/shared/ChangePassword';
 import BillingAnalyticsDashboard from '@/components/shared/BillingAnalytics';
 import LocalizationManagement from '@/components/shared/LocalizationManagement';
+import PortalBrand, { getPortalBrandConfig } from '@/components/shared/PortalBrand';
 import {
   adminPlatformService,
   mockPlatformMetrics,
@@ -1246,13 +1247,7 @@ export default function Admin() {
       {/* Sidebar */}
       <aside className={`hidden lg:flex flex-col border-e bg-card transition-all duration-300 ${sidebarCollapsed ? 'w-16' : 'w-60'}`}>
         <div className="h-14 flex items-center px-4 border-b">
-          {!sidebarCollapsed && (
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center"><Shield className="w-4 h-4 text-white" /></div>
-              <div><p className="text-sm font-bold font-[Poppins]">MatchMe</p><p className="text-[10px] text-muted-foreground">Super Admin</p></div>
-            </div>
-          )}
-          {sidebarCollapsed && <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center mx-auto"><Shield className="w-4 h-4 text-white" /></div>}
+          <PortalBrand config={getPortalBrandConfig('admin', { collapsed: sidebarCollapsed, logo: <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center shrink-0"><Shield className="w-4 h-4 text-white" /></div> })} />
         </div>
         <ScrollArea className="flex-1 py-2">
           <nav className="space-y-0.5 px-2">

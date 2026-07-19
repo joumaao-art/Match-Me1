@@ -29,6 +29,7 @@ import { useAIMatching } from '@/lib/useAIMatching';
 import { SeekerAIProfile, VacancyAIProfile, MatchExplanation } from '@/lib/ai-matching-engine';
 import { ChangePassword } from '@/components/shared/ChangePassword';
 import { SeekerInvitationsView } from '@/components/shared/SeekerInvitations';
+import PortalBrand, { getPortalBrandConfig } from '@/components/shared/PortalBrand';
 import {
   ProfileVisibilitySettings, ContactRequestsView, ExposureDashboard,
   RecruiterVisibilityView, DiscoverabilityUpgradeBanner, DiscoverabilityNotifications,
@@ -215,9 +216,8 @@ function SeekerNav({ activeTab, setActiveTab }: { activeTab: NavSection; setActi
   return (
     <div className="flex flex-col h-full">
       <div className="p-4 border-b border-border">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center"><Sparkles className="w-5 h-5 text-primary-foreground" /></div>
-          <span className="text-lg font-bold font-[Poppins]">{t('app_name')}</span>
+        <div className="mb-3">
+          <PortalBrand config={getPortalBrandConfig('job_seeker')} />
         </div>
         <div className="flex gap-1">
           <Button variant="ghost" size="icon" onClick={() => changeLanguage(i18n.language === 'en' ? 'ar' : 'en')} className="cursor-pointer h-8 w-8"><Globe className="w-4 h-4" /></Button>

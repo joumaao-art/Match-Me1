@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { ChangePassword } from '@/components/shared/ChangePassword';
 import CandidateDirectory from '@/components/shared/CandidateDirectory';
+import PortalBrand, { getPortalBrandConfig } from '@/components/shared/PortalBrand';
 import type { DirectoryView } from '@/components/shared/CandidateDirectory';
 import {
   AIRecommendationsView, CompanyInvitationsView, EnhancedSavedCandidatesView,
@@ -204,6 +205,7 @@ function getCompanyNavConfig(): NavigationConfig {
     logo: <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0"><Sparkles className="w-5 h-5 text-primary-foreground" /></div>,
     title: 'MatchMe',
     subtitle: 'Company Portal',
+    brandElement: <PortalBrand config={getPortalBrandConfig('company')} />,
     sections,
   };
 }

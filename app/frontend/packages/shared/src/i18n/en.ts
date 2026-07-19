@@ -14,6 +14,23 @@ export const en = {
   copyright: '© 2026 MatchMe. All rights reserved.',
 
   // ============================================================
+  // Portal Branding
+  // ============================================================
+  portal_company: 'Company Portal',
+  portal_job_seeker: 'Job Seeker Portal',
+  portal_super_admin: 'Super Admin Portal',
+  portal_agency: 'Agency Portal',
+  portal_university: 'University Portal',
+  portal_government: 'Government Portal',
+  portal_white_label: 'White Label Portal',
+  portal_workspace_personal: 'Personal Workspace',
+  portal_workspace_platform: 'Platform Management',
+  env_production: 'Production',
+  env_staging: 'Staging',
+  env_development: 'Development',
+  env_local: 'Local',
+
+  // ============================================================
   // Auth
   // ============================================================
   login: 'Login',
