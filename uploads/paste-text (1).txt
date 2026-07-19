@@ -1,0 +1,498 @@
+# MatchMe Engineering Charter
+
+## Objective
+
+This is the first document of the MatchMe platform.
+
+It defines the mandatory engineering principles that every future feature, refactoring, bug fix, UI enhancement, API, database change, AI implementation, and architectural decision must follow.
+
+This document becomes the permanent development constitution of MatchMe.
+
+Every future implementation must comply with these rules.
+
+Do NOT rebuild the application.
+
+Do NOT change existing functionality.
+
+This task creates engineering standards only.
+
+----------------------------------------------------
+PHASE 1
+----------------------------------------------------
+
+Create the following documentation structure.
+
+docs/
+
+docs/enterprise/
+
+Create:
+
+docs/enterprise/Engineering Charter.md
+
+----------------------------------------------------
+MISSION
+----------------------------------------------------
+
+MatchMe is an enterprise recruitment platform.
+
+Every engineering decision should prioritize:
+
+Scalability
+
+Maintainability
+
+Reusability
+
+Performance
+
+Security
+
+Accessibility
+
+Localization
+
+Consistency
+
+Developer Experience
+
+AI-assisted Development
+
+Future Expansion
+
+----------------------------------------------------
+CORE PRINCIPLES
+----------------------------------------------------
+
+Every implementation must follow these principles.
+
+1.
+
+Reuse before creating.
+
+Always search for existing components, services, utilities, hooks, APIs and database tables before creating new ones.
+
+Never duplicate functionality.
+
+----------------------------------------------------
+
+2.
+
+Configuration over hardcoding.
+
+Business rules should be configurable whenever possible.
+
+Examples:
+
+Menus
+
+Permissions
+
+Statuses
+
+Collections
+
+Workflows
+
+Subscriptions
+
+Forms
+
+Navigation
+
+Feature Flags
+
+----------------------------------------------------
+
+3.
+
+Composable architecture.
+
+Build reusable modules.
+
+Avoid tightly coupled implementations.
+
+----------------------------------------------------
+
+4.
+
+Platform-first development.
+
+If functionality could benefit multiple modules, promote it into a Platform Engine.
+
+----------------------------------------------------
+
+5.
+
+Mobile-first responsive development.
+
+Every feature must work across desktop, tablet and mobile.
+
+----------------------------------------------------
+
+6.
+
+Localization-first.
+
+Every user-facing string must use localization.
+
+Never hardcode English.
+
+Support RTL.
+
+----------------------------------------------------
+
+7.
+
+Accessibility-first.
+
+Meet WCAG standards.
+
+Keyboard navigation.
+
+Screen readers.
+
+Focus management.
+
+----------------------------------------------------
+
+8.
+
+Security-first.
+
+Validate everything server-side.
+
+Never trust client input.
+
+Follow least privilege.
+
+----------------------------------------------------
+
+9.
+
+Performance-first.
+
+Lazy loading.
+
+Pagination.
+
+Caching.
+
+Realtime optimization.
+
+Background processing.
+
+----------------------------------------------------
+
+10.
+
+Documentation-first.
+
+Every major architectural change must update documentation.
+
+----------------------------------------------------
+PLATFORM ENGINE RULE
+----------------------------------------------------
+
+Before implementing any feature ask:
+
+Does this belong inside an existing Platform Engine?
+
+If yes:
+
+Extend the engine.
+
+Do not create duplicate implementations.
+
+----------------------------------------------------
+EXPERIENCE ENGINE RULE
+----------------------------------------------------
+
+Before building UI ask:
+
+Can an existing Experience Engine component be reused?
+
+If yes:
+
+Reuse it.
+
+If no:
+
+Create a reusable Experience Engine component.
+
+Never create module-specific UI when a reusable component is appropriate.
+
+----------------------------------------------------
+DATABASE RULES
+----------------------------------------------------
+
+Before creating tables:
+
+Check existing schema.
+
+Reuse relationships.
+
+Avoid duplicate data.
+
+Normalize entities.
+
+Use Supabase best practices.
+
+Use Row Level Security.
+
+Design for scalability.
+
+----------------------------------------------------
+API RULES
+----------------------------------------------------
+
+Reuse existing endpoints.
+
+Maintain naming consistency.
+
+Version APIs.
+
+Return consistent responses.
+
+Centralize validation.
+
+----------------------------------------------------
+SUPABASE RULES
+----------------------------------------------------
+
+Always use:
+
+Supabase Auth
+
+PostgreSQL
+
+Realtime
+
+Storage
+
+Edge Functions where appropriate
+
+Row Level Security
+
+Policies
+
+Indexes
+
+Avoid bypassing Supabase security.
+
+----------------------------------------------------
+REACT RULES
+----------------------------------------------------
+
+Use:
+
+TypeScript
+
+Functional Components
+
+Hooks
+
+Composition
+
+Reusable Components
+
+Avoid duplicated logic.
+
+----------------------------------------------------
+DESIGN SYSTEM RULES
+----------------------------------------------------
+
+Use only shared components.
+
+Use shared design tokens.
+
+Follow spacing system.
+
+Follow typography system.
+
+Follow color system.
+
+No inconsistent UI.
+
+----------------------------------------------------
+LOCALIZATION RULES
+----------------------------------------------------
+
+Support:
+
+English
+
+Arabic
+
+RTL
+
+Pluralization
+
+Formatting
+
+Future language packs.
+
+----------------------------------------------------
+PERFORMANCE RULES
+----------------------------------------------------
+
+Every implementation should consider:
+
+Virtualization
+
+Memoization
+
+Caching
+
+Realtime efficiency
+
+Background loading
+
+Minimal rendering
+
+----------------------------------------------------
+TESTING RULES
+----------------------------------------------------
+
+Every feature should include:
+
+Unit Tests
+
+Integration Tests
+
+Permission Tests
+
+Localization Tests
+
+Accessibility Tests
+
+Performance Tests
+
+Regression Tests
+
+----------------------------------------------------
+ARCHITECTURAL REVIEW
+----------------------------------------------------
+
+Before implementing anything verify:
+
+✓ Existing reusable component?
+
+✓ Existing reusable service?
+
+✓ Existing Platform Engine?
+
+✓ Existing database table?
+
+✓ Existing API?
+
+✓ Existing hook?
+
+✓ Existing utility?
+
+✓ Existing design pattern?
+
+If yes:
+
+Reuse it.
+
+----------------------------------------------------
+PROHIBITED PRACTICES
+----------------------------------------------------
+
+Do NOT:
+
+Duplicate components
+
+Duplicate services
+
+Duplicate APIs
+
+Duplicate database tables
+
+Hardcode business rules
+
+Hardcode permissions
+
+Hardcode localization
+
+Bypass security
+
+Ignore RTL
+
+Ignore accessibility
+
+Create inconsistent UI
+
+Introduce technical debt knowingly
+
+----------------------------------------------------
+DEFINITION OF DONE
+----------------------------------------------------
+
+A feature is complete only if:
+
+Reusable
+
+Localized
+
+Accessible
+
+Responsive
+
+Secure
+
+Performant
+
+Documented
+
+Tested
+
+Integrated with Platform Engines
+
+Uses the Experience Engine
+
+Uses shared components
+
+Uses shared services
+
+----------------------------------------------------
+FINAL REPORT
+----------------------------------------------------
+
+Provide:
+
+1. Engineering Charter created.
+
+2. Documentation structure created.
+
+3. Engineering principles documented.
+
+4. Development rules documented.
+
+5. Architectural review checklist documented.
+
+6. Prohibited practices documented.
+
+7. Definition of Done documented.
+
+8. Confirmation that the Engineering Charter is now the mandatory development standard for every future MatchMe implementation.
+
+----------------------------------------------------
+MANDATORY PRE-IMPLEMENTATION REVIEW
+----------------------------------------------------
+
+Before implementing any future feature, enhancement, refactoring, or bug fix, always perform the following sequence:
+
+1. Review the Engineering Charter.
+2. Review the Enterprise Platform Blueprint.
+3. Review the Engineering Standards Guide.
+4. Review the Experience Engine & Design System.
+5. Review the Database Architecture.
+6. Review the API Standards.
+7. Review the AI Architecture (if applicable).
+8. Identify reusable Platform Engines, components, services, APIs, hooks, and database structures.
+9. Confirm that no duplicate functionality will be introduced.
+10. Only then begin implementation.
+
+If any proposed implementation violates these standards, stop and recommend an alternative that aligns with the MatchMe platform architecture.
