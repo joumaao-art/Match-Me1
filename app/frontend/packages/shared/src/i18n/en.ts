@@ -2024,4 +2024,18 @@ export const en = {
   translation_coverage: 'Translation Coverage',
   keys_needing_attention: 'Keys Needing Attention',
   languages_overview: 'Languages Overview',
+  // Mobile Experience Keys
+  greeting_morning: 'Good morning',
+  dashboard_subtitle: 'Here\'s your daily career update',
+  ai_score: 'AI Score',
+  todays_recommendation: 'Today\'s Top Match',
+  view_recommendation: 'View recommendation',
+  profile_completion_hint: 'Complete your profile to get better matches and more visibility',
+  complete_profile: 'Complete',
+  career_tips: 'Career Tips',
+  career_tip_1: 'Add a professional photo to increase profile views by 40%',
+  career_tip_2: 'Keep your skills updated — recruiters search by skill keywords',
+  new_match_notification: 'You matched with {{company}}!',
+  profile_viewed_notification: 'A recruiter viewed your profile',
+  application_reviewed_notification: 'Your application was reviewed',
 } as const;

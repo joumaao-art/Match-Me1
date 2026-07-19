@@ -2024,4 +2024,18 @@ export const ar = {
   translation_coverage: 'تغطية الترجمة',
   keys_needing_attention: 'مفاتيح تحتاج اهتمام',
   languages_overview: 'نظرة عامة على اللغات',
+  // Mobile Experience Keys
+  greeting_morning: 'صباح الخير',
+  dashboard_subtitle: 'إليك تحديثك المهني اليومي',
+  ai_score: 'نقاط الذكاء الاصطناعي',
+  todays_recommendation: 'أفضل تطابق اليوم',
+  view_recommendation: 'عرض التوصية',
+  profile_completion_hint: 'أكمل ملفك الشخصي للحصول على تطابقات أفضل وظهور أكثر',
+  complete_profile: 'إكمال',
+  career_tips: 'نصائح مهنية',
+  career_tip_1: 'أضف صورة احترافية لزيادة مشاهدات ملفك بنسبة 40%',
+  career_tip_2: 'حافظ على تحديث مهاراتك — يبحث المسؤولون عن التوظيف بالكلمات المفتاحية',
+  new_match_notification: 'لديك تطابق مع {{company}}!',
+  profile_viewed_notification: 'مسؤول توظيف شاهد ملفك الشخصي',
+  application_reviewed_notification: 'تمت مراجعة طلبك',
 } as const;

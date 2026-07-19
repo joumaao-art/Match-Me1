@@ -1,0 +1,197 @@
+# Complete the Mobile Experience Implementation
+
+The previous implementation was interrupted before completion.
+
+Some files have already been created and partially modified, including MobileDashboard.tsx and JobSeeker.tsx.
+
+Your task is NOT to restart the implementation.
+
+Instead, continue from the current project state and fully complete the Mobile Experience implementation.
+
+---
+
+## Phase 1 — Audit Current State
+
+Before writing any code:
+
+Review all files modified during the previous implementation.
+
+Identify:
+
+- completed work
+- partially completed work
+- unfinished components
+- broken imports
+- duplicate components
+- temporary code
+- TODOs
+- commented code
+- incomplete responsive logic
+
+Provide a summary before making changes.
+
+---
+
+## Phase 2 — Complete Implementation
+
+Finish everything required for the Mobile First implementation.
+
+Verify:
+
+✓ MobileDashboard is fully functional.
+
+✓ Desktop dashboard remains unchanged.
+
+✓ Mobile automatically switches to MobileDashboard.
+
+✓ Desktop automatically uses DesktopDashboard.
+
+✓ Responsive breakpoints are working.
+
+✓ Bottom Navigation works.
+
+✓ Dashboard statistics are responsive.
+
+✓ Profile Completion widget is responsive.
+
+✓ Cards resize correctly.
+
+✓ No desktop sidebar appears on phones.
+
+✓ No horizontal scrolling.
+
+✓ No overlapping UI.
+
+✓ No clipped components.
+
+---
+
+## Phase 3 — Refactor
+
+Remove:
+
+- duplicate code
+- unused components
+- obsolete desktop mobile hacks
+- temporary wrappers
+- dead code
+
+Keep the implementation clean.
+
+---
+
+## Phase 4 — Experience Engine Compliance
+
+Review the existing reusable UI components.
+
+Reuse components whenever possible.
+
+If a reusable component is missing:
+
+Create it as a reusable platform component.
+
+Do not create screen-specific components unless absolutely necessary.
+
+---
+
+## Phase 5 — Testing
+
+Verify the implementation on:
+
+- 320 px
+- 360 px
+- 375 px
+- 390 px
+- 412 px
+- Tablet
+- Desktop
+
+Confirm:
+
+- no visual regressions
+- no layout shifts
+- no broken navigation
+- no overflow
+- no console errors
+- no TypeScript errors
+- no build errors
+
+---
+
+## Phase 6 — Final Verification
+
+Before considering the task complete:
+
+Review every modified file.
+
+Ensure all imports are correct.
+
+Ensure there are no orphaned components.
+
+Ensure responsive behavior is complete.
+
+Ensure desktop behavior is unchanged.
+
+Run a final project-wide validation.
+
+---
+
+## Deliverables
+
+Provide:
+
+1. Files reviewed
+
+2. Files modified
+
+3. Files created
+
+4. Components completed
+
+5. Components refactored
+
+6. Remaining issues (if any)
+
+7. Responsive verification summary
+
+8. Confirmation that the Mobile First implementation is fully complete.
+
+Do not stop after editing files.
+
+Do not stop after creating components.
+
+Continue until the implementation has been verified, cleaned up, and is production-ready.
+
+# Mandatory Completion Rule
+
+Do not stop after writing code.
+
+The task is only complete after you have:
+
+1. Reviewed every modified file.
+
+2. Fixed all compilation errors.
+
+3. Fixed all TypeScript errors.
+
+4. Fixed all linting errors.
+
+5. Verified imports and exports.
+
+6. Removed duplicate code.
+
+7. Removed unused code.
+
+8. Tested all responsive breakpoints.
+
+9. Ensured desktop behavior remains unchanged.
+
+10. Verified there are no runtime errors.
+
+11. Produced a final implementation summary.
+
+If any step fails, continue working until the project is production-ready.
+
+Do not end your response with "I created..." or "I updated...".
+
+Only finish after verification is complete.

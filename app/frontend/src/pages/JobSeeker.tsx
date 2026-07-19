@@ -18,13 +18,13 @@ import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import {
   Sparkles, Home, Heart, MessageSquare, Bookmark, Settings, LogOut,
   Globe, Moon, Sun, Building2, MapPin, Briefcase, GraduationCap, X, Check,
-  ChevronRight, User, BarChart3, CreditCard, Bell, FileText, Award,
+  User, BarChart3, CreditCard, Bell, FileText, Award,
   Languages as LanguagesIcon, Video, Sliders, Clock, Plus, Edit, Trash2, Upload,
   ExternalLink, Star, Eye, Calendar, Download, Link2, Layers, Undo2,
   TrendingUp, Zap, Target, Send, Users
 } from 'lucide-react';
 import { useMatchingEngine } from '@/lib/useMatchingEngine';
-import { SeekerProfile, VacancyProfile, DEFAULT_WEIGHTS } from '@/lib/matching-engine';
+import { SeekerProfile, VacancyProfile } from '@/lib/matching-engine';
 import { useAIMatching } from '@/lib/useAIMatching';
 import { SeekerAIProfile, VacancyAIProfile, MatchExplanation } from '@/lib/ai-matching-engine';
 import { ChangePassword } from '@/components/shared/ChangePassword';
@@ -32,10 +32,13 @@ import { SeekerInvitationsView } from '@/components/shared/SeekerInvitations';
 import PortalBrand, { getPortalBrandConfig } from '@/components/shared/PortalBrand';
 import {
   ProfileVisibilitySettings, ContactRequestsView, ExposureDashboard,
-  RecruiterVisibilityView, DiscoverabilityUpgradeBanner, DiscoverabilityNotifications,
+  RecruiterVisibilityView, DiscoverabilityNotifications,
   type SeekerTier
 } from '@/components/shared/CandidateDiscoverability';
 import { ProfileCompletionCard, ProfileCompletionMini, type ProfileData } from '@/components/shared/ProfileCompletion';
+import { MobileBottomNav, type MobileNavTab } from '@/components/shared/MobileBottomNav';
+import { MobileDashboard } from '@/components/shared/MobileDashboard';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // ============================================================
 // Types
@@ -1446,17 +1449,25 @@ function SettingsView({ seekerTier }: { seekerTier?: SeekerTier }) {
 export default function JobSeeker() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<NavSection>('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const getTabTitle = (tab: NavSection) => {
-    const map: Record<string, string> = { swipe: t('discover'), dashboard: t('dashboard'), profile: t('profile'), cv: t('my_resume'), experience: t('experience'), education: t('education'), certificates: t('certificates'), skills: t('skills'), languages: t('languages'), portfolio: t('portfolio'), video: t('video_intro'), preferences: t('preferences'), saved: t('saved_jobs'), applications: t('applications'), matches: t('matches'), messages: t('messages'), notifications: t('notifications'), settings: t('settings'), visibility: t('profile_visibility'), exposure: t('exposure_dashboard'), contact_requests: t('contact_requests'), who_viewed: t('who_viewed_profile'), invitations: t('invitations') };
-    return map[tab] || tab;
-  };
+  const isMobile = useIsMobile();
 
   // Simulated seeker tier - in production this comes from subscription state
   const seekerTier: SeekerTier = 'premium';
 
+  // Handle bottom nav tab changes - maps MobileNavTab to NavSection
+  const handleMobileTabChange = (tab: MobileNavTab) => {
+    setActiveTab(tab as NavSection);
+  };
+
+  // Mock notification badges for bottom nav
+  const navBadges = { messages: 2, swipe: 3 };
+
   const renderContent = () => {
+    // On mobile, dashboard tab shows MobileDashboard instead of desktop DashboardView
+    if (isMobile && activeTab === 'dashboard') {
+      return <MobileDashboard onNavigateToSection={(section) => setActiveTab(section as NavSection)} />;
+    }
+
     switch(activeTab) {
       case 'swipe': return <SwipeView />;
       case 'dashboard': return <DashboardView onNavigateToSection={(section) => setActiveTab(section as NavSection)} />;
@@ -1487,25 +1498,22 @@ export default function JobSeeker() {
 
   return (
     <div className="min-h-screen bg-background flex">
+      {/* Desktop sidebar - hidden on mobile */}
       <aside className="hidden md:flex w-64 border-e border-border flex-col bg-sidebar-background">
         <SeekerNav activeTab={activeTab} setActiveTab={setActiveTab} />
       </aside>
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-          <aside className="absolute start-0 top-0 bottom-0 w-64 bg-sidebar-background border-e border-border overflow-y-auto">
-            <SeekerNav activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setSidebarOpen(false); }} />
-          </aside>
-        </div>
-      )}
-      <main className="flex-1 flex flex-col min-h-screen">
-        <header className="md:hidden flex items-center justify-between p-4 border-b border-border">
-          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)} className="cursor-pointer"><ChevronRight className="w-5 h-5" /></Button>
-          <span className="font-bold font-[Poppins] text-sm">{getTabTitle(activeTab)}</span>
-          <div className="w-9" />
-        </header>
+
+      {/* Main content area */}
+      <main className="flex-1 flex flex-col min-h-screen min-w-0">
         {renderContent()}
       </main>
+
+      {/* Mobile bottom navigation - visible only on mobile (< md) */}
+      <MobileBottomNav
+        activeTab={activeTab}
+        onTabChange={handleMobileTabChange}
+        badges={navBadges}
+      />
     </div>
   );
 }

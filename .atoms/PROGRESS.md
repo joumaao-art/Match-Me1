@@ -1,66 +1,11 @@
----
-last_updated: 2026-07-17T22:00:00Z
----
-
-# Requirements & Progress
-
-## Requirements Overview
-Build MatchMe - an AI-powered recruitment platform with swipe-based matching between Job Seekers and Companies. Bilingual (EN/AR with RTL), mobile-first, Supabase backend. Monorepo architecture with shared packages.
-
-## User Stories
-- As a Job Seeker, I can create a profile, upload CV, and swipe through job matches
-- As a Company, I can post vacancies, view matched candidates, and manage hiring pipeline
-- Both roles can message each other after mutual match
-- Premium subscriptions unlock additional features via Stripe
-- As an Admin, I can manage users, view analytics, and moderate content
-
 ## Task Breakdown
-- [x] Refactor web app folder structure into feature-based modules with shared components/services/types
-- [x] Create API abstraction layer with repository pattern and typed service classes
-- [x] Implement global state management with Zustand stores
-- [x] Extract reusable components (Sidebar, PageLayout, EmptyState, StatCard, etc.)
-- [x] Add TypeScript strict types, enums, environment config, and constants
-- [x] Add error boundaries and structured logging
-- [x] Create Expo mobile app project with production architecture
-- [x] Build Expo app core screens (Auth, JobSeeker, Company, Messages, Subscription)
-- [x] Supabase integration - migrations, RLS, storage, realtime, edge functions
-- [x] Complete authentication - role-based, route protection, admin portal
-- [x] Production database - 30+ tables with indexes, RLS, audit trails
-- [x] Create shared packages directory with types, validation, i18n, services, utils
-- [x] Configure pnpm workspace monorepo
-- [x] Refactor web app to import from shared packages
-- [ ] Refactor mobile app to import from shared packages
-- [x] Implement Profile Completion and Strength system (ProfileCompletionCard, ProfileCompletionMini, ProfileStrengthBadge, CandidateProfileStrength, AdminProfileAnalytics)
-- [x] Refactor messaging system with controlled messaging based on hiring workflow (workflow states, permissions, status badges, locked conversations)
-- [x] Implement Learn More page (/learn-more) with hero, how it works, features, benefits, AI matching, security, FAQ, CTA sections + full EN/AR translations
-- [x] Navigation audit - consistent BackButton usage across all pages with role-aware fallback routes
-- [x] Fix Messages page crash - backFallback not passed as prop to ConversationList child component
-- [x] Build complete Company dashboard (20+ features: profile, branches, recruiters, jobs CRUD, pipeline, matching, analytics, billing, team, settings)
-- [x] Build complete Job Seeker experience (18 sections: profile, CV, experience, education, certificates, skills, languages, portfolio, video intro, preferences, saved jobs, applications, matches, messages, notifications, settings, swipe discover, dashboard)
-- [x] Implement MatchMe matching engine (bidirectional swipe, duplicate prevention, swipe history, undo, match expiration, smart ranking with 7 weighted factors, recommendations, real-time notifications, compatibility scoring)
-- [x] Implement AI-powered matching engine (embeddings, semantic similarity, 10-factor scoring, explainable recommendations, adaptive learning from interactions)
-- [x] Build complete messaging system (realtime, read receipts, typing indicators, file/CV/image sharing, push notifications, conversation archive, block users, report users)
-- [x] Build notification center (email/push/in-app/SMS-ready channels, 8 event types, preferences, quiet hours, history, grouped timeline)
-- [x] Build subscription plans (4 tiers, Stripe/Moyasar/Apple Pay/Google Pay, invoices, usage tracking, feature limits, trials, coupons/promo codes)
-- [x] Refactor subscription system - complete role separation between Job Seeker and Company subscriptions
-- [x] Build Admin dashboard pages (/admin/*)
-- [x] Add comprehensive i18n with Arabic/RTL support to shared package
-- [x] Complete i18n audit - all missing translation keys added (billing, mark_all_read, push_notifications, view_all_plans, ai_powered)
-- [x] Localization audit for Invitations to Apply page - fixed subtitle showing translation key, added missing keys (new, saved, type, expires, saved_for_later), removed duplicate keys (decline, expires), verified all t() calls have corresponding EN/AR translations
-- [x] Full interactive functionality audit - all CRUD operations implemented with dialogs, state management, validation, and toast feedback
-- [x] Refactor Company Dashboard stat cards to be interactive drill-down widgets (clickable, hover, keyboard accessible, navigate to detail views)
-- [x] Fix Company → Candidates search & filter: root cause was unbound search input + missing filter logic. Implemented full search/filter/sort/pagination system with debounce, multi-field search, combined filters, active filter chips, clear filters, empty state, and bilingual support (EN/AR)
-- [x] Implement Candidate Directory (Part 1): Company navigation expanded with Directory submenu (Directory, Saved, Viewed, Contacts, Pipeline), Card/Table views with persistence, enterprise-grade search (debounce, multi-field, fuzzy), 17 combinable filters, 10 sort options, pagination, subscription-tier access control (Free/Premium/Enterprise with locked/blurred content), candidate profile modal, save/favorite system, talent pipeline with Kanban stages, viewed history tracking, contact workflow, premium upsell banners, full EN/AR bilingual support
-- [x] Implement Candidate Directory (Part 2): Premium Job Seeker subscriptions (Free/Premium/Premium+), discoverability controls (toggle, open-to-work, AI opt-in), privacy settings (public/anonymous/private modes, hide employer/salary), exposure analytics dashboard (8 metrics with trends, recruiter engagement), contact requests manager (accept/decline workflow), who-viewed-profile view, notification preferences for discoverability events, upgrade banners for free users, full EN/AR bilingual support
-- [ ] Implement Candidate Directory (Part 3): AI Recommendation Engine, expanded AI Match Score (15 factors), Recruiter Invitation System, advanced Talent Pipeline (10 stages, drag-drop, notes, tags, recruiter assignments), Team Collaboration (Enterprise), Company/Seeker Analytics dashboards, Supabase schema + RLS
-- [x] Universal Collections Engine Part A - Reusable, configuration-driven collection system (CollectionEngine.tsx) with Manual/Smart/AI/Shared collection types, CRUD operations (create/delete/pin/favorite/duplicate/archive), Smart Collection Rule Builder (visual AND/OR rule composition), Collection Detail View (breadcrumbs, search, filters, sort, bulk actions, statistics), entity-agnostic architecture. First implementation: TalentCollections.tsx (Saved Candidates) with 12 candidate fields, 6 bulk actions, mock data for 8 collections with 25+ candidates, candidate cards with AI match scores/skills/tags/notes/availability. Full EN/AR bilingual support.
-- [x] Universal Collections Engine Part B - Enterprise Features & Platform Integration: CollectionPlatformService (singleton service layer), Supabase Realtime subscriptions (collections, entities, activities, comments), RBAC/Permissions integration (owner/editor/contributor/viewer/read_only + feature flags + subscription entitlements), Collection Sharing (private/team/department/organization + invite/revoke), Team Collaboration (comments with mentions, resolve workflow), Activity Tracking (14 event types with timestamp/user/target), Collection Analytics (growth, views, pipeline conversion, interview/offer/hire rates, recruiter activity, trends), AI Insights (observations/recommendations/warnings/opportunities with confidence scores), AI Collection Suggestions (accept/reject/modify), Automation Engine (triggers: entity_saved/ai_match_score/interview_completed/profile_updated, actions: add/remove/move/notify/tag), Notifications (in_app/email/push/sms channels), Search Engine Integration, Database Schema (7 tables with 20+ indexes, RLS policies, realtime publication, triggers for entity_count and updated_at), API Architecture (CRUD + move/copy/share/rules/statistics/search). Enterprise sidebar UI with 6 tabbed panels. Full EN/AR bilingual (40+ new translation keys). Lint + build pass cleanly.
-- [x] Implement Enterprise RBAC (Part 4A): Role Management (7 default roles + custom), Team Management (invite/suspend/reactivate/remove), Departments (CRUD), Audit Logs (10 event types, filters), Feature Flags (12 flags, tier-based), Organization Settings (company info, hiring prefs, security, notifications), Security Dashboard (8 checks), full EN/AR bilingual support
-- [x] Implement Enterprise Part 4B: Subscription Engine, Billing Platform, Feature Entitlements, Payment Provider Layer, Add-ons, Trials, Usage Tracking, Billing Dashboards, Billing Analytics, Compliance, Production Readiness
-- [x] Part 5A: Super Admin Platform - Enhanced Platform Owner Portal with Global Search, User Impersonation, Company Verification, Platform Notifications, Support Center, enhanced Company/Seeker management
-- [x] Enterprise Navigation Framework - Shared collapsible accordion sidebar (EnterpriseNavigation component) with config-driven sections, permission/feature-flag/subscription-tier guards, state persistence, RTL support, mobile drawer, ARIA accessibility. Integrated into Company portal.
-- [x] Localization Management Module - Super Admin portal section with Translation Dashboard (completion metrics), Translation Editor (search/edit/create/delete), Language Management (enable/disable/status), Missing Translation Center, Import/Export (JSON/CSV/XLSX), Translation Analytics, Audit Logs. Full EN/AR bilingual support.
-- [x] PortalBrand Component - Reusable branding component standardized across all authenticated portals (JobSeeker, Company, Admin). 4-level hierarchy (App→Portal→Workspace→Environment), collapsed/expanded states, environment detection, white-label ready, i18n/RTL support, ARIA accessible. Translation keys added to EN/AR.
+- [x] Create MobileBottomNav shared component (bottom navigation bar with 5 tabs, badges, dark mode, RTL, i18n)
+- [x] Create MobileDashboard component (optimized greeting, quick actions, compact stats, progressive disclosure)
+- [x] Refactor JobSeeker.tsx main layout (integrate bottom nav, remove hamburger on mobile, add safe area padding)
+- [x] Update StatCard component for mobile-first compact 2x2 grid
+- [x] Add new i18n translation keys for mobile UX (EN/AR)
+- [x] Mobile typography, spacing, and touch target improvements across all views
+- [x] Build and lint verification
 
 ## Progress Log
 - 2026-07-17: Project initialized with Supabase template, dependencies installed
@@ -89,3 +34,5 @@ Build MatchMe - an AI-powered recruitment platform with swipe-based matching bet
 - 2026-07-19: Built Universal Collections Engine (CollectionEngine.tsx + TalentCollections.tsx). Entity-agnostic, configuration-driven architecture supporting Manual/Smart/AI/Shared collection types. Features: CollectionGrid (overview with cards, search, type filter, pin/favorite/archive/duplicate/delete), CollectionDetail (breadcrumbs, stats bar, search/filter/sort toolbar, bulk actions, entity list), CreateCollectionDialog (name, description, color picker, smart rule builder), SmartCollectionRuleBuilder (visual AND/OR composition). First implementation: Saved Candidates with 8 collections, 25+ mock candidates, 12 filterable fields, 6 bulk actions, candidate cards with AI scores/skills/tags/notes. Replaced broken EnhancedSavedCandidatesView. Full EN/AR bilingual (55+ new translation keys). Lint + build pass cleanly.
 - 2026-07-19: Built Universal Collections Engine Part B - Enterprise Platform Service. CollectionPlatformService.ts (singleton, 500+ lines): Supabase Realtime subscriptions, RBAC/permissions with feature flags & subscription tiers, sharing (5 permission levels), activity tracking (14 events), comments with mentions & resolve, analytics (pipeline conversion, trends, recruiter activity), AI insights (4 types with confidence), AI collection suggestions (4 pre-built), automation engine (4 triggers, 7 actions), notifications (4 channels), search integration, full database schema (7 tables, 20+ indexes, RLS, realtime). CollectionEnterprise.tsx (enterprise UI): ActivityFeed, CommentsPanel, AnalyticsPanel, InsightsPanel, AISuggestions, AutomationPanel, SharingPanel, CollectionEnterpriseSidebar. Integrated into CollectionEngine via renderEnterpriseSidebar/renderAISuggestions props. 40+ new EN/AR translation keys. Lint + build pass cleanly.
 - 2026-07-19: Created MatchMe Engineering Charter (docs/enterprise/Engineering Charter.md). Defines mandatory engineering principles: 10 core principles (reuse-first, config-over-hardcode, composable architecture, platform-first, mobile-first, localization-first, accessibility-first, security-first, performance-first, documentation-first), Platform Engine Rule, Experience Engine Rule, Database/API/Supabase/React/Design System/Localization/Performance/Testing rules, Architectural Review Checklist, Prohibited Practices, Definition of Done, Mandatory Pre-Implementation Review sequence, Platform Engines Registry. No code changes.
+- 2026-07-19: Starting Mobile Experience Optimization - Mobile First, Desktop Enhanced standard implementation for Job Seeker portal.
+- 2026-07-19: Mobile Experience complete - MobileBottomNav (5 tabs, badges, haptic feedback, dark mode, RTL), MobileDashboard (greeting, quick actions, stats, recommendations, career tips), JobSeeker.tsx refactored (bottom nav integration, mobile-first layout, safe area padding, responsive stat cards), use-mobile hook, 13 new i18n keys (EN/AR). Lint + build pass cleanly.
