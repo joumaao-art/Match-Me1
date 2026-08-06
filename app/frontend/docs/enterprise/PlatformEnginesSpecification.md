@@ -2165,3 +2165,423 @@ Introduce a **Business Capability Orchestrator** to coordinate interactions betw
 - Providing health monitoring and dependency tracking for business capabilities.
 
 The Business Capability Orchestrator becomes the central coordination layer for reusable business services, allowing each Business Engine to remain focused on a single responsibility while enabling complex enterprise scenarios through event-driven orchestration.
+
+---
+---
+
+# Part 6 — AI Engines
+### Version 1.0
+
+---
+
+## Objective (Part 6)
+
+This document defines the Artificial Intelligence Engine Architecture for the MatchMe platform.
+
+The AI Layer provides intelligent capabilities that enhance user experiences, improve hiring outcomes, automate repetitive work, and generate actionable insights.
+
+AI Engines must remain modular, explainable, configurable, observable, secure, and reusable.
+
+AI augments users. AI never replaces deterministic platform rules.
+
+---
+
+## AI Philosophy
+
+AI should always be:
+
+- Transparent
+- Explainable
+- Trustworthy
+- Human-assisted
+- Permission-aware
+- Privacy-aware
+- Observable
+- Configurable
+- Responsible
+
+Every AI recommendation should be understandable. Users should always understand why a recommendation exists.
+
+---
+
+## AI Principles
+
+Every AI Engine must be:
+
+- Reusable
+- Independent
+- Versioned
+- Configurable
+- Auditable
+- Observable
+- API First
+- Model Agnostic
+- Future Proof
+
+---
+
+## AI Architecture
+
+```
+User
+    ↓
+Experience Engines
+    ↓
+Workflow Engines
+    ↓
+AI Engines
+    ↓
+Knowledge Layer
+    ↓
+Models
+    ↓
+Data Platform
+```
+
+AI remains isolated from presentation.
+
+---
+
+## AI Domain
+
+The AI Layer owns:
+
+- Matching
+- Recommendations
+- Ranking
+- Resume Intelligence
+- Skills Intelligence
+- Insights
+- Predictions
+- Conversational AI
+- Summaries
+- Learning
+- Automation Assistance
+- Future AI Capabilities
+
+---
+
+## Engine 1 — AI Matching Engine
+
+### Purpose
+
+Calculate compatibility between: Job ↔ Candidate, Candidate ↔ Company, Recruiter ↔ Candidate, Marketplace Services, Future recommendations.
+
+### Responsibilities
+
+- ✓ Match scoring
+- ✓ Match explanations
+- ✓ Similarity calculations
+- ✓ Weighting
+- ✓ Learning
+- ✓ Confidence scores
+
+---
+
+## Engine 2 — Recommendation Engine
+
+### Purpose
+
+Recommend: Jobs, Candidates, Skills, Companies, Learning, Marketplace Products, Recruiters, Future content.
+
+### Responsibilities
+
+- ✓ Personalized recommendations
+- ✓ Context awareness
+- ✓ Recommendation history
+- ✓ Recommendation feedback
+- ✓ Learning
+
+---
+
+## Engine 3 — Resume Intelligence Engine
+
+### Purpose
+
+Understand resumes.
+
+**Capabilities:** Resume Parsing, Skill Extraction, Experience Detection, Education Detection, Language Detection, Certification Detection, Profile Completion, Resume Quality Score.
+
+### Responsibilities
+
+- ✓ Resume analysis
+- ✓ Structured extraction
+- ✓ AI summaries
+- ✓ Resume improvement suggestions
+
+---
+
+## Engine 4 — Skills Intelligence Engine
+
+### Purpose
+
+Understand skills.
+
+**Supports:** Hard Skills, Soft Skills, Languages, Certifications, Transferable Skills, Emerging Skills.
+
+### Responsibilities
+
+- ✓ Skill normalization
+- ✓ Skill graph
+- ✓ Skill similarity
+- ✓ Skill gaps
+- ✓ Career progression
+- ✓ Upskilling recommendations
+
+---
+
+## Engine 5 — AI Copilot Engine
+
+### Purpose
+
+Provide conversational assistance.
+
+**Supports:** Job Seekers, Companies, Recruiters, Super Admin, Marketplace, Future modules.
+
+### Responsibilities
+
+- ✓ Question answering
+- ✓ Workflow assistance
+- ✓ AI suggestions
+- ✓ Content generation
+- ✓ Guided experiences
+
+---
+
+## Engine 6 — Ranking Engine
+
+### Purpose
+
+Rank: Candidates, Jobs, Companies, Recruiters, Marketplace Listings, Search Results.
+
+### Responsibilities
+
+- ✓ Ranking models
+- ✓ Explainable ranking
+- ✓ Bias monitoring
+- ✓ Dynamic ordering
+
+---
+
+## Engine 7 — Insights Engine
+
+### Purpose
+
+Generate platform insights.
+
+**Examples:** Hiring trends, Skill demand, Recruitment bottlenecks, Profile improvements, Recruiter productivity, Marketplace analytics.
+
+### Responsibilities
+
+- ✓ Trend detection
+- ✓ AI insights
+- ✓ Predictive alerts
+- ✓ Business intelligence
+
+---
+
+## Engine 8 — Prediction Engine
+
+### Purpose
+
+Predict future outcomes.
+
+**Examples:** Interview likelihood, Offer acceptance, Candidate engagement, Recruitment duration, Employee retention (future).
+
+### Responsibilities
+
+- ✓ Predictive models
+- ✓ Confidence
+- ✓ Model monitoring
+
+---
+
+## Engine 9 — AI Summary Engine
+
+### Purpose
+
+Generate summaries.
+
+**Examples:** Candidate Summary, Company Summary, Conversation Summary, Resume Summary, Interview Summary, Application Summary.
+
+### Responsibilities
+
+- ✓ Natural language summaries
+- ✓ Multi-language support
+- ✓ Context preservation
+
+---
+
+## Engine 10 — Knowledge Engine
+
+### Purpose
+
+Provide enterprise knowledge.
+
+**Supports:** FAQs, Policies, Documentation, Training, Internal Guides, Marketplace Help, Future knowledge sources.
+
+### Responsibilities
+
+- ✓ Retrieval
+- ✓ Semantic search
+- ✓ Context management
+- ✓ Source attribution
+
+---
+
+## AI Context
+
+Every AI Engine should consume:
+
+- Permissions
+- Subscription
+- Localization
+- Feature Flags
+- Organization
+- User Role
+- Privacy Settings
+
+Never expose AI beyond user permissions.
+
+---
+
+## Explainability
+
+Every recommendation should support:
+
+- Why? (reasoning)
+- Confidence (score)
+- Contributing Factors (inputs)
+- Alternative Suggestions
+- Feedback mechanism
+
+Users should trust AI.
+
+---
+
+## Human Override
+
+Users must always be able to:
+
+- Ignore
+- Reject
+- Override
+- Retry
+- Provide feedback
+
+AI never becomes mandatory.
+
+---
+
+## AI Learning
+
+Support:
+
+- Implicit Feedback
+- Explicit Feedback
+- User Preferences
+- Outcome Learning
+- Continuous Improvement
+- Model Versioning
+
+---
+
+## AI Governance
+
+Every model requires:
+
+- Owner
+- Version
+- Purpose
+- Training data source
+- Evaluation metrics
+- Monitoring
+- Rollback strategy
+- Approval status
+- Documentation
+
+---
+
+## Responsible AI
+
+Every AI Engine must monitor:
+
+- Bias
+- Fairness
+- Drift
+- Hallucinations
+- Privacy
+- Security
+- Performance
+- Accuracy
+
+---
+
+## AI Events
+
+Publish events such as:
+
+- RecommendationGenerated
+- MatchCalculated
+- ResumeParsed
+- InsightGenerated
+- PredictionCompleted
+- ConversationSummarized
+
+These integrate with Analytics and Workflow Engines.
+
+---
+
+## Validation (AI)
+
+Every AI Engine must pass:
+
+- ✓ Model evaluation
+- ✓ Security review
+- ✓ Privacy review
+- ✓ Bias assessment
+- ✓ Explainability review
+- ✓ Performance testing
+- ✓ Integration testing
+- ✓ Documentation review
+
+---
+
+## Final Platform Rule (Part 6)
+
+AI Engines provide intelligence.
+
+Workflow Engines provide process.
+
+Business Engines provide capabilities.
+
+Experience Engines provide interaction.
+
+Foundation Engines provide consistency.
+
+AI must always enhance—not replace—human decision making.
+
+Every future AI feature across MatchMe must reuse these engines rather than introducing isolated AI implementations.
+
+---
+
+## Strategic Architectural Recommendation — AI Orchestration Engine
+
+Introduce a centralized **AI Orchestration Engine**.
+
+**Responsibilities:**
+
+- Route requests to the appropriate AI Engine.
+- Select the best model for each task.
+- Manage prompts and prompt versions.
+- Cache AI responses where appropriate.
+- Apply privacy and permission checks.
+- Coordinate Retrieval-Augmented Generation (RAG) using the Knowledge Engine.
+- Monitor latency, cost, and quality.
+- Provide fallback behavior if an AI service is unavailable.
+- Log AI interactions for audit and improvement.
+- Manage model versioning and gradual rollouts.
+
+The AI Orchestration Engine becomes the single entry point for all AI capabilities within MatchMe.
+
+This ensures consistency, reduces duplicated integrations, simplifies model upgrades, and enables future expansion to multiple AI providers without changing the rest of the platform.
