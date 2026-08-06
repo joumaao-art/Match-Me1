@@ -2585,3 +2585,469 @@ Introduce a centralized **AI Orchestration Engine**.
 The AI Orchestration Engine becomes the single entry point for all AI capabilities within MatchMe.
 
 This ensures consistency, reduces duplicated integrations, simplifies model upgrades, and enables future expansion to multiple AI providers without changing the rest of the platform.
+
+---
+---
+
+# Part 7 — Data & Infrastructure Engines
+### Version 1.0
+
+---
+
+## Objective (Part 7)
+
+This document defines the Data & Infrastructure Engines that provide persistence, synchronization, scalability, reliability, integrations, storage, and platform infrastructure across MatchMe.
+
+These engines are not responsible for UI. They provide the technical backbone powering every feature.
+
+This document extends:
+
+- Prompt 0 — Platform Architecture Charter
+- Prompt 1 — Enterprise Engineering Standards
+- Prompt 2 — Design System Specification
+- Prompt 3 — Enterprise Component Library Specification
+- Prompt 4 Parts 1–6
+
+---
+
+## Infrastructure Philosophy
+
+Infrastructure should be:
+
+- Invisible
+- Reliable
+- Scalable
+- Observable
+- Recoverable
+- Event Driven
+- API First
+- Cloud Native
+- Multi-Tenant
+- Fault Tolerant
+
+Infrastructure must support future growth without architectural redesign.
+
+---
+
+## Infrastructure Principles
+
+Every Infrastructure Engine must be:
+
+- Reusable
+- Independent
+- Stateless whenever possible
+- Observable
+- Versioned
+- Secure
+- Configurable
+- Highly Available
+- Recoverable
+- Future Proof
+
+---
+
+## Infrastructure Architecture
+
+```
+Experience Layer
+    ↓
+Workflow Layer
+    ↓
+Business Layer
+    ↓
+AI Layer
+    ↓
+Data & Infrastructure Layer
+    ↓
+Cloud Platform
+    ↓
+Database
+    ↓
+Storage
+```
+
+Infrastructure powers every other layer.
+
+---
+
+## Engine 1 — Repository Engine
+
+### Purpose
+
+Centralize all database access.
+
+### Responsibilities
+
+- ✓ Repository abstraction
+- ✓ CRUD operations
+- ✓ Query optimization
+- ✓ Transaction management
+- ✓ Entity mapping
+- ✓ Data validation
+- ✓ Soft deletes
+- ✓ Multi-tenancy
+
+Every service should use repositories rather than direct database access.
+
+---
+
+## Engine 2 — Realtime Engine
+
+### Purpose
+
+Synchronize live platform events.
+
+**Supports:** Messages, Notifications, Applications, Recruitment Pipelines, Presence, Activity Feeds, Marketplace Orders, Future collaboration.
+
+### Responsibilities
+
+- ✓ Live subscriptions
+- ✓ Presence
+- ✓ Synchronization
+- ✓ Conflict detection
+- ✓ Event propagation
+
+---
+
+## Engine 3 — Cache Engine
+
+### Purpose
+
+Improve platform performance.
+
+**Supports:** Query cache, API cache, Image cache, AI cache, Search cache, Configuration cache, Feature cache.
+
+### Responsibilities
+
+- ✓ Cache invalidation
+- ✓ Expiration
+- ✓ Warm-up
+- ✓ Distributed caching
+- ✓ Offline caching
+
+---
+
+## Engine 4 — Synchronization Engine
+
+### Purpose
+
+Synchronize data across: Devices, Sessions, Organizations, Offline clients, Third-party systems.
+
+### Responsibilities
+
+- ✓ Sync queues
+- ✓ Conflict resolution
+- ✓ Merge strategies
+- ✓ Retry
+- ✓ Version tracking
+
+---
+
+## Engine 5 — Offline Engine
+
+### Purpose
+
+Provide future offline support.
+
+### Capabilities
+
+- Cached pages
+- Offline forms
+- Queued actions
+- Synchronization
+- Recovery
+- Conflict handling
+- Future mobile-first functionality
+
+---
+
+## Engine 6 — Storage Engine
+
+### Purpose
+
+Manage persistent storage.
+
+**Supports:** Resumes, Certificates, Contracts, Images, Videos, Company Logos, Marketplace Assets, AI Assets.
+
+### Responsibilities
+
+- ✓ Secure storage
+- ✓ CDN integration
+- ✓ Optimization
+- ✓ Versioning
+- ✓ Expiration
+- ✓ Permissions
+
+---
+
+## Engine 7 — Import Engine
+
+### Purpose
+
+Bulk import data.
+
+**Examples:** Candidates, Companies, Jobs, CRM, Marketplace, Skills, Users.
+
+### Responsibilities
+
+- ✓ CSV Import
+- ✓ Excel Import
+- ✓ API Import
+- ✓ Validation
+- ✓ Preview
+- ✓ Rollback
+
+---
+
+## Engine 8 — Export Engine
+
+### Purpose
+
+Export platform data.
+
+**Supports:** CSV, Excel, PDF, JSON, Reports, Analytics, Audit Logs.
+
+### Responsibilities
+
+- ✓ Export generation
+- ✓ Permissions
+- ✓ Watermarking
+- ✓ Scheduling
+
+---
+
+## Engine 9 — Search Index Engine
+
+### Purpose
+
+Maintain platform indexes.
+
+**Supports:** Jobs, Candidates, Companies, Marketplace, Skills, Knowledge, Documentation.
+
+### Responsibilities
+
+- ✓ Index creation
+- ✓ Incremental indexing
+- ✓ Search optimization
+- ✓ Ranking signals
+
+---
+
+## Engine 10 — Queue Engine
+
+### Purpose
+
+Execute asynchronous work.
+
+**Examples:** Email, Notifications, AI Processing, Reports, Imports, Exports, Media Processing.
+
+### Responsibilities
+
+- ✓ Retry
+- ✓ Dead-letter queues
+- ✓ Priority
+- ✓ Scheduling
+- ✓ Monitoring
+
+---
+
+## Engine 11 — Event Bus Engine
+
+### Purpose
+
+Coordinate platform events.
+
+**Examples:** UserCreated, ApplicationSubmitted, InterviewCompleted, SubscriptionUpdated, AIRecommendationGenerated, InvoicePaid.
+
+### Responsibilities
+
+- ✓ Publish
+- ✓ Subscribe
+- ✓ Routing
+- ✓ Event versioning
+- ✓ Event replay
+
+---
+
+## Engine 12 — Webhook Engine
+
+### Purpose
+
+Integrate with external systems.
+
+**Supports:** ATS, CRM, HRIS, Slack, Teams, Calendars, Marketplace, Future integrations.
+
+### Responsibilities
+
+- ✓ Webhook delivery
+- ✓ Retry
+- ✓ Authentication
+- ✓ Signing
+- ✓ Monitoring
+
+---
+
+## Engine 13 — Background Jobs Engine
+
+### Purpose
+
+Execute scheduled work.
+
+**Examples:** Nightly Reports, Analytics, Cleanup, AI Retraining, Reminder Emails, Data Validation.
+
+### Responsibilities
+
+- ✓ Scheduling
+- ✓ Retry
+- ✓ Monitoring
+- ✓ Failure Recovery
+
+---
+
+## Engine 14 — API Gateway Engine
+
+### Purpose
+
+Provide a single entry point for all APIs.
+
+### Responsibilities
+
+- ✓ Authentication
+- ✓ Rate Limiting
+- ✓ Routing
+- ✓ API Versioning
+- ✓ Request Validation
+- ✓ Response Standardization
+- ✓ Monitoring
+
+---
+
+## Engine 15 — Logging Engine
+
+### Purpose
+
+Centralize platform logs.
+
+**Supports:** Errors, Warnings, API Logs, AI Logs, Workflow Logs, Infrastructure Logs, Audit Events.
+
+### Responsibilities
+
+- ✓ Structured logging
+- ✓ Log retention
+- ✓ Search
+- ✓ Correlation IDs
+
+---
+
+## Engine 16 — Monitoring Engine
+
+### Purpose
+
+Monitor platform health.
+
+**Tracks:** Latency, Availability, Errors, Queues, Infrastructure, AI, Workflows, Business Engines.
+
+### Responsibilities
+
+- ✓ Alerts
+- ✓ Dashboards
+- ✓ Health checks
+- ✓ SLA monitoring
+
+---
+
+## Engine Relationships (Infrastructure)
+
+```
+Foundation Engines
+    ↓
+Experience Engines
+    ↓
+Workflow Engines
+    ↓
+Business Engines
+    ↓
+AI Engines
+    ↓
+Data & Infrastructure Engines
+    ↓
+Cloud Platform
+```
+
+Infrastructure supports every engine without owning business rules.
+
+---
+
+## Infrastructure Events
+
+Examples:
+
+- CacheMiss
+- QueueProcessed
+- WebhookDelivered
+- SyncCompleted
+- ImportFinished
+- ExportGenerated
+- RealtimeConnected
+- StorageUploaded
+
+Every event should be observable.
+
+---
+
+## Validation (Infrastructure)
+
+Every Infrastructure Engine must pass:
+
+- ✓ Architecture Review
+- ✓ Load Testing
+- ✓ Scalability Testing
+- ✓ Disaster Recovery Testing
+- ✓ Security Review
+- ✓ Performance Benchmarking
+- ✓ Documentation Review
+- ✓ Integration Testing
+- ✓ High Availability Validation
+
+---
+
+## Final Platform Rule (Part 7)
+
+The Data & Infrastructure Engines become the operational backbone of MatchMe.
+
+No feature, service, workflow, or AI capability may bypass these engines to access infrastructure directly.
+
+Every future MatchMe product—including CRM, ATS, Marketplace, AI Copilot, Agency Portal, University Portal, Government Portal, and future enterprise services—must consume these Infrastructure Engines to ensure reliability, scalability, observability, and maintainability.
+
+---
+
+## Strategic Architectural Recommendation — Platform Fabric Engine
+
+Introduce a new **Platform Fabric Engine** that acts as the connective layer across the entire platform.
+
+**The Platform Fabric Engine coordinates:**
+
+- Service discovery
+- Engine-to-engine communication
+- Event routing
+- Distributed tracing
+- Configuration propagation
+- Health aggregation
+- Cross-service observability
+- Dependency management
+- Tenant awareness
+- Global context propagation
+
+Instead of every engine managing cross-platform communication independently, the Platform Fabric Engine becomes the unified platform backbone.
+
+**This enables:**
+
+- Better scalability
+- Cleaner architecture
+- Easier debugging
+- Improved resilience
+- Centralized observability
+- Reduced coupling
+- Simpler future expansion into microservices or distributed architectures
+
+The Platform Fabric Engine becomes the "digital nervous system" of MatchMe, connecting every engine while preserving their independence.
