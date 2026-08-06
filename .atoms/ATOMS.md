@@ -29,5 +29,6 @@ MatchMe - AI-powered recruitment platform with Tinder-style swipe matching. Bili
 - Dark mode support
 - Max 8 code files (strategic file organization)
 - Platform Architecture Charter (Prompt 0) governs all development — see docs/enterprise/PlatformArchitectureCharter.md
+- Enterprise Engineering Standards (Prompt 1) define implementation standards — see docs/enterprise/EngineeringStandards.md
 
 
