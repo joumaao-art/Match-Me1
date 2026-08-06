@@ -667,6 +667,21 @@ export const en = {
   interactions_today: 'interactions today',
 
   // ============================================================
+  // Score Visualization Engine
+  // ============================================================
+  score_show_more: 'Show {{count}} more',
+  score_show_less: 'Show less',
+  score_of: 'of',
+  score_percentage: '{{value}}%',
+  score_high: 'High',
+  score_medium: 'Medium',
+  score_low: 'Low',
+  score_breakdown: 'Score Breakdown',
+  score_confidence_high: 'High confidence',
+  score_confidence_medium: 'Medium confidence',
+  score_confidence_low: 'Low confidence',
+
+  // ============================================================
   // Messaging System (Extended)
   // ============================================================
   typing: 'Typing',

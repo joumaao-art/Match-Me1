@@ -283,13 +283,87 @@ function FeatureGate({ featureId, children }) {
 
 ---
 
-## 6. Platform Standards
+## 6. Score Visualization Engine
 
-### 6.1 Mandatory Patterns
+### 6.1 Purpose
+
+The Score Visualization Engine is the **single platform-wide system** for rendering any score, progress, percentage, or funnel metric. It eliminates ad-hoc inline progress bars, ensures consistent responsive behavior (320–412px+ and desktop), full RTL support, and WCAG AA accessibility compliance.
+
+**Location**: `src/components/shared/ScoreVisualizationEngine.tsx`
+
+### 6.2 Available Components
+
+| Component | Use Case | Key Props |
+|-----------|----------|-----------|
+| `ScoreBar` | Single horizontal progress/score bar | value, max, color, size, showLabel, animated |
+| `ScoreLabel` | Standalone formatted score text | value, max, format ('percent' / 'fraction' / 'value'), size |
+| `ScoreBreakdown` | List of labeled score bars (factor breakdown) | items[{label, value, max, color}], title, collapsible |
+| `ScoreRing` | Circular/ring progress indicator | value, max, size, strokeWidth, color |
+| `ConfidenceIndicator` | AI confidence band display | level ('high' / 'medium' / 'low'), label |
+
+### 6.3 Design Principles
+
+| Principle | Implementation |
+|-----------|---------------|
+| **No Clipping** | Labels use `min-w-[3ch]` + `tabular-nums`; bars use `overflow-hidden` with rounded corners |
+| **RTL-Ready** | Uses `start`/`end` logical properties; percentage fills respect `dir` attribute |
+| **Responsive** | Bars scale fluidly; labels stack vertically on narrow viewports |
+| **Accessible** | `role="progressbar"`, `aria-valuenow/min/max`, `aria-label` on every bar |
+| **Reduced Motion** | Animations respect `prefers-reduced-motion: reduce` |
+| **Dark Mode** | All color variants support `dark:` Tailwind classes |
+| **i18n** | All text uses `t()` keys from `packages/shared/src/i18n` |
+
+### 6.4 Usage Pattern
+
+```tsx
+import { ScoreBar, ScoreLabel, ScoreBreakdown } from '@/components/shared/ScoreVisualizationEngine';
+
+// Single bar
+<ScoreBar value={78} max={100} color="primary" size="md" showLabel />
+
+// Formatted label
+<ScoreLabel value={78} max={100} format="percent" />
+
+// Factor breakdown (AI Match, Pipeline, etc.)
+<ScoreBreakdown
+  title="AI Match Factors"
+  items={[
+    { label: 'Skills', value: 92, max: 100, color: 'green' },
+    { label: 'Experience', value: 78, max: 100, color: 'blue' },
+    { label: 'Culture Fit', value: 65, max: 100, color: 'amber' },
+  ]}
+  collapsible
+/>
+```
+
+### 6.5 Migration Status
+
+All platform score/progress UI has been migrated to the engine:
+
+| Component | Before | After |
+|-----------|--------|-------|
+| `JobSeeker.tsx` (AI Match Breakdown) | Inline `div` bars with clipping issues | `ScoreBreakdown` |
+| `CollectionEnterprise.tsx` (Pipeline) | Custom `div` progress bars | `ScoreBreakdown` |
+| `ProfileCompletion.tsx` (Sections) | Inline `div` bars | `ScoreBreakdown` |
+| `Analytics.tsx` (Funnel + Activity) | Custom bars + inline styles | `ScoreBar` + `ScoreLabel` |
+| `BillingAnalytics.tsx` (Revenue/Funnel) | Custom `div` progress bars | `ScoreBar` + `ScoreLabel` |
+| `AITalentIntelligence.tsx` (Hiring Funnel) | Custom `div` bars | `ScoreBar` + `ScoreLabel` |
+
+### 6.6 Mandatory Rule
+
+> **All score, progress, percentage, and funnel visualizations MUST use the Score Visualization Engine.**
+> Custom inline `<div>` progress bars are prohibited. New features requiring score display must import from `ScoreVisualizationEngine.tsx`.
+
+---
+
+## 7. Platform Standards
+
+### 7.1 Mandatory Patterns
 
 | Pattern | Rule |
 |---------|------|
 | **Card Engine** | All stat/summary/decision cards MUST use Card Engine templates |
+| **Score Visualization Engine** | All score/progress/funnel bars MUST use ScoreVisualizationEngine components |
 | **Feature Registry** | All new features MUST be registered before implementation |
 | **i18n** | All user-visible text MUST use `t()` with keys in EN + AR |
 | **RTL** | All layouts MUST support RTL (use `start`/`end` not `left`/`right`) |
@@ -297,12 +371,13 @@ function FeatureGate({ featureId, children }) {
 | **Accessibility** | WCAG AA minimum, ARIA labels on interactive elements |
 | **Mobile-First** | Design mobile layout first, enhance for desktop |
 
-### 6.2 Component Hierarchy
+### 7.2 Component Hierarchy
 
 ```
 Platform Engines (reusable infrastructure)
 ├── Card Engine (config-driven cards)
 ├── Collection Engine (entity management)
+├── Score Visualization Engine (scores/progress/funnels)
 ├── Matching Engine (swipe + AI)
 ├── Billing Engine (subscriptions)
 ├── Feature Registry (feature catalog)
@@ -317,7 +392,7 @@ Experience Components (UI building blocks)
 └── StatCard → Card Engine (delegated)
 ```
 
-### 6.3 Quality Gates
+### 7.3 Quality Gates
 
 Before any feature ships:
 
@@ -329,12 +404,13 @@ Before any feature ships:
 6. ✅ Touch targets ≥ 44px
 7. ✅ Lint + build pass
 8. ✅ Card Engine used for any card-like UI
+9. ✅ Score Visualization Engine used for any score/progress/funnel UI
 
 ---
 
-## 7. Current Platform Parity Status
+## 8. Current Platform Parity Status
 
-### 7.1 Parity Scores (as of 2026-08-06)
+### 8.1 Parity Scores (as of 2026-08-06)
 
 | Platform | Score | Active | Beta | Planned |
 |----------|-------|--------|------|---------|
@@ -343,7 +419,7 @@ Before any feature ships:
 | Native Android | — | — | — | — |
 | Native iOS | — | — | — | — |
 
-### 7.2 Known Mobile Gaps
+### 8.2 Known Mobile Gaps
 
 | Feature | Gap | Priority |
 |---------|-----|----------|
@@ -354,7 +430,7 @@ Before any feature ships:
 | Admin Analytics | Charts too small, heatmap unreadable | P5 |
 | Video Introduction | Camera API integration pending | P4 |
 
-### 7.3 Recommendations
+### 8.3 Recommendations
 
 1. Improve mobile search/filter with bottom-sheet filter panels
 2. Redesign subscription comparison as swipeable cards on mobile
@@ -376,6 +452,7 @@ Before any feature ships:
 | `src/components/shared/MobileBottomNav.tsx` | Bottom navigation |
 | `src/components/shared/DecisionScreenLayout.tsx` | Layout engine |
 | `src/components/shared/BottomSheet.tsx` | Detail overlays |
+| `src/components/shared/ScoreVisualizationEngine.tsx` | Score/progress/funnel engine |
 | `src/components/shared/StatCard.tsx` | Legacy → Card Engine |
 | `docs/enterprise/CardEngine.md` | Card Engine docs |
 | `docs/enterprise/ExperienceEngine.md` | This document |

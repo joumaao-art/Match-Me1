@@ -1,4 +1,14 @@
 ## Task Breakdown
+- [x] Create Score Visualization Engine (src/components/shared/ScoreVisualizationEngine.tsx) — reusable components
+- [x] Refactor AI Match Breakdown in JobSeeker.tsx to use Score Visualization Engine (fix clipping)
+- [x] Refactor CollectionEnterprise.tsx pipeline bars to use Score Visualization Engine
+- [x] Refactor ProfileCompletion.tsx progress bars to use Score Visualization Engine
+- [x] Refactor Analytics.tsx progress bars to use Score Visualization Engine
+- [x] Refactor BillingAnalytics.tsx funnel + revenue bars to use Score Visualization Engine
+- [x] Refactor AITalentIntelligence.tsx pipeline funnel to use Score Visualization Engine
+- [x] Add i18n keys for Score Visualization Engine (EN/AR)
+- [x] Lint + build verification
+- [x] Update Experience Engine documentation with Score Visualization Engine
 - [x] Create MobileBottomNav shared component (bottom navigation bar with 5 tabs, badges, dark mode, RTL, i18n)
 - [x] Create MobileDashboard component (optimized greeting, quick actions, compact stats, progressive disclosure)
 - [x] Refactor JobSeeker.tsx main layout (integrate bottom nav, remove hamburger on mobile, add safe area padding)

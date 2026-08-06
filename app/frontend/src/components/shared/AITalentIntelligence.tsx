@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ScoreBar, ScoreLabel } from '@/components/shared/ScoreVisualizationEngine';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -1090,14 +1091,9 @@ export function TalentAnalyticsView({ tier }: { tier: CompanyTier }) {
               { stage: t('hires'), count: 3, pct: 0.08 },
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3">
-                <span className="text-xs w-36 truncate">{item.stage}</span>
+                <ScoreLabel label={item.stage} size="sm" className="w-36 shrink-0" />
                 <div className="flex-1">
-                  <div className="h-5 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-primary to-primary/60 rounded-full transition-all"
-                      style={{ width: `${Math.max(item.pct, 2)}%` }}
-                    />
-                  </div>
+                  <ScoreBar value={Math.max(item.pct, 2) / 100} size="sm" animated />
                 </div>
                 <span className="text-xs font-medium w-12 text-end">{item.count}</span>
               </div>

@@ -40,6 +40,7 @@ import { MobileBottomNav, type MobileNavTab } from '@/components/shared/MobileBo
 import { MobileDashboard } from '@/components/shared/MobileDashboard';
 import { MobileAccountCenter } from '@/components/shared/MobileAccountCenter';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { ScoreBreakdown, ConfidenceIndicator } from '@/components/shared/ScoreVisualizationEngine';
 
 // ============================================================
 // Types
@@ -507,18 +508,19 @@ function JobDetailsContent({ job, explanation }: { job: typeof mockJobs[0] & { c
               </p>
             ))}
           </div>
-          <div className="space-y-1.5">
-            {explanation.factors.filter(f => f.weight >= 0.07).slice(0, 5).map((f) => (
-              <div key={f.name} className="flex items-center gap-2">
-                <span className="text-xs w-16 shrink-0 text-muted-foreground">{f.name}</span>
-                <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div className="h-full bg-primary rounded-full" style={{ width: `${f.score * 100}%` }} />
-                </div>
-                <span className="text-[11px] w-7 text-end font-medium">{Math.round(f.score * 100)}%</span>
-              </div>
-            ))}
-          </div>
-          <p className="text-[11px] text-muted-foreground">{t('ai_confidence')}: {Math.round(explanation.confidence * 100)}%</p>
+          <ScoreBreakdown
+            items={explanation.factors.filter(f => f.weight >= 0.07).slice(0, 5).map(f => ({
+              label: f.name,
+              value: f.score,
+              weight: f.weight,
+            }))}
+            layout="auto"
+            barSize="sm"
+            labelSize="sm"
+            animated
+            showPercentage
+          />
+          <ConfidenceIndicator value={explanation.confidence} label={t('ai_confidence')} size="sm" />
         </div>
       )}
 

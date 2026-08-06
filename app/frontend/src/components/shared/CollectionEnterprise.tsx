@@ -13,6 +13,7 @@ import { memo, useState, useCallback, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { ScoreBreakdown } from '@/components/shared/ScoreVisualizationEngine';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -308,17 +309,17 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ collectionId }: Ana
       {/* Pipeline Conversion */}
       <div>
         <p className="text-xs font-medium mb-2">{t('pipeline_conversion')}</p>
-        <div className="space-y-1.5">
-          {analytics.pipelineConversion.map(stage => (
-            <div key={stage.stage} className="flex items-center gap-2">
-              <span className="text-[10px] w-20 truncate">{stage.stage}</span>
-              <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${stage.rate}%` }} />
-              </div>
-              <span className="text-[10px] text-muted-foreground w-8 text-end">{stage.rate}%</span>
-            </div>
-          ))}
-        </div>
+        <ScoreBreakdown
+          items={analytics.pipelineConversion.map(stage => ({
+            label: stage.stage,
+            value: stage.rate / 100,
+          }))}
+          layout="auto"
+          barSize="md"
+          labelSize="xs"
+          animated
+          showPercentage
+        />
       </div>
 
       {/* Trends */}

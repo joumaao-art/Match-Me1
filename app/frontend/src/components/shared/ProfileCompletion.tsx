@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { ScoreBreakdown } from '@/components/shared/ScoreVisualizationEngine';
 import {
   CheckCircle2, Circle, User, Camera, FileText, Briefcase, GraduationCap,
   Star, Award, Layers, Sliders, DollarSign, Clock, Mail, Phone, MapPin,
@@ -478,17 +479,18 @@ export function AdminProfileAnalytics({ profiles }: { profiles: ProfileData[] })
         {/* Top Incomplete Sections */}
         <div>
           <p className="text-xs font-medium mb-2">{t('admin_top_incomplete')}</p>
-          <div className="space-y-1.5">
-            {analytics.topIncomplete.map(item => (
-              <div key={item.id} className="flex items-center gap-2">
-                <span className="text-xs flex-1">{t(`pc_${item.id}`)}</span>
-                <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div className="h-full bg-red-400 rounded-full" style={{ width: `${item.percentage}%` }} />
-                </div>
-                <span className="text-[10px] text-muted-foreground w-8 text-end">{item.percentage}%</span>
-              </div>
-            ))}
-          </div>
+          <ScoreBreakdown
+            items={analytics.topIncomplete.map(item => ({
+              label: t(`pc_${item.id}`),
+              value: item.percentage / 100,
+              colorClass: 'bg-red-400',
+            }))}
+            layout="auto"
+            barSize="sm"
+            labelSize="xs"
+            animated
+            showPercentage
+          />
         </div>
       </CardContent>
     </Card>

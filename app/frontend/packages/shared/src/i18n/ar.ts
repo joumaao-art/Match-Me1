@@ -667,6 +667,21 @@ export const ar = {
   interactions_today: 'تفاعلات اليوم',
 
   // ============================================================
+  // Score Visualization Engine
+  // ============================================================
+  score_show_more: 'عرض {{count}} المزيد',
+  score_show_less: 'عرض أقل',
+  score_of: 'من',
+  score_percentage: '{{value}}٪',
+  score_high: 'مرتفع',
+  score_medium: 'متوسط',
+  score_low: 'منخفض',
+  score_breakdown: 'تفصيل النتيجة',
+  score_confidence_high: 'ثقة عالية',
+  score_confidence_medium: 'ثقة متوسطة',
+  score_confidence_low: 'ثقة منخفضة',
+
+  // ============================================================
   // Messaging System (Extended)
   // ============================================================
   typing: 'يكتب',

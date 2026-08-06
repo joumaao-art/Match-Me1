@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScoreBar, ScoreLabel } from '@/components/shared/ScoreVisualizationEngine';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   TrendingUp, TrendingDown, DollarSign, Users, Crown, BarChart3,
@@ -205,11 +206,13 @@ function ConversionFunnel({ analytics }: { analytics: BillingAnalyticsType }) {
                 <span className="text-muted-foreground">{step.label}</span>
                 <span className="font-medium">{step.value.toLocaleString()}</span>
               </div>
-              <div className="h-6 rounded-sm overflow-hidden bg-muted/30">
-                <div className="h-full rounded-sm transition-all flex items-center justify-end pe-2" style={{ width: `${width}%`, backgroundColor: step.color }}>
-                  {width > 20 && <span className="text-[9px] text-white font-medium">{width.toFixed(0)}%</span>}
-                </div>
-              </div>
+              <ScoreBar
+                value={width / 100}
+                size="md"
+                color={step.color}
+                animated
+                aria-label={`${step.label}: ${width.toFixed(0)}%`}
+              />
             </div>
           );
         })}
@@ -313,9 +316,9 @@ function RevenueByIndustry({ data }: { data: { industry: string; revenue: number
       <CardContent className="space-y-2">
         {data.map(item => (
           <div key={item.industry} className="flex items-center gap-3">
-            <span className="text-xs w-20 truncate">{item.industry}</span>
-            <div className="flex-1 h-5 rounded-sm bg-muted/30 overflow-hidden">
-              <div className="h-full rounded-sm bg-primary/70" style={{ width: `${(item.revenue / maxRevenue) * 100}%` }} />
+            <ScoreLabel label={item.industry} size="sm" className="w-20 shrink-0" />
+            <div className="flex-1">
+              <ScoreBar value={item.revenue / maxRevenue} size="sm" animated />
             </div>
             <span className="text-xs font-medium min-w-[50px] text-end">${(item.revenue / 1000).toFixed(1)}k</span>
           </div>

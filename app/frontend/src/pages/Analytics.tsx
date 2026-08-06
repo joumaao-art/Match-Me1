@@ -16,6 +16,7 @@ import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { BackButton } from '@/components/shared';
+import { ScoreBreakdown, ScoreBar, ScoreLabel } from '@/components/shared/ScoreVisualizationEngine';
 import {
   Users, Activity, Heart, FileText, TrendingUp, TrendingDown,
   Target, Clock, DollarSign, UserCheck, UserMinus, Building2, Briefcase,
@@ -254,19 +255,9 @@ function FunnelChart({ data }: { data: typeof conversionFunnel }) {
         const width = Math.max(20, (stage.count / data[0].count) * 100);
         return (
           <div key={i} className="flex items-center gap-3">
-            <div className="w-36 text-xs text-end text-muted-foreground shrink-0 truncate">{stage.stage}</div>
+            <ScoreLabel label={stage.stage} size="sm" className="w-36 shrink-0 text-end" />
             <div className="flex-1 relative">
-              <div
-                className="h-8 rounded-md bg-primary/20 flex items-center transition-all duration-500"
-                style={{ width: `${width}%` }}
-              >
-                <div
-                  className="h-full rounded-md bg-primary/60 flex items-center justify-end pe-2"
-                  style={{ width: '100%' }}
-                >
-                  <span className="text-xs font-medium text-primary-foreground">{stage.count.toLocaleString()}</span>
-                </div>
-              </div>
+              <ScoreBar value={width / 100} size="md" animated />
             </div>
             <div className="w-12 text-xs font-medium text-end shrink-0">
               {i === 0 ? '—' : `${stage.pct}%`}
@@ -492,23 +483,20 @@ export default function Analytics() {
                   <CardTitle className="text-sm font-[Poppins]">User Activity Distribution</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {[
-                    { label: 'Profile browsing', pct: 35, color: 'bg-blue-500' },
-                    { label: 'Swiping / Matching', pct: 28, color: 'bg-emerald-500' },
-                    { label: 'Messaging', pct: 20, color: 'bg-purple-500' },
-                    { label: 'Job applications', pct: 12, color: 'bg-amber-500' },
-                    { label: 'Settings / Profile editing', pct: 5, color: 'bg-slate-400' },
-                  ].map((item, i) => (
-                    <div key={i} className="space-y-1">
-                      <div className="flex items-center justify-between text-xs">
-                        <span>{item.label}</span>
-                        <span className="font-medium">{item.pct}%</span>
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div className={`h-full rounded-full ${item.color} transition-all duration-500`} style={{ width: `${item.pct}%` }} />
-                      </div>
-                    </div>
-                  ))}
+                  <ScoreBreakdown
+                    items={[
+                      { label: 'Profile browsing', value: 0.35, colorClass: 'bg-blue-500' },
+                      { label: 'Swiping / Matching', value: 0.28, colorClass: 'bg-emerald-500' },
+                      { label: 'Messaging', value: 0.20, colorClass: 'bg-purple-500' },
+                      { label: 'Job applications', value: 0.12, colorClass: 'bg-amber-500' },
+                      { label: 'Settings / Profile editing', value: 0.05, colorClass: 'bg-slate-400' },
+                    ]}
+                    layout="stacked"
+                    barSize="md"
+                    labelSize="sm"
+                    animated
+                    showPercentage
+                  />
                 </CardContent>
               </Card>
 
