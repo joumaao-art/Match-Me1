@@ -1241,3 +1241,450 @@ While Experience Engines manage individual interaction patterns, the Journey Orc
 - Feed analytics into the Insights Engine
 
 The Journey Orchestration Engine becomes the platform's experience coordinator, ensuring users experience MatchMe as a seamless workflow rather than disconnected screens.
+
+---
+---
+
+# Part 4 — Workflow Engines
+### Version 1.0
+
+---
+
+## Objective (Part 4)
+
+This document defines the Workflow Engines responsible for orchestrating every business process across the MatchMe platform.
+
+Workflow Engines coordinate activities between users, services, AI engines, notifications, permissions, and business rules while remaining independent from UI implementation.
+
+Every workflow must be reusable, configurable, observable, auditable, and versioned.
+
+No feature should implement its own workflow logic.
+
+---
+
+## Workflow Philosophy
+
+A workflow is a sequence of business events.
+
+- Pages display workflows.
+- Components visualize workflows.
+- Workflow Engines execute workflows.
+- Business Services perform business operations.
+- Platform Engines provide capabilities.
+
+---
+
+## Workflow Principles
+
+Every Workflow Engine must be:
+
+- Reusable
+- Configurable
+- Observable
+- Auditable
+- Event Driven
+- Versioned
+- Scalable
+- Recoverable
+- Interruptible
+- Extensible
+
+---
+
+## Workflow Architecture
+
+```
+Workflow
+    ↓
+Stages
+    ↓
+Steps
+    ↓
+Actions
+    ↓
+Events
+    ↓
+Notifications
+    ↓
+Audit Log
+    ↓
+Analytics
+```
+
+Every workflow follows this architecture.
+
+---
+
+## Engine 1 — Application Workflow Engine
+
+### Purpose
+
+Manage the lifecycle of job applications.
+
+### Stages
+
+Draft → Submitted → Viewed → Shortlisted → Interview → Offer → Accepted → Rejected → Withdrawn → Archived
+
+### Responsibilities
+
+- ✓ State transitions
+- ✓ Validation
+- ✓ Notifications
+- ✓ Audit logging
+- ✓ Candidate timeline
+- ✓ Company timeline
+- ✓ Analytics
+- ✓ AI recommendations
+
+---
+
+## Engine 2 — Interview Workflow Engine
+
+### Purpose
+
+Coordinate interviews.
+
+**Supports:** Phone, Video, In-person, Assessment, Panel.
+
+### Responsibilities
+
+- ✓ Scheduling
+- ✓ Reminders
+- ✓ Interview stages
+- ✓ Feedback
+- ✓ Scorecards
+- ✓ Interview history
+- ✓ Calendar integration
+
+---
+
+## Engine 3 — Offer Workflow Engine
+
+### Purpose
+
+Manage employment offers.
+
+### Stages
+
+Draft → Review → Approved → Sent → Viewed → Negotiation → Accepted → Declined → Expired
+
+### Responsibilities
+
+- ✓ Approval routing
+- ✓ Offer versions
+- ✓ Candidate acceptance
+- ✓ Digital acknowledgement
+- ✓ Audit trail
+
+---
+
+## Engine 4 — Onboarding Workflow Engine
+
+### Purpose
+
+Coordinate onboarding.
+
+**Examples:** Documents, Identity verification, Equipment, Training, Welcome tasks, Policies, Payroll setup, Benefits.
+
+### Responsibilities
+
+- ✓ Checklist management
+- ✓ Progress tracking
+- ✓ Notifications
+- ✓ Dependencies
+- ✓ Completion analytics
+
+---
+
+## Engine 5 — Approval Workflow Engine
+
+### Purpose
+
+Standardize approvals.
+
+**Supports:** Job approval, Offer approval, Budget approval, Subscription approval, Admin approval, Marketplace approval.
+
+### Responsibilities
+
+- ✓ Approval chains
+- ✓ Delegation
+- ✓ Escalation
+- ✓ Timeouts
+- ✓ Audit history
+
+---
+
+## Engine 6 — Recruitment Pipeline Engine
+
+### Purpose
+
+Manage hiring pipelines.
+
+### Stages
+
+Applied → Screened → Interview → Assessment → Offer → Hired → Rejected → Archived
+
+### Responsibilities
+
+- ✓ Pipeline configuration
+- ✓ Drag-and-drop stages
+- ✓ Bulk actions
+- ✓ Candidate ranking
+- ✓ AI prioritization
+
+---
+
+## Engine 7 — CRM Workflow Engine
+
+### Purpose
+
+Manage sales workflows.
+
+**Stages:** Lead → Qualified → Proposal → Negotiation → Won → Lost → Renewal
+
+### Responsibilities
+
+- ✓ Opportunity stages
+- ✓ Tasks
+- ✓ Follow-ups
+- ✓ Sales automation
+- ✓ Customer history
+
+---
+
+## Engine 8 — ATS Workflow Engine
+
+### Purpose
+
+Coordinate Applicant Tracking.
+
+### Responsibilities
+
+- ✓ Candidate movement
+- ✓ Resume parsing
+- ✓ Interview scheduling
+- ✓ Hiring decisions
+- ✓ Recruiter collaboration
+- ✓ Notes
+- ✓ Status tracking
+
+---
+
+## Engine 9 — Automation Engine
+
+### Purpose
+
+Execute business automations.
+
+**Examples:** Send Email, Assign Recruiter, Create Notification, Generate AI Summary, Create Interview, Create Calendar Event, Trigger Webhook, Generate Report, Update CRM.
+
+### Responsibilities
+
+- ✓ Automation rules
+- ✓ Triggers
+- ✓ Conditions
+- ✓ Retry
+- ✓ Scheduling
+- ✓ Execution history
+
+---
+
+## Engine 10 — Task Engine
+
+### Purpose
+
+Manage tasks.
+
+**Supports:** Personal Tasks, Team Tasks, Interview Tasks, Follow-ups, Reminders, Approvals.
+
+### Responsibilities
+
+- ✓ Assignments
+- ✓ Due dates
+- ✓ Priorities
+- ✓ Recurring tasks
+- ✓ Comments
+- ✓ Attachments
+- ✓ Notifications
+
+---
+
+## Workflow State Engine
+
+Every workflow should consume a shared Workflow State Engine.
+
+**States:** Draft, Pending, Active, Paused, Blocked, Completed, Cancelled, Archived.
+
+This standardizes workflow behavior across every module.
+
+---
+
+## Workflow Events
+
+Every workflow emits standardized events:
+
+- Created
+- Updated
+- Assigned
+- Viewed
+- Approved
+- Rejected
+- Completed
+- Cancelled
+- Expired
+- Escalated
+
+Every event should be observable.
+
+---
+
+## Workflow Notifications
+
+Workflow Engines integrate with the Notification Engine.
+
+Automatically trigger: Email, Push, SMS, In-App, Webhooks, Future channels.
+
+---
+
+## Workflow Permissions
+
+Integrate with:
+
+- Permissions Engine
+- Subscription Engine
+- Organization Engine
+- Feature Registry
+
+No workflow bypasses authorization.
+
+---
+
+## Workflow Analytics
+
+Collect:
+
+- Completion rate
+- Time in stage
+- Drop-off
+- Conversion
+- SLA compliance
+- User actions
+- Automation success
+- Workflow health
+
+---
+
+## Workflow Templates
+
+Support reusable templates:
+
+- Standard Hiring
+- Executive Hiring
+- Internship
+- Campus Recruitment
+- Agency Recruitment
+- Marketplace Orders
+- Enterprise Sales
+- Custom templates
+
+---
+
+## Workflow Versioning
+
+Every workflow must support:
+
+- Version history
+- Migration
+- Rollback
+- Draft versions
+- Publishing
+- Audit history
+
+---
+
+## Workflow Recovery
+
+Support:
+
+- Retry
+- Resume
+- Rollback
+- Partial completion
+- Failure recovery
+- Manual intervention
+
+---
+
+## Engine Relationships (Workflow)
+
+```
+Foundation Engines
+    ↓
+Experience Engines
+    ↓
+Workflow Engines
+    ↓
+Business Engines
+    ↓
+Data Engines
+    ↓
+Infrastructure
+```
+
+Workflow Engines orchestrate business processes but do not own persistence or presentation.
+
+---
+
+## Validation (Workflow)
+
+Every Workflow Engine must pass:
+
+- ✓ Architecture review
+- ✓ Workflow simulation
+- ✓ Performance testing
+- ✓ Failure recovery testing
+- ✓ Security validation
+- ✓ Audit validation
+- ✓ Documentation review
+- ✓ Version compatibility
+- ✓ Integration testing
+
+---
+
+## Final Platform Rule (Part 4)
+
+Workflow Engines become the official orchestration layer for all business processes across MatchMe.
+
+No feature may implement standalone workflow logic.
+
+Every business process must reuse one or more Workflow Engines.
+
+This guarantees consistent automation, observability, analytics, auditability, security, and scalability across the Job Seeker Portal, Company Portal, Super Admin Portal, Marketplace, CRM, ATS, AI Copilot, and all future MatchMe products.
+
+---
+
+## Strategic Architectural Recommendation — Workflow Orchestration Engine
+
+Introduce a centralized **Workflow Orchestration Engine** that coordinates all Workflow Engines.
+
+Rather than allowing workflows to call each other directly, the Workflow Orchestration Engine manages:
+
+- Cross-workflow dependencies
+- Event routing
+- Workflow chaining
+- Parallel workflow execution
+- Conditional branching
+- Escalation rules
+- Retry policies
+- Compensation (rollback) workflows
+- SLA monitoring
+- Workflow health monitoring
+
+**Examples:**
+
+- When a candidate **accepts an offer**, automatically trigger the Onboarding Workflow.
+- When a job is **approved**, automatically publish it and notify recruiters.
+- When an interview is completed, automatically request feedback, update the candidate pipeline, notify stakeholders, and refresh analytics.
+- When a subscription changes, automatically update permissions, feature entitlements, billing, and audit records.
+
+The Workflow Orchestration Engine becomes the central coordinator of all business processes, ensuring workflows remain modular, loosely coupled, reusable, and easy to evolve without creating dependencies between individual workflow implementations.
