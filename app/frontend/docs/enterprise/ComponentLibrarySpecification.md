@@ -1181,3 +1181,514 @@ The Component Intelligence Layer becomes a permanent MatchMe platform capability
 This architecture establishes a context-aware enterprise UI framework that dramatically reduces duplicated logic while ensuring consistency, scalability, maintainability, accessibility, localization, responsiveness, and future extensibility across every MatchMe product.
 
 No future component should implement page-specific permission checks, subscription checks, localization rules, responsive behavior, or analytics if those capabilities already exist within the Component Intelligence Layer.
+
+---
+---
+
+# Part 4 — Component Development Guide
+### Version 1.0
+
+---
+
+## Objective (Part 4)
+
+This document defines the official engineering process for creating, extending, testing, documenting, releasing, and maintaining reusable UI components within the MatchMe Enterprise Component Library.
+
+Every reusable component must follow this guide. No exceptions.
+
+This document extends:
+
+- Prompt 0 – Platform Architecture Charter
+- Prompt 1 – Enterprise Engineering Standards
+- Prompt 2 – Design System Specification
+- Prompt 3 Part 1 – Architecture & Philosophy
+- Prompt 3 Part 2 – Component Families
+- Prompt 3 Part 3 – Component Intelligence Layer
+
+---
+
+## Philosophy (Development Guide)
+
+A component is considered a platform asset.
+
+It is not owned by a single page. It is not owned by a single feature. It belongs to the entire MatchMe ecosystem.
+
+Every reusable component must be:
+
+- Reusable
+- Configurable
+- Composable
+- Accessible
+- Responsive
+- Documented
+- Versioned
+- Tested
+- Future-proof
+
+---
+
+## Component Development Lifecycle
+
+Every component follows the same lifecycle:
+
+```
+Business Need
+    ↓
+Architecture Review
+    ↓
+Component Discovery
+    ↓
+Design Specification
+    ↓
+API Definition
+    ↓
+Implementation
+    ↓
+Testing
+    ↓
+Documentation
+    ↓
+Registry Update
+    ↓
+Review
+    ↓
+Release
+    ↓
+Monitoring
+    ↓
+Versioning
+    ↓
+Maintenance
+    ↓
+Deprecation (if necessary)
+```
+
+No lifecycle stage may be skipped.
+
+---
+
+## Component Discovery
+
+Before writing any code:
+
+1. Search the Component Registry.
+2. Verify:
+   - Does this already exist?
+   - Can an existing component be configured?
+   - Can an existing component be extended?
+   - Can an existing engine provide the required functionality?
+
+Only create a new component if reuse is not possible.
+
+---
+
+## Folder Structure
+
+Every reusable component should follow a consistent structure:
+
+```
+ComponentName/
+  index.ts
+  ComponentName.tsx
+  ComponentName.types.ts
+  ComponentName.styles.ts
+  ComponentName.hooks.ts
+  ComponentName.utils.ts
+  ComponentName.constants.ts
+  ComponentName.test.tsx
+  ComponentName.docs.md
+  ComponentName.examples.tsx
+  ComponentName.stories.tsx (if Storybook or equivalent is adopted)
+```
+
+Keep related files together.
+
+---
+
+## Naming Standards
+
+| Category | Convention |
+|----------|-----------|
+| Components | PascalCase |
+| Hooks | useComponentName |
+| Types | ComponentNameProps, ComponentNameState, ComponentNameVariant |
+| Constants | UPPER_SNAKE_CASE |
+| Utilities | camelCase |
+
+Avoid abbreviations. Use descriptive names.
+
+---
+
+## Component API Design
+
+Every reusable component should expose:
+
+- Props
+- Variants
+- Sizes
+- States
+- Events
+- Accessibility Options
+- Theme Support
+- Localization Support
+- Animation Options
+
+Avoid tightly coupled APIs. Design for future extension.
+
+---
+
+## Props Guidelines
+
+Props should be:
+
+- Explicit
+- Typed
+- Minimal
+- Composable
+- Predictable
+
+Avoid boolean explosions. Prefer configuration objects where complexity grows.
+
+---
+
+## State Management (Components)
+
+Separate:
+
+- Visual State (open/closed, hover, focus)
+- Interaction State (selected, dragging)
+- Business State (data, permissions)
+- Server State (loading, error, cache)
+
+A reusable component should manage only visual and interaction state unless explicitly designed as a container component.
+
+---
+
+## Business Logic
+
+Business logic belongs in:
+
+- Services
+- Platform Engines
+- Hooks
+
+Never inside presentation components.
+
+---
+
+## Styling Standards (Components)
+
+Components must consume:
+
+- Design Tokens
+- Theme Engine
+- Spacing Tokens
+- Typography Tokens
+- Color Tokens
+- Motion Tokens
+
+Do not hardcode colors, spacing, fonts, shadows, or breakpoints.
+
+---
+
+## Responsive Standards (Components)
+
+Every reusable component must support:
+
+- 320px
+- 360px
+- 375px
+- 390px
+- 412px
+- Tablet (768px)
+- Desktop (1024px+)
+
+No fixed-width layouts.
+
+---
+
+## Accessibility Checklist (Components)
+
+Every component must support:
+
+- ✓ WCAG AA
+- ✓ Keyboard navigation
+- ✓ Screen readers
+- ✓ ARIA attributes
+- ✓ Reduced Motion
+- ✓ Dynamic font scaling
+- ✓ High contrast
+- ✓ RTL
+
+Accessibility is mandatory.
+
+---
+
+## Theme Support (Components)
+
+Every component must support:
+
+- Light
+- Dark
+- System
+- Future themes
+
+Consume Theme Engine tokens.
+
+---
+
+## Localization Standards (Components)
+
+Every component must support:
+
+- English
+- Arabic
+- RTL
+- Dynamic text length
+- Localized dates
+- Localized numbers
+- Localized currencies
+
+No hardcoded strings.
+
+---
+
+## Loading States (Components)
+
+Every component should define:
+
+- Loading
+- Empty
+- Success
+- Warning
+- Error
+- Disabled
+- Offline (future)
+
+Never leave undefined states.
+
+---
+
+## Animation Standards (Components)
+
+Animations should:
+
+- Communicate state
+- Remain subtle
+- Be interruptible
+- Respect Reduced Motion
+- Maintain 60 FPS
+
+Never distract users.
+
+---
+
+## Analytics Standards (Components)
+
+Every interactive component should expose standard analytics events:
+
+- Viewed
+- Clicked
+- Focused
+- Hovered
+- Expanded
+- Collapsed
+- Selected
+- Shared
+- Saved
+- Applied
+- Downloaded
+
+Do not embed analytics directly into page logic. Consume the Analytics Engine.
+
+---
+
+## Feature Flag Support (Components)
+
+Components should respect:
+
+- Enabled
+- Disabled
+- Beta
+- Experimental
+- Hidden
+- Deprecated
+
+Consume Feature Registry context.
+
+---
+
+## Security Guidelines (Components)
+
+Never expose restricted data inside the component.
+
+Permissions remain enforced by:
+
+- Backend
+- RLS
+- Permissions Engine
+
+Components should only adapt presentation. Never replace authorization.
+
+---
+
+## Testing Standards (Components)
+
+Every reusable component requires:
+
+- Unit Tests
+- Accessibility Tests
+- Responsive Tests
+- Theme Tests
+- RTL Tests
+- Localization Tests
+- Interaction Tests
+- Regression Tests
+- Snapshot Tests (if applicable)
+
+No component is complete without testing.
+
+---
+
+## Documentation Standards (Components)
+
+Every reusable component requires documentation.
+
+Include:
+
+- Purpose
+- Usage
+- Props
+- Variants
+- Examples
+- Accessibility
+- Responsive behavior
+- Theme behavior
+- Localization
+- Known limitations
+- Best practices
+- Related components
+- Future improvements
+
+Documentation is mandatory.
+
+---
+
+## Component Registry (Development)
+
+After implementation, register:
+
+- Component Name
+- Version
+- Owner
+- Category
+- Dependencies
+- Supported Platforms
+- Supported Themes
+- Supported Languages
+- Accessibility Status
+- Responsive Status
+- Analytics Support
+- Feature Flag Support
+- Documentation
+- Examples
+- Test Coverage
+- Release Date
+
+---
+
+## Versioning
+
+Every component must follow semantic versioning:
+
+- `1.0.0` — Initial release
+- `1.1.0` — New features, backward compatible
+- `2.0.0` — Breaking changes
+
+Breaking changes require major version increments.
+
+---
+
+## Deprecation Policy
+
+Before removing a component:
+
+1. Mark as Deprecated.
+2. Provide replacement guidance.
+3. Allow migration period.
+4. Update documentation.
+
+Never remove components without migration planning.
+
+---
+
+## Code Review Checklist (Components)
+
+Before approval verify:
+
+- ✓ Reusable
+- ✓ Configurable
+- ✓ Responsive
+- ✓ Accessible
+- ✓ RTL
+- ✓ Localized
+- ✓ Theme aware
+- ✓ Analytics enabled
+- ✓ Feature Registry integrated
+- ✓ No duplicate logic
+- ✓ Documentation complete
+- ✓ Tests passed
+
+---
+
+## Platform Validation (Components)
+
+Verify:
+
+- ✓ Component Registry updated.
+- ✓ Documentation updated.
+- ✓ Design Tokens consumed.
+- ✓ Platform Engines reused.
+- ✓ No duplicated components.
+- ✓ Responsive Validation passed.
+- ✓ Accessibility Validation passed.
+- ✓ Performance acceptable.
+
+---
+
+## Deliverables (Components)
+
+Provide:
+
+- Component implementation
+- Documentation
+- Examples
+- Tests
+- Registry updates
+- Architecture impact
+- Dependencies
+- Version
+- Migration notes (if applicable)
+- Validation summary
+
+---
+
+## Final Development Rule
+
+No reusable component may enter the MatchMe platform until it has successfully completed:
+
+1. Architecture Review
+2. Design Review
+3. Engineering Review
+4. Accessibility Validation
+5. Responsive Validation
+6. Testing
+7. Documentation
+8. Component Registry Registration
+9. Release Approval
+
+The Component Library is a strategic platform asset.
+
+Every component must be engineered with the expectation that it will be reused across the Job Seeker Portal, Company Portal, Super Admin Portal, Marketplace, CRM, ATS, AI Copilot, Analytics, Mobile, Tablet, Desktop, and future MatchMe products.
+
+Quality, consistency, and maintainability always take precedence over development speed.
