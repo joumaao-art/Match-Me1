@@ -420,3 +420,423 @@ No page, component, or feature may duplicate behavior already provided by a Plat
 Every future MatchMe product—including CRM, ATS, Marketplace, AI Copilot, Agency Portal, University Portal, Government Portal, Learning Platform, and future enterprise services—must extend the Platform Engine Architecture rather than introducing isolated implementations.
 
 The Platform Engine Architecture is the official operating system of the MatchMe platform.
+
+---
+---
+
+# Part 2 — Foundation Engines
+### Version 1.0
+
+---
+
+## Objective (Part 2)
+
+This document defines the Foundation Engines of the MatchMe Platform.
+
+Foundation Engines provide the core capabilities required by every page, component, workflow, AI module, and future MatchMe product.
+
+Unlike business features, Foundation Engines are permanent platform capabilities. They should remain stable and evolve through versioning rather than replacement.
+
+This document extends:
+
+- Prompt 0 – Platform Architecture Charter
+- Prompt 1 – Enterprise Engineering Standards
+- Prompt 2 – Design System Specification
+- Prompt 3 – Enterprise Component Library Specification
+- Prompt 4 Part 1 – Platform Engine Architecture
+
+---
+
+## Foundation Philosophy
+
+Foundation Engines are the operating system of MatchMe.
+
+Every feature should consume these engines rather than implementing its own behavior.
+
+Foundation Engines must remain: Reusable, Composable, Observable, Configurable, Versioned, Scalable, Independent.
+
+---
+
+## Engine 1 — Design System Engine
+
+### Purpose
+
+Acts as the single source of truth for all visual tokens.
+
+**Owns:**
+- Colors
+- Typography
+- Spacing
+- Elevation
+- Border Radius
+- Motion Tokens
+- Breakpoints
+- Opacity
+- Shadows
+- Iconography
+
+No component may hardcode visual values.
+
+### Responsibilities
+
+- ✓ Design Tokens
+- ✓ Theme Tokens
+- ✓ Component Tokens
+- ✓ Motion Tokens
+- ✓ Responsive Tokens
+- ✓ Semantic Colors
+- ✓ Typography Scale
+
+### Consumers
+
+Layout Engine, Card Engine, Theme Engine, Component Library, Score Visualization Engine, Dashboard Engine.
+
+---
+
+## Engine 2 — Layout Engine
+
+### Purpose
+
+Provides standardized page layouts.
+
+**Owns:**
+- Desktop Layout
+- Tablet Layout
+- Mobile Layout
+- Safe Areas
+- Responsive Grids
+- Headers
+- Footers
+- Sidebars
+- Bottom Navigation
+- Content Containers
+- Spacing
+- Sticky Regions
+
+### Responsibilities
+
+- ✓ Responsive layout
+- ✓ Safe Area
+- ✓ Keyboard avoidance
+- ✓ Sticky Footer
+- ✓ Sticky Header
+- ✓ Responsive spacing
+- ✓ Grid management
+- ✓ Container sizing
+
+### Consumers
+
+Every page, every component, every experience engine.
+
+---
+
+## Engine 3 — Component Engine
+
+### Purpose
+
+Provides lifecycle and orchestration for reusable UI components.
+
+**Owns:**
+- Component Registration
+- Rendering
+- Variants
+- States
+- Metadata
+- Composition
+- Discovery
+- Lifecycle
+- Versioning
+- Documentation
+
+### Responsibilities
+
+- ✓ Component Registry
+- ✓ Component Lifecycle
+- ✓ Component Discovery
+- ✓ Component Versioning
+- ✓ Component Metadata
+- ✓ Component Validation
+
+### Consumers
+
+Entire Component Library.
+
+---
+
+## Engine 4 — Card Engine
+
+### Purpose
+
+Standardizes every card shown across MatchMe.
+
+**Owns:**
+- Decision Cards
+- Dashboard Cards
+- Candidate Cards
+- Company Cards
+- Job Cards
+- Marketplace Cards
+- Timeline Cards
+- Analytics Cards
+- Expandable Cards
+- Selectable Cards
+
+### Responsibilities
+
+- ✓ Card Layout
+- ✓ Card Variants
+- ✓ Card Actions
+- ✓ Card States
+- ✓ Card Animations
+- ✓ Card Metadata
+- ✓ Card Composition
+
+### Consumers
+
+Decision Screen Engine, Dashboard Engine, Marketplace, CRM, ATS, Analytics.
+
+---
+
+## Engine 5 — Navigation Engine
+
+### Purpose
+
+Controls navigation architecture.
+
+**Owns:**
+- Sidebar
+- Bottom Navigation
+- Top Navigation
+- Drawer
+- Tabs
+- Breadcrumbs
+- Command Palette
+- Quick Actions
+- Deep Links
+- Routing Patterns
+
+### Responsibilities
+
+- ✓ Navigation Registry
+- ✓ Navigation State
+- ✓ Navigation Permissions
+- ✓ Navigation Analytics
+- ✓ Route Mapping
+- ✓ Deep Linking
+
+### Consumers
+
+All Portals.
+
+---
+
+## Engine 6 — Theme Engine
+
+### Purpose
+
+Provides visual themes.
+
+**Supports:** Light, Dark, System, Future themes.
+
+### Responsibilities
+
+- ✓ Theme switching
+- ✓ Theme persistence
+- ✓ Theme tokens
+- ✓ Component theming
+- ✓ Dynamic appearance
+
+---
+
+## Engine 7 — Localization Engine
+
+### Purpose
+
+Supports multilingual experiences.
+
+**Owns:**
+- Translations
+- RTL
+- Formatting
+- Date formats
+- Time formats
+- Currencies
+- Pluralization
+- Future languages
+
+### Responsibilities
+
+- ✓ Translation loading
+- ✓ RTL
+- ✓ Localization API
+- ✓ Language switching
+- ✓ Localized formatting
+
+---
+
+## Engine 8 — Responsive Engine
+
+### Purpose
+
+Provides responsive behavior.
+
+**Supported breakpoints:** 320, 360, 375, 390, 412, 768, 1024, Desktop.
+
+### Responsibilities
+
+- ✓ Breakpoints
+- ✓ Adaptive layouts
+- ✓ Responsive spacing
+- ✓ Responsive typography
+- ✓ Responsive grids
+- ✓ Orientation support
+- ✓ Foldable support (future)
+
+---
+
+## Engine 9 — Accessibility Engine
+
+### Purpose
+
+Guarantees accessibility across MatchMe.
+
+**Supports:** WCAG AA, Keyboard navigation, Screen readers, Dynamic font scaling, Reduced Motion, High Contrast, RTL.
+
+### Responsibilities
+
+- ✓ Accessibility validation
+- ✓ Focus management
+- ✓ ARIA helpers
+- ✓ Screen reader support
+- ✓ Dynamic font scaling
+
+---
+
+## Engine 10 — Motion Engine
+
+### Purpose
+
+Provides consistent animations.
+
+**Owns:**
+- Transitions
+- Page animations
+- Card animations
+- Dialogs
+- Bottom Sheets
+- Swipe animations
+- Gesture animations
+- Loading animations
+- Success animations
+- Error animations
+
+### Responsibilities
+
+- ✓ Animation timing
+- ✓ Motion tokens
+- ✓ Reduced Motion
+- ✓ Native feel
+- ✓ Platform consistency
+
+---
+
+## Engine Relationships
+
+```
+Design System Engine
+    ↓
+Theme Engine
+    ↓
+Layout Engine
+    ↓
+Responsive Engine
+    ↓
+Component Engine
+    ↓
+Card Engine
+    ↓
+Navigation Engine
+    ↓
+Motion Engine
+    ↓
+Accessibility Engine
+    ↓
+Experience Engines
+```
+
+Foundation Engines should never depend on Experience Engines.
+
+---
+
+## Cross-Engine Contracts
+
+Each Foundation Engine must expose:
+
+- Purpose
+- Public API
+- Configuration
+- Events
+- Dependencies
+- Consumers
+- Version
+- Documentation
+- Validation
+- Health Status
+
+No engine may expose internal implementation details.
+
+---
+
+## Engine Communication Rules
+
+Foundation Engines communicate through well-defined interfaces.
+
+- Avoid direct coupling.
+- Use events, configuration, or service contracts where appropriate.
+- Changes in one engine should not require modifications across unrelated engines.
+
+---
+
+## Validation Requirements (Foundation)
+
+Each Foundation Engine must pass:
+
+- ✓ Architecture Review
+- ✓ Unit Testing
+- ✓ Integration Testing
+- ✓ Performance Testing
+- ✓ Responsive Validation
+- ✓ Accessibility Validation
+- ✓ Documentation Review
+- ✓ Security Review
+- ✓ Version Compatibility Review
+
+---
+
+## Final Platform Rule (Part 2)
+
+The Foundation Engines become the immutable core of the MatchMe platform.
+
+Every feature, page, component, workflow, AI capability, and future module must build upon these engines rather than introducing duplicate implementations.
+
+The Foundation Engines provide the stability, consistency, and extensibility required for MatchMe to evolve into a world-class enterprise platform.
+
+---
+
+## Strategic Architectural Recommendation — Engine Orchestrator
+
+Introduce an additional platform capability called the **Engine Orchestrator**.
+
+Rather than allowing engines to communicate directly with each other in complex ways, the Engine Orchestrator coordinates interactions between them through well-defined contracts and events.
+
+**Example flow:**
+
+1. The **Decision Screen Engine** requests a layout from the **Layout Engine**.
+2. The **Layout Engine** retrieves spacing and typography from the **Design System Engine**.
+3. The **Card Engine** renders the appropriate card variant.
+4. The **Responsive Engine** adapts the layout for the current device.
+5. The **Theme Engine** applies visual tokens.
+6. The **Accessibility Engine** enhances keyboard navigation and screen reader behavior.
+7. The **Motion Engine** applies the correct animation profile.
+
+Each engine remains focused on a single responsibility, while the Engine Orchestrator manages collaboration. This reduces tight coupling, simplifies future enhancements, improves testability, and makes the platform easier to evolve without creating cascading changes across the engine ecosystem.
