@@ -1688,3 +1688,480 @@ Rather than allowing workflows to call each other directly, the Workflow Orchest
 - When a subscription changes, automatically update permissions, feature entitlements, billing, and audit records.
 
 The Workflow Orchestration Engine becomes the central coordinator of all business processes, ensuring workflows remain modular, loosely coupled, reusable, and easy to evolve without creating dependencies between individual workflow implementations.
+
+---
+---
+
+# Part 5 — Business Engines
+### Version 1.0
+
+---
+
+## Objective (Part 5)
+
+This document defines the Business Engines that provide reusable business capabilities across the MatchMe platform.
+
+Business Engines are responsible for business services shared across every portal, module, workflow, AI capability, and future MatchMe product.
+
+Unlike Workflow Engines, Business Engines do not orchestrate business processes. Instead, they expose reusable platform capabilities that can be consumed by workflows, pages, services, APIs, AI engines, and integrations.
+
+This document extends:
+
+- Prompt 0 – Platform Architecture Charter
+- Prompt 1 – Enterprise Engineering Standards
+- Prompt 2 – Design System Specification
+- Prompt 3 – Enterprise Component Library Specification
+- Prompt 4 Parts 1–4
+
+---
+
+## Business Philosophy
+
+Business capabilities should never belong to individual features.
+
+Instead: Business capabilities become reusable platform services.
+
+Every module should consume Business Engines rather than implementing duplicate logic.
+
+---
+
+## Business Engine Principles
+
+Every Business Engine must be:
+
+- Reusable
+- Independent
+- Observable
+- Secure
+- Configurable
+- Versioned
+- API-first
+- Event-driven
+- Scalable
+- Multi-tenant
+
+---
+
+## Business Domain
+
+Business Engines own:
+
+- Identity
+- Organizations
+- Permissions
+- Subscriptions
+- Billing
+- Messaging
+- Notifications
+- Files
+- Media
+- Calendar
+- Configuration
+- Search
+- Audit
+- Activity
+- Feature Management
+
+No feature may duplicate these responsibilities.
+
+---
+
+## Engine 1 — Authentication Engine
+
+### Purpose
+
+Manage platform identity.
+
+### Responsibilities
+
+- ✓ Sign In
+- ✓ Sign Up
+- ✓ Email Verification
+- ✓ Password Reset
+- ✓ Magic Links
+- ✓ Social Login
+- ✓ MFA (future)
+- ✓ Session Management
+- ✓ Device Recognition
+- ✓ Login History
+- ✓ Account Recovery
+
+### Supported Users
+
+Job Seekers, Companies, Recruiters, Admins, Marketplace Vendors, Future Portals.
+
+---
+
+## Engine 2 — Authorization Engine
+
+### Purpose
+
+Control access.
+
+### Responsibilities
+
+- ✓ Role evaluation
+- ✓ Policy evaluation
+- ✓ Permission enforcement
+- ✓ Resource ownership
+- ✓ Organization boundaries
+- ✓ Tenant isolation
+
+### Integrates with
+
+Permissions Engine, Supabase RLS, Feature Registry.
+
+---
+
+## Engine 3 — Permissions Engine
+
+### Purpose
+
+Centralize permissions.
+
+### Supports
+
+View, Create, Update, Delete, Approve, Export, Download, Assign, Publish, Archive.
+
+Permissions should be declarative rather than hardcoded.
+
+---
+
+## Engine 4 — Organization Engine
+
+### Purpose
+
+Support multi-tenant organizations.
+
+**Supports:** Single Company, Enterprise Workspace, Agency, University, Government, Marketplace Vendors.
+
+### Responsibilities
+
+- ✓ Teams
+- ✓ Departments
+- ✓ Branches
+- ✓ Organization Settings
+- ✓ Organization Hierarchy
+- ✓ Cross-team collaboration
+
+---
+
+## Engine 5 — Subscription Engine
+
+### Purpose
+
+Manage platform plans.
+
+**Supports:** Free, Professional, Business, Enterprise, Marketplace, Future subscriptions.
+
+### Responsibilities
+
+- ✓ Plan Management
+- ✓ Entitlements
+- ✓ Feature Access
+- ✓ Upgrade
+- ✓ Downgrade
+- ✓ Trials
+- ✓ Usage Limits
+- ✓ Renewals
+
+---
+
+## Engine 6 — Billing Engine
+
+### Purpose
+
+Handle commercial operations.
+
+### Responsibilities
+
+- ✓ Invoices
+- ✓ Payments
+- ✓ Refunds
+- ✓ Coupons
+- ✓ Discounts
+- ✓ Taxes
+- ✓ Payment History
+- ✓ Billing Analytics
+- ✓ Multi-currency
+
+### Future Integrations
+
+Stripe, Moyasar, HyperPay, PayTabs, Future providers.
+
+---
+
+## Engine 7 — Messaging Engine
+
+### Purpose
+
+Provide communication infrastructure.
+
+**Supports:** Direct Messages, Recruiter Chats, Company Chats, AI Conversations, Marketplace Messages, Future messaging.
+
+### Responsibilities
+
+- ✓ Threads
+- ✓ Attachments
+- ✓ Typing Indicators
+- ✓ Read Receipts
+- ✓ Message Search
+- ✓ Presence
+- ✓ Delivery Status
+
+---
+
+## Engine 8 — Notification Engine
+
+### Purpose
+
+Manage notifications.
+
+**Channels:** Email, Push, SMS, In-App, Webhooks, Future channels.
+
+### Responsibilities
+
+- ✓ Templates
+- ✓ Priorities
+- ✓ Scheduling
+- ✓ Preferences
+- ✓ Delivery Tracking
+- ✓ Retry
+- ✓ Grouping
+
+---
+
+## Engine 9 — Calendar Engine
+
+### Purpose
+
+Manage scheduling.
+
+**Supports:** Interviews, Meetings, Tasks, Events, Training, Marketplace Bookings.
+
+### Responsibilities
+
+- ✓ Availability
+- ✓ Invitations
+- ✓ Time Zones
+- ✓ Calendar Sync
+- ✓ Recurring Events
+
+---
+
+## Engine 10 — Search Engine
+
+### Purpose
+
+Provide unified search.
+
+**Supports:** Jobs, Candidates, Companies, CRM, Marketplace, Admin, Documentation, Future modules.
+
+### Responsibilities
+
+- ✓ Indexing
+- ✓ Ranking
+- ✓ Filters
+- ✓ Suggestions
+- ✓ Search History
+- ✓ Analytics
+
+---
+
+## Engine 11 — File Engine
+
+### Purpose
+
+Manage files.
+
+**Supports:** Resumes, Contracts, Certificates, Images, Documents, Videos, Future uploads.
+
+### Responsibilities
+
+- ✓ Upload
+- ✓ Download
+- ✓ Versioning
+- ✓ Virus Scanning
+- ✓ Permissions
+- ✓ Expiration
+
+---
+
+## Engine 12 — Media Engine
+
+### Purpose
+
+Manage media.
+
+**Supports:** Images, Videos, Logos, Company Branding, Profile Photos, AI Generated Media.
+
+### Responsibilities
+
+- ✓ Optimization
+- ✓ Compression
+- ✓ Responsive Delivery
+- ✓ CDN
+- ✓ Metadata
+
+---
+
+## Engine 13 — Activity Engine
+
+### Purpose
+
+Track platform activity.
+
+**Examples:** Applications, Profile Updates, Job Posting, Messages, AI Usage, Marketplace Orders.
+
+### Responsibilities
+
+- ✓ Activity Feed
+- ✓ Recent Actions
+- ✓ User Timeline
+- ✓ Notifications
+
+---
+
+## Engine 14 — Audit Engine
+
+### Purpose
+
+Maintain compliance.
+
+### Responsibilities
+
+- ✓ Change History
+- ✓ Login History
+- ✓ Permission Changes
+- ✓ Workflow Changes
+- ✓ Billing History
+- ✓ Admin Actions
+- ✓ AI Actions
+
+Audit records should be immutable.
+
+---
+
+## Engine 15 — Configuration Engine
+
+### Purpose
+
+Centralize platform configuration.
+
+**Supports:** Environment Settings, Feature Toggles, Organization Settings, Branding, Localization, Platform Defaults.
+
+No hardcoded configuration.
+
+---
+
+## Engine 16 — Feature Registry Engine
+
+### Purpose
+
+Manage all platform features.
+
+### Responsibilities
+
+- ✓ Feature Catalog
+- ✓ Availability
+- ✓ Dependencies
+- ✓ Entitlements
+- ✓ Documentation
+- ✓ Versioning
+- ✓ Deprecation
+- ✓ Rollout Status
+
+---
+
+## Business Engine Relationships
+
+```
+Foundation Engines
+    ↓
+Experience Engines
+    ↓
+Workflow Engines
+    ↓
+Business Engines
+    ↓
+Data Engines
+    ↓
+Infrastructure
+```
+
+Business Engines expose reusable platform capabilities. They never render UI.
+
+---
+
+## Business Events
+
+Every Business Engine emits events:
+
+- UserCreated
+- SubscriptionUpgraded
+- InvoicePaid
+- MessageSent
+- NotificationDelivered
+- OrganizationCreated
+- PermissionChanged
+- FeatureEnabled
+
+These events integrate with Workflow Engines and Analytics.
+
+---
+
+## Security Requirements (Business)
+
+Every Business Engine must enforce:
+
+- Authentication
+- Authorization
+- Audit Logging
+- Encryption
+- Rate Limiting
+- Validation
+- Data Privacy
+- Multi-tenancy
+
+---
+
+## Validation (Business)
+
+Every Business Engine must pass:
+
+- ✓ Architecture Review
+- ✓ Security Review
+- ✓ Performance Testing
+- ✓ Integration Testing
+- ✓ API Validation
+- ✓ Documentation Review
+- ✓ Version Compatibility
+- ✓ Multi-tenant Validation
+- ✓ Audit Validation
+
+---
+
+## Final Platform Rule (Part 5)
+
+Business Engines become the reusable business capability layer of MatchMe.
+
+No feature may implement its own authentication, permissions, subscriptions, messaging, notifications, billing, organizations, search, files, or configuration.
+
+Every current and future MatchMe product—including CRM, ATS, Marketplace, AI Copilot, Agency Portal, University Portal, Government Portal, Learning Platform, and future enterprise modules—must consume these Business Engines to ensure consistency, security, scalability, and maintainability.
+
+---
+
+## Strategic Architectural Recommendation — Business Capability Orchestrator
+
+Introduce a **Business Capability Orchestrator** to coordinate interactions between Business Engines without creating direct dependencies.
+
+**Responsibilities include:**
+
+- Routing business events between engines.
+- Coordinating subscription changes with permissions and feature entitlements.
+- Synchronizing organization updates across messaging, notifications, and workflows.
+- Triggering billing actions from subscription events.
+- Publishing standardized business events for analytics and AI engines.
+- Providing health monitoring and dependency tracking for business capabilities.
+
+The Business Capability Orchestrator becomes the central coordination layer for reusable business services, allowing each Business Engine to remain focused on a single responsibility while enabling complex enterprise scenarios through event-driven orchestration.
