@@ -28,5 +28,6 @@ MatchMe - AI-powered recruitment platform with Tinder-style swipe matching. Bili
 - Clean, minimal UI inspired by LinkedIn/Tinder/Linear
 - Dark mode support
 - Max 8 code files (strategic file organization)
+- Platform Architecture Charter (Prompt 0) governs all development — see docs/enterprise/PlatformArchitectureCharter.md
 
 
