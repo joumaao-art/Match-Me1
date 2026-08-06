@@ -4369,3 +4369,551 @@ Continuously analyze engine relationships across the platform.
 - Enables safe scaling as MatchMe expands into CRM, ATS, Marketplace, AI Copilot, Agency Portal, University Portal, Government Portal, and future enterprise products.
 
 The Platform Dependency Intelligence Engine becomes the architectural guardian of the MatchMe ecosystem, ensuring that engine relationships remain healthy, scalable, and aligned with the Platform Architecture Charter throughout the lifetime of the platform.
+
+---
+---
+
+# Prompt 4B — Platform Engine SDK & Extension Framework
+### Version 1.0
+
+---
+
+## Objective (Prompt 4B)
+
+This document defines the official Software Development Kit (SDK), extension framework, lifecycle, and engineering standards for every Platform Engine developed within MatchMe.
+
+Every engine must follow this specification.
+
+This SDK guarantees that all engines are: Consistent, Modular, Extensible, Discoverable, Observable, Testable, Secure, Future-proof.
+
+The SDK becomes the official framework for building new platform capabilities.
+
+---
+
+## Platform Philosophy (SDK)
+
+Platform Engines are products. Not utilities. Not helper classes.
+
+Each engine is a reusable platform capability. Every engine should feel identical from an engineering perspective.
+
+---
+
+## SDK Principles
+
+Every Platform Engine must be:
+
+- Single Responsibility
+- API First
+- Configuration Driven
+- Event Driven
+- Dependency Injected
+- Versioned
+- Documented
+- Observable
+- Testable
+- Replaceable
+
+---
+
+## Standard Engine Structure
+
+Every engine follows the same folder structure:
+
+```
+EngineName/
+├── README.md
+├── manifest.json
+├── index.ts
+├── Engine.ts
+├── Engine.types.ts
+├── Engine.interfaces.ts
+├── Engine.events.ts
+├── Engine.config.ts
+├── Engine.validators.ts
+├── Engine.errors.ts
+├── Engine.constants.ts
+├── Engine.metrics.ts
+├── Engine.health.ts
+├── Engine.lifecycle.ts
+├── Engine.permissions.ts
+├── Engine.telemetry.ts
+├── Engine.docs.md
+├── Engine.examples.ts
+├── tests/
+├── mocks/
+├── fixtures/
+└── CHANGELOG.md
+```
+
+No engine should deviate from this structure.
+
+---
+
+## Engine Manifest
+
+Every engine includes a manifest with required metadata:
+
+- Engine ID
+- Name
+- Category
+- Owner
+- Version
+- Status
+- Dependencies
+- Public APIs
+- Published Events
+- Consumed Events
+- Configuration Schema
+- Permissions
+- Health Check Endpoint
+- Metrics
+- Documentation
+- License
+- Support Contact
+- Future Roadmap
+
+The Engine Registry is automatically generated from manifests.
+
+---
+
+## Engine Lifecycle
+
+Every engine implements lifecycle hooks:
+
+- Initialize
+- Configure
+- Start
+- Ready
+- Pause
+- Resume
+- Reload Configuration
+- Shutdown
+- Destroy
+- Health Check
+- Upgrade
+- Rollback
+
+No engine may omit lifecycle support.
+
+---
+
+## Public API Standards
+
+Every engine exposes:
+
+- Commands
+- Queries
+- Configuration
+- Events
+- Status
+- Metrics
+- Health
+- Capabilities
+
+Avoid exposing internal implementation.
+
+---
+
+## Event Standards (SDK)
+
+Every engine publishes standardized events:
+
+- EngineStarted
+- EngineStopped
+- ConfigurationChanged
+- HealthChanged
+- WarningRaised
+- ErrorRaised
+- VersionChanged
+- DependencyFailed
+- PerformanceAlert
+
+Events should include: Timestamp, Correlation ID, Tenant ID, Engine Version, Environment.
+
+---
+
+## Configuration Standards (SDK)
+
+Every engine must support:
+
+- Environment Configuration
+- Runtime Configuration
+- Tenant Configuration
+- Feature Flags
+- Defaults
+- Overrides
+- Validation
+
+Configuration changes should not require code changes.
+
+---
+
+## Dependency Declaration
+
+Every dependency must be declared explicitly.
+
+**Supported dependency types:**
+- Required
+- Optional
+- Peer
+- Development
+- Infrastructure
+
+Circular dependencies are prohibited.
+
+---
+
+## Dependency Injection (SDK)
+
+Dependencies should always be injected. Never instantiate another engine directly.
+
+**Benefits:**
+- Loose coupling
+- Testability
+- Replacement
+- Version upgrades
+- Mocking
+
+---
+
+## Extension Points
+
+Every engine should expose extension hooks:
+
+- Before Execute
+- After Execute
+- Before Validation
+- After Validation
+- Before Event Publish
+- After Event Publish
+- Before Shutdown
+
+Custom extensions should never modify core engine code.
+
+---
+
+## Plugin Framework
+
+Support engine plugins.
+
+**Plugins may:**
+- Extend functionality
+- Publish events
+- Consume events
+- Register commands
+- Add configuration
+- Add integrations
+
+Plugins must remain isolated.
+
+---
+
+## Engine Registration
+
+Every engine registers itself automatically.
+
+**Registration includes:**
+- Manifest
+- Capabilities
+- Dependencies
+- Version
+- Health
+- Metrics
+- Configuration
+- Status
+- Owner
+
+Registration occurs during startup.
+
+---
+
+## Health Interface
+
+Every engine exposes a health endpoint.
+
+**Status:** Healthy, Degraded, Unavailable, Maintenance.
+
+**Health checks should verify:**
+- Dependencies
+- Configuration
+- Connectivity
+- Performance
+- Readiness
+
+---
+
+## Metrics Interface
+
+Every engine publishes metrics:
+
+- Execution Time
+- Errors
+- Warnings
+- Requests
+- Latency
+- Queue Size
+- Memory
+- CPU
+- Throughput
+
+Metrics integrate with the Platform Analytics Engine.
+
+---
+
+## Logging Standards (SDK)
+
+Use structured logging. Every log entry includes:
+
+- Timestamp
+- Engine
+- Version
+- Correlation ID
+- Tenant
+- Environment
+- Severity
+- Context
+
+Avoid plain text logs.
+
+---
+
+## Error Standards (SDK)
+
+Standard error types:
+
+- ValidationError
+- ConfigurationError
+- DependencyError
+- AuthorizationError
+- TimeoutError
+- ConflictError
+- RetryableError
+- FatalError
+
+Errors must be typed.
+
+---
+
+## Security Standards (SDK)
+
+Every engine supports:
+
+- Authentication
+- Authorization
+- Encryption
+- Secrets
+- Audit Logging
+- Rate Limiting
+- Tenant Isolation
+
+Security is mandatory.
+
+---
+
+## Testing Standards (SDK)
+
+Every engine requires:
+
+- Unit Tests
+- Integration Tests
+- Contract Tests
+- Performance Tests
+- Security Tests
+- Chaos Tests (where applicable)
+- Regression Tests
+- Mock Tests
+
+Minimum coverage target: **90%**.
+
+---
+
+## Documentation Standards (SDK)
+
+Every engine must include:
+
+- Purpose
+- Architecture
+- Public APIs
+- Events
+- Configuration
+- Examples
+- Dependencies
+- Metrics
+- Health Checks
+- Version History
+- Migration Guide
+- Troubleshooting
+- Known Limitations
+
+Documentation is part of the deliverable.
+
+---
+
+## Versioning (SDK)
+
+Semantic Versioning: Major, Minor, Patch.
+
+Breaking changes require migration documentation.
+
+---
+
+## Backward Compatibility (SDK)
+
+Every engine should support:
+
+- Compatibility Matrix
+- Migration Path
+- Deprecation Warnings
+- Grace Period
+- Rollback Support
+
+---
+
+## Certification Levels
+
+Every engine receives certification:
+
+**Bronze** — Functional
+
+**Silver** — Documented, Tested, Observable
+
+**Gold** — Reusable, Scalable, Fully validated
+
+**Platinum** — Enterprise certified, Performance benchmarked, Cross-platform, Governance approved
+
+---
+
+## Engine Templates
+
+Provide starter templates for:
+
+- Foundation Engine
+- Experience Engine
+- Workflow Engine
+- Business Engine
+- AI Engine
+- Infrastructure Engine
+- Security Engine
+- Operations Engine
+
+Every new engine starts from an approved template.
+
+---
+
+## Validation Checklist (SDK)
+
+Before release verify:
+
+- ✓ Manifest complete
+- ✓ Public APIs documented
+- ✓ Events documented
+- ✓ Dependencies declared
+- ✓ Tests passing
+- ✓ Documentation complete
+- ✓ Metrics exposed
+- ✓ Health endpoint available
+- ✓ Security reviewed
+- ✓ Version assigned
+- ✓ Registry updated
+
+---
+
+## Final Platform Rule (Prompt 4B)
+
+Every Platform Engine must be created using the MatchMe Platform Engine SDK.
+
+No engine may be introduced unless it:
+
+- Uses the standard SDK
+- Registers automatically
+- Exposes health and metrics
+- Supports lifecycle hooks
+- Publishes standardized events
+- Documents its APIs
+- Declares dependencies
+- Passes certification
+- Integrates with platform governance
+
+The SDK becomes the official engineering framework for every reusable engine across MatchMe.
+
+---
+
+## Strategic Architectural Recommendation — Platform Extension Marketplace
+
+Introduce a **Platform Extension Marketplace**.
+
+### Purpose
+
+Allow internal teams and, in the future, trusted third parties to build extensions without modifying the core platform.
+
+### Supports
+
+- Engine plugins
+- UI extensions
+- Workflow extensions
+- AI providers
+- Payment providers
+- HRIS integrations
+- ATS integrations
+- CRM integrations
+- Analytics providers
+- Identity providers
+- Marketplace modules
+
+### Extension Manifest
+
+Every extension must declare:
+
+- Extension ID
+- Name
+- Version
+- Author
+- Dependencies
+- Required Engines
+- Permissions
+- Configuration
+- Supported Platform Versions
+- Health Checks
+- Documentation
+- License
+- Certification Level
+
+### Extension Lifecycle
+
+Install → Validate → Enable → Configure → Monitor → Upgrade → Disable → Uninstall → Rollback.
+
+### Security Requirements
+
+Every extension must:
+
+- ✓ Run in an isolated execution context
+- ✓ Respect tenant isolation
+- ✓ Use only approved public APIs
+- ✓ Declare required permissions
+- ✓ Pass security validation
+- ✓ Support version compatibility
+- ✓ Publish audit events
+
+### Governance
+
+The Platform Extension Marketplace integrates with:
+
+- Engine Registry
+- Feature Registry
+- Component Registry
+- Business Capability Registry
+- Platform Governance Engine
+- Security Policy Engine
+- Platform Intelligence Engine
+
+Extensions can be approved, rejected, deprecated, or disabled centrally.
+
+---
+
+## Long-Term Vision
+
+The Platform Engine SDK and Extension Framework establish MatchMe as an extensible enterprise platform rather than a closed application.
+
+Every new capability—whether developed internally, generated by AI, or built by future partners—must conform to this SDK.
+
+This ensures architectural consistency, simplifies maintenance, accelerates development, and allows MatchMe to evolve into a platform capable of supporting CRM, ATS, Marketplace, AI Copilot, University, Agency, Government, and future enterprise ecosystems without architectural fragmentation.
