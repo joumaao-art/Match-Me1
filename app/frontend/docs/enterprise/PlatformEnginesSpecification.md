@@ -840,3 +840,404 @@ Rather than allowing engines to communicate directly with each other in complex 
 7. The **Motion Engine** applies the correct animation profile.
 
 Each engine remains focused on a single responsibility, while the Engine Orchestrator manages collaboration. This reduces tight coupling, simplifies future enhancements, improves testability, and makes the platform easier to evolve without creating cascading changes across the engine ecosystem.
+
+---
+---
+
+# Part 3 — Experience Engines
+### Version 1.0
+
+---
+
+## Objective (Part 3)
+
+This document defines the Experience Engines that power every user interaction across the MatchMe platform.
+
+Experience Engines are responsible for transforming business functionality into intuitive, consistent, and engaging user experiences.
+
+Unlike Foundation Engines, which provide platform capabilities, Experience Engines coordinate user journeys, interactions, visual behaviors, and experience patterns.
+
+Every future feature must reuse these engines instead of implementing its own interaction logic.
+
+This document extends:
+
+- Prompt 0 – Platform Architecture Charter
+- Prompt 1 – Enterprise Engineering Standards
+- Prompt 2 – Design System Specification
+- Prompt 3 – Enterprise Component Library Specification
+- Prompt 4 Part 1 – Platform Engine Architecture
+- Prompt 4 Part 2 – Foundation Engines
+
+---
+
+## Experience Philosophy
+
+Users should experience one cohesive platform. Not hundreds of independent pages.
+
+Every interaction should feel:
+
+- Predictable
+- Fast
+- Consistent
+- Human
+- Intelligent
+- Mobile-first
+
+Experience Engines standardize interaction patterns across every portal.
+
+---
+
+## Experience Engine Principles
+
+Every Experience Engine must be:
+
+- Reusable
+- Composable
+- Responsive
+- Accessible
+- Observable
+- Configurable
+- Future-proof
+
+No Experience Engine should own business rules. Business rules belong to Services and Workflow Engines.
+
+---
+
+## Experience Domain
+
+The Experience Layer owns:
+
+- Navigation flow
+- Interaction patterns
+- Decision experiences
+- Visual feedback
+- Progressive disclosure
+- Information hierarchy
+- Animations
+- Contextual guidance
+- Journey consistency
+- Cross-device continuity
+
+---
+
+## Engine 1 — Decision Screen Engine
+
+### Purpose
+
+Standardize all decision-based interfaces.
+
+**Examples:** Job Discovery, Candidate Discovery, Marketplace Discovery, Company Discovery, Recommendation Review, Future AI review screens.
+
+### Responsibilities
+
+- ✓ Decision layout
+- ✓ Progressive disclosure
+- ✓ Card presentation
+- ✓ Sticky actions
+- ✓ Decision history
+- ✓ Context preservation
+- ✓ Navigation continuity
+
+### Consumers
+
+Job Seeker Portal, Company Portal, Marketplace, AI Copilot.
+
+---
+
+## Engine 2 — Swipe Feedback Engine
+
+### Purpose
+
+Standardize swipe interactions.
+
+**Owns:**
+- Card rotation
+- Apply overlay (green, right swipe)
+- Pass overlay (red, left swipe)
+- Gesture feedback
+- Card stack
+- Threshold animations
+- Return animation
+- Exit animation
+
+### Responsibilities
+
+- ✓ Swipe feedback
+- ✓ Gesture animation
+- ✓ Overlay states
+- ✓ Motion timing
+- ✓ Card transitions
+
+### Consumers
+
+Job Discovery, Candidate Discovery, Future swipe modules.
+
+---
+
+## Engine 3 — Dashboard Engine
+
+### Purpose
+
+Power every dashboard.
+
+**Examples:** Job Seeker Dashboard, Company Dashboard, Recruiter Dashboard, Super Admin Dashboard, Analytics Dashboard, CRM Dashboard, ATS Dashboard.
+
+### Responsibilities
+
+- ✓ KPI layouts
+- ✓ Widget composition
+- ✓ Statistics
+- ✓ Quick Actions
+- ✓ Recommendations
+- ✓ Recent activity
+- ✓ Responsive dashboards
+
+---
+
+## Engine 4 — Collections Engine
+
+### Purpose
+
+Manage reusable collections.
+
+**Examples:** Saved Jobs, Saved Candidates, Favorites, Recently Viewed, Applications, Shortlists, Bookmarks, Talent Pools.
+
+### Responsibilities
+
+- ✓ Collection management
+- ✓ Sorting
+- ✓ Filtering
+- ✓ Bulk actions
+- ✓ Pagination
+- ✓ Persistence
+
+---
+
+## Engine 5 — Timeline Engine
+
+### Purpose
+
+Display chronological information.
+
+**Examples:** Application Timeline, Interview Timeline, Activity Feed, Audit Timeline, Candidate History, Company Activity, CRM Timeline.
+
+### Responsibilities
+
+- ✓ Timeline rendering
+- ✓ Event grouping
+- ✓ Status visualization
+- ✓ Date formatting
+- ✓ Expandable history
+
+---
+
+## Engine 6 — Score Visualization Engine
+
+### Purpose
+
+Render every score consistently.
+
+**Examples:** AI Match Score, Profile Completion, Candidate Ranking, Company Rating, Performance Score, Skills Match, Confidence Score, Compatibility.
+
+### Responsibilities
+
+- ✓ Progress bars
+- ✓ Circular scores
+- ✓ Confidence indicators
+- ✓ Rankings
+- ✓ Trend indicators
+- ✓ Benchmarks
+
+---
+
+## Engine 7 — Search Experience Engine
+
+### Purpose
+
+Create a unified search experience.
+
+**Supports:** Global Search, Job Search, Candidate Search, CRM Search, Marketplace Search, Admin Search.
+
+### Responsibilities
+
+- ✓ Search UX
+- ✓ Suggestions
+- ✓ Filters
+- ✓ Saved Searches
+- ✓ Recent Searches
+- ✓ Search analytics
+- ✓ Empty states
+
+---
+
+## Engine 8 — Mobile Experience Engine
+
+### Purpose
+
+Guarantee premium mobile experiences.
+
+**Owns:**
+- Bottom Navigation
+- Safe Areas
+- Sticky Actions
+- Mobile Cards
+- Touch Targets
+- Keyboard handling
+- Gesture navigation
+- Responsive layouts
+
+### Responsibilities
+
+- ✓ Mobile optimization
+- ✓ One-handed UX
+- ✓ Safe-area handling
+- ✓ Responsive interactions
+- ✓ Native feel
+
+---
+
+## Engine 9 — Notification Experience Engine
+
+### Purpose
+
+Standardize user notifications.
+
+**Supports:** In-app notifications, Push notifications, Email previews, SMS previews, Activity banners, Toast messages.
+
+### Responsibilities
+
+- ✓ Notification display
+- ✓ Priority handling
+- ✓ Grouping
+- ✓ Read status
+- ✓ Deep links
+- ✓ Action buttons
+
+---
+
+## Engine 10 — Onboarding Experience Engine
+
+### Purpose
+
+Guide new users.
+
+**Supports:** Job Seekers, Companies, Recruiters, Admins, Marketplace Vendors, Future portals.
+
+### Responsibilities
+
+- ✓ Guided tours
+- ✓ Checklists
+- ✓ Profile completion
+- ✓ Tutorials
+- ✓ Tooltips
+- ✓ Progress tracking
+
+---
+
+## Engine Relationships (Experience)
+
+```
+Foundation Engines
+    ↓
+Experience Engines
+    ↓
+Workflow Engines
+    ↓
+Business Engines
+    ↓
+Pages
+```
+
+Experience Engines consume Foundation Engines. They do not own business logic.
+
+---
+
+## Cross-Engine Integration (Experience)
+
+Experience Engines integrate with:
+
+- Layout Engine
+- Card Engine
+- Navigation Engine
+- Motion Engine
+- Theme Engine
+- Responsive Engine
+- Accessibility Engine
+- Workflow Engine
+- Notification Engine
+- Analytics Engine
+- Feature Registry
+- Localization Engine
+
+---
+
+## Experience Standards
+
+Every Experience Engine must support:
+
+- ✓ Mobile First
+- ✓ Desktop Enhanced
+- ✓ Responsive layouts
+- ✓ Accessibility
+- ✓ RTL
+- ✓ Theme support
+- ✓ Localization
+- ✓ Analytics
+- ✓ Feature flags
+- ✓ Performance optimization
+
+---
+
+## Engine Validation (Experience)
+
+Every Experience Engine must pass:
+
+1. Architecture Review
+2. UX Review
+3. Accessibility Validation
+4. Responsive Validation
+5. Performance Testing
+6. Cross-browser Testing
+7. Mobile Testing
+8. Integration Testing
+9. Documentation Review
+10. Regression Testing
+
+---
+
+## Final Platform Rule (Part 3)
+
+The Experience Engines become the official interaction layer of MatchMe.
+
+Every feature must reuse these engines rather than introducing custom interaction patterns.
+
+This guarantees a consistent, premium user experience across the Job Seeker Portal, Company Portal, Super Admin Portal, Marketplace, CRM, ATS, AI Copilot, Analytics, Mobile, Tablet, Desktop, and all future MatchMe products.
+
+---
+
+## Strategic Architectural Recommendation — Journey Orchestration Engine
+
+Introduce a new **Journey Orchestration Engine**.
+
+While Experience Engines manage individual interaction patterns, the Journey Orchestration Engine coordinates complete end-to-end user journeys across multiple modules.
+
+**Examples include:**
+
+- Job Seeker Journey (Sign Up → Profile → Discover → Apply → Interview → Offer → Onboarding)
+- Company Hiring Journey (Create Company → Post Job → Review Candidates → Interview → Hire → Onboard)
+- Recruiter Journey
+- Marketplace Purchase Journey
+- CRM Sales Journey
+- ATS Recruitment Journey
+
+**Responsibilities:**
+
+- Maintain journey state
+- Track completion progress
+- Trigger contextual guidance
+- Coordinate between Experience Engines and Workflow Engines
+- Resume interrupted journeys
+- Surface next best actions
+- Feed analytics into the Insights Engine
+
+The Journey Orchestration Engine becomes the platform's experience coordinator, ensuring users experience MatchMe as a seamless workflow rather than disconnected screens.
