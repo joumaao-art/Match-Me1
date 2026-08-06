@@ -737,3 +737,447 @@ No standalone component may exist outside the Component Library.
 Every future feature must compose its interface using these reusable families.
 
 The Component Library becomes the single source of truth for every visual building block across the Job Seeker Portal, Company Portal, Super Admin Portal, Marketplace, CRM, ATS, AI Copilot, Analytics, Mobile, Tablet, Desktop, and all future MatchMe products.
+
+---
+---
+
+# Part 3 — Component Intelligence Layer
+### Version 1.0
+
+---
+
+## Objective (Part 3)
+
+This document introduces the Component Intelligence Layer.
+
+The Component Intelligence Layer transforms reusable UI components into intelligent platform components capable of automatically adapting their behavior based on the current platform context.
+
+Instead of requiring every page to implement permissions, subscriptions, localization, responsive behavior, feature flags, analytics, and accessibility independently, reusable components should consume centralized platform services and configure themselves accordingly.
+
+This architecture minimizes duplicated logic while maximizing consistency across the MatchMe platform.
+
+This document extends:
+
+- Prompt 0 – Platform Architecture Charter
+- Prompt 1 – Enterprise Engineering Standards
+- Prompt 2 – Design System Specification
+- Prompt 3 Part 1 – Architecture & Philosophy
+- Prompt 3 Part 2 – Component Families
+
+---
+
+## Philosophy (Intelligence Layer)
+
+- Pages describe experiences.
+- Components render experiences.
+- Platform Engines provide behavior.
+- Services provide business logic.
+
+Components should never contain business rules.
+
+Components should consume platform context and automatically adjust their presentation.
+
+---
+
+## Platform Context
+
+Every reusable component should automatically understand the current platform environment.
+
+Components should never require pages to repeatedly provide common information.
+
+Instead, consume platform context.
+
+---
+
+## Context Providers
+
+The Component Intelligence Layer exposes centralized context providers:
+
+| Context | Purpose |
+|---------|---------|
+| Authentication | Current user session, auth state |
+| Permission | Role-based access control |
+| Subscription | Plan-based feature gating |
+| Organization | Multi-tenant workspace |
+| Navigation | Current route, history |
+| Localization | Language, direction, formatting |
+| Theme | Light/Dark/System |
+| Responsive | Viewport, breakpoint |
+| Accessibility | Reduced motion, contrast, font scale |
+| Analytics | Event tracking, attribution |
+| Experiment | A/B tests, rollouts |
+| Offline | Connection state, sync |
+| Notification | Unread, priority, actions |
+| Workflow | Current step, progress |
+| Feature Flag | Enabled/disabled/beta |
+
+Future platform contexts should integrate here.
+
+---
+
+## User Context
+
+Every component should understand the current user role:
+
+- Guest
+- Job Seeker
+- Company
+- Recruiter
+- Hiring Manager
+- Interviewer
+- Agency
+- University
+- Government
+- Platform Administrator
+- Super Admin
+
+Components automatically adapt.
+
+---
+
+## Permission Context
+
+Integrate directly with the Permissions Engine.
+
+Components should automatically determine:
+
+- View
+- Create
+- Edit
+- Delete
+- Export
+- Download
+- Contact
+- Approve
+- Assign
+- Reject
+- Publish
+- Archive
+
+Pages should not manually hide actions.
+
+Backend authorization remains mandatory.
+
+---
+
+## Subscription Context
+
+Components automatically understand:
+
+| Plan | Behavior |
+|------|----------|
+| Free | Hide premium features, show upgrade prompts |
+| Premium | Display full features |
+| Enterprise | Display collaboration tools, advanced analytics |
+
+**Example — CandidateCard:**
+- Free: Hide contact information.
+- Premium: Display contact information.
+- Enterprise: Display recruiter collaboration tools.
+
+No duplicated page logic.
+
+---
+
+## Organization Context
+
+Support:
+
+- Single Company
+- Multi Company
+- Enterprise Workspace
+- Agency
+- University
+- Government Organization
+- Multi-Tenant Platform
+
+Components adapt automatically.
+
+---
+
+## Responsive Context
+
+Consume the Layout Engine.
+
+Automatically adapt to:
+
+- Mobile (320–767px)
+- Tablet (768–1023px)
+- Desktop (1024px+)
+- Large Displays (1440px+)
+- Future devices
+
+Pages should not contain responsive conditions.
+
+---
+
+## Theme Context
+
+Consume Theme Engine.
+
+Support: Light, Dark, System, Future themes.
+
+No hardcoded colors. Use Design Tokens.
+
+---
+
+## Localization Context
+
+Support:
+
+- English (LTR)
+- Arabic (RTL)
+- Future languages
+- Localized formatting (dates, currencies, numbers)
+
+Components localize automatically.
+
+---
+
+## Accessibility Context
+
+Automatically respect:
+
+- Reduced Motion (`prefers-reduced-motion`)
+- High Contrast (`prefers-contrast: more`)
+- Keyboard Navigation (focus visible, tab order)
+- Dynamic Font Scaling (rem-based)
+- Screen Readers (ARIA labels, live regions)
+
+Components adapt automatically. Accessibility is never optional.
+
+---
+
+## Analytics Context
+
+Every reusable component should emit standardized analytics:
+
+- Viewed
+- Clicked
+- Hovered
+- Focused
+- Expanded
+- Collapsed
+- Saved
+- Shared
+- Applied
+- Downloaded
+- Filtered
+- Sorted
+- Selected
+- Dismissed
+
+No manual analytics inside pages.
+
+---
+
+## Feature Flag Context
+
+Consume Feature Registry.
+
+Automatically determine: Enabled, Beta, Disabled, Deprecated, Hidden, Experimental.
+
+Pages should not implement feature flag logic.
+
+---
+
+## Experiment Context
+
+Support:
+
+- A/B Tests
+- Gradual Rollouts
+- Personalization
+- Future experimentation
+
+Components adapt automatically.
+
+---
+
+## Notification Context
+
+Components should understand:
+
+- Unread state
+- Priority
+- Urgency
+- Actions
+- Deep Links
+- Notification preferences
+
+---
+
+## Workflow Context
+
+Consume Workflow Engine.
+
+Automatically display:
+
+- Current Step
+- Progress
+- Status
+- Allowed Actions
+- Approvals
+- Dependencies
+
+Workflow visualization remains consistent.
+
+---
+
+## Offline Context
+
+Prepare components for:
+
+- Offline mode
+- Cached data
+- Synchronization
+- Retry state
+- Connection recovery
+
+Future offline support.
+
+---
+
+## AI Context
+
+Integrate with:
+
+- AI Matching Engine
+- Recommendation Engine
+- AI Copilot
+- Resume Intelligence
+- Skills Intelligence
+- Analytics Engine
+
+Components automatically display AI enhancements where appropriate.
+
+---
+
+## Intelligent Component Behavior
+
+**Example — CandidateCard should automatically:**
+
+- Respect permissions
+- Respect subscription
+- Adapt to mobile
+- Adapt to desktop
+- Support RTL
+- Support themes
+- Emit analytics
+- Use localization
+- Respect feature flags
+- Support accessibility
+- Show AI recommendations
+- Hide restricted information
+
+Without requiring page-specific implementation.
+
+---
+
+## Context Priority
+
+When multiple contexts exist, resolve in this order (highest priority first):
+
+```
+Platform Rules
+    ↓
+Permissions
+    ↓
+Subscription
+    ↓
+Organization
+    ↓
+Feature Flags
+    ↓
+Localization
+    ↓
+Theme
+    ↓
+Responsive
+    ↓
+Accessibility
+    ↓
+Analytics
+    ↓
+Presentation
+```
+
+Lower-priority contexts must never override security.
+
+---
+
+## Component Metadata
+
+Every reusable component should register:
+
+- Supported Platforms
+- Supported Roles
+- Supported Plans
+- Supported Themes
+- Supported Languages
+- Accessibility Status
+- Analytics Events
+- Feature Flags
+- Dependencies
+- Version
+- Owner
+- Documentation
+
+The Component Registry becomes the authoritative source.
+
+---
+
+## Platform Engine Integration (Intelligence Layer)
+
+The Component Intelligence Layer integrates with:
+
+- Design System Engine
+- Layout Engine
+- Card Engine
+- Navigation Engine
+- Workflow Engine
+- Permissions Engine
+- Subscription Engine
+- Feature Registry
+- Analytics Engine
+- Localization Engine
+- Theme Engine
+- Responsive Validation Engine
+- Accessibility Engine
+- Notification Engine
+- AI Engine
+
+Components should consume engines. Never duplicate engine responsibilities.
+
+---
+
+## Validation (Intelligence Layer)
+
+Verify every reusable component:
+
+- ✓ Uses platform context.
+- ✓ Does not duplicate permission logic.
+- ✓ Supports localization.
+- ✓ Supports RTL.
+- ✓ Supports themes.
+- ✓ Supports responsive layouts.
+- ✓ Emits analytics automatically.
+- ✓ Supports accessibility.
+- ✓ Integrates with Feature Registry.
+- ✓ Consumes Design Tokens.
+- ✓ Uses Platform Engines.
+
+---
+
+## Final Platform Rule (Part 3)
+
+The Component Intelligence Layer becomes a permanent MatchMe platform capability.
+
+- Pages should compose reusable components.
+- Components should consume platform context.
+- Platform Engines should own behavior.
+- Services should own business logic.
+
+This architecture establishes a context-aware enterprise UI framework that dramatically reduces duplicated logic while ensuring consistency, scalability, maintainability, accessibility, localization, responsiveness, and future extensibility across every MatchMe product.
+
+No future component should implement page-specific permission checks, subscription checks, localization rules, responsive behavior, or analytics if those capabilities already exist within the Component Intelligence Layer.
