@@ -432,3 +432,308 @@ The MatchMe Component Library becomes the official UI foundation for the entire 
 - The Component Library governs reusable presentation.
 
 Together they establish a scalable, maintainable, enterprise-grade user interface architecture capable of supporting every current and future MatchMe product without requiring architectural redesign.
+
+---
+---
+
+# Part 2 — Component Families
+### Version 1.0
+
+---
+
+## Objective (Part 2)
+
+This document defines every reusable component family that exists within the MatchMe platform.
+
+Every visual interface must be assembled using these component families.
+
+No page, feature, or module may introduce standalone UI components that duplicate functionality already provided by the Component Library.
+
+This document extends:
+
+- Prompt 0 – Platform Architecture Charter
+- Prompt 1 – Enterprise Engineering Standards
+- Prompt 2 – Design System Specification
+- Prompt 3 Part 1 – Architecture & Philosophy
+
+---
+
+## Component Capability Matrix
+
+Every reusable component must support the following capabilities unless there is a documented exception.
+
+| Capability | Required |
+|------------|----------|
+| Responsive Layout | ✓ |
+| Mobile First | ✓ |
+| Tablet Support | ✓ |
+| Desktop Support | ✓ |
+| RTL Support | ✓ |
+| Localization | ✓ |
+| Dark Mode | ✓ |
+| Light Mode | ✓ |
+| Design Tokens | ✓ |
+| Accessibility (WCAG AA) | ✓ |
+| Keyboard Navigation | ✓ |
+| Screen Readers | ✓ |
+| Loading State | ✓ |
+| Error State | ✓ |
+| Empty State | ✓ |
+| Disabled State | ✓ |
+| Analytics Events | ✓ |
+| Animation Support | ✓ |
+| Feature Flag Support | ✓ |
+| Component Registry | ✓ |
+| Documentation | ✓ |
+| Automated Testing | ✓ |
+
+No component should be accepted into the Component Library without satisfying this capability matrix.
+
+---
+
+## Component Family Architecture
+
+The MatchMe Component Library is organized into reusable families.
+
+Each family has a clearly defined purpose and ownership.
+
+---
+
+## Family 1 — Foundation Components
+
+**Purpose:** The smallest reusable building blocks.
+
+**Examples:** Typography, Icon, Avatar, Logo, Divider, Spacer, Chip, Badge, Tag, Tooltip, Progress Indicator, Loading Spinner, Skeleton, Link, Status Badge.
+
+**Characteristics:**
+- Stateless
+- No business logic
+- Token-driven
+- Lightweight
+- Highly reusable
+
+---
+
+## Family 2 — Input Components
+
+**Purpose:** Collect structured user input.
+
+**Examples:** Text Field, Email Field, Password Field, Phone Number, Search Field, Text Area, Dropdown, Autocomplete, Checkbox, Radio Button, Switch, Toggle, Slider, Date Picker, Time Picker, Country Selector, Language Selector, Currency Selector, Skill Selector, Location Selector, Resume Upload, Image Upload, Document Upload, OTP Input.
+
+**Future additions:** Signature Pad, Voice Input, Biometric Input.
+
+---
+
+## Family 3 — Button Components
+
+**Purpose:** Primary user actions.
+
+**Examples:** Primary Button, Secondary Button, Tertiary Button, Success Button, Danger Button, Ghost Button, Icon Button, Floating Action Button, Split Button, Loading Button, Sticky Footer Button, Quick Action Button.
+
+All buttons inherit: States, Variants, Animations, Accessibility, Theme, RTL.
+
+---
+
+## Family 4 — Navigation Components
+
+**Purpose:** Navigation throughout the platform.
+
+**Examples:** Sidebar, Bottom Navigation, Top Navigation, Tabs, Breadcrumbs, Drawer, Quick Actions, Mega Menu, Overflow Menu, Pagination, Step Navigation, Command Palette.
+
+No page should implement custom navigation.
+
+---
+
+## Family 5 — Card Components
+
+**Purpose:** Display structured information.
+
+**Examples:** Decision Card, Job Card, Candidate Card, Company Card, Profile Card, Dashboard Card, Analytics Card, Timeline Card, Marketplace Card, Interview Card, Offer Card, Notification Card, Collection Card, Expandable Card, Selectable Card, Swipe Card, Preview Card.
+
+All cards consume the Card Engine.
+
+---
+
+## Family 6 — Data Display Components
+
+**Purpose:** Present structured information.
+
+**Examples:** Data Table, Grid, List, Statistics, Metric Card, Timeline, Kanban Board, Calendar, Tree View, Chart, Heatmap, Comparison Table, Leaderboard, Audit Log, Activity Feed.
+
+Future visualization components belong here.
+
+---
+
+## Family 7 — AI Components
+
+**Purpose:** Present AI-generated information.
+
+**Examples:** AI Match Score, Confidence Score, Recommendation Card, AI Explanation, AI Insights, Skill Gap Analysis, Resume Summary, Candidate Ranking, Job Recommendation, AI Copilot Bubble, Conversation Summary.
+
+Future AI visualization components.
+
+---
+
+## Family 8 — Workflow Components
+
+**Purpose:** Business process visualization.
+
+**Examples:** Pipeline, Status Badge, Approval Card, Task Card, Interview Stage, Offer Workflow, Onboarding Step, Progress Tracker, Recruitment Timeline, Approval History, Workflow Stepper.
+
+---
+
+## Family 9 — Dashboard Components
+
+**Purpose:** Analytics and summaries.
+
+**Examples:** KPI Cards, Charts, Recent Activity, Notifications, Recommendations, Quick Actions, Goals, Targets, Performance Widgets, Usage Statistics.
+
+---
+
+## Family 10 — Messaging Components
+
+**Purpose:** Communication.
+
+**Examples:** Conversation List, Conversation Header, Message Bubble, Typing Indicator, Read Receipt, Attachment Preview, Media Viewer, Voice Message, Emoji Picker, Message Composer.
+
+---
+
+## Family 11 — Search Components
+
+**Purpose:** Search and discovery.
+
+**Examples:** Global Search, Search Bar, Search Results, Saved Searches, Recent Searches, Advanced Filters, Sort Selector, Filter Chips, Keyword Suggestions, Search Empty State, Search Analytics.
+
+---
+
+## Family 12 — Profile Components
+
+**Purpose:** User identity.
+
+**Examples:** Profile Header, Experience Card, Education Card, Skills Card, Certificate Card, Resume Viewer, Portfolio Card, Profile Completion, Profile Strength, Verification Badge, Social Links.
+
+---
+
+## Family 13 — Marketplace Components
+
+**Purpose:** Marketplace experiences.
+
+**Examples:** Store Card, Product Card, Service Card, Pricing Card, Seller Card, Review Card, Offer Card, Order Card, Cart Summary, Checkout Summary.
+
+---
+
+## Family 14 — Enterprise Components
+
+**Purpose:** Enterprise administration.
+
+**Examples:** Permission Badge, Role Selector, Subscription Badge, Usage Meter, Audit Viewer, Environment Badge, Organization Switcher, Workspace Selector, Feature Flag, License Card, Billing Card, Invoice Card.
+
+---
+
+## Family 15 — Overlay Components
+
+**Purpose:** Temporary UI surfaces.
+
+**Examples:** Modal, Dialog, Bottom Sheet, Popover, Tooltip, Context Menu, Drawer, Fullscreen Overlay, Media Viewer, Action Sheet.
+
+All overlays inherit Overlay Engine behavior.
+
+---
+
+## Family 16 — Feedback Components
+
+**Purpose:** User feedback.
+
+**Examples:** Toast, Snackbar, Banner, Alert, Confirmation Dialog, Loading Overlay, Retry Panel, Offline Indicator, Maintenance Screen, Validation Summary.
+
+---
+
+## Family 17 — Empty, Loading & Error Components
+
+**Purpose:** System state communication.
+
+**Examples:** Empty State, Skeleton, Placeholder, Retry Button, 404 Page, 500 Page, Permission Denied, Offline State, Maintenance State, No Results Found.
+
+---
+
+## Family 18 — Mobile Components
+
+**Purpose:** Native mobile experiences.
+
+**Examples:** Decision Header, Sticky Action Bar, Safe Area Container, Swipe Stack, Gesture Layer, Keyboard Spacer, Floating Action Menu, Bottom Navigation, Pull to Refresh, Mobile Search.
+
+These components support the Mobile Experience Engine.
+
+---
+
+## Family 19 — Accessibility Components
+
+**Purpose:** Accessibility support.
+
+**Examples:** Focus Ring, ARIA Helpers, Screen Reader Labels, Skip Links, High Contrast Helpers, Reduced Motion Helpers, Keyboard Navigation Helpers, RTL Helpers.
+
+Accessibility components should remain invisible to most users while improving usability for assistive technologies.
+
+---
+
+## Family Relationships
+
+```
+Foundation
+    ↓
+Composite
+    ↓
+Feature Components
+    ↓
+Page Templates
+    ↓
+Experiences
+```
+
+No page may bypass this hierarchy.
+
+---
+
+## Component Selection Rules
+
+Before creating any component:
+
+1. Search Component Registry.
+2. Search existing family.
+3. Search Composite Components.
+4. Extend if possible.
+5. Create new only when justified.
+
+Document the decision.
+
+---
+
+## Future Component Families
+
+The architecture must support future additions:
+
+- Video Components
+- Learning Components
+- Assessment Components
+- CRM Components
+- ATS Components
+- Payroll Components
+- Benefits Components
+- Government Services
+- University Services
+- AI Agents
+- Voice Components
+
+These should integrate into the Component Library rather than creating separate UI systems.
+
+---
+
+## Final Platform Rule (Part 2)
+
+Every component within MatchMe must belong to an officially defined Component Family.
+
+No standalone component may exist outside the Component Library.
+
+Every future feature must compose its interface using these reusable families.
+
+The Component Library becomes the single source of truth for every visual building block across the Job Seeker Portal, Company Portal, Super Admin Portal, Marketplace, CRM, ATS, AI Copilot, Analytics, Mobile, Tablet, Desktop, and all future MatchMe products.
