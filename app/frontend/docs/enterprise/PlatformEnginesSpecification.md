@@ -3871,3 +3871,501 @@ The Platform Intelligence Engine becomes the "Chief Architect" of MatchMe.
 Rather than simply monitoring the platform, it continuously learns from platform activity and recommends improvements that increase quality, scalability, maintainability, performance and developer productivity.
 
 This engine completes the MatchMe Platform Operating System by making the platform self-observing, self-evaluating and continuously improving.
+
+---
+---
+
+# Prompt 4A — Platform Engine Interaction & Dependency Specification
+### Version 1.0
+
+---
+
+## Objective (Prompt 4A)
+
+This document defines the official interaction model between every Platform Engine within MatchMe.
+
+It establishes: Engine dependencies, Engine communication rules, Service boundaries, Event routing, API contracts, Dependency governance, Version compatibility, Error propagation, Retry strategies, Platform orchestration.
+
+This document is the networking protocol of the MatchMe Platform Operating System. Every current and future Platform Engine must comply.
+
+---
+
+## Platform Philosophy (Interaction)
+
+Every engine owns exactly one responsibility.
+
+Every interaction between engines should be:
+
+- Predictable
+- Observable
+- Versioned
+- Documented
+- Secure
+- Loosely Coupled
+- Reusable
+- Testable
+
+No engine should know the internal implementation of another engine.
+
+---
+
+## Engine Interaction Principles
+
+Every engine interaction follows these principles:
+
+- Single Responsibility
+- Loose Coupling
+- High Cohesion
+- API First
+- Event Driven
+- Observable
+- Versioned
+- Retry Safe
+- Idempotent
+- Backward Compatible
+
+---
+
+## Platform Layer Hierarchy
+
+```
+Foundation Engines
+    ↓
+Experience Engines
+    ↓
+Workflow Engines
+    ↓
+Business Engines
+    ↓
+AI Engines
+    ↓
+Data & Infrastructure Engines
+    ↓
+Security Engines
+    ↓
+Operations Engines
+```
+
+Higher layers consume lower layers. Lower layers never depend on higher layers.
+
+---
+
+## Allowed Dependencies
+
+### Foundation Engines
+
+- Consumed by all engines.
+- Never consume Experience Engines.
+- Never consume Workflow Engines.
+
+### Experience Engines
+
+May consume:
+- Foundation Engines
+- Business Engines
+- Feature Registry
+- Localization
+- Theme
+
+Never access database directly. Never execute workflows.
+
+### Workflow Engines
+
+May consume:
+- Foundation Engines
+- Business Engines
+- AI Engines
+- Notification Engine
+- Workflow Orchestrator
+
+Never render UI.
+
+### Business Engines
+
+May consume:
+- Infrastructure Engines
+- Security Engines
+- Configuration Engine
+- Repository Engine
+
+Never depend on Experience Engines.
+
+### AI Engines
+
+May consume:
+- Business Engines
+- Knowledge Engine
+- Repository Engine
+- Search Engine
+- Analytics Engine
+
+Never navigate UI. Never change workflow state directly.
+
+### Infrastructure Engines
+
+- Support every layer.
+- Never contain business rules.
+
+### Security Engines
+
+- May be consumed by every layer.
+- Never bypassed.
+
+### Operations Engines
+
+- Observe every engine.
+- Never own business logic.
+
+---
+
+## Forbidden Dependencies
+
+- Pages → Infrastructure
+- Components → Database
+- Components → Repository
+- Experience → Database
+- Experience → AI Models
+- AI → UI
+- Workflow → Components
+- Foundation → Workflow
+- Foundation → Business Logic
+- Business → UI
+- Security → Presentation
+
+No circular dependencies.
+
+---
+
+## Communication Methods
+
+Allowed communication:
+
+- Public APIs
+- Published Events
+- Configuration
+- Dependency Injection
+- Service Contracts
+- Message Queues
+- Webhooks
+- Shared Interfaces
+
+Avoid direct object references.
+
+---
+
+## Engine Contracts
+
+Every engine exposes:
+
+- Purpose
+- Public API
+- Events Published
+- Events Consumed
+- Configuration
+- Dependencies
+- Version
+- Documentation
+- Health Status
+- Performance Metrics
+
+No hidden interfaces.
+
+---
+
+## Synchronous Communication
+
+Use for:
+
+- Authentication
+- Permissions
+- Configuration
+- Validation
+- Search
+- Routing
+- Health
+
+Should remain fast.
+
+---
+
+## Asynchronous Communication
+
+Use for:
+
+- Notifications
+- Analytics
+- Logging
+- AI Processing
+- Reports
+- Emails
+- Imports
+- Exports
+- Background Jobs
+- Workflow Events
+
+Avoid blocking users.
+
+---
+
+## Event Architecture
+
+Every event should include:
+
+- Event Name
+- Version
+- Timestamp
+- Correlation ID
+- Producer
+- Consumers
+- Payload
+- Tenant ID
+- User ID
+- Retry Count
+- Metadata
+
+Events must be immutable.
+
+---
+
+## Event Lifecycle
+
+```
+Event Created
+    ↓
+Published
+    ↓
+Delivered
+    ↓
+Consumed
+    ↓
+Acknowledged
+    ↓
+Archived
+    ↓
+Audited
+```
+
+Every stage observable.
+
+---
+
+## Engine Orchestrators
+
+### Platform Orchestrator
+
+Coordinates: Cross-engine communication, Routing, Health, Configuration, Lifecycle.
+
+### Workflow Orchestrator
+
+Coordinates: Business workflows.
+
+### AI Orchestrator
+
+Coordinates: AI Engines.
+
+### Business Capability Orchestrator
+
+Coordinates: Business Engines.
+
+### Journey Orchestrator
+
+Coordinates: User journeys.
+
+### Platform Fabric Engine
+
+Coordinates: Infrastructure communication.
+
+---
+
+## Dependency Injection
+
+Every engine receives dependencies. Never instantiate engines directly.
+
+Support:
+- Mocking
+- Testing
+- Future replacement
+- Version upgrades
+
+---
+
+## Error Handling
+
+Every engine returns standardized results:
+
+- Success
+- Warning
+- Retryable Error
+- Validation Error
+- Authorization Error
+- Fatal Error
+
+Never expose internal errors.
+
+---
+
+## Retry Strategy
+
+**Automatic retries:**
+- Queue failures
+- Webhook failures
+- Notification failures
+- Temporary infrastructure failures
+
+**No retries for:**
+- Permission failures
+- Validation failures
+- Business rule violations
+
+---
+
+## Circuit Breakers
+
+Support:
+- AI Providers
+- External APIs
+- Payments
+- Messaging
+- Storage
+
+Prevent cascading failures.
+
+---
+
+## Timeouts
+
+Every external dependency should define:
+
+- Connection timeout
+- Execution timeout
+- Retry policy
+- Fallback strategy
+
+---
+
+## Version Compatibility
+
+Every engine follows semantic versioning:
+
+- **Major** — Breaking changes
+- **Minor** — Features
+- **Patch** — Fixes
+
+Maintain backward compatibility whenever possible.
+
+---
+
+## Deprecation Policy
+
+Every engine should support:
+
+- Deprecation notices
+- Migration guides
+- Transition periods
+- Compatibility layers
+- Retirement plan
+
+---
+
+## Observability (Interaction)
+
+Every interaction logs:
+
+- Latency
+- Errors
+- Retries
+- Consumer
+- Producer
+- Duration
+- Correlation ID
+- Outcome
+
+---
+
+## Engine Registry Integration
+
+Every dependency must be documented.
+
+Track:
+- Dependencies
+- Consumers
+- Version
+- Health
+- Owner
+- Status
+- Documentation
+- Usage
+
+---
+
+## Platform Validation (Interaction)
+
+Verify:
+
+- ✓ No circular dependencies
+- ✓ No hidden APIs
+- ✓ No duplicated responsibilities
+- ✓ Proper orchestration
+- ✓ Event compatibility
+- ✓ Retry safety
+- ✓ Version compatibility
+- ✓ Dependency documentation
+- ✓ Security compliance
+- ✓ Performance targets
+
+---
+
+## Final Platform Rule (Prompt 4A)
+
+Every engine interaction across MatchMe must follow this specification.
+
+No engine may communicate outside the approved interaction model.
+
+Every new engine must declare its dependencies, contracts, events, orchestration rules, and compatibility requirements before implementation.
+
+This specification becomes the official communication protocol for the MatchMe Platform Operating System.
+
+---
+
+## Strategic Architectural Recommendation — Platform Dependency Intelligence Engine
+
+Introduce a **Platform Dependency Intelligence Engine**.
+
+### Purpose
+
+Continuously analyze engine relationships across the platform.
+
+### Responsibilities
+
+- ✓ Detect circular dependencies.
+- ✓ Detect architecture drift.
+- ✓ Detect unnecessary coupling.
+- ✓ Recommend dependency simplification.
+- ✓ Visualize engine relationships.
+- ✓ Calculate engine complexity scores.
+- ✓ Identify unused dependencies.
+- ✓ Recommend engine consolidation.
+- ✓ Track dependency changes across releases.
+- ✓ Predict architectural impact before implementation.
+
+### Integrations
+
+- Engine Registry
+- Feature Registry
+- Business Process Registry
+- Business Capability Registry
+- Platform Analytics Engine
+- Documentation Engine
+- Platform Intelligence Engine
+- Governance Engine
+
+### Benefits
+
+- Prevents architectural degradation.
+- Maintains clean separation of responsibilities.
+- Simplifies future refactoring.
+- Improves maintainability.
+- Reduces technical debt.
+- Enables safe scaling as MatchMe expands into CRM, ATS, Marketplace, AI Copilot, Agency Portal, University Portal, Government Portal, and future enterprise products.
+
+The Platform Dependency Intelligence Engine becomes the architectural guardian of the MatchMe ecosystem, ensuring that engine relationships remain healthy, scalable, and aligned with the Platform Architecture Charter throughout the lifetime of the platform.
