@@ -32,5 +32,6 @@ MatchMe - AI-powered recruitment platform with Tinder-style swipe matching. Bili
 - Enterprise Engineering Standards (Prompt 1) define implementation standards — see docs/enterprise/EngineeringStandards.md
 - Design System Specification (Prompt 2) defines all visual/UI standards — see docs/enterprise/DesignSystemSpecification.md
 - Component Library Specification (Prompt 3) defines component architecture & philosophy — see docs/enterprise/ComponentLibrarySpecification.md
+- Platform Engines Specification (Prompt 4) defines engine architecture & domains — see docs/enterprise/PlatformEnginesSpecification.md
 
 
