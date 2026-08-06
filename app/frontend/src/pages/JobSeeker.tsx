@@ -38,6 +38,7 @@ import {
 import { ProfileCompletionCard, ProfileCompletionMini, type ProfileData } from '@/components/shared/ProfileCompletion';
 import { MobileBottomNav, type MobileNavTab } from '@/components/shared/MobileBottomNav';
 import { MobileDashboard } from '@/components/shared/MobileDashboard';
+import { MobileAccountCenter } from '@/components/shared/MobileAccountCenter';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // ============================================================
@@ -341,10 +342,11 @@ const AI_VACANCIES: VacancyAIProfile[] = mockJobs.map(j => ({
 
 import { BottomSheet } from '@/components/shared/BottomSheet';
 import { DecisionScreenLayout } from '@/components/shared/DecisionScreenLayout';
+import { DecisionActionBar } from '@/components/shared/DecisionActionBar';
 import { UCSummaryCard, UCDecisionCard } from '@/components/shared/CardEngine';
 import type { SummaryCardConfig, DecisionCardConfig } from '@/lib/card-engine-types';
 
-/** Level 1 — Ultra-Compact Decision Card */
+/** Level 1 — Premium Decision Card */
 function SwipeCard({ job, score, onSwipe, onViewDetails }: { job: typeof mockJobs[0]; score: number; onSwipe: (dir: 'left' | 'right') => void; onViewDetails: () => void }) {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
@@ -355,58 +357,102 @@ function SwipeCard({ job, score, onSwipe, onViewDetails }: { job: typeof mockJob
   const rightIndicatorOpacity = useTransform(x, [0, 50, 150], [0, 0.5, 1]);
   const handleDragEnd = (_: any, info: PanInfo) => { if (info.offset.x > 100) onSwipe('right'); else if (info.offset.x < -100) onSwipe('left'); };
   const typeLabel = (type: string) => { const m: Record<string, string> = { full_time: t('full_time'), part_time: t('part_time'), contract: t('contract'), remote: t('remote'), internship: t('internship') }; return m[type] || type; };
+  const [expanded, setExpanded] = useState(false);
 
   const scoreColor = score >= 85 ? 'text-green-600 bg-green-50 dark:bg-green-950/30' : score >= 70 ? 'text-primary bg-primary/5' : score >= 50 ? 'text-amber-600 bg-amber-50 dark:bg-amber-950/30' : 'text-muted-foreground bg-muted';
   const topSkills = job.required_skills.slice(0, 3);
+  const remainingSkills = job.required_skills.length - 3;
 
   return (
     <motion.div className="absolute inset-0 cursor-grab active:cursor-grabbing" style={{ x, rotate, opacity }} drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.7} onDragEnd={handleDragEnd}>
       {/* Swipe indicators */}
-      <motion.div className="absolute top-3 start-3 z-10 px-2 py-0.5 rounded-md border-2 border-destructive text-destructive font-bold text-xs rotate-[-12deg]" style={{ opacity: leftIndicatorOpacity }}>{t('reject')}</motion.div>
-      <motion.div className="absolute top-3 end-3 z-10 px-2 py-0.5 rounded-md border-2 border-green-500 text-green-500 font-bold text-xs rotate-[12deg]" style={{ opacity: rightIndicatorOpacity }}>{t('interested')}</motion.div>
+      <motion.div className="absolute top-3 start-3 z-10 px-2 py-0.5 rounded-md border-2 border-destructive text-destructive font-bold text-xs rotate-[-12deg]" style={{ opacity: leftIndicatorOpacity }}>{t('pass')}</motion.div>
+      <motion.div className="absolute top-3 end-3 z-10 px-2 py-0.5 rounded-md border-2 border-green-500 text-green-500 font-bold text-xs rotate-[12deg]" style={{ opacity: rightIndicatorOpacity }}>{t('like')}</motion.div>
 
-      <Card className="h-full flex flex-col overflow-hidden border-2 shadow-md" onClick={onViewDetails}>
-        <CardContent className={`flex-1 flex flex-col ${isMobile ? 'p-3 gap-2' : 'p-5 gap-3'}`}>
-          {/* Row 1: Job Title (max 2 lines) */}
-          <h2 className={`font-bold font-[Poppins] leading-tight line-clamp-2 ${isMobile ? 'text-base' : 'text-xl'}`}>{job.job_title}</h2>
-
-          {/* Row 2: Company + Score */}
-          <div className="flex items-center gap-2">
-            <div className={`rounded-lg bg-primary/10 flex items-center justify-center shrink-0 ${isMobile ? 'w-8 h-8' : 'w-10 h-10'}`}>
-              <Building2 className={`text-primary ${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
+      <Card className="h-full flex flex-col overflow-hidden border shadow-lg rounded-2xl" onClick={onViewDetails}>
+        <CardContent className={`flex-1 flex flex-col ${isMobile ? 'p-3 gap-2.5' : 'p-5 gap-3'}`}>
+          {/* Header: Company Logo + Verification + Save/Share */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className={`rounded-xl bg-primary/10 flex items-center justify-center shrink-0 ${isMobile ? 'w-10 h-10' : 'w-12 h-12'}`}>
+                <Building2 className={`text-primary ${isMobile ? 'w-5 h-5' : 'w-6 h-6'}`} />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1">
+                  <p className="font-medium text-sm leading-tight truncate">{job.company_name}</p>
+                  <Check className="w-3.5 h-3.5 text-primary bg-primary/10 rounded-full p-0.5 shrink-0" />
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-tight truncate">{job.industry}</p>
+              </div>
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="font-medium text-sm leading-tight truncate">{job.company_name}</p>
-              <p className="text-[11px] text-muted-foreground leading-tight truncate">{job.industry}</p>
-            </div>
-            <div className={`px-2 py-1 rounded-lg ${scoreColor} shrink-0 text-center`}>
-              <p className={`font-bold font-[Poppins] leading-none ${isMobile ? 'text-base' : 'text-lg'}`}>{score}%</p>
-              <p className="text-[8px] opacity-70 leading-tight">{t('match_score')}</p>
+            <div className="flex items-center gap-1">
+              <button className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors" onClick={(e) => { e.stopPropagation(); toast.success(t('job_saved')); }} aria-label={t('save')}>
+                <Bookmark className="w-4 h-4 text-muted-foreground" />
+              </button>
+              <button className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors" onClick={(e) => { e.stopPropagation(); toast.success(t('link_copied')); }} aria-label={t('share')}>
+                <ExternalLink className="w-4 h-4 text-muted-foreground" />
+              </button>
             </div>
           </div>
 
-          {/* Row 3: Location · Type · Experience (single line) */}
+          {/* Primary Info: Title + Score + Salary */}
+          <div>
+            <div className="flex items-start justify-between gap-2">
+              <h2 className={`font-bold font-[Poppins] leading-tight line-clamp-2 flex-1 ${isMobile ? 'text-base' : 'text-lg'}`}>{job.job_title}</h2>
+              <div className={`px-2.5 py-1.5 rounded-xl ${scoreColor} shrink-0 text-center`}>
+                <p className={`font-bold font-[Poppins] leading-none ${isMobile ? 'text-lg' : 'text-xl'}`}>{score}%</p>
+                <p className="text-[8px] opacity-70 leading-tight">{t('match_score')}</p>
+              </div>
+            </div>
+            {job.salary_min && (
+              <p className="text-sm font-medium text-green-600 dark:text-green-400 mt-0.5">
+                ${job.salary_min.toLocaleString()} - ${job.salary_max?.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground">/{t('per_month')}</span>
+              </p>
+            )}
+          </div>
+
+          {/* Metadata: Location · Type · Experience · Company Size */}
           <div className="flex flex-wrap gap-1">
-            <Badge variant="secondary" className="gap-0.5 text-[11px] py-0 px-1.5 h-5"><MapPin className="w-2.5 h-2.5" />{job.city}</Badge>
+            <Badge variant="secondary" className="gap-0.5 text-[11px] py-0 px-1.5 h-5"><MapPin className="w-2.5 h-2.5" />{job.city}, {job.country}</Badge>
             <Badge variant="secondary" className="gap-0.5 text-[11px] py-0 px-1.5 h-5"><Briefcase className="w-2.5 h-2.5" />{typeLabel(job.employment_type)}</Badge>
             <Badge variant="secondary" className="gap-0.5 text-[11px] py-0 px-1.5 h-5"><GraduationCap className="w-2.5 h-2.5" />{job.min_experience}-{job.max_experience}y</Badge>
+            <Badge variant="secondary" className="gap-0.5 text-[11px] py-0 px-1.5 h-5"><Users className="w-2.5 h-2.5" />50-200</Badge>
           </div>
 
-          {/* Row 4: Top 3 Skills */}
+          {/* Skills: Top 3 + "+N more" */}
           <div className="flex flex-wrap gap-1">
             {topSkills.map(s => {
               const hasSkill = CURRENT_SEEKER.skills.map(sk => sk.toLowerCase()).includes(s.toLowerCase());
               return <Badge key={s} variant={hasSkill ? 'default' : 'outline'} className={`text-[11px] py-0 px-1.5 h-5 ${hasSkill ? '' : 'opacity-60'}`}>{s}{hasSkill && <Check className="w-2 h-2 ms-0.5" />}</Badge>;
             })}
-            {job.required_skills.length > 3 && (
-              <Badge variant="outline" className="text-[11px] py-0 px-1.5 h-5 opacity-50">+{job.required_skills.length - 3}</Badge>
+            {remainingSkills > 0 && (
+              <Badge variant="outline" className="text-[11px] py-0 px-1.5 h-5 text-primary border-primary/30 font-semibold">+{remainingSkills}</Badge>
             )}
           </div>
 
-          {/* Spacer + tap hint (fills remaining card space) */}
-          <div className="flex-1 flex items-end justify-center">
-            <p className="text-[10px] text-muted-foreground/60">{t('tap_for_details')}</p>
-          </div>
+          {/* Expandable: Job Description (progressive disclosure) */}
+          {!isMobile && (
+            <div className="flex-1 overflow-hidden">
+              <p className={`text-xs text-muted-foreground leading-relaxed ${expanded ? '' : 'line-clamp-3'}`}>
+                {job.job_description}
+              </p>
+              {job.job_description.length > 100 && (
+                <button
+                  className="text-[11px] text-primary font-medium mt-0.5"
+                  onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
+                >
+                  {expanded ? t('collapse') : t('read_more')}
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Tap hint on mobile */}
+          {isMobile && (
+            <div className="flex-1 flex items-end justify-center">
+              <p className="text-[10px] text-muted-foreground/60">{t('tap_for_details')}</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </motion.div>
@@ -562,6 +608,11 @@ function SwipeView() {
     if (undone) { setCanUndo(false); toast.success(t('swipe_undone')); }
   }, [engine, t]);
 
+  const handleSaveJob = useCallback(() => {
+    if (!currentJob) return;
+    toast.success(t('job_saved'));
+  }, [currentJob, t]);
+
   if (!currentJob) return (
     <div className="flex-1 flex items-center justify-center p-8"><div className="text-center"><Heart className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" /><h3 className="text-lg font-semibold font-[Poppins] mb-2">{t('no_more_jobs')}</h3><p className="text-sm text-muted-foreground mb-4">{t('check_back_later')}</p>
       {canUndo && <Button variant="outline" onClick={handleUndo} className="cursor-pointer gap-2"><Undo2 className="w-4 h-4" />{t('undo_last_swipe')}</Button>}
@@ -603,34 +654,12 @@ function SwipeView() {
   );
 
   const actionsContent = (
-    <div className="flex justify-center items-center gap-4">
-      <Button
-        size="lg"
-        variant="outline"
-        className={`rounded-full border-2 border-destructive text-destructive hover:bg-destructive hover:text-white cursor-pointer shadow-sm ${isMobile ? 'w-13 h-13' : 'w-14 h-14'}`}
-        onClick={() => handleSwipe('left')}
-        aria-label={t('reject')}
-      >
-        <X className="w-6 h-6" />
-      </Button>
-      <Button
-        size="lg"
-        variant="outline"
-        className={`rounded-full cursor-pointer shadow-sm ${isMobile ? 'w-10 h-10' : 'w-11 h-11'}`}
-        onClick={() => setShowDetails(true)}
-        aria-label={t('view_details')}
-      >
-        <Eye className="w-5 h-5" />
-      </Button>
-      <Button
-        size="lg"
-        className={`rounded-full bg-green-500 hover:bg-green-600 text-white cursor-pointer shadow-sm ${isMobile ? 'w-13 h-13' : 'w-14 h-14'}`}
-        onClick={() => handleSwipe('right')}
-        aria-label={t('interested')}
-      >
-        <Check className="w-6 h-6" />
-      </Button>
-    </div>
+    <DecisionActionBar
+      onPass={() => handleSwipe('left')}
+      onSave={handleSaveJob}
+      onLike={() => handleSwipe('right')}
+      variant={isMobile ? 'default' : 'default'}
+    />
   );
 
   const overlayContent = (
@@ -1618,16 +1647,43 @@ export default function JobSeeker() {
       navigate('/messages');
       return;
     }
+    // Reset account center state when switching to profile tab
+    if (tab === 'profile') {
+      setShowAccountCenter(true);
+    }
     setActiveTab(tab as NavSection);
   };
 
   // Mock notification badges for bottom nav
   const navBadges = { messages: 2, swipe: 3 };
 
+  // Track if user is in "account" mode on mobile (shows Account Center first)
+  const [showAccountCenter, setShowAccountCenter] = useState(true);
+
+  const handleMobileAccountNav = (section: string) => {
+    setShowAccountCenter(false);
+    setActiveTab(section as NavSection);
+  };
+
   const renderContent = () => {
     // On mobile, dashboard tab shows MobileDashboard instead of desktop DashboardView
     if (isMobile && activeTab === 'dashboard') {
       return <MobileDashboard onNavigateToSection={(section) => setActiveTab(section as NavSection)} />;
+    }
+
+    // On mobile, profile tab shows Account Center (all features within 3 taps)
+    if (isMobile && activeTab === 'profile' && showAccountCenter) {
+      return (
+        <MobileAccountCenter
+          onNavigateToSection={handleMobileAccountNav}
+          userName="Ahmed Hassan"
+          userEmail="ahmed@example.com"
+          profileCompletion={72}
+          subscriptionPlan="Premium"
+          unreadNotifications={3}
+          portalType="job_seeker"
+        />
+      );
     }
 
     switch(activeTab) {

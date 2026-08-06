@@ -27,6 +27,13 @@
 - [x] Update Company.tsx card usages to consume Card Engine
 - [x] Create Experience Engine documentation (docs/enterprise/CardEngine.md)
 - [x] Lint + build verification
+- [x] Premium Decision Card Redesign (header with logo/badge/save/share, rich metadata, expandable sections)
+- [x] Sticky Decision Action Bar (reusable, Pass/Save/Like, safe-area aware, animated)
+- [x] Mobile Account Center (dedicated mobile account page with grouped sections)
+- [x] Enhanced Mobile Navigation (Account tab → Account Center, 3-tap reachability)
+- [x] Feature Registry Engine (src/lib/feature-registry.ts)
+- [x] Feature Validation Engine (platform parity verification via registry)
+- [x] Experience Engine Documentation Update (Mobile standards, Feature Registry, Platform Standards)
 
 ## Progress Log
 - 2026-07-17: Project initialized with Supabase template, dependencies installed
@@ -60,3 +67,4 @@
 - 2026-07-19: Discover Redesign complete — Two-Level Card Architecture. Created reusable BottomSheet component (swipe-to-close, drag handle, spring animations, backdrop blur, RTL/dark mode/accessibility). Redesigned SwipeCard as compact Level 1 decision card (40-50% height reduction): prioritized info hierarchy (title→company→score→badges→skills), viewport-fit without scrolling, "Tap for details" affordance. Level 2 JobDetailsContent in BottomSheet: salary range, full description, all skills with match indicators, AI explanation panel (reasons + factor bars + confidence + tips), company info. Added View Details (eye) button to action bar. Mobile-responsive with isMobile hook for adaptive sizing. 5 new i18n keys (EN/AR). Lint + build pass cleanly.
 - 2026-07-19: Final One-Viewport Decision Experience complete. Created DecisionScreenLayout (Experience Engine standard) with dynamic height distribution: container uses `calc(100dvh - 56px)` minus safe-area-inset-bottom, flex-col with shrink-0 header/chips/actions and flex-1 card area. Ultra-compact SwipeCard: p-3 padding, gap-2 spacing, w-8 logo, text-base title (line-clamp-2), h-5 badges with text-[11px], single-line meta row. Card fills ALL remaining viewport dynamically — no min-h/max-h constraints on mobile. Action buttons always visible (shrink-0). Desktop layout unchanged. Responsive across 320-412px+ widths. Lint + build pass cleanly.
 - 2026-08-06: Universal Card Engine complete. Created card-engine-types.ts (10 card type configs + 8 shared building blocks), CardEngine.tsx (10 card templates + renderCard + UCCardGrid), migrated StatCard internally to UCSummaryCard, migrated JobSeeker dashboard stats (UCSummaryCard) + recent matches (UCDecisionCard), migrated Company dashboard stats (UCSummaryCard with onClick navigation), created enterprise documentation (docs/enterprise/CardEngine.md). Lint + build pass cleanly.
+- 2026-08-06: Mobile Premium UX + Feature Parity phase complete. Premium Decision Card (header/logo/badge/save/share, salary, metadata, expandable description, skill match indicators), Sticky Decision Action Bar (Pass/Save/Like with spring animations, 3 variants), Mobile Account Center (grouped sections, profile header, 5 menu groups for seeker, 3 for company), Enhanced Navigation (Account tab → Account Center, 3-tap reachability), Feature Registry Engine (28 features registered, validation engine, parity reports, access control, React hook), Experience Engine Documentation (ExperienceEngine.md — mobile standards, card engine, feature registry, platform standards, parity status). New i18n keys (EN/AR). Lint + build pass cleanly.

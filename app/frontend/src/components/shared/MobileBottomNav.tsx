@@ -1,11 +1,12 @@
 /**
- * Mobile Bottom Navigation Bar
+ * Mobile Bottom Navigation Bar — Experience Engine Component
  * 
  * Enterprise-grade mobile navigation following Mobile First, Desktop Enhanced philosophy.
  * Replaces hamburger menu on mobile with a persistent bottom navigation bar.
  * 
  * Features:
- * - 5 primary tabs: Dashboard, Discover, Applications, Messages, Profile
+ * - 5 primary tabs: Dashboard, Discover, Applications, Messages, Account
+ * - "Account" tab opens the Mobile Account Center (all features within 3 taps)
  * - Active states with smooth transitions
  * - Notification badges
  * - Dark mode support
@@ -14,6 +15,7 @@
  * - WCAG AA compliant (44x44 touch targets)
  * - Safe area padding for notched devices
  * - Haptic-like visual feedback
+ * - Every feature reachable within 3 taps via Account Center
  */
 
 import { useTranslation } from 'react-i18next';
@@ -40,7 +42,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'swipe', icon: Search, labelKey: 'discover' },
   { id: 'applications', icon: FileText, labelKey: 'applications' },
   { id: 'messages', icon: MessageSquare, labelKey: 'messages' },
-  { id: 'profile', icon: User, labelKey: 'profile' },
+  { id: 'profile', icon: User, labelKey: 'account' },
 ];
 
 export function MobileBottomNav({ activeTab, onTabChange, badges = {}, className }: MobileBottomNavProps) {
@@ -48,8 +50,8 @@ export function MobileBottomNav({ activeTab, onTabChange, badges = {}, className
 
   // Map complex tabs to their parent nav tab for active state
   const getActiveNavTab = (tab: string): MobileNavTab => {
-    const dashboardTabs = ['dashboard', 'notifications', 'settings', 'saved', 'matches'];
-    const profileTabs = ['profile', 'cv', 'experience', 'education', 'certificates', 'skills', 'languages', 'portfolio', 'video', 'preferences', 'visibility', 'exposure', 'contact_requests', 'who_viewed', 'invitations'];
+    const dashboardTabs = ['dashboard'];
+    const profileTabs = ['profile', 'cv', 'experience', 'education', 'certificates', 'skills', 'languages', 'portfolio', 'video', 'preferences', 'visibility', 'exposure', 'contact_requests', 'who_viewed', 'invitations', 'notifications', 'settings', 'saved', 'matches', 'account'];
     const discoverTabs = ['swipe'];
     const applicationTabs = ['applications'];
     const messageTabs = ['messages'];
