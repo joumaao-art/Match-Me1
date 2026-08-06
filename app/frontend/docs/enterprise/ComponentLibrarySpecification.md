@@ -1692,3 +1692,475 @@ The Component Library is a strategic platform asset.
 Every component must be engineered with the expectation that it will be reused across the Job Seeker Portal, Company Portal, Super Admin Portal, Marketplace, CRM, ATS, AI Copilot, Analytics, Mobile, Tablet, Desktop, and future MatchMe products.
 
 Quality, consistency, and maintainability always take precedence over development speed.
+
+---
+---
+
+# Part 5 — Governance, Registry & Validation
+### Version 1.0
+
+---
+
+## Objective (Part 5)
+
+This document establishes the governance framework for the MatchMe Enterprise Component Library.
+
+It defines how reusable components are:
+
+- Governed
+- Approved
+- Registered
+- Validated
+- Versioned
+- Maintained
+- Deprecated
+- Audited
+
+The objective is to ensure the Component Library remains consistent, scalable, maintainable, and enterprise-ready as MatchMe grows.
+
+This document extends:
+
+- Prompt 0 — Platform Architecture Charter
+- Prompt 1 — Enterprise Engineering Standards
+- Prompt 2 — Design System Specification
+- Prompt 3 Part 1 — Architecture & Philosophy
+- Prompt 3 Part 2 — Component Families
+- Prompt 3 Part 3 — Component Intelligence Layer
+- Prompt 3 Part 4 — Component Development Guide
+
+---
+
+## Governance Philosophy
+
+The Component Library is a strategic platform asset.
+
+It is not a collection of reusable widgets. It is the official UI foundation for MatchMe.
+
+Every reusable component must follow platform governance.
+
+Consistency always takes priority over speed.
+
+---
+
+## Component Governance Model
+
+Every component follows one lifecycle:
+
+```
+Idea
+    ↓
+Architecture Review
+    ↓
+Design Review
+    ↓
+Engineering Review
+    ↓
+Implementation
+    ↓
+Testing
+    ↓
+Documentation
+    ↓
+Registry
+    ↓
+Certification
+    ↓
+Release
+    ↓
+Monitoring
+    ↓
+Versioning
+    ↓
+Maintenance
+    ↓
+Deprecation
+    ↓
+Retirement
+```
+
+No component may skip governance stages.
+
+---
+
+## Component Registry (Governance)
+
+Create a centralized Component Registry.
+
+Every reusable component must be registered.
+
+Required metadata:
+
+| Field | Description |
+|-------|-------------|
+| Component Name | Human-readable name |
+| Unique Component ID | System identifier |
+| Category | Foundation / Composite / Feature |
+| Family | One of 19 defined families |
+| Owner | Responsible engineer/team |
+| Version | Semantic version |
+| Certification Level | Bronze / Silver / Gold / Platinum |
+| Status | Draft / Review / Approved / Released / Deprecated / Retired |
+| Dependencies | Other components required |
+| Supported Platforms | Mobile / Tablet / Desktop |
+| Supported Themes | Light / Dark / System |
+| Supported Languages | EN / AR / Future |
+| Responsive Status | Validated breakpoints |
+| Accessibility Status | WCAG AA compliance |
+| Analytics Events | Tracked interactions |
+| Feature Flags | Registry integration |
+| Documentation | Link to docs |
+| Examples | Link to examples |
+| Test Coverage | Percentage |
+| Performance Benchmark | Render time, bundle size |
+| Release Date | Initial release |
+| Last Updated | Most recent change |
+| Deprecation Status | Active / Deprecated / Retired |
+| Replacement Component | If deprecated |
+| Future Roadmap | Planned enhancements |
+
+The Component Registry becomes the official inventory of MatchMe UI.
+
+---
+
+## Component Status
+
+Every component must have one status:
+
+| Status | Description |
+|--------|-------------|
+| Draft | In development |
+| Review | Under review |
+| Approved | Passed all gates |
+| Released | Available for use |
+| Deprecated | Scheduled for removal |
+| Retired | No longer available |
+| Experimental | Testing new patterns |
+| Beta | Limited availability |
+| Production | Fully stable |
+
+Pages may only consume Production or Approved components unless explicitly authorized.
+
+---
+
+## Component Certification Framework
+
+Every reusable component receives a certification:
+
+### Bronze
+- Functional implementation
+- Basic testing
+
+### Silver
+- Responsive
+- Accessible
+- Documented
+- Theme aware
+- RTL support
+
+### Gold
+- Highly reusable
+- Analytics enabled
+- Performance optimized
+- Fully tested
+- Integrated with platform engines
+
+### Platinum
+- Enterprise certified
+- Strategic platform component
+- Cross-platform
+- Performance benchmarked
+- Versioned
+- Used by multiple modules
+- Backward compatible
+- Future-proof
+
+New development should prioritize Gold and Platinum components.
+
+---
+
+## Governance Rules
+
+Before introducing a new component verify:
+
+1. Does an equivalent component already exist?
+2. Can an existing component be configured?
+3. Can an existing component be extended?
+4. Can another platform engine provide the capability?
+5. Would creating this increase maintenance?
+
+If the answer is yes to any reuse question: Do not create a new component.
+
+---
+
+## Platform Quality Gates
+
+A reusable component cannot be approved until it passes:
+
+1. Architecture Review
+2. Design Review
+3. Engineering Review
+4. Responsive Validation
+5. Accessibility Validation
+6. Performance Validation
+7. Security Review
+8. Documentation Review
+9. Component Registry Update
+10. Certification
+11. Release Approval
+
+---
+
+## Validation Framework
+
+Every component must be validated for:
+
+- Visual consistency
+- Responsive behavior
+- RTL
+- Localization
+- Dark Mode
+- Light Mode
+- Accessibility
+- Keyboard navigation
+- Screen readers
+- Analytics
+- Feature Flags
+- Platform integration
+- Error states
+- Loading states
+- Empty states
+- Offline readiness (future)
+
+Validation is mandatory.
+
+---
+
+## Responsive Validation
+
+Every component must be tested on: 320px, 360px, 375px, 390px, 412px, 768px, 1024px, Desktop.
+
+Verify:
+
+- No clipping
+- No overlap
+- No hidden controls
+- No horizontal scrolling
+- Safe-area compliance
+- Touch targets (44px+)
+- Typography scaling
+- Layout consistency
+
+---
+
+## Accessibility Validation
+
+Verify:
+
+- WCAG AA (4.5:1 text, 3:1 UI)
+- Keyboard navigation
+- Screen readers
+- Reduced Motion
+- High Contrast
+- RTL
+- ARIA labels
+- Focus indicators
+- Color contrast
+- Dynamic font scaling
+
+Accessibility failures block release.
+
+---
+
+## Performance Validation
+
+Benchmark:
+
+| Metric | Target |
+|--------|--------|
+| Render time | < 16ms (60 FPS) |
+| Memory usage | Minimal allocation |
+| Bundle size | < 10KB per component |
+| Interaction latency | < 100ms |
+| Animation smoothness | 60 FPS |
+| Re-render frequency | Minimal |
+| Lazy loading | Supported |
+| Image optimization | WebP/AVIF |
+
+Performance regressions must be resolved before release.
+
+---
+
+## Platform Engine Validation
+
+Verify integration with:
+
+- Design System Engine
+- Layout Engine
+- Card Engine
+- Decision Screen Engine
+- Navigation Engine
+- Workflow Engine
+- Permissions Engine
+- Feature Registry
+- Analytics Engine
+- Theme Engine
+- Localization Engine
+- Responsive Validation Engine
+- Accessibility Engine
+
+No duplicated responsibilities.
+
+---
+
+## Documentation Validation
+
+Every reusable component must include:
+
+- Purpose
+- Architecture
+- Props
+- Variants
+- Examples
+- Accessibility
+- Responsive behavior
+- Theme support
+- Localization
+- Known limitations
+- Migration guidance
+- Future enhancements
+
+Documentation is required for certification.
+
+---
+
+## Component Auditing
+
+Schedule regular audits. Review:
+
+- Unused components
+- Duplicate components
+- Deprecated components
+- Performance
+- Accessibility
+- Test coverage
+- Documentation quality
+- Usage statistics
+- Technical debt
+
+Recommend improvements.
+
+---
+
+## Deprecation Policy (Governance)
+
+Before deprecating a component:
+
+1. Document the reason.
+2. Provide a replacement.
+3. Maintain backward compatibility during migration.
+4. Update the Component Registry.
+5. Update documentation.
+6. Notify dependent teams.
+
+Never remove a component without an approved migration path.
+
+---
+
+## Versioning (Governance)
+
+Follow Semantic Versioning:
+
+| Type | Description |
+|------|-------------|
+| Major | Breaking changes |
+| Minor | New functionality (backward compatible) |
+| Patch | Bug fixes |
+
+Every version must include release notes.
+
+---
+
+## Component Ownership
+
+Every component requires an owner.
+
+Responsibilities include:
+
+- Maintenance
+- Documentation
+- Performance
+- Bug fixes
+- Accessibility
+- Versioning
+- Future improvements
+
+No component should be ownerless.
+
+---
+
+## Continuous Improvement
+
+Continuously monitor:
+
+- Usage
+- Performance
+- Accessibility
+- Responsiveness
+- Analytics
+- Developer feedback
+- User feedback
+- Refactor opportunities
+- Future platform needs
+
+The Component Library should evolve continuously.
+
+---
+
+## Governance Dashboard
+
+Create a Component Governance Dashboard for the Super Admin Portal.
+
+Display:
+
+- Total components
+- Certification levels (Bronze/Silver/Gold/Platinum)
+- Deprecated components
+- Duplicate candidates
+- Coverage by module
+- Accessibility score
+- Responsive score
+- Performance score
+- Documentation coverage
+- Test coverage
+- Recently updated components
+- Components requiring review
+
+This dashboard becomes the operational view of the Component Library.
+
+---
+
+## Final Platform Rules (Part 5)
+
+The MatchMe Component Library is the only approved source for reusable UI components.
+
+No page, feature, portal, or future product may introduce custom components that duplicate existing capabilities.
+
+Every reusable component must:
+
+- Be registered
+- Be documented
+- Be certified
+- Be versioned
+- Be tested
+- Be accessible
+- Be responsive
+- Be integrated with platform engines
+- Pass governance validation
+- Have a designated owner
+- Support future platform evolution
+
+The Component Registry becomes the authoritative source of truth for all UI assets across the MatchMe ecosystem.
+
+The Governance Framework ensures long-term consistency, quality, scalability, and maintainability across the Job Seeker Portal, Company Portal, Super Admin Portal, CRM, ATS, Marketplace, AI Copilot, Analytics, Mobile, Tablet, Desktop, and all future MatchMe products.
+
+This governance model is mandatory for all current and future development.
