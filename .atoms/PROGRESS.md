@@ -20,6 +20,13 @@
 - [x] Zero scrolling on 390×844 viewport
 - [x] Remove "Open Messages" intermediate screen — one-tap navigation to Messages Inbox
 - [x] Fix Messages navigation regression — add useNavigate to main JobSeeker/Company components, useEffect intercept for sidebar clicks
+- [x] Create Card Engine Types (src/lib/card-engine-types.ts)
+- [x] Create Universal Card Engine (src/components/shared/CardEngine.tsx)
+- [x] Migrate StatCard to use Card Engine internally
+- [x] Update JobSeeker.tsx card usages to consume Card Engine
+- [x] Update Company.tsx card usages to consume Card Engine
+- [x] Create Experience Engine documentation (docs/enterprise/CardEngine.md)
+- [x] Lint + build verification
 
 ## Progress Log
 - 2026-07-17: Project initialized with Supabase template, dependencies installed
@@ -52,3 +59,4 @@
 - 2026-07-19: Mobile Experience complete - MobileBottomNav (5 tabs, badges, haptic feedback, dark mode, RTL), MobileDashboard (greeting, quick actions, stats, recommendations, career tips), JobSeeker.tsx refactored (bottom nav integration, mobile-first layout, safe area padding, responsive stat cards), use-mobile hook, 13 new i18n keys (EN/AR). Lint + build pass cleanly.
 - 2026-07-19: Discover Redesign complete — Two-Level Card Architecture. Created reusable BottomSheet component (swipe-to-close, drag handle, spring animations, backdrop blur, RTL/dark mode/accessibility). Redesigned SwipeCard as compact Level 1 decision card (40-50% height reduction): prioritized info hierarchy (title→company→score→badges→skills), viewport-fit without scrolling, "Tap for details" affordance. Level 2 JobDetailsContent in BottomSheet: salary range, full description, all skills with match indicators, AI explanation panel (reasons + factor bars + confidence + tips), company info. Added View Details (eye) button to action bar. Mobile-responsive with isMobile hook for adaptive sizing. 5 new i18n keys (EN/AR). Lint + build pass cleanly.
 - 2026-07-19: Final One-Viewport Decision Experience complete. Created DecisionScreenLayout (Experience Engine standard) with dynamic height distribution: container uses `calc(100dvh - 56px)` minus safe-area-inset-bottom, flex-col with shrink-0 header/chips/actions and flex-1 card area. Ultra-compact SwipeCard: p-3 padding, gap-2 spacing, w-8 logo, text-base title (line-clamp-2), h-5 badges with text-[11px], single-line meta row. Card fills ALL remaining viewport dynamically — no min-h/max-h constraints on mobile. Action buttons always visible (shrink-0). Desktop layout unchanged. Responsive across 320-412px+ widths. Lint + build pass cleanly.
+- 2026-08-06: Universal Card Engine complete. Created card-engine-types.ts (10 card type configs + 8 shared building blocks), CardEngine.tsx (10 card templates + renderCard + UCCardGrid), migrated StatCard internally to UCSummaryCard, migrated JobSeeker dashboard stats (UCSummaryCard) + recent matches (UCDecisionCard), migrated Company dashboard stats (UCSummaryCard with onClick navigation), created enterprise documentation (docs/enterprise/CardEngine.md). Lint + build pass cleanly.

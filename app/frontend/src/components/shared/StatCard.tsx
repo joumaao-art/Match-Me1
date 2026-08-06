@@ -2,10 +2,18 @@
  * Reusable statistics card component.
  * Mobile-first design with compact layout for 2x2 grids.
  * Supports icons, trends, and responsive sizing.
+ * 
+ * Now powered by the Universal Card Engine (UCSummaryCard).
+ * Preserves the original API for backward compatibility.
+ * 
+ * @module StatCard
+ * @engine CardEngine (Summary Card type)
  */
 
 import { type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { UCSummaryCard } from '@/components/shared/CardEngine';
+import type { SummaryCardConfig, TrendIndicator } from '@/lib/card-engine-types';
 
 interface StatCardProps {
   label: string;
@@ -17,52 +25,28 @@ interface StatCardProps {
   className?: string;
 }
 
-export function StatCard({ label, value, colorClass = 'text-primary', icon: Icon, trend, compact, className }: StatCardProps) {
-  return (
-    <div
-      className={cn(
-        'bg-card rounded-xl border border-border',
-        compact ? 'p-3' : 'p-4',
-        'transition-shadow hover:shadow-sm',
-        className
-      )}
-    >
-      <div className={cn('flex items-start', compact ? 'gap-2' : 'gap-3')}>
-        {Icon && (
-          <div className={cn(
-            'rounded-lg flex items-center justify-center shrink-0',
-            compact ? 'w-8 h-8' : 'w-10 h-10',
-            'bg-primary/5'
-          )}>
-            <Icon className={cn(compact ? 'w-4 h-4' : 'w-5 h-5', colorClass)} />
-          </div>
-        )}
-        <div className="flex-1 min-w-0">
-          <p className={cn(
-            'font-bold font-[Poppins] tabular-nums',
-            compact ? 'text-xl' : 'text-2xl sm:text-3xl',
-            colorClass
-          )}>
-            {value}
-          </p>
-          <p className={cn(
-            'text-muted-foreground truncate',
-            compact ? 'text-[11px] mt-0' : 'text-xs sm:text-sm mt-0.5'
-          )}>
-            {label}
-          </p>
-          {trend && (
-            <p className={cn(
-              'text-[10px] mt-0.5 font-medium',
-              trend.positive ? 'text-green-600' : 'text-red-500'
-            )}>
-              {trend.positive ? '↑' : '↓'} {Math.abs(trend.value)}%
-            </p>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+export function StatCard({ label, value, colorClass = 'text-primary', icon, trend, compact, className }: StatCardProps) {
+  // Map legacy trend format to Card Engine TrendIndicator
+  const engineTrend: TrendIndicator | undefined = trend
+    ? { value: trend.value, direction: trend.positive ? 'up' : 'down' }
+    : undefined;
+
+  // Build Card Engine configuration from legacy props
+  const config: SummaryCardConfig = {
+    type: 'summary',
+    value,
+    label,
+    icon,
+    colorClass,
+    trend: engineTrend,
+    density: compact ? 'compact' : 'normal',
+    variant: 'default',
+    elevation: 'none',
+    radius: 'xl',
+    className: cn('transition-shadow hover:shadow-sm', className),
+  };
+
+  return <UCSummaryCard config={config} />;
 }
 
 export default StatCard;

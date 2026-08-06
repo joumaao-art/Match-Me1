@@ -32,6 +32,8 @@ import {
   AdvancedTalentPipelineView, TeamCollaborationView, TalentAnalyticsView,
 } from '@/components/shared/AITalentIntelligence';
 import TalentCollections from '@/components/shared/TalentCollections';
+import { UCSummaryCard } from '@/components/shared/CardEngine';
+import type { SummaryCardConfig } from '@/lib/card-engine-types';
 import {
   RoleManagementView, TeamManagementView, DepartmentManagementView,
   AuditLogsView, FeatureFlagsView, OrganizationSettingsView, SecurityDashboardView,
@@ -274,13 +276,19 @@ function DashboardView({ onNavigate }: { onNavigate: (tab: NavSection) => void }
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('dashboard')}</h2>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {stats.map((s) => (
-          <InteractiveStatCard
+          <UCSummaryCard
             key={s.label}
-            label={s.label}
-            value={s.value}
-            icon={s.icon}
-            color={s.color}
-            onClick={() => onNavigate(s.navigateTo)}
+            config={{
+              type: 'summary',
+              value: String(s.value),
+              label: s.label,
+              icon: s.icon,
+              colorClass: s.color,
+              density: 'normal',
+              variant: 'default',
+              radius: 'lg',
+              onClick: () => onNavigate(s.navigateTo),
+            }}
           />
         ))}
       </div>

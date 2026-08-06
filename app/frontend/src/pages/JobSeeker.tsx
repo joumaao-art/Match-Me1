@@ -341,6 +341,8 @@ const AI_VACANCIES: VacancyAIProfile[] = mockJobs.map(j => ({
 
 import { BottomSheet } from '@/components/shared/BottomSheet';
 import { DecisionScreenLayout } from '@/components/shared/DecisionScreenLayout';
+import { UCSummaryCard, UCDecisionCard } from '@/components/shared/CardEngine';
+import type { SummaryCardConfig, DecisionCardConfig } from '@/lib/card-engine-types';
 
 /** Level 1 — Ultra-Compact Decision Card */
 function SwipeCard({ job, score, onSwipe, onViewDetails }: { job: typeof mockJobs[0]; score: number; onSwipe: (dir: 'left' | 'right') => void; onViewDetails: () => void }) {
@@ -717,7 +719,7 @@ function DashboardView({ onNavigateToSection }: { onNavigateToSection?: (section
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('dashboard')}</h2>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {stats.map(s => <Card key={s.label}><CardContent className="p-4 text-center"><p className={`text-2xl font-bold font-[Poppins] ${s.color}`}>{s.value}</p><p className="text-xs text-muted-foreground mt-1">{s.label}</p></CardContent></Card>)}
+        {stats.map(s => <UCSummaryCard key={s.label} config={{ type: 'summary', value: s.value, label: s.label, colorClass: s.color, density: 'compact', variant: 'default', radius: 'lg' }} />)}
       </div>
       {/* Profile Completion Card */}
       <div className="mb-6">
@@ -725,7 +727,7 @@ function DashboardView({ onNavigateToSection }: { onNavigateToSection?: (section
       </div>
       <h3 className="text-lg font-semibold font-[Poppins] mb-3">{t('recent_matches')}</h3>
       <div className="space-y-3">{mockMatches.map(m => (
-        <Card key={m.id}><CardContent className="p-4 flex items-center justify-between"><div className="flex items-center gap-3"><div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><Building2 className="w-5 h-5 text-primary" /></div><div><p className="font-medium text-sm">{m.role}</p><p className="text-xs text-muted-foreground">{m.company}</p></div></div><div className="flex items-center gap-2"><span className="text-sm font-bold text-primary">{m.score}%</span>{m.hasMessage && <Badge variant="default" className="text-xs">{t('new_message')}</Badge>}</div></CardContent></Card>
+        <UCDecisionCard key={m.id} config={{ type: 'decision', title: m.role, subtitle: m.company, avatar: { fallback: m.company, icon: Building2, size: 'md', shape: 'rounded' }, matchScore: { score: m.score, showPercentage: true, size: 'sm' }, badges: m.hasMessage ? [{ label: t('new_message'), variant: 'info' }] : [], density: 'normal', variant: 'default', interactive: true }} />
       ))}</div>
     </div>
   );
