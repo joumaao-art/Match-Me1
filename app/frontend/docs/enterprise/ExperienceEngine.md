@@ -356,9 +356,87 @@ All platform score/progress UI has been migrated to the engine:
 
 ---
 
-## 7. Platform Standards
+## 7. Swipe Feedback Engine
 
-### 7.1 Mandatory Patterns
+### 7.1 Purpose
+
+The Swipe Feedback Engine is the **single platform-wide system** for rendering swipe-based decision interactions. It provides consistent card stacking, directional stamps (APPLY/PASS), drag physics, overlay feedback, and accessibility compliance across all swipe-driven features.
+
+**Location**: `src/components/shared/SwipeFeedbackEngine.tsx`
+
+### 7.2 Available Components
+
+| Component | Use Case | Key Props |
+|-----------|----------|-----------|
+| `CardStack` | Renders a stack of swipeable cards with visual depth | cards, renderCard, onSwipe, config |
+| `useSwipeFeedback` | Hook for custom swipe interactions outside CardStack | config (threshold, rotation, elasticity) |
+
+### 7.3 Swipe Feedback Behavior
+
+| Direction | Stamp | Color | Action |
+|-----------|-------|-------|--------|
+| Right swipe | **APPLY** (green) | `#22C55E` | Positive action (like/apply/accept) |
+| Left swipe | **PASS** (red) | `#EF4444` | Negative action (pass/reject/skip) |
+
+### 7.4 Configuration
+
+```typescript
+interface SwipeFeedbackConfig {
+  threshold?: number;       // Swipe distance to trigger (default: 120px)
+  maxRotation?: number;     // Max card tilt during drag (default: 15°)
+  elasticity?: number;      // Drag resistance (default: 0.8)
+  stackScale?: number;      // Background card scale (default: 0.95)
+  stackOpacity?: number;    // Background card opacity (default: 0.7)
+  visibleCards?: number;    // Cards visible in stack (default: 3)
+  animationDuration?: number; // Exit animation ms (default: 300)
+  reducedMotion?: boolean;  // Disable animations for a11y
+}
+```
+
+### 7.5 Design Principles
+
+| Principle | Implementation |
+|-----------|---------------|
+| **Directional Stamps** | Green "APPLY" on right swipe, red "PASS" on left swipe — opacity scales with drag distance |
+| **Card Stacking** | Background cards offset with decreasing scale/opacity for visual depth |
+| **RTL-Ready** | Swipe directions and stamp positions respect `dir` attribute |
+| **Accessible** | `role="group"`, `aria-roledescription="swipeable card"`, screen reader announcements |
+| **Reduced Motion** | Respects `prefers-reduced-motion`; falls back to opacity-only transitions |
+| **Dark Mode** | Stamp overlays and card backgrounds support `dark:` Tailwind classes |
+| **i18n** | Stamp text uses `t('swipe_apply')` / `t('swipe_pass')` keys |
+
+### 7.6 Usage Pattern
+
+```tsx
+import { CardStack } from '@/components/shared/SwipeFeedbackEngine';
+
+<CardStack
+  cards={jobs}
+  renderCard={(job) => <SwipeCardContent job={job} />}
+  onSwipe={(direction, card) => handleSwipe(direction)}
+  config={{ threshold: 120, maxRotation: 15 }}
+/>
+```
+
+### 7.7 Integration Points
+
+| Feature | Integration |
+|---------|-------------|
+| Job Seeker Discovery | Premium mobile swipe deck uses `CardStack` with `SwipeCardContent` |
+| Candidate Discovery | Company-side candidate swiping (planned) |
+| Saved Items Review | Re-evaluate saved items via swipe (planned) |
+| AI Recommendations | Swipe through AI-suggested matches (planned) |
+
+### 7.8 Mandatory Rule
+
+> **All swipe-based decision interactions MUST use the Swipe Feedback Engine.**
+> Custom inline drag/swipe implementations are prohibited. New features requiring swipe UX must import from `SwipeFeedbackEngine.tsx`.
+
+---
+
+## 8. Platform Standards
+
+### 8.1 Mandatory Patterns
 
 | Pattern | Rule |
 |---------|------|
@@ -371,13 +449,14 @@ All platform score/progress UI has been migrated to the engine:
 | **Accessibility** | WCAG AA minimum, ARIA labels on interactive elements |
 | **Mobile-First** | Design mobile layout first, enhance for desktop |
 
-### 7.2 Component Hierarchy
+### 8.2 Component Hierarchy
 
 ```
 Platform Engines (reusable infrastructure)
 ├── Card Engine (config-driven cards)
 ├── Collection Engine (entity management)
 ├── Score Visualization Engine (scores/progress/funnels)
+├── Swipe Feedback Engine (swipe interactions)
 ├── Matching Engine (swipe + AI)
 ├── Billing Engine (subscriptions)
 ├── Feature Registry (feature catalog)
@@ -392,7 +471,7 @@ Experience Components (UI building blocks)
 └── StatCard → Card Engine (delegated)
 ```
 
-### 7.3 Quality Gates
+### 8.3 Quality Gates
 
 Before any feature ships:
 
@@ -405,12 +484,13 @@ Before any feature ships:
 7. ✅ Lint + build pass
 8. ✅ Card Engine used for any card-like UI
 9. ✅ Score Visualization Engine used for any score/progress/funnel UI
+10. ✅ Swipe Feedback Engine used for any swipe-based decision UI
 
 ---
 
-## 8. Current Platform Parity Status
+## 9. Current Platform Parity Status
 
-### 8.1 Parity Scores (as of 2026-08-06)
+### 9.1 Parity Scores (as of 2026-08-06)
 
 | Platform | Score | Active | Beta | Planned |
 |----------|-------|--------|------|---------|
@@ -419,7 +499,7 @@ Before any feature ships:
 | Native Android | — | — | — | — |
 | Native iOS | — | — | — | — |
 
-### 8.2 Known Mobile Gaps
+### 9.2 Known Mobile Gaps
 
 | Feature | Gap | Priority |
 |---------|-----|----------|
@@ -430,7 +510,7 @@ Before any feature ships:
 | Admin Analytics | Charts too small, heatmap unreadable | P5 |
 | Video Introduction | Camera API integration pending | P4 |
 
-### 8.3 Recommendations
+### 9.3 Recommendations
 
 1. Improve mobile search/filter with bottom-sheet filter panels
 2. Redesign subscription comparison as swipeable cards on mobile
@@ -453,6 +533,7 @@ Before any feature ships:
 | `src/components/shared/DecisionScreenLayout.tsx` | Layout engine |
 | `src/components/shared/BottomSheet.tsx` | Detail overlays |
 | `src/components/shared/ScoreVisualizationEngine.tsx` | Score/progress/funnel engine |
+| `src/components/shared/SwipeFeedbackEngine.tsx` | Swipe interaction engine (stamps, stacking, a11y) |
 | `src/components/shared/StatCard.tsx` | Legacy → Card Engine |
 | `docs/enterprise/CardEngine.md` | Card Engine docs |
 | `docs/enterprise/ExperienceEngine.md` | This document |

@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { useAuth } from '@/App';
 import { changeLanguage } from '@/lib/i18n';
 import { toast } from 'sonner';
-import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
+import { SwipeFeedbackEngine, type SwipeCardItem } from '@/components/shared/SwipeFeedbackEngine';
 import {
   Sparkles, Home, Heart, MessageSquare, Bookmark, Settings, LogOut,
   Globe, Moon, Sun, Building2, MapPin, Briefcase, GraduationCap, X, Check,
@@ -347,16 +347,10 @@ import { DecisionActionBar } from '@/components/shared/DecisionActionBar';
 import { UCSummaryCard, UCDecisionCard } from '@/components/shared/CardEngine';
 import type { SummaryCardConfig, DecisionCardConfig } from '@/lib/card-engine-types';
 
-/** Level 1 — Premium Decision Card */
-function SwipeCard({ job, score, onSwipe, onViewDetails }: { job: typeof mockJobs[0]; score: number; onSwipe: (dir: 'left' | 'right') => void; onViewDetails: () => void }) {
+/** Level 1 — Premium Decision Card Content (swipe handled by SwipeFeedbackEngine on mobile) */
+function SwipeCardContent({ job, score, onViewDetails }: { job: typeof mockJobs[0]; score: number; onViewDetails: () => void }) {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
-  const x = useMotionValue(0);
-  const rotate = useTransform(x, [-200, 200], [-15, 15]);
-  const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0.5, 1, 1, 1, 0.5]);
-  const leftIndicatorOpacity = useTransform(x, [-150, -50, 0], [1, 0.5, 0]);
-  const rightIndicatorOpacity = useTransform(x, [0, 50, 150], [0, 0.5, 1]);
-  const handleDragEnd = (_: any, info: PanInfo) => { if (info.offset.x > 100) onSwipe('right'); else if (info.offset.x < -100) onSwipe('left'); };
   const typeLabel = (type: string) => { const m: Record<string, string> = { full_time: t('full_time'), part_time: t('part_time'), contract: t('contract'), remote: t('remote'), internship: t('internship') }; return m[type] || type; };
   const [expanded, setExpanded] = useState(false);
 
@@ -365,11 +359,7 @@ function SwipeCard({ job, score, onSwipe, onViewDetails }: { job: typeof mockJob
   const remainingSkills = job.required_skills.length - 3;
 
   return (
-    <motion.div className="absolute inset-0 cursor-grab active:cursor-grabbing" style={{ x, rotate, opacity }} drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.7} onDragEnd={handleDragEnd}>
-      {/* Swipe indicators */}
-      <motion.div className="absolute top-3 start-3 z-10 px-2 py-0.5 rounded-md border-2 border-destructive text-destructive font-bold text-xs rotate-[-12deg]" style={{ opacity: leftIndicatorOpacity }}>{t('pass')}</motion.div>
-      <motion.div className="absolute top-3 end-3 z-10 px-2 py-0.5 rounded-md border-2 border-green-500 text-green-500 font-bold text-xs rotate-[12deg]" style={{ opacity: rightIndicatorOpacity }}>{t('like')}</motion.div>
-
+    <div className="h-full w-full">
       <Card className="h-full flex flex-col overflow-hidden border shadow-lg rounded-2xl" onClick={onViewDetails}>
         <CardContent className={`flex-1 flex flex-col ${isMobile ? 'p-3 gap-2.5' : 'p-5 gap-3'}`}>
           {/* Header: Company Logo + Verification + Save/Share */}
@@ -456,7 +446,7 @@ function SwipeCard({ job, score, onSwipe, onViewDetails }: { job: typeof mockJob
           )}
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 }
 
@@ -615,6 +605,33 @@ function SwipeView() {
     toast.success(t('job_saved'));
   }, [currentJob, t]);
 
+  // Prepare swipe deck items for the SwipeFeedbackEngine (must be before early return)
+  const swipeDeckItems: SwipeCardItem[] = useMemo(() =>
+    recommendedJobs.slice(0, 5).map(job => ({ id: job.id, ...job })),
+    [recommendedJobs]
+  );
+
+  const swipeDeckIndex = useMemo(() => {
+    if (!currentJob) return 0;
+    const idx = swipeDeckItems.findIndex(item => item.id === currentJob.id);
+    return idx >= 0 ? idx : 0;
+  }, [currentJob, swipeDeckItems]);
+
+  const renderSwipeCard = useCallback((item: SwipeCardItem, _isActive: boolean) => {
+    const job = item as unknown as typeof mockJobs[0];
+    return (
+      <SwipeCardContent
+        job={job}
+        score={job.compatibility_score}
+        onViewDetails={() => setShowDetails(true)}
+      />
+    );
+  }, []);
+
+  const handleSwipeFeedback = useCallback((direction: 'left' | 'right', _item: SwipeCardItem) => {
+    handleSwipe(direction);
+  }, [handleSwipe]);
+
   if (!currentJob) return (
     <div className="flex-1 flex items-center justify-center p-8"><div className="text-center"><Heart className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" /><h3 className="text-lg font-semibold font-[Poppins] mb-2">{t('no_more_jobs')}</h3><p className="text-sm text-muted-foreground mb-4">{t('check_back_later')}</p>
       {canUndo && <Button variant="outline" onClick={handleUndo} className="cursor-pointer gap-2"><Undo2 className="w-4 h-4" />{t('undo_last_swipe')}</Button>}
@@ -641,16 +658,35 @@ function SwipeView() {
     </div>
   );
 
-  const cardContent = (
+  const cardContent = isMobile ? (
+    <SwipeFeedbackEngine
+      items={swipeDeckItems}
+      activeIndex={swipeDeckIndex}
+      renderCard={renderSwipeCard}
+      onSwipe={handleSwipeFeedback}
+      onTap={() => setShowDetails(true)}
+      enabled={true}
+      config={{
+        threshold: 100,
+        maxRotation: 15,
+        elasticity: 0.7,
+        showStack: true,
+        rightLabel: 'swipe_apply',
+        leftLabel: 'swipe_pass',
+        rightColor: '#16a34a',
+        leftColor: '#dc2626',
+      }}
+    />
+  ) : (
     <>
       {recommendedJobs.slice(0, 2).reverse().map((job, i) => (
-        <SwipeCard
-          key={job.id}
-          job={job}
-          score={job.compatibility_score}
-          onSwipe={i === Math.min(recommendedJobs.length, 2) - 1 ? handleSwipe : () => {}}
-          onViewDetails={() => setShowDetails(true)}
-        />
+        <div key={job.id} className="absolute inset-0">
+          <SwipeCardContent
+            job={job}
+            score={job.compatibility_score}
+            onViewDetails={() => setShowDetails(true)}
+          />
+        </div>
       ))}
     </>
   );

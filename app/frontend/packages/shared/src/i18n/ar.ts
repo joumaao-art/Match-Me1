@@ -2098,4 +2098,12 @@ export const ar = {
   team_members: 'أعضاء الفريق',
   billing: 'الفواتير',
   main_navigation: 'التنقل الرئيسي',
+
+  // Swipe Feedback Engine
+  swipe_apply: 'تقديم',
+  swipe_pass: 'تجاوز',
+  swipe_card_description: 'بطاقة قابلة للسحب',
+  swipe_card_aria: 'بطاقة {{id}} — اسحب يميناً للتقديم، يساراً للتجاوز',
+  swipe_hint_right: 'اسحب يميناً للتقديم',
+  swipe_hint_left: 'اسحب يساراً للتجاوز',
 } as const;

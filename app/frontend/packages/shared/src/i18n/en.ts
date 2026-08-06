@@ -2098,4 +2098,12 @@ export const en = {
   team_members: 'Team Members',
   billing: 'Billing',
   main_navigation: 'Main Navigation',
+
+  // Swipe Feedback Engine
+  swipe_apply: 'APPLY',
+  swipe_pass: 'PASS',
+  swipe_card_description: 'Swipeable card',
+  swipe_card_aria: 'Card {{id}} — swipe right to apply, left to pass',
+  swipe_hint_right: 'Swipe right to apply',
+  swipe_hint_left: 'Swipe left to pass',
 } as const;

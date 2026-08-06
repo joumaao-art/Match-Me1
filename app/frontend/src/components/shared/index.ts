@@ -14,3 +14,5 @@ export { ProfileCompletionCard, ProfileCompletionMini, ProfileStrengthBadge, Can
 export type { ProfileData, ProfileCompletionResult, StrengthLevel, CompletionStatus } from './ProfileCompletion';
 export { ScoreBar, ScorePercentage, ScoreLabel, ScoreRow, ScoreBreakdown, CircularScore, ConfidenceIndicator, ComparisonBar, ScoreBadge, TrendIndicator } from './ScoreVisualizationEngine';
 export type { ScoreItem, ScoreBarProps, ScorePercentageProps, ScoreLabelProps, ScoreRowProps, ScoreBreakdownProps, CircularScoreProps, ConfidenceIndicatorProps, ComparisonBarProps, ScoreBarVariant, ScoreLayoutMode, ScoreColorState } from './ScoreVisualizationEngine';
+export { SwipeFeedbackEngine, useSwipeFeedback } from './SwipeFeedbackEngine';
+export type { SwipeFeedbackConfig, SwipeCardItem, SwipeFeedbackEngineProps } from './SwipeFeedbackEngine';
