@@ -1,0 +1,215 @@
+Prompt 9 – Messaging, Interviews & Hiring Workflow Engine (End-to-End Hiring Journey)
+
+Design and implement the full hiring workflow system for MatchMe, covering:
+
+Communication (chat, notifications)
+Interview scheduling & management
+Hiring pipeline (ATS-lite)
+Offer & hiring decision flow
+
+This system must seamlessly connect Job Seekers, Employers, and Internal Hiring Teams.
+
+1. SYSTEM OBJECTIVE
+
+Build a system that:
+
+Converts matches → conversations → interviews → hires
+Provides a smooth, fast, mobile-first hiring experience
+Replaces fragmented tools (email, WhatsApp, spreadsheets)
+2. CORE MODULES
+2.1 Messaging Engine (Real-Time Chat)
+Features:
+1:1 chat (Candidate ↔ Employer)
+Group chat (Hiring team)
+System messages (automated updates)
+File sharing:
+CV
+Portfolio
+Documents
+Voice notes (optional)
+Read receipts
+Typing indicators
+Chat Triggers:
+Match created → auto chat opens
+Employer shortlists → message prompt
+Interview scheduled → system message
+Suggested Tech:
+WebSockets (real-time)
+Firebase / Socket.io
+Message queue (Kafka / RabbitMQ)
+2.2 Notification System
+Channels:
+In-app notifications
+Email
+Push notifications
+Triggers:
+New match
+New message
+Interview scheduled
+Status change
+Offer sent
+Requirements:
+Real-time delivery
+User preference settings
+Quiet hours support
+2.3 Interview Scheduling Engine
+Features:
+Calendar integration:
+Google Calendar
+Outlook
+Time slot selection
+Time zone detection
+Rescheduling
+Cancellation
+Interview reminders
+Interview Types:
+In-person
+Video (Zoom, Google Meet)
+Phone call
+Automation:
+Send calendar invites
+Generate meeting links
+Reminder notifications (24h / 1h)
+2.4 Hiring Pipeline (ATS-Lite)
+
+Each job must have a customizable pipeline:
+
+Default Stages:
+Applied
+Screening
+Interview
+Final Interview
+Offer
+Hired
+Rejected
+Features:
+Drag & drop candidates between stages
+Bulk actions
+Notes & feedback per candidate
+Tags (e.g., “Strong”, “Urgent”)
+2.5 Candidate Profile View (Employer Side)
+
+Display:
+
+Full profile
+CV
+Match score
+AI insights:
+Strengths
+Weaknesses
+Skill gaps
+Activity history
+Notes from team
+2.6 Employer Collaboration Tools
+Multiple team members per job
+Role-based access:
+Recruiter
+Hiring Manager
+Admin
+Internal comments (not visible to candidate)
+Candidate rating system (1–5)
+2.7 Offer Management
+Features:
+Create offer:
+Salary
+Benefits
+Start date
+Send digital offer
+Candidate can:
+Accept
+Reject
+Request changes
+Optional:
+E-signature integration
+3. WORKFLOW LOGIC (END-TO-END)
+Step 1: Match
+Candidate ↔ Job matched
+Chat enabled
+Step 2: Conversation
+Employer initiates chat
+Candidate responds
+Step 3: Shortlisting
+Employer moves candidate to “Screening”
+Step 4: Interview
+Schedule interview
+Send invites
+Conduct interview
+Add feedback
+Step 5: Decision
+Move to:
+Final Interview
+Offer
+Rejected
+Step 6: Offer & Hire
+Send offer
+Candidate accepts
+Status = Hired
+4. AUTOMATION RULES
+Examples:
+If no reply in 48h → send reminder
+If candidate stuck in stage > X days → alert recruiter
+Auto-reject after inactivity (optional)
+5. DATA MODEL (SIMPLIFIED)
+Tables:
+conversations
+messages
+notifications
+interviews
+pipelines
+pipeline_stages
+candidate_stage_history
+offers
+feedback
+6. PERMISSIONS & SECURITY
+Only matched users can chat
+Employers cannot see candidate contact info until match (optional)
+Role-based access control (RBAC)
+Data privacy compliance (GDPR-ready)
+7. ANALYTICS & TRACKING
+
+Track:
+
+Response time
+Interview-to-offer ratio
+Offer acceptance rate
+Time per stage
+Drop-off points
+8. MOBILE-FIRST UX REQUIREMENTS
+Fast chat experience (like WhatsApp)
+Swipe actions:
+Move stage
+Quick reply
+Push-first engagement
+9. INTEGRATIONS
+Calendar (Google, Outlook)
+Video tools (Zoom, Meet)
+Email service
+Future:
+HR systems
+Payroll systems
+10. PERFORMANCE REQUIREMENTS
+Real-time messaging latency < 1s
+High availability (99.9%)
+Scalable to thousands of concurrent chats
+11. FUTURE ENHANCEMENTS
+AI interview assistant
+Automated screening questions
+Voice/video interviews inside app
+Interview transcription & scoring
+AI-generated candidate summaries
+12. OUTPUT REQUIREMENTS
+For Candidates:
+Chat interface
+Interview schedule
+Application status
+Offer details
+For Employers:
+Candidate pipeline
+Messaging dashboard
+Interview calendar
+Hiring insights
+13. SUCCESS CRITERIA
+Faster hiring cycles
+Higher response rates
+Better candidate experience
+Reduced recruiter workload
