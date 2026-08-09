@@ -1,0 +1,197 @@
+Prompt 8 – AI Matching Engine + Career Graph Intelligence Engine
+
+Design and implement the core intelligence layer of the MatchMe platform, combining:
+
+AI Matching Engine (real-time recommendations)
+Career Graph Intelligence Engine (deep talent & job understanding)
+
+This system must behave like a next-generation LinkedIn + Tinder + OpenAI hybrid, where matching is not keyword-based but graph intelligence-driven.
+
+1. Core Objective
+
+Build an AI system that:
+
+Understands people beyond CVs
+Understands jobs beyond job descriptions
+Predicts fit, trajectory, and potential
+Continuously learns from behavior and outcomes
+2. Career Graph Intelligence Engine (FOUNDATION LAYER)
+2.1 Concept
+
+Create a multi-dimensional career graph where:
+
+Nodes:
+Users (job seekers)
+Companies
+Jobs
+Skills
+Certifications
+Education
+Industries
+Career paths
+Behavioral traits
+Edges (relationships):
+HAS_SKILL
+WORKED_AT
+APPLIED_TO
+HIRED_FOR
+SIMILAR_TO
+TRANSITIONED_TO
+REQUIRES_SKILL
+MATCHED_WITH
+VIEWED
+REJECTED
+PROMOTED_TO
+2.2 Graph Capabilities
+
+The system must:
+
+A. Career Path Prediction
+Predict next logical roles for a user
+Identify non-obvious transitions (e.g., cashier → sales → account manager)
+B. Skill Adjacency Mapping
+Understand which skills are transferable
+Suggest “missing but learnable” skills
+C. Talent Clustering
+Group users into dynamic talent clusters
+Example: “High-growth junior sales in Riyadh”
+D. Job DNA Modeling
+
+Each job must be transformed into a structured intelligence object:
+
+Required skills
+Implied skills
+Seniority level
+Behavioral profile
+Career trajectory
+2.3 Graph Storage
+
+Use:
+
+Graph DB: Neo4j / Amazon Neptune
+Vector DB: Pinecone / Weaviate
+Hybrid Model:
+Graph = relationships
+Vector = semantic similarity
+3. AI Matching Engine (REAL-TIME LAYER)
+3.1 Matching Types
+A. Swipe Matching (User → Job)
+Tinder-style UX
+Real-time scoring
+B. Reverse Matching (Company → Talent)
+Ranked candidate lists
+“Top 1% candidates” suggestions
+3.2 Matching Score Formula
+
+Each match must generate a composite score (0–100):
+
+Factors:
+Skill Match (30%)
+Experience Match (15%)
+Career Trajectory Fit (15%)
+Behavioral Fit (10%)
+Location Fit (10%)
+Salary Alignment (10%)
+Engagement Signals (10%)
+3.3 AI Models
+Use multiple AI layers:
+1. Embedding Model
+Convert CVs, profiles, and jobs into vectors
+Use OpenAI embeddings or similar
+2. Ranking Model
+Rank matches using:
+XGBoost / LightGBM OR
+Deep Learning ranking model
+3. Graph Traversal Algorithms
+Suggest:
+Career moves
+Skill gaps
+Candidate-job proximity
+4. Career Intelligence Features (USER SIDE)
+Users should see:
+A. Match Score Explanation
+“You match 82% because…”
+Skills: 90%
+Experience: 70%
+Growth potential: High
+B. Career Path Suggestions
+“You can become a Senior Account Manager in 12 months”
+C. Skill Gap Insights
+“Add SQL + CRM to unlock 3x more opportunities”
+5. Company Intelligence Features
+Recruiters should get:
+A. Candidate Ranking
+Top matches ranked automatically
+B. Talent Pool Discovery
+“Hidden talent” recommendations
+C. Hiring Insights
+Time-to-hire prediction
+Market salary benchmarks
+Talent availability by city
+6. Learning & Feedback Loop
+
+The system must continuously learn from:
+
+Swipes (like / dislike)
+Applications
+Interviews
+Hires
+Retention (if available)
+Feedback Loop:
+Capture user action
+Update graph edges
+Retrain ranking model
+Improve future matches
+7. Personalization Engine
+
+Each user must have a dynamic preference profile:
+
+Preferred industries
+Role types
+Salary expectations
+Behavior patterns
+
+Use this to:
+
+Re-rank jobs
+Personalize feed
+Improve swipe relevance
+8. Cold Start Problem Handling
+For new users:
+Use:
+Profile data
+Location
+Similar users (graph neighbors)
+For new jobs:
+Use:
+Job embeddings
+Similar job clustering
+9. Explainability Layer
+
+Every match must be explainable:
+
+Why matched
+What’s missing
+How to improve
+10. Performance Requirements
+Match response time: < 200ms
+Real-time recommendations
+Scalable to millions of users
+11. API Endpoints
+Matching APIs:
+GET /matches/jobs
+GET /matches/candidates
+GET /matches/score
+GET /career-path
+GET /skill-gap
+12. Output Requirements
+
+Generate:
+
+Graph schema (nodes + edges)
+Matching algorithm pseudocode
+Database schema
+API specs
+Example match JSON response
+AI model architecture
+Scaling strategy
