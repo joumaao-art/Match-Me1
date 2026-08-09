@@ -1,0 +1,191 @@
+Prompt 10 – Monetization, Pricing & Subscription Engine (Revenue Engine 💰)
+
+Design and implement the full monetization system for MatchMe, covering:
+
+Subscription plans
+Pay-per-use features
+Credit system
+Billing & invoicing
+Revenue analytics
+
+This system must be scalable, flexible, and optimized for high LTV (Lifetime Value).
+
+1. MONETIZATION STRATEGY OVERVIEW
+
+The platform must generate revenue from:
+
+Primary Revenue Streams
+Employer subscriptions (main revenue driver)
+Pay-per-hire / success fees
+Credits system (boosts, unlocks)
+Premium job seeker features
+Secondary Revenue Streams
+Featured job listings
+Employer branding pages
+Talent database access
+Ads (future phase)
+2. PRICING MODEL DESIGN
+2.1 Employer Subscription Plans
+Tier 1 – Basic
+Limited job postings (e.g., 2–3 active jobs)
+Limited candidate views
+Basic matching
+No advanced analytics
+Tier 2 – Growth
+More job postings
+Unlimited matches
+Messaging enabled
+Basic analytics
+Interview scheduling
+Tier 3 – Pro
+Unlimited jobs
+Advanced AI matching
+Full ATS pipeline
+Team collaboration
+Priority support
+Tier 4 – Enterprise
+Custom pricing
+API access
+Dedicated account manager
+Advanced analytics
+Integrations (HR systems)
+2.2 Pay-Per-Use Model
+
+Charge for:
+
+Unlock candidate contact details
+Boost job visibility
+Featured listings
+AI-powered shortlist generation
+2.3 Credit System
+
+Introduce credits as a flexible currency.
+
+Use Cases:
+Unlock candidate profile
+Boost job
+Send direct invite
+Example:
+1 credit = unlock candidate
+5 credits = featured job
+2.4 Success Fee Model (Optional but HIGH VALUE)
+Charge % of salary on successful hire
+Example:
+5%–10% of annual salary
+2.5 Job Seeker Monetization (Optional)
+Profile boost
+AI CV optimization
+Career insights
+Priority visibility to employers
+3. BILLING & PAYMENT SYSTEM
+Features
+Subscription management:
+Monthly / yearly plans
+Auto-renewals
+Upgrade / downgrade
+Proration logic
+Payments
+
+Integrate with:
+
+Stripe
+Local payment gateways (KSA/MENA)
+Apple Pay / Google Pay
+Invoices
+Generate PDF invoices
+VAT compliant (important for KSA)
+Store billing history
+4. ACCESS CONTROL (CRITICAL)
+
+Tie features to plans:
+
+Example:
+Feature	Basic	Growth	Pro	Enterprise
+Job postings	Limited	More	Unlimited	Unlimited
+Messaging	❌	✅	✅	✅
+AI Matching	Basic	Medium	Advanced	Advanced
+Analytics	❌	Basic	Advanced	Advanced
+API Access	❌	❌	❌	✅
+5. FEATURE GATING SYSTEM
+
+Implement middleware that:
+
+Checks user subscription
+Enables/disables features dynamically
+
+Example:
+
+if (!user.hasFeature("UNLIMITED_JOBS")) {
+  blockAction();
+}
+6. REVENUE OPTIMIZATION LOGIC
+Smart Upsells:
+Show upgrade prompts when:
+Employer runs out of job slots
+Wants to message locked candidates
+Needs more visibility
+Dynamic Pricing (Future):
+Adjust pricing based on:
+Market demand
+Hiring urgency
+Industry
+7. ANALYTICS & REVENUE DASHBOARD
+
+Track:
+
+MRR (Monthly Recurring Revenue)
+ARPU (Average Revenue Per User)
+Conversion rate (free → paid)
+Churn rate
+LTV (Lifetime Value)
+CAC (Customer Acquisition Cost)
+8. DATA MODEL (SIMPLIFIED)
+
+Tables:
+
+plans
+subscriptions
+payments
+invoices
+credits
+transactions
+feature_flags
+9. MULTI-TENANT BILLING
+Each company = tenant
+Separate billing per company
+Support multiple users under one subscription
+10. DISCOUNTS & PROMOTIONS
+
+Support:
+
+Promo codes
+Free trials
+Limited-time discounts
+11. COMPLIANCE & TAX
+VAT support (KSA requirement)
+Invoice numbering
+Payment audit logs
+12. PERFORMANCE REQUIREMENTS
+Billing accuracy = 100%
+Real-time subscription updates
+Scalable to thousands of companies
+13. FUTURE MONETIZATION FEATURES
+Marketplace for recruiters
+Sponsored candidates
+AI hiring assistant (paid add-on)
+Data insights subscription
+14. OUTPUT REQUIREMENTS
+For Employers:
+Subscription dashboard
+Billing history
+Credit balance
+Usage tracking
+For Admin:
+Revenue dashboard
+Plan management
+Pricing control
+15. SUCCESS CRITERIA
+High conversion rate (free → paid)
+Low churn
+High LTV
+Clear value per tier
