@@ -1,0 +1,119 @@
+✅ Prompt – Mobile Layout Fix + Responsive Proportion Engine + Safe Area Handling
+
+Fix the mobile UI issue in the Job Seeker Account screen where the Save button is not visible because it is hidden behind the bottom navigation bar, and ensure the entire mobile layout is properly proportioned and responsive.
+
+1. ROOT PROBLEM TO SOLVE
+Bottom navigation is fixed
+Page content does not account for its height
+Save button is rendered under the nav
+Layout spacing is not optimized for mobile screens
+2. IMPLEMENT SAFE LAYOUT SYSTEM (CRITICAL)
+
+Create a Mobile Safe Layout Wrapper that ensures no content is hidden behind fixed UI elements.
+
+Requirements:
+Add bottom padding equal to:
+Bottom nav height
+device safe area (iOS notch / Android inset)
+Example:
+.page-container {
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
+}
+3. FIX SAVE BUTTON VISIBILITY (2 APPROACHES)
+✅ Option A (Recommended – Sticky CTA)
+
+Make the Save button sticky above the bottom nav
+
+.save-button-container {
+  position: sticky;
+  bottom: 80px; /* height of bottom nav */
+  background: white;
+  padding: 12px;
+}
+✅ Option B (Scrollable Layout Fix)
+Keep Save button at the bottom of content
+Ensure page scrolls fully ABOVE nav
+4. RESPONSIVE PROPORTION ENGINE (MANDATORY)
+
+Implement a system that ensures consistent spacing across devices
+
+Rules:
+Use 8pt spacing system
+Avoid fixed heights
+Use relative units:
+rem, %, vh
+Mobile Spacing Standard:
+Section spacing: 16–24px
+Input spacing: 12–16px
+Screen padding: 16px
+5. FORM UX OPTIMIZATION
+Improve vertical flow:
+Reduce excessive spacing between fields
+Ensure:
+Labels are tight to inputs
+Inputs are consistent height
+Input fields:
+.input {
+  height: 48px;
+  border-radius: 12px;
+}
+6. BOTTOM NAVIGATION SYSTEM FIX
+
+Ensure bottom nav:
+
+Has fixed height (e.g., 70–80px)
+Does NOT overlap content
+Has proper z-index layering
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  height: 70px;
+  z-index: 1000;
+}
+7. SCROLL BEHAVIOR FIX
+
+Ensure:
+
+Full page is scrollable
+No hidden overflow
+Smooth mobile scroll
+body {
+  overflow-y: auto;
+}
+8. MOBILE-FIRST LAYOUT RULES
+Max width: 100%
+No horizontal scroll
+All components scale properly
+9. FEATURE PARITY CHECK (IMPORTANT)
+
+Ensure mobile includes:
+
+Save button ✅
+Logout button ✅
+All actions available on web ✅
+10. RESPONSIVE VALIDATION ENGINE (ADD THIS)
+
+Create a validation layer that checks:
+
+No element overlaps bottom nav
+All CTAs are visible
+No clipped components
+Proper spacing across:
+iPhone
+Android
+Small screens
+11. QA CHECKLIST
+
+Before completion, verify:
+
+✅ Save button always visible
+✅ No content hidden behind nav
+✅ Smooth scroll
+✅ Proper spacing
+✅ Works on all screen sizes
+12. EXPECTED RESULT
+Clean mobile layout
+Proper spacing
+Save button always accessible
+No overlap with bottom navigation
+Professional app-like experience

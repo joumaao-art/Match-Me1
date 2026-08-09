@@ -49,6 +49,7 @@
 - [x] Feature Registry Engine (src/lib/feature-registry.ts)
 - [x] Feature Validation Engine (platform parity verification via registry)
 - [x] Experience Engine Documentation Update (Mobile standards, Feature Registry, Platform Standards)
+- [x] Fix mobile Save button hidden behind bottom nav — viewport-locked layout with safe-area-aware padding
 
 ## Progress Log
 - 2026-07-17: Project initialized with Supabase template, dependencies installed

@@ -1753,14 +1753,14 @@ export default function JobSeeker() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="h-[100dvh] bg-background flex overflow-hidden">
       {/* Desktop sidebar - hidden on mobile */}
       <aside className="hidden md:flex w-64 border-e border-border flex-col bg-sidebar-background">
         <SeekerNav activeTab={activeTab} setActiveTab={setActiveTab} />
       </aside>
 
-      {/* Main content area */}
-      <main className="flex-1 flex flex-col min-h-screen min-w-0">
+      {/* Main content area — pb accounts for fixed MobileBottomNav on mobile */}
+      <main className="flex-1 flex flex-col min-w-0 pb-[calc(4rem+env(safe-area-inset-bottom,0px))] md:pb-0">
         {renderContent()}
       </main>
 

@@ -211,7 +211,7 @@ export function MobileAccountCenter({
   const menuGroups = portalType === 'job_seeker' ? seekerMenuGroups : companyMenuGroups;
 
   return (
-    <div className="flex-1 overflow-y-auto pb-24">
+    <div className="flex-1 overflow-y-auto pb-6">
       {/* Profile Header */}
       <div className="px-4 pt-6 pb-4">
         <div className="flex items-center gap-3">

@@ -92,7 +92,7 @@ export function MobileDashboard({ onNavigateToSection, profileCompletion = 72 }:
   return (
     <div className="flex-1 overflow-y-auto">
       {/* Mobile-optimized content with safe bottom padding for nav */}
-      <div className="p-4 pb-24 md:pb-6 md:p-6 space-y-4 md:space-y-6 max-w-4xl mx-auto">
+      <div className="p-4 pb-6 md:p-6 space-y-4 md:space-y-6 max-w-4xl mx-auto">
 
         {/* Section 1: Greeting + AI Match Score */}
         <div className="flex items-start justify-between">
