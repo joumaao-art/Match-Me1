@@ -15,11 +15,17 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useAuthStore } from '@/stores';
 import { authService } from '@/services';
 import { changeLanguage } from '@/lib/i18n';
-import { VALIDATION, ROUTES } from '@/config/constants';
+import { VALIDATION, ROUTES, STORAGE_KEYS } from '@/config/constants';
 import { toast } from 'sonner';
 import { Sparkles, UserCircle, Building2, ArrowLeft, Globe, Mail, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { SignupMethodButton, OtpInput } from '@/components/onboarding/OnboardingKit';
 
-type AuthView = 'role_select' | 'login' | 'register' | 'forgot_password' | 'verify_email';
+type AuthView =
+  | 'role_select' | 'login' | 'register' | 'forgot_password' | 'verify_email'
+  | 'seeker_signup' | 'seeker_phone' | 'seeker_otp';
+
+// Dial codes offered for Job Seeker phone/OTP signup (GCC-first).
+const DIAL_CODES = ['+966', '+971', '+20', '+962', '+965', '+974', '+973', '+968', '+1', '+44'];
 
 export default function Auth() {
   const { t, i18n } = useTranslation();
@@ -37,6 +43,11 @@ export default function Auth() {
   const [rememberMe, setRememberMeLocal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
+  // Job Seeker phone/OTP signup state
+  const [phone, setPhone] = useState('');
+  const [dialCode, setDialCode] = useState('+966');
+  const [phoneE164, setPhoneE164] = useState('');
+  const [otp, setOtp] = useState('');
 
   // Get intended destination from navigation state
   const from = (location.state as any)?.from?.pathname;
@@ -71,7 +82,83 @@ export default function Auth() {
 
   const handleRoleSelect = (role: 'job_seeker' | 'company') => {
     setSelectedRole(role);
-    setView('login');
+    // Job Seekers get the modern signup journey; Companies keep the classic login.
+    setView(role === 'job_seeker' ? 'seeker_signup' : 'login');
+  };
+
+  // ---- Job Seeker signup: Apple / Google OAuth + phone OTP (Company auth untouched) ----
+
+  const startOAuth = async (provider: 'apple' | 'google') => {
+    setLoading(true);
+    try {
+      // Remember the intended role so /auth/callback can bootstrap the profile.
+      localStorage.setItem(STORAGE_KEYS.PENDING_ROLE, 'job_seeker');
+      const { error } = await authService.signInWithOAuth(provider);
+      if (error) {
+        localStorage.removeItem(STORAGE_KEYS.PENDING_ROLE);
+        toast.error(error.message || t('ob_oauth_unavailable'));
+      }
+      // On success the browser is redirected to the provider.
+    } catch {
+      localStorage.removeItem(STORAGE_KEYS.PENDING_ROLE);
+      toast.error(t('ob_oauth_unavailable'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const normalized = authService.normalizePhone(phone, dialCode);
+    if (!normalized) { toast.error(t('ob_err_phone')); return; }
+    setLoading(true);
+    try {
+      const { error } = await authService.sendPhoneOtp(normalized);
+      if (error) { toast.error(error.message || t('ob_otp_unavailable')); return; }
+      setPhoneE164(normalized);
+      setOtp('');
+      setView('seeker_otp');
+      toast.success(t('ob_otp_sent'));
+    } catch {
+      toast.error(t('ob_otp_unavailable'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (!phoneE164) return;
+    const { error } = await authService.sendPhoneOtp(phoneE164);
+    if (!error) toast.success(t('ob_otp_sent'));
+  };
+
+  const handleVerifyOtp = async (code?: string) => {
+    const token = (code ?? otp).trim();
+    if (token.length !== 6) { toast.error(t('ob_err_otp')); return; }
+    setLoading(true);
+    try {
+      const { data, error } = await authService.verifyPhoneOtp(phoneE164, token);
+      if (error || !data) { toast.error(error?.message || t('ob_err_otp')); return; }
+      const user = (data as any)?.user;
+      if (!user?.id) { toast.error(t('ob_err_otp')); return; }
+      // Duplicate-account handling: existing users just sign in with their role.
+      const dbRole = await authService.getUserRole(user.id);
+      setRememberMe(true);
+      if (dbRole) {
+        setUserRole(dbRole);
+        navigate(dbRole === 'company' ? ROUTES.COMPANY : ROUTES.SEEKER, { replace: true });
+      } else {
+        // Brand-new phone signup -> create seeker profile, straight into onboarding.
+        await authService.createUserProfile(user.id, 'job_seeker');
+        await authService.createRoleProfile(user.id, 'job_seeker', user.email || user.phone || '');
+        setUserRole('job_seeker');
+        navigate(ROUTES.SEEKER_ONBOARDING, { replace: true });
+      }
+    } catch (err: any) {
+      toast.error(err?.message || t('ob_err_otp'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -297,6 +384,102 @@ export default function Auth() {
             </div>
           )}
 
+          {/* Job Seeker Signup Methods (Apple / Google / Phone / Email) */}
+          {view === 'seeker_signup' && (
+            <Card>
+              <CardHeader className="text-center">
+                <CardTitle className="font-[Poppins]">{t('ob_signup_title')}</CardTitle>
+                <CardDescription>{t('ob_signup_subtitle')}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <SignupMethodButton kind="apple" onClick={() => startOAuth('apple')} disabled={loading} />
+                <SignupMethodButton kind="google" onClick={() => startOAuth('google')} disabled={loading} />
+                <SignupMethodButton kind="phone" onClick={() => setView('seeker_phone')} disabled={loading} />
+                <SignupMethodButton kind="email" onClick={() => setView('register')} disabled={loading} />
+                <div className="pt-1 text-center text-sm">
+                  <span className="text-muted-foreground">{t('ob_signup_already')} </span>
+                  <Button variant="link" className="p-0 h-auto cursor-pointer" onClick={() => setView('login')}>
+                    {t('ob_signup_welcome_back')}
+                  </Button>
+                </div>
+                <Button
+                  variant="ghost"
+                  className="w-full cursor-pointer"
+                  onClick={() => { setView('role_select'); setSelectedRole(null); }}
+                >
+                  <ArrowLeft className="w-4 h-4 me-2" />
+                  {t('back')}
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Job Seeker Phone Entry */}
+          {view === 'seeker_phone' && (
+            <Card>
+              <CardHeader className="text-center">
+                <CardTitle className="font-[Poppins]">{t('ob_phone_title')}</CardTitle>
+                <CardDescription>{t('ob_phone_subtitle')}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSendOtp} className="space-y-4">
+                  <div className="flex gap-2">
+                    <Label htmlFor="dial" className="sr-only">{t('ob_country_code')}</Label>
+                    <select
+                      id="dial"
+                      value={dialCode}
+                      onChange={(e) => setDialCode(e.target.value)}
+                      className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+                    >
+                      {DIAL_CODES.map((code) => <option key={code} value={code}>{code}</option>)}
+                    </select>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel-national"
+                      placeholder={t('phone_placeholder')}
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                  <Button type="submit" className="w-full cursor-pointer" disabled={loading}>
+                    {loading ? t('loading') : t('ob_send_code')}
+                  </Button>
+                </form>
+                <Button variant="ghost" className="w-full mt-2 cursor-pointer" onClick={() => setView('seeker_signup')}>
+                  <ArrowLeft className="w-4 h-4 me-2" />
+                  {t('back')}
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Job Seeker OTP Verification */}
+          {view === 'seeker_otp' && (
+            <Card>
+              <CardHeader className="text-center">
+                <CardTitle className="font-[Poppins]">{t('ob_otp_title')}</CardTitle>
+                <CardDescription>{t('ob_otp_subtitle')} {phoneE164}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <OtpInput value={otp} onChange={setOtp} onComplete={(v) => handleVerifyOtp(v)} />
+                <Button className="w-full cursor-pointer" disabled={loading || otp.length !== 6} onClick={() => handleVerifyOtp()}>
+                  {loading ? t('loading') : t('ob_otp_verify')}
+                </Button>
+                <div className="flex items-center justify-between">
+                  <Button variant="link" className="p-0 h-auto text-sm cursor-pointer" onClick={handleResendOtp}>
+                    {t('ob_otp_resend')}
+                  </Button>
+                  <Button variant="ghost" className="p-0 h-auto text-sm cursor-pointer" onClick={() => setView('seeker_phone')}>
+                    {t('back')}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Login Form */}
           {view === 'login' && (
             <Card>
@@ -371,7 +554,11 @@ export default function Auth() {
                 </form>
                 <div className="mt-4 text-center text-sm">
                   <span className="text-muted-foreground">{t('dont_have_account')} </span>
-                  <Button variant="link" className="p-0 h-auto cursor-pointer" onClick={() => setView('register')}>
+                  <Button
+                    variant="link"
+                    className="p-0 h-auto cursor-pointer"
+                    onClick={() => setView(selectedRole === 'job_seeker' ? 'seeker_signup' : 'register')}
+                  >
                     {t('register')}
                   </Button>
                 </div>

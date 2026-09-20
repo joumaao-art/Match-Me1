@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@/components/shared';
 import { useAuthStore, useAppStore } from '@/stores';
 import { authService } from '@/services';
-import { ROUTES } from '@/config/constants';
+import { ROUTES, STORAGE_KEYS } from '@/config/constants';
 import { initializeSecurity, sessionManager, auditLogger } from '@/lib/security';
 import { optimizeStartup, trackPerformance, updateSEO } from '@/lib/performance';
 import '@/lib/i18n';
@@ -36,6 +36,7 @@ const LearnMore = lazy(() => import('./pages/LearnMore'));
 
 // Feature pages - large, lazy loaded
 const JobSeeker = lazy(() => import('./pages/JobSeeker'));
+const JobSeekerOnboarding = lazy(() => import('./pages/JobSeekerOnboarding'));
 const Company = lazy(() => import('./pages/Company'));
 const Messages = lazy(() => import('./pages/Messages'));
 const Subscription = lazy(() => import('./pages/Subscription'));
@@ -183,13 +184,42 @@ function GuestRoute({ children }: { children: React.ReactNode }) {
 }
 
 function AuthCallbackHandler() {
-  const { userRole, isAuthenticated } = useAuthStore();
+  const { userRole, isAuthenticated, userId, email, setUserRole } = useAuthStore();
+  const [bootstrapped, setBootstrapped] = useState(false);
 
   useEffect(() => {
     authService.getSession();
   }, []);
 
+  // First-time OAuth / phone return: bootstrap the profile from the pending role
+  // captured before the provider redirect (Job Seeker signup path).
+  useEffect(() => {
+    if (!isAuthenticated || !userId || userRole || bootstrapped) return;
+    let alive = true;
+    (async () => {
+      try {
+        const dbRole = await authService.getUserRole(userId);
+        if (!alive) return;
+        if (dbRole) {
+          setUserRole(dbRole);
+        } else {
+          const pending = localStorage.getItem(STORAGE_KEYS.PENDING_ROLE) as 'job_seeker' | 'company' | null;
+          if (pending) {
+            await authService.createUserProfile(userId, pending);
+            await authService.createRoleProfile(userId, pending, email || '');
+            localStorage.removeItem(STORAGE_KEYS.PENDING_ROLE);
+            if (alive) setUserRole(pending);
+          }
+        }
+      } finally {
+        if (alive) setBootstrapped(true);
+      }
+    })();
+    return () => { alive = false; };
+  }, [isAuthenticated, userId, userRole, email, setUserRole, bootstrapped]);
+
   if (!isAuthenticated) return <Navigate to={ROUTES.AUTH} replace />;
+  if (!userRole && !bootstrapped) return <PageLoader />;
   if (userRole === 'admin') return <Navigate to={ROUTES.ADMIN_DASHBOARD} replace />;
   if (userRole === 'company') return <Navigate to={ROUTES.COMPANY} replace />;
   if (userRole === 'job_seeker') return <Navigate to={ROUTES.SEEKER} replace />;
@@ -281,6 +311,16 @@ function AppRoutes() {
       />
 
       {/* Protected routes - Job Seekers only */}
+      <Route
+        path={ROUTES.SEEKER_ONBOARDING}
+        element={
+          <ProtectedRoute allowedRoles={['job_seeker']}>
+            <Suspense fallback={<PageLoader />}>
+              <JobSeekerOnboarding />
+            </Suspense>
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/seeker/*"
         element={

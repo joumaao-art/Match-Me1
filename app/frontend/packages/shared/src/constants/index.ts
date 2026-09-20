@@ -12,6 +12,7 @@ export const STORAGE_KEYS = {
   THEME: 'matchme-theme',
   LANGUAGE: 'matchme-lang',
   ONBOARDING: 'matchme-onboarding',
+  PENDING_ROLE: 'matchme-pending-role',
 } as const;
 
 // Route paths (web)
@@ -30,6 +31,7 @@ export const ROUTES = {
   ADMIN_AUDIT: '/admin/audit',
   ADMIN_SETTINGS: '/admin/settings',
   SEEKER: '/seeker',
+  SEEKER_ONBOARDING: '/seeker/onboarding',
   SEEKER_SWIPE: '/seeker/swipe',
   SEEKER_SAVED: '/seeker/saved',
   SEEKER_APPLICATIONS: '/seeker/applications',

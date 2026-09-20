@@ -50,6 +50,15 @@
 - [x] Feature Validation Engine (platform parity verification via registry)
 - [x] Experience Engine Documentation Update (Mobile standards, Feature Registry, Platform Standards)
 - [x] Fix mobile Save button hidden behind bottom nav — viewport-locked layout with safe-area-aware padding
+- [x] Job Seeker onboarding engine (resumable, versioned, validated, persisted)
+- [x] Reusable onboarding UI kit (progress, actions, uploaders, pickers, OTP, review, tutorial)
+- [x] Job Seeker onboarding journey page + protected /seeker/onboarding route
+- [x] Apple/Google OAuth + phone OTP for Job Seeker signup (Company auth preserved)
+- [x] Job Seeker signup screens wired in Auth.tsx (methods, phone entry, 6-digit OTP, resend)
+- [x] OAuth/phone callback profile bootstrap via pending-role handoff in App.tsx
+- [x] Onboarding EN/AR translations (RTL-safe)
+- [x] Dashboard onboarding guard (redirects incomplete seekers, back-fills legacy profiles)
+- [x] Lint + build verification
 
 ## Progress Log
 - 2026-07-17: Project initialized with Supabase template, dependencies installed

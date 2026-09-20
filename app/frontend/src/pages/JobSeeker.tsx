@@ -40,6 +40,9 @@ import { MobileBottomNav, type MobileNavTab } from '@/components/shared/MobileBo
 import { MobileDashboard } from '@/components/shared/MobileDashboard';
 import { MobileAccountCenter } from '@/components/shared/MobileAccountCenter';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { profileService } from '@/services';
+import { useAuthStore } from '@/stores';
+import { ROUTES } from '@/config/constants';
 import { ScoreBreakdown, ConfidenceIndicator } from '@/components/shared/ScoreVisualizationEngine';
 
 // ============================================================
@@ -1678,6 +1681,41 @@ export default function JobSeeker() {
     }
   }, [activeTab, navigate]);
 
+  // Onboarding Guard: route Job Seekers who never finished onboarding into the
+  // resumable journey. Existing profiles (already carrying real data) are
+  // back-filled as completed so this never traps an established account.
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
+  const { userId } = useAuthStore();
+  useEffect(() => {
+    if (!userId || onboardingChecked) return;
+    let alive = true;
+    (async () => {
+      try {
+        const [{ data: base }, { data: seeker }] = await Promise.all([
+          profileService.getUserProfile(userId),
+          profileService.getSeekerProfile(userId),
+        ]);
+        if (!alive) return;
+        if ((base as any)?.onboarding_completed) {
+          setOnboardingChecked(true);
+          return;
+        }
+        // Legacy account with real profile data -> mark complete, let through.
+        const hasData = !!(seeker as any)?.full_name && ((seeker as any)?.skills?.length ?? 0) > 0;
+        if (hasData) {
+          await profileService.completeOnboarding(userId);
+          setOnboardingChecked(true);
+          return;
+        }
+        navigate(ROUTES.SEEKER_ONBOARDING, { replace: true });
+      } catch {
+        // Never block the dashboard on a guard failure.
+        if (alive) setOnboardingChecked(true);
+      }
+    })();
+    return () => { alive = false; };
+  }, [userId, onboardingChecked, navigate]);
+
   // Handle bottom nav tab changes - maps MobileNavTab to NavSection
   // One Tap = One Destination: Messages navigates directly to /messages route
   const handleMobileTabChange = (tab: MobileNavTab) => {
@@ -1697,6 +1735,15 @@ export default function JobSeeker() {
 
   // Track if user is in "account" mode on mobile (shows Account Center first)
   const [showAccountCenter, setShowAccountCenter] = useState(true);
+
+  // Hold the dashboard until the onboarding guard has resolved (avoids a content flash).
+  if (!onboardingChecked) {
+    return (
+      <div className="min-h-[100dvh] flex items-center justify-center bg-background">
+        <div className="h-10 w-10 rounded-full border-2 border-muted border-t-primary animate-spin" />
+      </div>
+    );
+  }
 
   const handleMobileAccountNav = (section: string) => {
     setShowAccountCenter(false);

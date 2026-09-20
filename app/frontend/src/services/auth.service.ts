@@ -175,6 +175,53 @@ class AuthService {
   }
 
   /**
+   * OAuth sign-in (Apple / Google). Redirects to the provider and returns
+   * to /auth/callback. Used only by the Job Seeker signup path.
+   */
+  async signInWithOAuth(provider: 'apple' | 'google') {
+    logger.info('[AuthService] OAuth sign-in', { provider });
+    return apiClient.query(`oauth_${provider}`, () =>
+      apiClient.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      })
+    );
+  }
+
+  /**
+   * Send an SMS OTP to a phone number (E.164). Creates the user if absent.
+   */
+  async sendPhoneOtp(phone: string) {
+    logger.info('[AuthService] Sending phone OTP');
+    return apiClient.query('sendPhoneOtp', () =>
+      apiClient.auth.signInWithOtp({ phone, options: { shouldCreateUser: true } })
+    );
+  }
+
+  /**
+   * Verify an SMS OTP code and establish the session.
+   */
+  async verifyPhoneOtp(phone: string, token: string) {
+    logger.info('[AuthService] Verifying phone OTP');
+    return apiClient.query('verifyPhoneOtp', () =>
+      apiClient.auth.verifyOtp({ phone, token, type: 'sms' })
+    );
+  }
+
+  /**
+   * Normalize a raw phone input to E.164 using the selected dial code.
+   * Strips spaces/dashes/parens; drops a leading local 0 when dial code given.
+   */
+  normalizePhone(raw: string, dialCode: string): string | null {
+    const digits = raw.replace(/[^\d]/g, '');
+    const dial = dialCode.replace(/[^\d]/g, '');
+    if (!dial || !digits) return null;
+    const local = digits.startsWith('00') ? digits.slice(2) : digits.startsWith('0') ? digits.slice(1) : digits;
+    if (local.length < 6) return null;
+    return `+${dial}${local}`;
+  }
+
+  /**
    * Admin login - same as regular login but verifies admin status.
    */
   async adminSignIn({ email, password }: LoginCredentials) {
