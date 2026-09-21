@@ -110,10 +110,102 @@ Observed after the fix, in-browser, with no session:
 Each protected route now terminates in a rendered destination or a redirect,
 never in an unbounded spinner.
 
-## 8. Verification checklist
+## 8. The loader that actually blocked the real signup
+
+The gate analysis above explains the *mechanism*, but the loader that a real user
+actually saw was a different, fourth gate that no static reading exposed. It was
+only found by tracing the live application while signing up.
+
+| Field | Value |
+|-------|-------|
+| Loader ID | `guest-destination-resolve` |
+| Component | `GuestRoute` |
+| File | `src/App.tsx` |
+| Trigger | The user submits the signup form on `/auth`; auth state flips to authenticated while destination resolution is still pending |
+| Effect | `GuestRoute` evaluated "authenticated + no destination yet" and replaced the whole signup UI with a full-screen loader |
+
+The user-visible symptom was "I pressed Sign Up and the spinner never goes away",
+but the spinner was a *consequence* of the status transition, not a stuck network
+call. Because the signup request itself had already succeeded, no failing request
+and no rejection existed for `catch` to report — which is exactly why the earlier
+`try/catch`-based repair did not change the symptom.
+
+**Fix:** `GuestRoute` no longer blocks on missing destination. It renders its
+children while destination resolution is pending and only redirects once a
+destination actually exists. A pending resolution can therefore no longer hide an
+in-progress form or a completed signup.
+
+## 9. Real-browser journey verification
+
+`scripts/runtime-signup-e2e.mjs` drives a real Chromium session through the whole
+Job Seeker journey and samples the DOM once per second, recording the route, any
+`[data-loader-id]` gate, any unidentified full-screen spinner, visible headings,
+and body text. A *stuck* loader means the gate was still covering the screen at the
+end of the observation window (it must be absent for the last three consecutive
+samples), which keeps short-lived lazy-chunk and hydration loaders from being
+misreported as defects.
+
+| Check | Observation window | Result |
+|-------|--------------------|--------|
+| Public `/auth` entry (no session) | 30 s | PASS — no blocking gate |
+| Job Seeker signup methods render | 18 s | PASS — no blocking gate |
+| Submit email signup → destination | 30 s | PASS — reached `/seeker/onboarding`, no blocking gate |
+| Continue past Welcome ("Get started") | 18 s | PASS — reached onboarding *Step 1 of 12, Upload your resume* |
+| Refresh `/seeker/onboarding` | 25 s | PASS — no blocking gate |
+| Unauthenticated `/seeker/onboarding` | 12 s | PASS — redirected to `/auth`, no blocking gate |
+
+`scripts/runtime-auth-matrix.mjs` covers the non-signup regression paths with the
+same stuck-loader criterion:
+
+| Check | Result |
+|-------|--------|
+| Returning Job Seeker login (`/auth?role=seeker`, real credentials, session confirmed in storage) | PASS — landed on `/seeker/onboarding`, zero stuck loaders |
+| Authenticated `/seeker` landing | PASS — onboarding guard routed correctly, zero stuck loaders |
+| Company authentication deep link (`/auth?role=company`) | PASS — Company login form renders, zero stuck loaders |
+
+No uncaught page errors were recorded in any run.
+
+## 10. Loader inventory outcome
+
+Every full-screen loader owner now carries an explicit diagnostic identity, so a
+future occurrence names itself instead of appearing anonymous:
+
+| Loader ID | Owner | Purpose |
+|-----------|-------|---------|
+| `auth-boot` | `src/App.tsx` | Auth/session restoration |
+| `lazy-route` | `src/App.tsx` | Lazy route chunk fetch (Suspense) |
+| `guest-destination-resolve` | `src/App.tsx` | Guest-route destination resolution — **no longer blocks** |
+| `job-seeker-onboarding-hydration` | `src/pages/JobSeekerOnboarding.tsx` | Onboarding state hydration |
+| `seeker-onboarding-guard` | `src/pages/JobSeeker.tsx` | Dashboard onboarding guard |
+| `shared-loading-spinner` | `src/components/shared/LoadingSpinner.tsx` | Shared spinner primitive |
+
+The remaining loaders observed during the runs (`lazy-route`,
+`job-seeker-onboarding-hydration`) each released within a second or two and never
+persisted to the end of an observation window, which is the expected behaviour for
+route-chunk fetching and a bounded hydration read.
+
+## 11. Language audit
+
+A workspace-wide search for CJK characters in application code, configuration,
+documentation, scripts, and database migrations returned only intentional
+localization metadata:
+
+| File | Occurrence | Verdict |
+|------|-----------|---------|
+| `src/lib/i18n.ts` | `{ code: 'zh', nativeName: '中文' }`, `{ code: 'ja', nativeName: '日本語' }` | Intentional — language registry display names |
+| `supabase/migrations/009_production_realtime_seeds.sql` | `('zh', 'Chinese', '中文')`, `('ja', 'Japanese', '日本語')` | Intentional — language reference table seed data |
+
+No accidental Chinese engineering, debug, or test text remains in the project. All
+reports and documentation for this work are therefore written entirely in English.
+
+## 12. Verification checklist
 
 - `node scripts/repro-signup-spinner-hang.mjs` — reproduced and fixed
+- `node scripts/runtime-signup-e2e.mjs` — full signup journey passes (6/6 checks)
+- `node scripts/runtime-auth-matrix.mjs` — regression matrix passes (3/3 checks)
 - `npx tsc --noEmit` — pass
 - `pnpm run lint` — pass
 - `pnpm run build` — pass (7 pages prerendered)
 - UI render validation — pass
+- Repository-wide CJK audit — only intentional language-registry names remain
+

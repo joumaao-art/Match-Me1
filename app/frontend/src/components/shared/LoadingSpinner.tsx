@@ -20,7 +20,11 @@ export function LoadingSpinner({ size = 'md', fullScreen = false }: LoadingSpinn
 
   if (fullScreen) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div
+        data-loader-id="shared-loading-spinner"
+        data-loader-kind="fullscreen"
+        className="min-h-screen flex items-center justify-center bg-background"
+      >
         {spinner}
       </div>
     );

@@ -144,7 +144,11 @@ export default function JobSeekerOnboarding() {
     // `hydrated` is released by the engine's bounded hydrate() in every outcome
     // (resolve, reject, or timeout), so this loader can no longer be permanent.
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background">
+      <div
+        data-loader-id="job-seeker-onboarding-hydration"
+        data-loader-kind="fullscreen"
+        className="fixed inset-0 flex items-center justify-center bg-background"
+      >
         <div className="h-10 w-10 rounded-full border-2 border-muted border-t-primary animate-spin" />
       </div>
     );

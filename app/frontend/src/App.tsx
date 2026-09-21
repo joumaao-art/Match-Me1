@@ -50,8 +50,20 @@ const Analytics = lazy(() => import('./pages/Analytics'));
 // LOADING FALLBACK
 // ============================================================
 
-const PageLoader = memo(() => (
-  <div className="min-h-screen flex items-center justify-center bg-background">
+/**
+ * Full-screen loader for boot/route gates.
+ *
+ * `loaderId` is a DEVELOPMENT-ONLY diagnostic marker. Every gate passes its own
+ * id so a stuck spinner reports which gate opened it instead of forcing us to
+ * guess from identical visuals. It is inert in production markup semantics and
+ * is not rendered as visible text.
+ */
+const PageLoader = memo(({ loaderId = 'unknown' }: { loaderId?: string }) => (
+  <div
+    data-loader-id={loaderId}
+    data-loader-kind="fullscreen"
+    className="min-h-screen flex items-center justify-center bg-background"
+  >
     <div className="flex flex-col items-center gap-3">
       <div className="relative">
         <div className="animate-spin rounded-full h-10 w-10 border-2 border-muted border-t-primary" />
@@ -205,7 +217,7 @@ function ProtectedRoute({
   const location = useLocation();
 
   if (isLoading) {
-    return <PageLoader />;
+    return <PageLoader loaderId="app-auth-bootstrap" />;
   }
 
   if (!isAuthenticated) {
@@ -258,11 +270,15 @@ function GuestRoute({ children }: { children: React.ReactNode }) {
   }, [isAuthenticated, userRole, userId]);
 
   if (isLoading) {
-    return <PageLoader />;
+    return <PageLoader loaderId="app-auth-bootstrap" />;
   }
 
-  if (isAuthenticated && userRole) {
-    if (!destination) return <PageLoader />;
+  // An authenticated visitor is forwarded once the role-aware destination is
+  // known. Until then the page keeps rendering instead of covering it with a
+  // full-screen spinner: submitting the signup form sets `isAuthenticated` and
+  // the role mid-flight, so a blocking gate here would hide the very form that
+  // is still finishing its identity bootstrap and reading as a hung signup.
+  if (isAuthenticated && userRole && destination) {
     return <Navigate to={destination} replace />;
   }
 
@@ -332,11 +348,11 @@ function AuthCallbackHandler() {
   }, [isAuthenticated, userRole, userId]);
 
   if (!isAuthenticated) return <Navigate to={ROUTES.AUTH} replace />;
-  if (!userRole && !bootstrapped) return <PageLoader />;
+  if (!userRole && !bootstrapped) return <PageLoader loaderId="auth-callback-identity-bootstrap" />;
   if (userRole === 'admin') return <Navigate to={ROUTES.ADMIN_DASHBOARD} replace />;
   if (userRole === 'company') return <Navigate to={ROUTES.COMPANY} replace />;
   if (userRole === 'job_seeker') {
-    if (!seekerDestination) return <PageLoader />;
+    if (!seekerDestination) return <PageLoader loaderId="auth-callback-destination-resolve" />;
     return <Navigate to={seekerDestination} replace />;
   }
   return <Navigate to={ROUTES.AUTH} replace />;
@@ -354,7 +370,7 @@ function AppRoutes() {
       <Route
         path={ROUTES.LEARN_MORE}
         element={
-          <Suspense fallback={<PageLoader />}>
+          <Suspense fallback={<PageLoader loaderId="lazy-route" />}>
             <LearnMore />
           </Suspense>
         }
@@ -365,7 +381,7 @@ function AppRoutes() {
         path={ROUTES.AUTH}
         element={
           <GuestRoute>
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader loaderId="lazy-route" />}>
               <Auth />
             </Suspense>
           </GuestRoute>
@@ -375,7 +391,7 @@ function AppRoutes() {
         path={ROUTES.ADMIN_LOGIN}
         element={
           <GuestRoute>
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader loaderId="lazy-route" />}>
               <AdminLogin />
             </Suspense>
           </GuestRoute>
@@ -387,7 +403,7 @@ function AppRoutes() {
       <Route
         path={ROUTES.AUTH_RESET_PASSWORD}
         element={
-          <Suspense fallback={<PageLoader />}>
+          <Suspense fallback={<PageLoader loaderId="lazy-route" />}>
             <ResetPassword />
           </Suspense>
         }
@@ -398,7 +414,7 @@ function AppRoutes() {
         path="/seeker/subscription"
         element={
           <ProtectedRoute allowedRoles={['job_seeker']}>
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader loaderId="lazy-route" />}>
               <Subscription />
             </Suspense>
           </ProtectedRoute>
@@ -408,7 +424,7 @@ function AppRoutes() {
         path="/company/subscription"
         element={
           <ProtectedRoute allowedRoles={['company']}>
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader loaderId="lazy-route" />}>
               <Subscription />
             </Suspense>
           </ProtectedRoute>
@@ -419,7 +435,7 @@ function AppRoutes() {
         path="/subscription"
         element={
           <ProtectedRoute allowedRoles={['job_seeker', 'company']}>
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader loaderId="lazy-route" />}>
               <Subscription />
             </Suspense>
           </ProtectedRoute>
@@ -431,7 +447,7 @@ function AppRoutes() {
         path={ROUTES.SEEKER_ONBOARDING}
         element={
           <ProtectedRoute allowedRoles={['job_seeker']}>
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader loaderId="lazy-route" />}>
               <JobSeekerOnboarding />
             </Suspense>
           </ProtectedRoute>
@@ -441,7 +457,7 @@ function AppRoutes() {
         path="/seeker/*"
         element={
           <ProtectedRoute allowedRoles={['job_seeker']}>
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader loaderId="lazy-route" />}>
               <JobSeeker />
             </Suspense>
           </ProtectedRoute>
@@ -453,7 +469,7 @@ function AppRoutes() {
         path="/company/*"
         element={
           <ProtectedRoute allowedRoles={['company']}>
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader loaderId="lazy-route" />}>
               <Company />
             </Suspense>
           </ProtectedRoute>
@@ -465,7 +481,7 @@ function AppRoutes() {
         path="/messages/*"
         element={
           <ProtectedRoute allowedRoles={['job_seeker', 'company']}>
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader loaderId="lazy-route" />}>
               <Messages />
             </Suspense>
           </ProtectedRoute>
@@ -475,7 +491,7 @@ function AppRoutes() {
         path="/notifications"
         element={
           <ProtectedRoute allowedRoles={['job_seeker', 'company', 'admin']}>
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader loaderId="lazy-route" />}>
               <Notifications />
             </Suspense>
           </ProtectedRoute>
@@ -487,7 +503,7 @@ function AppRoutes() {
         path="/admin/analytics"
         element={
           <ProtectedRoute allowedRoles={['admin']}>
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader loaderId="lazy-route" />}>
               <Analytics />
             </Suspense>
           </ProtectedRoute>
@@ -497,7 +513,7 @@ function AppRoutes() {
         path="/admin/*"
         element={
           <ProtectedRoute allowedRoles={['admin']}>
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader loaderId="lazy-route" />}>
               <Admin />
             </Suspense>
           </ProtectedRoute>

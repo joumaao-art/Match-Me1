@@ -1757,7 +1757,11 @@ export default function JobSeeker() {
   // Hold the dashboard until the onboarding guard has resolved (avoids a content flash).
   if (!onboardingChecked) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center bg-background">
+      <div
+        data-loader-id="job-seeker-route-guard"
+        data-loader-kind="fullscreen"
+        className="min-h-[100dvh] flex items-center justify-center bg-background"
+      >
         <div className="h-10 w-10 rounded-full border-2 border-muted border-t-primary animate-spin" />
       </div>
     );
