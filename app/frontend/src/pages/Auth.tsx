@@ -23,6 +23,10 @@ import {
   completeSeekerSignup,
   ensureIdentity,
   resolvePostAuthDestination,
+  classifySignupOutcome,
+  settleSeekerSignup,
+  withTimeout,
+  SIGNUP_SETTLE_TIMEOUT_MS,
 } from '@/lib/signup-flow';
 
 type AuthView =
@@ -89,6 +93,27 @@ export default function Auth() {
     if (/[^A-Za-z0-9]/.test(password)) strength += 1;
     setPasswordStrength(strength);
   }, [password]);
+
+  // Refresh-resilient email verification. A reload must return the user to the
+  // "check your inbox" screen rather than silently dropping them on role
+  // selection (which reads as "my signup did nothing"), and it must never look
+  // like a stuck submission.
+  useEffect(() => {
+    if (isAuthenticated) return;
+    const pendingRole = localStorage.getItem(STORAGE_KEYS.PENDING_ROLE);
+    const pendingEmail = localStorage.getItem(STORAGE_KEYS.PENDING_EMAIL);
+    if (pendingRole && pendingEmail) {
+      setSelectedRole(pendingRole === 'company' ? 'company' : 'job_seeker');
+      setEmail(pendingEmail);
+      setView('verify_email');
+    }
+  }, [isAuthenticated]);
+
+  /** Drop the pending-signup handoff once a session makes it unnecessary. */
+  const clearPendingSignup = () => {
+    localStorage.removeItem(STORAGE_KEYS.PENDING_ROLE);
+    localStorage.removeItem(STORAGE_KEYS.PENDING_EMAIL);
+  };
 
   const handleRoleSelect = (role: 'job_seeker' | 'company') => {
     setSelectedRole(role);
@@ -200,6 +225,9 @@ export default function Auth() {
       const user = session?.user;
 
       if (user) {
+        // A session now exists, so any pending email-verification handoff is
+        // obsolete and must not resurface on a later visit.
+        clearPendingSignup();
         // Fetch role from database
         const dbRole = await authService.getUserRole(user.id);
 
@@ -233,6 +261,17 @@ export default function Auth() {
     }
   };
 
+  /**
+   * Email registration for both roles.
+   *
+   * The outcome is decided by `classifySignupOutcome` — that is, by the
+   * SESSION, never by `email_confirmed_at` — and each of the three outcomes
+   * now has exactly one terminal UI state. A response that carries no session
+   * (email verification still required) goes straight to the verification
+   * screen WITHOUT any authenticated profile write: such a write cannot
+   * succeed without an access token, and attempting it is what previously left
+   * the submit button busy forever with nothing happening on screen.
+   */
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password || !confirmPassword) {
@@ -255,34 +294,52 @@ export default function Auth() {
     setLoading(true);
     try {
       const { data, error } = await authService.signUp({ email, password, role: selectedRole });
-      if (error) {
-        toast.error(error.message || t('registration_failed'));
+      const outcome = classifySignupOutcome(data, error);
+
+      // ---- Outcome 1: error (validation, rate limit, network, ...) ----
+      if (outcome.outcome === 'error') {
+        toast.error(outcome.message || t('registration_failed'));
         return;
       }
 
-      const user = (data as any)?.user;
-
-      // If email confirmation is required, show verification screen
-      if (user && !user.email_confirmed_at) {
+      // ---- Outcome 2: verification required (no session issued) ----
+      if (outcome.outcome === 'verification_required') {
+        // Remember the intent so a refresh keeps the user on this screen and
+        // /auth/callback can bootstrap the profile once the link is clicked.
+        localStorage.setItem(STORAGE_KEYS.PENDING_ROLE, selectedRole);
+        localStorage.setItem(STORAGE_KEYS.PENDING_EMAIL, email);
+        setSelectedRole(selectedRole);
         setView('verify_email');
-        toast.success(t('verification_email_sent'));
-      } else if (user) {
-        // Email confirmation disabled in Supabase settings - auto-login.
-        // Job Seekers always start at the Welcome/onboarding screen; Company
-        // authentication and its destination are preserved unchanged.
-        setUserRole(selectedRole);
-        if (selectedRole === 'job_seeker') {
-          const { destination } = await completeSeekerSignup(user.id, email);
-          navigate(destination, { replace: true });
-        } else {
-          await authService.createUserProfile(user.id, selectedRole);
-          await authService.createRoleProfile(user.id, selectedRole, email);
-          navigate(ROUTES.COMPANY, { replace: true });
-        }
+        toast.success(
+          outcome.alreadyRegistered ? t('verify_email_msg') : t('verification_email_sent')
+        );
+        return;
+      }
+
+      // ---- Outcome 3: a real session was issued ----
+      clearPendingSignup();
+      setUserRole(selectedRole);
+      if (selectedRole === 'job_seeker') {
+        // One deadline covers bootstrap + destination, so the button is
+        // released within a predictable window whatever the network does.
+        const { destination } = await settleSeekerSignup(outcome.userId!, outcome.email || email);
+        navigate(destination, { replace: true });
+      } else {
+        // Company authentication and its destination are preserved unchanged.
+        await withTimeout(
+          (async () => {
+            await authService.createUserProfile(outcome.userId!, selectedRole);
+            await authService.createRoleProfile(outcome.userId!, selectedRole, email);
+          })(),
+          SIGNUP_SETTLE_TIMEOUT_MS,
+          null
+        );
+        navigate(ROUTES.COMPANY, { replace: true });
       }
     } catch (error: any) {
-      toast.error(error.message || t('registration_failed'));
+      toast.error(error?.message || t('registration_failed'));
     } finally {
+      // Always reached: the submit control cannot stay in a busy state.
       setLoading(false);
     }
   };
@@ -751,7 +808,10 @@ export default function Auth() {
                   <Mail className="w-8 h-8 text-green-600" />
                 </div>
                 <h2 className="text-xl font-semibold font-[Poppins] mb-2">{t('verify_email')}</h2>
-                <p className="text-muted-foreground mb-6">{t('verify_email_msg')}</p>
+                <p className="text-muted-foreground">{t('verify_email_msg')}</p>
+                {email && (
+                  <p className="text-sm font-medium text-foreground mt-2 mb-6 break-all">{email}</p>
+                )}
                 <div className="space-y-3">
                   <Button onClick={() => setView('login')} className="w-full cursor-pointer">
                     {t('back_to_login')}
@@ -763,6 +823,13 @@ export default function Auth() {
                     className="w-full cursor-pointer"
                   >
                     {loading ? t('loading') : t('resend_verification')}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full cursor-pointer"
+                    onClick={() => setView('register')}
+                  >
+                    {t('back')}
                   </Button>
                 </div>
               </CardContent>

@@ -170,3 +170,108 @@ export async function completeSeekerSignup(
   const destination = await resolvePostAuthDestination('job_seeker', userId);
   return { destination, ok: identity.ok };
 }
+
+/**
+ * Bounded budget for the whole post-signup settle (identity bootstrap +
+ * destination resolution). Deliberately ONE deadline rather than a sum of
+ * per-step timeouts, so the submit button is released within a predictable
+ * window no matter how many internal steps run.
+ */
+export const SIGNUP_SETTLE_TIMEOUT_MS = 12000;
+
+/** The three — and only three — ways an email signup can end. */
+export type SignupOutcome = 'authenticated' | 'verification_required' | 'error';
+
+export interface SignupClassification {
+  outcome: SignupOutcome;
+  userId: string | null;
+  email: string | null;
+  /** True when Supabase reported no new identity (address already registered). */
+  alreadyRegistered: boolean;
+  message: string | null;
+}
+
+/**
+ * Classify the result of `authService.signUp` into a typed, exhaustive outcome.
+ *
+ * THE INVARIANT: the SESSION decides the outcome — never `email_confirmed_at`.
+ *
+ * Why this matters (the reported "signup hangs forever" defect): a project can
+ * return a fully confirmed `user` while issuing NO session (email confirmation
+ * enabled with an auto-confirmed user is the exact case observed here). Judging
+ * by the confirmation timestamp classified that response as "signed in", and
+ * the caller then ran authenticated profile writes — with no access token. Those
+ * writes never produce a usable result, so the submit button stayed busy while
+ * nothing moved on screen: an indefinite post-submission hang.
+ *
+ * With this classifier a missing session ALWAYS means "verification required",
+ * so the caller can route to the verification screen and skip authenticated
+ * writes entirely.
+ */
+export function classifySignupOutcome(data: any, error: any): SignupClassification {
+  if (error) {
+    return {
+      outcome: 'error',
+      userId: null,
+      email: null,
+      alreadyRegistered: false,
+      message: error.message || 'Registration failed',
+    };
+  }
+
+  const user = data?.user;
+  if (!user?.id) {
+    return {
+      outcome: 'error',
+      userId: null,
+      email: null,
+      alreadyRegistered: false,
+      message: 'Registration failed',
+    };
+  }
+
+  const session = data?.session ?? null;
+  const hasSession = !!session?.access_token || !!session?.user?.id;
+  const identities = Array.isArray(user.identities) ? user.identities : null;
+
+  if (hasSession) {
+    return {
+      outcome: 'authenticated',
+      userId: user.id as string,
+      email: (user.email as string) ?? null,
+      alreadyRegistered: false,
+      message: null,
+    };
+  }
+
+  return {
+    outcome: 'verification_required',
+    userId: user.id as string,
+    email: (user.email as string) ?? null,
+    // Supabase answers an already-registered address with an empty identity
+    // list and no error (deliberate anti-enumeration), which must NOT be
+    // mistaken for a fresh account.
+    alreadyRegistered: identities !== null && identities.length === 0,
+    message: null,
+  };
+}
+
+/**
+ * Settle a Job Seeker signup that holds a real session: bootstrap the identity,
+ * then resolve the destination — all inside ONE deadline.
+ *
+ * The caller is guaranteed to receive a usable destination, so the submit
+ * button can never remain busy. The onboarding page self-redirects finished
+ * seekers onward, which makes the fallback self-correcting rather than a trap.
+ */
+export async function settleSeekerSignup(
+  userId: string,
+  email: string | null
+): Promise<{ destination: string; ok: boolean }> {
+  const fallback = { destination: ROUTES.SEEKER_ONBOARDING, ok: false };
+  return withTimeout(
+    completeSeekerSignup(userId, email),
+    SIGNUP_SETTLE_TIMEOUT_MS,
+    fallback
+  );
+}

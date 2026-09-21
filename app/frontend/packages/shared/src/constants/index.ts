@@ -13,6 +13,10 @@ export const STORAGE_KEYS = {
   LANGUAGE: 'matchme-lang',
   ONBOARDING: 'matchme-onboarding',
   PENDING_ROLE: 'matchme-pending-role',
+  // Email signup that still requires verification has no session yet, so the
+  // address is remembered locally to survive a refresh on the "check your
+  // inbox" screen and to let /auth/callback bootstrap the profile later.
+  PENDING_EMAIL: 'matchme-pending-email',
 } as const;
 
 // Route paths (web)

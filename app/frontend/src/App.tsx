@@ -314,6 +314,8 @@ function AuthCallbackHandler() {
             // on the loading screen.
             await ensureIdentity(userId, email || null, pending);
             localStorage.removeItem(STORAGE_KEYS.PENDING_ROLE);
+            // The verified callback consumed the pending email signup.
+            localStorage.removeItem(STORAGE_KEYS.PENDING_EMAIL);
             if (alive) setUserRole(pending);
           }
         }

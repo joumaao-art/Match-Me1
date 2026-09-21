@@ -198,11 +198,59 @@ localization metadata:
 No accidental Chinese engineering, debug, or test text remains in the project. All
 reports and documentation for this work are therefore written entirely in English.
 
-## 12. Verification checklist
+## 12. Signup outcome contract
+
+The hang was a *classification* defect, so the fix is only trustworthy if all
+three possible answers to an email signup settle. The contract was executed
+against the real module (loaded through the running dev server, no mocks) plus a
+real refresh on the verification screen.
+
+| Response shape | Meaning | Classified as | Settled |
+|----------------|---------|---------------|---------|
+| user, `email_confirmed_at: null`, no session | confirmation pending | `verification_required` | yes |
+| user, `email_confirmed_at` set, **no session** | auto-confirmed but sessionless — the original defect | `verification_required` | yes |
+| user, no session, `identities: []` | address already registered | `verification_required` (flagged `alreadyRegistered`) | yes |
+| user **and** session | signed in | `authenticated` | yes |
+| `error` present | provider rejected | `error` | yes |
+| `user: null`, no error | malformed response | `error` | yes |
+
+The invariant that the defect violated is asserted directly: **a session-less
+response is never reported as authenticated**, so no authenticated profile write
+can be attempted and no dashboard destination can be assumed.
+
+Script: `node scripts/probe-signup-classifier.mjs`.
+
+## 13. Outcome matrix in a real browser
+
+`node scripts/probe-signup-outcomes.mjs` drives the Job Seeker → Sign up with
+Email journey in one persistent browser profile, so storage left behind by an
+earlier step cannot mask the defect. A scenario passes only when **no
+full-screen gate is present for the final samples** and **no submit control is
+left disabled**.
+
+| Scenario | Result | Observed destination |
+|----------|--------|----------------------|
+| Brand-new email (real Supabase session issued) | settled | `/seeker/onboarding` |
+| Refresh on the outcome screen | settled | `/seeker/onboarding` unchanged |
+| Same email submitted again | settled | `/seeker/onboarding` (no duplicate-submission failure) |
+| Weak password | settled, no busy button | `/auth` |
+| Invalid email | settled, no busy button | `/auth` |
+| Resend verification email | skipped (no verification screen: this project auto-confirms) | — |
+
+Constructor-level control of the session-less case is impossible from a real
+signup against this project because the mailer auto-confirms, which is exactly
+why that branch is covered by the contract test in section 12 and by a seeded
+pending-signup refresh: with `matchme-pending-role` and `matchme-pending-email`
+present and no session, `/auth` renders the verification screen for all 12
+sampled seconds with zero gates and a re-enabled resend control.
+
+## 14. Verification checklist
 
 - `node scripts/repro-signup-spinner-hang.mjs` — reproduced and fixed
 - `node scripts/runtime-signup-e2e.mjs` — full signup journey passes (6/6 checks)
 - `node scripts/runtime-auth-matrix.mjs` — regression matrix passes (3/3 checks)
+- `node scripts/probe-signup-outcomes.mjs` — outcome matrix passes (no stuck gate, no stuck button)
+- `node scripts/probe-signup-classifier.mjs` — outcome contract passes (no session-less response treated as authenticated)
 - `npx tsc --noEmit` — pass
 - `pnpm run lint` — pass
 - `pnpm run build` — pass (7 pages prerendered)
