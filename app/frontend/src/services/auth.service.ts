@@ -142,14 +142,19 @@ class AuthService {
    * Sets up the role in the database.
    */
   async createUserProfile(userId: string, role: UserRole, displayName?: string) {
-    logger.info('[AuthService] Creating user profile', { role });
+    logger.info('[AuthService] Ensuring user profile', { role });
+    // Idempotent: targets the `user_id` unique constraint and ignores a
+    // duplicate, so a retry (or a second caller such as the OAuth callback)
+    // can never fail with 23505 — the reason signup previously stalled.
     return apiClient.query('createUserProfile', () =>
-      apiClient.supabase.from('user_profiles').insert({
-        user_id: userId,
-        role,
-        display_name: displayName,
-        onboarding_completed: false,
-      }).select().single()
+      apiClient.supabase
+        .from('user_profiles')
+        .upsert(
+          { user_id: userId, role, display_name: displayName },
+          { onConflict: 'user_id', ignoreDuplicates: true }
+        )
+        .select()
+        .maybeSingle()
     );
   }
 
@@ -157,18 +162,29 @@ class AuthService {
    * Create role-specific profile (seeker or company).
    */
   async createRoleProfile(userId: string, role: UserRole, email: string) {
+    // Same idempotency contract as createUserProfile: conflict-safe writes on
+    // `user_id`, duplicate rows ignored so an existing profile is preserved.
     if (role === 'job_seeker') {
       return apiClient.query('createSeekerProfile', () =>
-        apiClient.supabase.from('job_seeker_profiles').insert({
-          user_id: userId,
-          email,
-        }).select().single()
+        apiClient.supabase
+          .from('job_seeker_profiles')
+          .upsert(
+            { user_id: userId, email },
+            { onConflict: 'user_id', ignoreDuplicates: true }
+          )
+          .select()
+          .maybeSingle()
       );
     } else if (role === 'company') {
       return apiClient.query('createCompanyProfile', () =>
-        apiClient.supabase.from('company_profiles').insert({
-          user_id: userId,
-        }).select().single()
+        apiClient.supabase
+          .from('company_profiles')
+          .upsert(
+            { user_id: userId },
+            { onConflict: 'user_id', ignoreDuplicates: true }
+          )
+          .select()
+          .maybeSingle()
       );
     }
     return { data: null, error: null };

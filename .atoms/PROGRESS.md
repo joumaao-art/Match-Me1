@@ -59,6 +59,15 @@
 - [x] Onboarding EN/AR translations (RTL-safe)
 - [x] Dashboard onboarding guard (redirects incomplete seekers, back-fills legacy profiles)
 - [x] Lint + build verification
+- [x] Centralized Job Seeker signup sequencing (identity bootstrap + destination resolution in one shared module)
+- [x] Idempotent profile writes via `onConflict: 'user_id'` (duplicate submissions can no longer fail)
+- [x] Time-boxed bootstrap/profile lookups so a slow network can never strand the signup loading state
+- [x] Email signup routes new Job Seekers to the Welcome screen (fixed direct-to-dashboard defect)
+- [x] Phone OTP signup routes new Job Seekers through the same Welcome path
+- [x] OAuth callback bootstrap switched to the shared idempotent identity helper
+- [x] Auth redirect, OAuth/phone callback, and guest guard all resolve destination by role + onboarding state
+- [x] Company authentication and Company onboarding preserved (regression checked)
+- [x] TypeScript, lint, and production build verification for the repair round
 
 ## Progress Log
 - 2026-07-17: Project initialized with Supabase template, dependencies installed
@@ -94,3 +103,4 @@
 - 2026-08-06: Universal Card Engine complete. Created card-engine-types.ts (10 card type configs + 8 shared building blocks), CardEngine.tsx (10 card templates + renderCard + UCCardGrid), migrated StatCard internally to UCSummaryCard, migrated JobSeeker dashboard stats (UCSummaryCard) + recent matches (UCDecisionCard), migrated Company dashboard stats (UCSummaryCard with onClick navigation), created enterprise documentation (docs/enterprise/CardEngine.md). Lint + build pass cleanly.
 - 2026-08-06: Mobile Premium UX + Feature Parity phase complete. Premium Decision Card (header/logo/badge/save/share, salary, metadata, expandable description, skill match indicators), Sticky Decision Action Bar (Pass/Save/Like with spring animations, 3 variants), Mobile Account Center (grouped sections, profile header, 5 menu groups for seeker, 3 for company), Enhanced Navigation (Account tab → Account Center, 3-tap reachability), Feature Registry Engine (28 features registered, validation engine, parity reports, access control, React hook), Experience Engine Documentation (ExperienceEngine.md — mobile standards, card engine, feature registry, platform standards, parity status). New i18n keys (EN/AR). Lint + build pass cleanly.
 - 2026-08-06: Swipe Feedback Engine complete. Fixed build error (useTranslation import from 'react-i18next' instead of '@/lib/i18n'). SwipeFeedbackEngine.tsx provides CardStack + useSwipeFeedback hook with green APPLY stamp on right swipe, red PASS stamp on left swipe. JobSeeker.tsx mobile deck renders via engine. i18n keys added (EN/AR). ExperienceEngine.md updated with Section 7 (Swipe Feedback Engine), file map, component hierarchy, quality gates. Lint + build pass cleanly.
+- 2026-09-21: Job Seeker signup repair round. Root causes fixed: (1) email signup jumped straight to the dashboard because the post-signup destination was resolved without onboarding state — now resolved by role + onboarding state through src/lib/signup-flow.ts, so new seekers land on the Welcome screen; (2) duplicate submissions threw because profile upserts lacked conflict targets — now idempotent via onConflict: 'user_id'; (3) a slow profile lookup could hold the loading state forever — bootstrap calls are now time-boxed so the loading state always clears. Phone OTP and OAuth callbacks (Apple/Google) now pass through the same centralized identity bootstrap, and the Welcome → "Start building my profile" → next step → completed users → /seeker path was verified in-browser. Company authentication/login regression re-checked at /auth?role=company. TypeScript, lint, production build, and UI render validation all pass.

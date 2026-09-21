@@ -19,6 +19,11 @@ import { VALIDATION, ROUTES, STORAGE_KEYS } from '@/config/constants';
 import { toast } from 'sonner';
 import { Sparkles, UserCircle, Building2, ArrowLeft, Globe, Mail, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { SignupMethodButton, OtpInput } from '@/components/onboarding/OnboardingKit';
+import {
+  completeSeekerSignup,
+  ensureIdentity,
+  resolvePostAuthDestination,
+} from '@/lib/signup-flow';
 
 type AuthView =
   | 'role_select' | 'login' | 'register' | 'forgot_password' | 'verify_email'
@@ -32,7 +37,7 @@ export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { isAuthenticated, userRole, setUserRole, setRememberMe } = useAuthStore();
+  const { isAuthenticated, userRole, userId, setUserRole, setRememberMe } = useAuthStore();
 
   const [view, setView] = useState<AuthView>('role_select');
   const [selectedRole, setSelectedRole] = useState<'job_seeker' | 'company' | null>(null);
@@ -62,11 +67,16 @@ export default function Auth() {
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated && userRole) {
-      const destination = from || (userRole === 'company' ? ROUTES.COMPANY : ROUTES.SEEKER);
-      navigate(destination, { replace: true });
-    }
-  }, [isAuthenticated, userRole, navigate, from]);
+    if (!isAuthenticated || !userRole) return;
+    let alive = true;
+    // Resolve through the shared
+    // router so a Job Seeker who has not finished onboarding is sent to the
+    // Welcome screen instead of a dashboard they cannot use.
+    resolvePostAuthDestination(userRole, userId).then((destination) => {
+      if (alive) navigate(from || destination, { replace: true });
+    });
+    return () => { alive = false; };
+  }, [isAuthenticated, userRole, userId, navigate, from]);
 
   // Password strength calculator
   useEffect(() => {
@@ -146,13 +156,21 @@ export default function Auth() {
       setRememberMe(true);
       if (dbRole) {
         setUserRole(dbRole);
-        navigate(dbRole === 'company' ? ROUTES.COMPANY : ROUTES.SEEKER, { replace: true });
+        navigate(
+          dbRole === 'company'
+            ? ROUTES.COMPANY
+            : await resolvePostAuthDestination(dbRole, user.id),
+          { replace: true }
+        );
       } else {
-        // Brand-new phone signup -> create seeker profile, straight into onboarding.
-        await authService.createUserProfile(user.id, 'job_seeker');
-        await authService.createRoleProfile(user.id, 'job_seeker', user.email || user.phone || '');
+        // Brand-new phone signup -> idempotent identity bootstrap, then resolve
+        // the destination. Unfinished seekers always land on the Welcome screen.
         setUserRole('job_seeker');
-        navigate(ROUTES.SEEKER_ONBOARDING, { replace: true });
+        const { destination } = await completeSeekerSignup(
+          user.id,
+          user.email || user.phone || ''
+        );
+        navigate(destination, { replace: true });
       }
     } catch (err: any) {
       toast.error(err?.message || t('ob_err_otp'));
@@ -187,15 +205,21 @@ export default function Auth() {
 
         if (dbRole) {
           setUserRole(dbRole);
-          // Redirect based on role
-          const destination = dbRole === 'company' ? ROUTES.COMPANY : ROUTES.SEEKER;
+          // Role-aware destination: Job Seekers are resolved by onboarding state.
+          const destination = await resolvePostAuthDestination(dbRole, user.id);
           navigate(from || destination, { replace: true });
         } else if (selectedRole) {
-          // First login after registration - create profile with selected role
-          await authService.createUserProfile(user.id, selectedRole);
-          await authService.createRoleProfile(user.id, selectedRole, user.email || '');
+          // First login after registration - ensure the profile exists idempotently.
           setUserRole(selectedRole);
-          navigate(selectedRole === 'company' ? ROUTES.COMPANY : ROUTES.SEEKER, { replace: true });
+          if (selectedRole === 'job_seeker') {
+            await ensureIdentity(user.id, user.email || null, 'job_seeker');
+            const destination = await resolvePostAuthDestination('job_seeker', user.id);
+            navigate(from || destination, { replace: true });
+          } else {
+            await authService.createUserProfile(user.id, selectedRole);
+            await authService.createRoleProfile(user.id, selectedRole, user.email || '');
+            navigate(from || ROUTES.COMPANY, { replace: true });
+          }
         } else {
           // No role found and none selected - go to role selection
           setView('role_select');
@@ -243,11 +267,18 @@ export default function Auth() {
         setView('verify_email');
         toast.success(t('verification_email_sent'));
       } else if (user) {
-        // Email confirmation disabled in Supabase settings - auto-login
-        await authService.createUserProfile(user.id, selectedRole);
-        await authService.createRoleProfile(user.id, selectedRole, email);
+        // Email confirmation disabled in Supabase settings - auto-login.
+        // Job Seekers always start at the Welcome/onboarding screen; Company
+        // authentication and its destination are preserved unchanged.
         setUserRole(selectedRole);
-        navigate(selectedRole === 'company' ? ROUTES.COMPANY : ROUTES.SEEKER, { replace: true });
+        if (selectedRole === 'job_seeker') {
+          const { destination } = await completeSeekerSignup(user.id, email);
+          navigate(destination, { replace: true });
+        } else {
+          await authService.createUserProfile(user.id, selectedRole);
+          await authService.createRoleProfile(user.id, selectedRole, email);
+          navigate(ROUTES.COMPANY, { replace: true });
+        }
       }
     } catch (error: any) {
       toast.error(error.message || t('registration_failed'));

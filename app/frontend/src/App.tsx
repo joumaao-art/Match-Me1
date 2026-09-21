@@ -16,6 +16,7 @@ import { useAuthStore, useAppStore } from '@/stores';
 import { authService } from '@/services';
 import { ROUTES, STORAGE_KEYS } from '@/config/constants';
 import { initializeSecurity, sessionManager, auditLogger } from '@/lib/security';
+import { ensureIdentity, resolvePostAuthDestination } from '@/lib/signup-flow';
 import { optimizeStartup, trackPerformance, updateSEO } from '@/lib/performance';
 import '@/lib/i18n';
 
@@ -168,16 +169,27 @@ function ProtectedRoute({
 }
 
 function GuestRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, userRole, isLoading } = useAuthStore();
+  const { isAuthenticated, userRole, userId, isLoading } = useAuthStore();
+  const [destination, setDestination] = useState<string | null>(null);
+
+  // Authenticated visitors are forwarded by role, and Job Seekers additionally
+  // by onboarding state, so an unfinished seeker never bounces off a dashboard.
+  useEffect(() => {
+    if (!isAuthenticated || !userRole) { setDestination(null); return; }
+    let alive = true;
+    resolvePostAuthDestination(userRole, userId).then((dest) => {
+      if (alive) setDestination(dest);
+    });
+    return () => { alive = false; };
+  }, [isAuthenticated, userRole, userId]);
 
   if (isLoading) {
     return <PageLoader />;
   }
 
   if (isAuthenticated && userRole) {
-    if (userRole === 'admin') return <Navigate to={ROUTES.ADMIN_DASHBOARD} replace />;
-    if (userRole === 'company') return <Navigate to={ROUTES.COMPANY} replace />;
-    if (userRole === 'job_seeker') return <Navigate to={ROUTES.SEEKER} replace />;
+    if (!destination) return <PageLoader />;
+    return <Navigate to={destination} replace />;
   }
 
   return <>{children}</>;
@@ -186,6 +198,8 @@ function GuestRoute({ children }: { children: React.ReactNode }) {
 function AuthCallbackHandler() {
   const { userRole, isAuthenticated, userId, email, setUserRole } = useAuthStore();
   const [bootstrapped, setBootstrapped] = useState(false);
+  // Job Seeker landing is resolved from onboarding state, which needs a lookup.
+  const [seekerDestination, setSeekerDestination] = useState<string | null>(null);
 
   useEffect(() => {
     authService.getSession();
@@ -205,8 +219,10 @@ function AuthCallbackHandler() {
         } else {
           const pending = localStorage.getItem(STORAGE_KEYS.PENDING_ROLE) as 'job_seeker' | 'company' | null;
           if (pending) {
-            await authService.createUserProfile(userId, pending);
-            await authService.createRoleProfile(userId, pending, email || '');
+            // Idempotent and time-boxed: a duplicated provider callback or a
+            // retry can never fail on an existing profile, nor strand the user
+            // on the loading screen.
+            await ensureIdentity(userId, email || null, pending);
             localStorage.removeItem(STORAGE_KEYS.PENDING_ROLE);
             if (alive) setUserRole(pending);
           }
@@ -218,11 +234,24 @@ function AuthCallbackHandler() {
     return () => { alive = false; };
   }, [isAuthenticated, userId, userRole, email, setUserRole, bootstrapped]);
 
+  // Job Seeker: decide between the Welcome/onboarding screen and the dashboard.
+  useEffect(() => {
+    if (!isAuthenticated || userRole !== 'job_seeker' || !userId) return;
+    let alive = true;
+    resolvePostAuthDestination('job_seeker', userId).then((dest) => {
+      if (alive) setSeekerDestination(dest);
+    });
+    return () => { alive = false; };
+  }, [isAuthenticated, userRole, userId]);
+
   if (!isAuthenticated) return <Navigate to={ROUTES.AUTH} replace />;
   if (!userRole && !bootstrapped) return <PageLoader />;
   if (userRole === 'admin') return <Navigate to={ROUTES.ADMIN_DASHBOARD} replace />;
   if (userRole === 'company') return <Navigate to={ROUTES.COMPANY} replace />;
-  if (userRole === 'job_seeker') return <Navigate to={ROUTES.SEEKER} replace />;
+  if (userRole === 'job_seeker') {
+    if (!seekerDestination) return <PageLoader />;
+    return <Navigate to={seekerDestination} replace />;
+  }
   return <Navigate to={ROUTES.AUTH} replace />;
 }
 
