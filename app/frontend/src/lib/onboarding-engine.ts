@@ -17,7 +17,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { apiClient } from '@/services/api-client';
 import { profileService } from '@/services/profile.service';
 import { logger } from '@/lib/logger';
-import { BOOTSTRAP_TIMEOUT_MS, withTimeout } from '@/lib/signup-flow';
+import { BOOTSTRAP_TIMEOUT_MS, withTimeout, ensureJobSeekerInitialized } from '@/lib/signup-flow';
 
 // ============================================================
 // Versioning
@@ -224,6 +224,113 @@ export const createInitialState = (): OnboardingState => ({
 });
 
 // ============================================================
+// State normalization (the persisted-state boundary)
+// ============================================================
+
+const stringArray = (value: unknown): string[] =>
+  Array.isArray(value) ? value.filter((v): v is string => typeof v === 'string') : [];
+
+const stringOr = (value: unknown, fallback: string): string =>
+  typeof value === 'string' ? value : fallback;
+
+const optionalString = (value: unknown): string | null =>
+  typeof value === 'string' && value.length > 0 ? value : null;
+
+const numberOrNull = (value: unknown): number | null =>
+  typeof value === 'number' && Number.isFinite(value) ? value : null;
+
+/**
+ * Coerce any persisted/submitted draft into the canonical shape.
+ *
+ * WHY THIS EXISTS (the reported "Get started / Dashboard never loads" defect):
+ * a draft read from `localStorage` is UNTRUSTED INPUT. A mirror written by an
+ * earlier release can predate draft fields — the observed case was a stored
+ * draft with no `resume` object at all, which made `computeProfileStrength`
+ * read `draft.resume.cvUrl` on `undefined` and threw during render. The error
+ * boundary then replaced the whole page for exactly the accounts this repair
+ * targets: users left partially initialized by the earlier broken signup.
+ *
+ * Every field is validated individually and unknown fields are dropped, so a
+ * malformed or truncated mirror degrades to the defaults instead of crashing.
+ */
+export function normalizeDraft(raw: unknown): OnboardingDraft {
+  const base = createInitialDraft();
+  if (!raw || typeof raw !== 'object') return base;
+  const r = raw as Record<string, unknown>;
+
+  const permission = r.notification_permission;
+  const resume = r.resume && typeof r.resume === 'object' ? (r.resume as ResumeExtract) : {};
+
+  return {
+    full_name: stringOr(r.full_name, base.full_name),
+    headline: stringOr(r.headline, base.headline),
+    skills: stringArray(r.skills),
+    experience_years: numberOrNull(r.experience_years),
+    education: stringOr(r.education, base.education),
+    resume,
+    gender: optionalString(r.gender),
+    disability: optionalString(r.disability),
+    acquisition_source: optionalString(r.acquisition_source),
+    acquisition_other: stringOr(r.acquisition_other, base.acquisition_other),
+    birth_date: stringOr(r.birth_date, base.birth_date),
+    country: optionalString(r.country),
+    city: stringOr(r.city, base.city),
+    target_countries: stringArray(r.target_countries),
+    desired_roles: stringArray(r.desired_roles),
+    work_styles: stringArray(r.work_styles),
+    notifications: {
+      ...base.notifications,
+      ...(r.notifications && typeof r.notifications === 'object'
+        ? (r.notifications as Record<string, boolean>)
+        : {}),
+    },
+    notification_permission:
+      permission === 'granted' || permission === 'denied' || permission === 'unsupported' || permission === 'undecided'
+        ? permission
+        : base.notification_permission,
+    job_search_rating: numberOrNull(r.job_search_rating),
+    plan: stringOr(r.plan, base.plan) || base.plan,
+    tutorial_seen: r.tutorial_seen === true,
+  };
+}
+
+/**
+ * Coerce a persisted or server-provided state into the canonical shape.
+ * Unknown step ids and invalid step statuses are dropped so the progress
+ * calculation and step navigation always operate on a valid state machine.
+ */
+export function normalizeOnboardingState(raw: unknown): OnboardingState {
+  const base = createInitialState();
+  if (!raw || typeof raw !== 'object') return base;
+  const r = raw as Record<string, unknown>;
+
+  const steps: OnboardingState['steps'] = {};
+  if (r.steps && typeof r.steps === 'object') {
+    const source = r.steps as Record<string, unknown>;
+    for (const id of STEP_ORDER) {
+      const entry = source[id] as { status?: unknown; at?: unknown } | undefined;
+      if (entry && (entry.status === 'done' || entry.status === 'skipped')) {
+        steps[id] = {
+          status: entry.status,
+          at: typeof entry.at === 'string' ? entry.at : new Date().toISOString(),
+        };
+      }
+    }
+  }
+
+  return {
+    version: stringOr(r.version, base.version),
+    startedAt: typeof r.startedAt === 'string' ? r.startedAt : null,
+    currentStep: STEP_ORDER.includes(r.currentStep as OnboardingStepId)
+      ? (r.currentStep as OnboardingStepId)
+      : base.currentStep,
+    steps,
+    draft: normalizeDraft(r.draft),
+    completed: r.completed === true,
+  };
+}
+
+// ============================================================
 // Validation & navigation rules
 // ============================================================
 
@@ -306,19 +413,23 @@ export function computeProgress(state: OnboardingState): number {
 
 /** Profile strength 0..100 based on canonical profile fields. */
 export function computeProfileStrength(draft: OnboardingDraft): { score: number; hints: string[] } {
+  // Normalize first: an unnormalized draft (a mirror written by an earlier
+  // release may be missing `resume` entirely) previously threw right here and
+  // blanked the whole journey through the error boundary.
+  const d = normalizeDraft(draft);
   let score = 0;
   const hints: string[] = [];
   const add = (ok: boolean, pts: number, hint: string) => {
     if (ok) score += pts; else hints.push(hint);
   };
-  add(!!draft.full_name, 15, 'ob_hint_name');
-  add(!!draft.headline, 10, 'ob_hint_headline');
-  add(draft.skills.length >= 3, 20, 'ob_hint_skills');
-  add(!!draft.resume.cvUrl || !!draft.resume.parsed, 15, 'ob_hint_resume');
-  add(!!draft.birth_date, 10, 'ob_hint_birthday');
-  add(!!draft.country && !!draft.city, 10, 'ob_hint_location');
-  add(draft.target_countries.length > 0, 10, 'ob_hint_target');
-  add(draft.desired_roles.length > 0, 10, 'ob_hint_roles');
+  add(!!d.full_name, 15, 'ob_hint_name');
+  add(!!d.headline, 10, 'ob_hint_headline');
+  add(d.skills.length >= 3, 20, 'ob_hint_skills');
+  add(!!d.resume.cvUrl || !!d.resume.parsed, 15, 'ob_hint_resume');
+  add(!!d.birth_date, 10, 'ob_hint_birthday');
+  add(!!d.country && !!d.city, 10, 'ob_hint_location');
+  add(d.target_countries.length > 0, 10, 'ob_hint_target');
+  add(d.desired_roles.length > 0, 10, 'ob_hint_roles');
   return { score: Math.min(100, score), hints };
 }
 
@@ -415,17 +526,7 @@ export async function trackOnboarding(
 function sanitizeServerState(raw: any): OnboardingState | null {
   if (!raw || typeof raw !== 'object') return null;
   try {
-    const base = createInitialState();
-    const state: OnboardingState = {
-      ...base,
-      version: typeof raw.version === 'string' ? raw.version : base.version,
-      startedAt: raw.startedAt ?? null,
-      currentStep: STEP_ORDER.includes(raw.currentStep) ? raw.currentStep : base.currentStep,
-      steps: raw.steps && typeof raw.steps === 'object' ? raw.steps : {},
-      draft: { ...base.draft, ...(raw.draft || {}) },
-      completed: !!raw.completed,
-    };
-    return state;
+    return normalizeOnboardingState(raw);
   } catch {
     return null;
   }
@@ -449,6 +550,8 @@ interface OnboardingStore {
   sync: () => Promise<void>;
   /** Mark a step done/skipped, persist profile fields, advance, sync. */
   completeStep: (userId: string, id: OnboardingStepId, status: StepStatus) => Promise<void>;
+  /** Drop a stale local completion flag (the server owns completion). */
+  clearCompletion: () => void;
   reset: () => void;
 }
 
@@ -498,7 +601,9 @@ export const useOnboardingStore = create<OnboardingStore>()(
         set((s) => ({ state: { ...s.state, currentStep: id } })),
 
       hydrate: async (userId: string) => {
-        const local = get().state;
+        // The local mirror is untrusted input (it may predate current draft
+        // fields), so it is normalized before it can reach any render path.
+        const local = normalizeOnboardingState(get().state);
         // Load server state; fall back to the local persisted mirror when offline.
         //
         // BOUNDED BY DESIGN: `hydrated` is the single gate for the onboarding
@@ -580,12 +685,47 @@ export const useOnboardingStore = create<OnboardingStore>()(
         await sync();
       },
 
+      /**
+       * Drop a stale local completion flag.
+       *
+       * The server owns completion; the mirror is only a cache. When the shared
+       * authority reports the account as incomplete, the cached flag must go —
+       * otherwise the journey would hand the user back to a dashboard that
+       * immediately returns them here, forever.
+       */
+      clearCompletion: () =>
+        set((s) => ({
+          state: { ...s.state, completed: false, currentStep: firstIncompleteStep(s.state) },
+        })),
+
       reset: () => set({ userId: null, state: createInitialState(), hydrated: false }),
     }),
     {
       name: 'matchme-onboarding',
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({ userId: s.userId, state: s.state }),
+      /**
+       * Repair the persisted mirror while it is being rehydrated.
+       *
+       * `merge` runs before the first render, which is the only place a stale
+       * mirror can be fixed early enough. Without it, a mirror written by an
+       * earlier release (for example with no `resume` object) crashed the very
+       * first render of the journey — the reported permanent loader/blanks for
+       * accounts left behind by the earlier signup defect.
+       *
+       * Run-scoped flags are deliberately reset so a previous session can never
+       * make the UI believe a hydration is already finished.
+       */
+      merge: (persisted, current) => {
+        const stored = (persisted ?? {}) as Partial<OnboardingStore>;
+        return {
+          ...current,
+          userId: typeof stored.userId === 'string' ? stored.userId : null,
+          state: normalizeOnboardingState(stored.state),
+          hydrated: false,
+          syncing: false,
+        };
+      },
     }
   )
 );
@@ -595,6 +735,15 @@ export const useOnboardingStore = create<OnboardingStore>()(
 // ============================================================
 
 export async function finalizeOnboarding(userId: string): Promise<void> {
+  // Repair the account FIRST. `completeOnboarding` is an UPDATE on
+  // `user_profiles`, and for an account whose row never landed (the partially
+  // initialized signup state) that UPDATE matches ZERO rows while PostgREST
+  // still reports success. The dashboard guard would then read
+  // `onboarding_completed = false` and bounce the user straight back into the
+  // journey, forever. Repairing through the same authority keeps the writer and
+  // the reader of the completion flag in agreement.
+  await ensureJobSeekerInitialized(userId);
+
   const { state, sync, patchDraft } = useOnboardingStore.getState();
   const plan = state.draft.plan || 'seeker-free';
   patchDraft({ plan });

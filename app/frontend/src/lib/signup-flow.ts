@@ -131,13 +131,101 @@ export async function isSeekerOnboardingComplete(userId: string): Promise<boolea
   return false;
 }
 
+/** Outcome of the Job Seeker account initialization. */
+export interface SeekerInitResult {
+  /** True when the account rows were verified/repaired for this user. */
+  ready: boolean;
+  userId: string | null;
+  /** True when the user still has to (re)enter the onboarding journey. */
+  needsOnboarding: boolean;
+  /** Always a usable route, so callers never have to decide for themselves. */
+  destination: string;
+}
+
+/**
+ * THE single authority for "is this Job Seeker account initialized, and where
+ * does it belong?".
+ *
+ * WHY THIS EXISTS (the reported "Get started / Dashboard never loads" defect):
+ * the completion flag used to be OWNED by the local onboarding mirror while it
+ * was READ from the database by the dashboard guard. The two could disagree
+ * permanently, and disagreement produced an endless bounce:
+ *
+ *     /seeker            guard: database says "not complete" -> onboarding
+ *     /seeker/onboarding mirror says "complete"               -> /seeker
+ *
+ * Disagreement is guaranteed for partially initialized accounts — exactly the
+ * state the earlier signup defect left behind (an auth user with no
+ * `user_profiles` / `job_seeker_profiles` rows), because `completeOnboarding`
+ * is an UPDATE: with no row to match it reports success while changing nothing.
+ *
+ * This function therefore does the repair and the decision TOGETHER, so the
+ * writer and the reader of the completion flag can no longer disagree:
+ *
+ *   1. Resolve the authenticated identity (bounded; session when not supplied).
+ *   2. Ensure the base profile and the role profile exist — idempotent, so a
+ *      retry, a duplicate callback or a returning user is harmless.
+ *   3. Preserve the existing role: role creation is duplicate-safe, so a
+ *      Company or Admin account is never rewritten into a Job Seeker.
+ *   4. Never touch completed data and never invent data — the write is the
+ *      minimal identity row, nothing else.
+ *   5. Return the destination instead of leaving each caller to choose one.
+ *
+ * Never throws: every failure degrades to the onboarding destination, which is
+ * where a genuinely incomplete account belongs.
+ */
+export async function ensureJobSeekerInitialized(
+  userId: string | null
+): Promise<SeekerInitResult> {
+  const unresolved: SeekerInitResult = {
+    ready: false,
+    userId: null,
+    needsOnboarding: true,
+    destination: ROUTES.SEEKER_ONBOARDING,
+  };
+
+  try {
+    let id = userId;
+    let email: string | null = null;
+
+    if (!id) {
+      const identity = await getSessionIdentity();
+      id = identity.userId;
+      email = identity.email;
+    }
+
+    // No session at all: there is nothing to repair and no account to route.
+    if (!id) return unresolved;
+
+    if (!email) {
+      const identity = await getSessionIdentity();
+      email = identity.email;
+    }
+
+    // Idempotent repair: creates what is missing, preserves what exists.
+    await ensureIdentity(id, email, 'job_seeker');
+
+    const complete = await isSeekerOnboardingComplete(id);
+    return {
+      ready: true,
+      userId: id,
+      needsOnboarding: !complete,
+      destination: complete ? ROUTES.SEEKER : ROUTES.SEEKER_ONBOARDING,
+    };
+  } catch (err) {
+    logger.warn('[SignupFlow] Seeker initialization failed; defaulting to onboarding', err);
+    return unresolved;
+  }
+}
+
 /**
  * Where should an authenticated user land?
  *
- * Job Seekers are routed by onboarding state. If the completion state cannot
- * be determined, we send them to onboarding on purpose: that page redirects
- * completed users onward to /seeker by itself, so this default is always
- * self-correcting and never traps anybody.
+ * Job Seekers are routed through `ensureJobSeekerInitialized`, so the account
+ * is repaired before the destination is decided and every route guard reads the
+ * same, freshly verified completion state. If the completion state cannot be
+ * determined, onboarding is used on purpose: that is the recoverable side of
+ * the decision, and the journey resumes at the user's first incomplete step.
  */
 export async function resolvePostAuthDestination(
   role: UserRole | null,
@@ -146,15 +234,9 @@ export async function resolvePostAuthDestination(
   if (role === 'admin') return ROUTES.ADMIN_DASHBOARD;
   if (role === 'company') return ROUTES.COMPANY;
   if (role !== 'job_seeker') return ROUTES.AUTH;
-  if (!userId) return ROUTES.SEEKER_ONBOARDING;
 
-  try {
-    const completed = await isSeekerOnboardingComplete(userId);
-    return completed ? ROUTES.SEEKER : ROUTES.SEEKER_ONBOARDING;
-  } catch (err) {
-    logger.warn('[SignupFlow] Completion lookup failed; defaulting to onboarding', err);
-    return ROUTES.SEEKER_ONBOARDING;
-  }
+  const init = await ensureJobSeekerInitialized(userId);
+  return init.destination;
 }
 
 /**

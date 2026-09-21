@@ -9,7 +9,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import {
@@ -33,10 +33,12 @@ import {
   useOnboardingStore, ONBOARDING_STEPS, STEP_ORDER, getStepDef,
   validateStep, computeProgress, computeProfileStrength, nextStepId, prevStepId,
   finalizeOnboarding, ageFromBirthDate, parseResumeText, requestGeolocation, nearestCountry,
-  trackOnboarding, COUNTRIES, SKILL_TAXONOMY, ROLE_OPTIONS, WORK_STYLES, GENDERS,
+  trackOnboarding, normalizeDraft, COUNTRIES, SKILL_TAXONOMY, ROLE_OPTIONS, WORK_STYLES, GENDERS,
   DISABILITIES, ACQUISITION_SOURCES, NOTIFICATION_TOPICS, SEEKER_PLAN_OPTIONS,
   type OnboardingStepId, type OnboardingDraft,
 } from '@/lib/onboarding-engine';
+import { ensureJobSeekerInitialized } from '@/lib/signup-flow';
+import { ROUTES } from '@/config/constants';
 import { cn } from '@/lib/utils';
 
 const MAX_RESUME_MB = 10;
@@ -55,12 +57,16 @@ export default function JobSeekerOnboarding() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { userId, email } = useAuthStore();
-  const { state, hydrated, hydrate, patchDraft, setStep, completeStep, sync } = useOnboardingStore();
+  const { state, hydrated, hydrate, patchDraft, setStep, completeStep, sync, clearCompletion } = useOnboardingStore();
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
 
-  const draft = state.draft;
+  // Every render path (including the tutorial's profile-strength card) receives
+  // a canonical draft: a mirror persisted by an earlier release can be missing
+  // whole draft objects, which previously threw during render and replaced the
+  // entire journey with the error boundary.
+  const draft = useMemo(() => normalizeDraft(state.draft), [state.draft]);
   const stepId = state.currentStep;
   const def = getStepDef(stepId);
 
@@ -81,10 +87,30 @@ export default function JobSeekerOnboarding() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
-  // ---------- completed -> leave the journey ----------
+  // ---------- completed -> leave the journey (server-verified) ----------
+  // The local mirror is only a cache of the server's completion flag. Trusting
+  // it alone is what produced the endless bounce: for a partially initialized
+  // account (no `user_profiles` row) `completeOnboarding` updated ZERO rows
+  // while still reporting success, so the mirror said "complete" while the
+  // dashboard guard read "not complete" — /seeker -> onboarding -> /seeker …
+  // with a full-screen loader on every hop. The shared authority both REPAIRS
+  // the account and decides the destination, so the two screens agree.
   useEffect(() => {
-    if (hydrated && state.completed) navigate('/seeker', { replace: true });
-  }, [hydrated, state.completed, navigate]);
+    if (!hydrated || !state.completed || !userId) return;
+    let alive = true;
+    (async () => {
+      const init = await ensureJobSeekerInitialized(userId);
+      if (!alive) return;
+      if (!init.needsOnboarding) {
+        navigate(init.destination, { replace: true });
+        return;
+      }
+      // The account genuinely is incomplete, so the cached flag is stale:
+      // clear it and resume at the first incomplete step.
+      clearCompletion();
+    })();
+    return () => { alive = false; };
+  }, [hydrated, state.completed, userId, navigate, clearCompletion]);
 
   // ---------- persistence safety net ----------
   useEffect(() => {
@@ -139,7 +165,9 @@ export default function JobSeekerOnboarding() {
     if (p) { setErrors({}); setStep(p); }
   };
 
-  if (!userId) { navigate('/auth', { replace: true }); return null; }
+  // Declarative redirect: navigating during render is a side effect that can
+  // run before the location has settled, which risks a redirect ping-pong.
+  if (!userId) return <Navigate to={ROUTES.AUTH} replace />;
   if (!hydrated) {
     // `hydrated` is released by the engine's bounded hydrate() in every outcome
     // (resolve, reject, or timeout), so this loader can no longer be permanent.

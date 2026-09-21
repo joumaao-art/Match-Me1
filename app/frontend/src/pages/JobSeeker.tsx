@@ -40,10 +40,9 @@ import { MobileBottomNav, type MobileNavTab } from '@/components/shared/MobileBo
 import { MobileDashboard } from '@/components/shared/MobileDashboard';
 import { MobileAccountCenter } from '@/components/shared/MobileAccountCenter';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { profileService } from '@/services';
 import { useAuthStore } from '@/stores';
 import { logger } from '@/lib/logger';
-import { ROUTES } from '@/config/constants';
+import { ensureJobSeekerInitialized } from '@/lib/signup-flow';
 import { ScoreBreakdown, ConfidenceIndicator } from '@/components/shared/ScoreVisualizationEngine';
 
 // ============================================================
@@ -1682,48 +1681,59 @@ export default function JobSeeker() {
     }
   }, [activeTab, navigate]);
 
-  // Onboarding Guard: route Job Seekers who never finished onboarding into the
-  // resumable journey. Existing profiles (already carrying real data) are
-  // back-filled as completed so this never traps an established account.
+  // Onboarding Guard: the SHARED authority decides — this component no longer
+  // re-derives the completion state on its own.
+  //
+  // The previous version read `onboarding_completed`, back-filled legacy
+  // accounts, otherwise redirected. That duplicated a decision the onboarding
+  // journey also makes from its LOCAL mirror, and the two sources could
+  // disagree permanently. An account with no `user_profiles` row — exactly the
+  // state left behind by the earlier signup defect — makes `completeOnboarding`
+  // an UPDATE that matches ZERO rows while still reporting success, so the
+  // mirror said "complete" and this guard said "not complete":
+  //
+  //     /seeker  (guard: not complete) -> /seeker/onboarding
+  //     /seeker/onboarding (mirror: complete) -> /seeker ... forever, one
+  //     full-screen loader per hop.
+  //
+  // That is why "Get started" and "Dashboard" looked like they never loaded for
+  // these accounts. `ensureJobSeekerInitialized` repairs the account rows and
+  // returns the matching destination, so whichever screen reads the flag agrees
+  // with the one that wrote it.
+  //
+  // Hard rule: NEVER hang and NEVER loop.
+  //   - decisive "incomplete" -> onboarding (the journey resumes at the user's
+  //     first unfinished step);
+  //   - anything inconclusive (offline, slow, no session) -> release the
+  //     dashboard, because redirecting on an unknown state is what creates
+  //     loops. The watchdog stays as a last-resort guarantee that this loader
+  //     always ends.
   const [onboardingChecked, setOnboardingChecked] = useState(false);
   const { userId } = useAuthStore();
   useEffect(() => {
     if (!userId || onboardingChecked) return;
     let alive = true;
-    // Hard ceiling for the onboarding guard lookup (ms).
+    // Hard ceiling for the guard (ms). The authority already bounds each of its
+    // own network steps, so this is a backstop rather than the mechanism.
     const ONBOARDING_GUARD_TIMEOUT_MS = 6000;
-    // GUARANTEED COMPLETION: `onboardingChecked` gates a full-screen spinner, and
-    // a profile read that never settles would hold it at `false` forever. The
-    // `catch` alone was not enough — a hanging promise never throws. The watchdog
-    // guarantees the dashboard always renders.
     const settle = () => {
       if (alive) setOnboardingChecked(true);
     };
     const watchdog = setTimeout(() => {
       logger.warn(
-        `[OnboardingGuard] Lookup exceeded ${ONBOARDING_GUARD_TIMEOUT_MS}ms; releasing the dashboard.`
+        `[OnboardingGuard] Initialization exceeded ${ONBOARDING_GUARD_TIMEOUT_MS}ms; releasing the dashboard.`
       );
       settle();
     }, ONBOARDING_GUARD_TIMEOUT_MS);
     (async () => {
       try {
-        const [{ data: base }, { data: seeker }] = await Promise.all([
-          profileService.getUserProfile(userId),
-          profileService.getSeekerProfile(userId),
-        ]);
+        const init = await ensureJobSeekerInitialized(userId);
         if (!alive) return;
-        if ((base as any)?.onboarding_completed) {
-          settle();
+        if (init.ready && init.needsOnboarding) {
+          navigate(init.destination, { replace: true });
           return;
         }
-        // Legacy account with real profile data -> mark complete, let through.
-        const hasData = !!(seeker as any)?.full_name && ((seeker as any)?.skills?.length ?? 0) > 0;
-        if (hasData) {
-          await profileService.completeOnboarding(userId);
-          settle();
-          return;
-        }
-        navigate(ROUTES.SEEKER_ONBOARDING, { replace: true });
+        settle();
       } catch {
         // Never block the dashboard on a guard failure.
         settle();
