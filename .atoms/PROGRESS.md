@@ -68,8 +68,17 @@
 - [x] Auth redirect, OAuth/phone callback, and guest guard all resolve destination by role + onboarding state
 - [x] Company authentication and Company onboarding preserved (regression checked)
 - [x] TypeScript, lint, and production build verification for the repair round
+- [x] Guaranteed completion for the auth boot loading gate (timeout + catch + finally)
+- [x] Bounded destination resolution in GuestRoute and AuthCallbackHandler
+- [x] Development-only boot execution trace for spinner diagnosis
+- [x] Bounded onboarding hydration gate so `hydrated` is always released (resolve / reject / timeout)
+- [x] Onboarding guard watchdog on the dashboard so `onboardingChecked` always releases
+- [x] Reproduce the non-settling signup path and confirm recovery (scripts/repro-signup-spinner-hang.mjs)
+- [x] Lint + build + UI verification for the spinner fix
+- [x] Root-cause report with execution trace (docs/enterprise/SignupSpinnerRootCause.md)
 
 ## Progress Log
+- 2026-09-21: Infinite Job Seeker signup spinner — root cause found and surgically fixed. The three full-screen spinners (`isLoading` in App.tsx, `hydrated` in JobSeekerOnboarding.tsx, `onboardingChecked` in JobSeeker.tsx) all shared one defective gate shape: `someNetworkRead().then(() => setGated(true))`. A `.then()`/`await` never fires when the read never settles, and `catch` cannot fire for a hanging promise either, so the gate stayed shut forever; `isLoading` also started `true` and was not persisted. Fixed with guaranteed completion: bounded auth boot (timeout + catch + finally) in App.tsx, `withTimeout`-wrapped `hydrate()` in onboarding-engine.ts that sets `hydrated` on every path, and a watchdog + idempotent `settle()` on the dashboard onboarding guard. Added executable reproduction (scripts/repro-signup-spinner-hang.mjs: pre-fix HUNG / post-fix RELEASED, asserted) and full root-cause report with execution trace (docs/enterprise/SignupSpinnerRootCause.md). Verified: repro passes, tsc clean, lint clean, production build passes (7 pages prerendered), `/auth` and the email signup form render immediately, and `/seeker` + `/seeker/onboarding` redirect to `/auth` instead of spinning.
 - 2026-07-17: Project initialized with Supabase template, dependencies installed
 - 2026-07-17: All frontend pages built - Landing, Auth, JobSeeker (swipe+dashboard), Company (dashboard+vacancies+candidates+analytics), Messages, Subscription
 - 2026-07-17: Build passes, CheckUI grade 4/5

@@ -17,6 +17,7 @@ import { authService } from '@/services';
 import { ROUTES, STORAGE_KEYS } from '@/config/constants';
 import { initializeSecurity, sessionManager, auditLogger } from '@/lib/security';
 import { ensureIdentity, resolvePostAuthDestination } from '@/lib/signup-flow';
+import { logger } from '@/lib/logger';
 import { optimizeStartup, trackPerformance, updateSEO } from '@/lib/performance';
 import '@/lib/i18n';
 
@@ -87,26 +88,79 @@ const queryClient = new QueryClient({
 // AUTH INITIALIZATION
 // ============================================================
 
+/**
+ * Hard ceiling for the initial session read (ms).
+ * After this the application MUST boot: the loading gate is released and the
+ * router renders the guest (or session) experience instead of spinning.
+ */
+const AUTH_BOOT_TIMEOUT_MS = 6000;
+
+/**
+ * Development-only execution trace for the boot sequence.
+ * Diagnosing a non-settling loading gate requires a timestamped record of
+ * which stage started, settled, failed, or was released by the watchdog.
+ */
+const trace = (stage: string, detail?: unknown) => {
+  if (import.meta.env.DEV) logger.info(`[BootTrace] ${stage}`, detail ?? '');
+};
+
 function useAuthInit() {
   const { setUser, setLoading, setEmailVerified, fetchAndSetRole, reset } = useAuthStore();
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     let mounted = true;
+    let settled = false;
+
+    // GUARANTEED COMPLETION.
+    // `isLoading` starts as `true` and is intentionally NOT persisted, so this
+    // effect owns the only initial path that can release the loading gate.
+    // It therefore has to settle in every possible outcome: resolve, reject,
+    // or never settle at all.
+    const releaseLoading = (stage: string) => {
+      if (!mounted || settled) return;
+      settled = true;
+      setLoading(false);
+      setInitialized(true);
+      trace(`loading gate released (${stage})`);
+    };
+
+    trace('getSession started');
+    const watchdog = setTimeout(() => {
+      logger.warn(
+        `[AuthInit] Session read exceeded ${AUTH_BOOT_TIMEOUT_MS}ms; booting as guest so the UI cannot hang.`
+      );
+      releaseLoading('timeout');
+    }, AUTH_BOOT_TIMEOUT_MS);
 
     // Get initial session
-    authService.getSession().then(async ({ data }) => {
-      if (!mounted) return;
-      const session = (data as any)?.session;
-      if (session?.user) {
-        const user = session.user;
-        setUser(user.id, user.email || '', !!user.email_confirmed_at);
-        await fetchAndSetRole(user.id);
-      } else {
-        setLoading(false);
-      }
-      setInitialized(true);
-    });
+    authService
+      .getSession()
+      .then(async ({ data, error }) => {
+        trace('getSession resolved', {
+          hasSession: !!(data as any)?.session,
+          errorCode: error?.code ?? null,
+        });
+        if (!mounted) return;
+        const session = (data as any)?.session;
+        if (session?.user) {
+          const user = session.user;
+          setUser(user.id, user.email || '', !!user.email_confirmed_at);
+          await fetchAndSetRole(user.id);
+        }
+        releaseLoading('session');
+      })
+      .catch((err) => {
+        // A rejection here (malformed auth callback URL, storage access
+        // failure, or a rejected supabase-js initialization) used to leave
+        // `isLoading` at `true` forever because the old chain had no handler.
+        logger.error('[AuthInit] Session read failed; booting as guest', err);
+        if (mounted) reset();
+        releaseLoading('error');
+      })
+      .finally(() => {
+        clearTimeout(watchdog);
+      });
 
     // Listen for auth changes
     const { data: { subscription } } = authService.onAuthStateChange(async (_event, session) => {
@@ -177,10 +231,30 @@ function GuestRoute({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isAuthenticated || !userRole) { setDestination(null); return; }
     let alive = true;
-    resolvePostAuthDestination(userRole, userId).then((dest) => {
-      if (alive) setDestination(dest);
-    });
-    return () => { alive = false; };
+    // Role-derived fallback so an unresolved lookup degrades to a usable
+    // screen (the onboarding page self-redirects finished seekers onward)
+    // instead of an indefinite loader.
+    const roleFallback =
+      userRole === 'admin'
+        ? ROUTES.ADMIN_DASHBOARD
+        : userRole === 'company'
+          ? ROUTES.COMPANY
+          : ROUTES.SEEKER_ONBOARDING;
+    const fallbackTimer = setTimeout(() => {
+      if (alive) setDestination(roleFallback);
+    }, AUTH_BOOT_TIMEOUT_MS + 2000);
+    resolvePostAuthDestination(userRole, userId)
+      .then((dest) => {
+        if (alive) setDestination(dest || roleFallback);
+      })
+      .catch(() => {
+        if (alive) setDestination(roleFallback);
+      })
+      .finally(() => clearTimeout(fallbackTimer));
+    return () => {
+      alive = false;
+      clearTimeout(fallbackTimer);
+    };
   }, [isAuthenticated, userRole, userId]);
 
   if (isLoading) {
@@ -238,10 +312,23 @@ function AuthCallbackHandler() {
   useEffect(() => {
     if (!isAuthenticated || userRole !== 'job_seeker' || !userId) return;
     let alive = true;
-    resolvePostAuthDestination('job_seeker', userId).then((dest) => {
-      if (alive) setSeekerDestination(dest);
-    });
-    return () => { alive = false; };
+    // Same bounded contract as GuestRoute: the callback must always settle so a
+    // returning OAuth/phone user can never be parked on the loader.
+    const fallbackTimer = setTimeout(() => {
+      if (alive) setSeekerDestination(ROUTES.SEEKER_ONBOARDING);
+    }, AUTH_BOOT_TIMEOUT_MS + 2000);
+    resolvePostAuthDestination('job_seeker', userId)
+      .then((dest) => {
+        if (alive) setSeekerDestination(dest || ROUTES.SEEKER_ONBOARDING);
+      })
+      .catch(() => {
+        if (alive) setSeekerDestination(ROUTES.SEEKER_ONBOARDING);
+      })
+      .finally(() => clearTimeout(fallbackTimer));
+    return () => {
+      alive = false;
+      clearTimeout(fallbackTimer);
+    };
   }, [isAuthenticated, userRole, userId]);
 
   if (!isAuthenticated) return <Navigate to={ROUTES.AUTH} replace />;

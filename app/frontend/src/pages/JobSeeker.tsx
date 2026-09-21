@@ -42,6 +42,7 @@ import { MobileAccountCenter } from '@/components/shared/MobileAccountCenter';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { profileService } from '@/services';
 import { useAuthStore } from '@/stores';
+import { logger } from '@/lib/logger';
 import { ROUTES } from '@/config/constants';
 import { ScoreBreakdown, ConfidenceIndicator } from '@/components/shared/ScoreVisualizationEngine';
 
@@ -1689,6 +1690,21 @@ export default function JobSeeker() {
   useEffect(() => {
     if (!userId || onboardingChecked) return;
     let alive = true;
+    // Hard ceiling for the onboarding guard lookup (ms).
+    const ONBOARDING_GUARD_TIMEOUT_MS = 6000;
+    // GUARANTEED COMPLETION: `onboardingChecked` gates a full-screen spinner, and
+    // a profile read that never settles would hold it at `false` forever. The
+    // `catch` alone was not enough — a hanging promise never throws. The watchdog
+    // guarantees the dashboard always renders.
+    const settle = () => {
+      if (alive) setOnboardingChecked(true);
+    };
+    const watchdog = setTimeout(() => {
+      logger.warn(
+        `[OnboardingGuard] Lookup exceeded ${ONBOARDING_GUARD_TIMEOUT_MS}ms; releasing the dashboard.`
+      );
+      settle();
+    }, ONBOARDING_GUARD_TIMEOUT_MS);
     (async () => {
       try {
         const [{ data: base }, { data: seeker }] = await Promise.all([
@@ -1697,23 +1713,25 @@ export default function JobSeeker() {
         ]);
         if (!alive) return;
         if ((base as any)?.onboarding_completed) {
-          setOnboardingChecked(true);
+          settle();
           return;
         }
         // Legacy account with real profile data -> mark complete, let through.
         const hasData = !!(seeker as any)?.full_name && ((seeker as any)?.skills?.length ?? 0) > 0;
         if (hasData) {
           await profileService.completeOnboarding(userId);
-          setOnboardingChecked(true);
+          settle();
           return;
         }
         navigate(ROUTES.SEEKER_ONBOARDING, { replace: true });
       } catch {
         // Never block the dashboard on a guard failure.
-        if (alive) setOnboardingChecked(true);
+        settle();
+      } finally {
+        clearTimeout(watchdog);
       }
     })();
-    return () => { alive = false; };
+    return () => { alive = false; clearTimeout(watchdog); };
   }, [userId, onboardingChecked, navigate]);
 
   // Handle bottom nav tab changes - maps MobileNavTab to NavSection

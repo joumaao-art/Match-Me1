@@ -17,6 +17,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { apiClient } from '@/services/api-client';
 import { profileService } from '@/services/profile.service';
 import { logger } from '@/lib/logger';
+import { BOOTSTRAP_TIMEOUT_MS, withTimeout } from '@/lib/signup-flow';
 
 // ============================================================
 // Versioning
@@ -499,19 +500,37 @@ export const useOnboardingStore = create<OnboardingStore>()(
       hydrate: async (userId: string) => {
         const local = get().state;
         // Load server state; fall back to the local persisted mirror when offline.
-        const { data } = await profileService.getUserProfile(userId);
-        const server = sanitizeServerState((data as any)?.onboarding_state);
-        let next = server ?? local;
-        // Server version mismatch -> keep server step statuses but refresh draft shape.
-        if (server && server.version !== ONBOARDING_VERSION) {
-          next = { ...server, version: ONBOARDING_VERSION };
+        //
+        // BOUNDED BY DESIGN: `hydrated` is the single gate for the onboarding
+        // page's full-screen spinner, so this promise MUST settle in every
+        // outcome. An unbounded profile read previously left `hydrated` false
+        // forever, which is precisely the reported infinite signup spinner.
+        // On timeout the local mirror is kept and the journey continues.
+        const { data } = await withTimeout(
+          profileService.getUserProfile(userId),
+          BOOTSTRAP_TIMEOUT_MS,
+          { data: null, error: null } as any
+        );
+        try {
+          const server = sanitizeServerState((data as any)?.onboarding_state);
+          let next = server ?? local;
+          // Server version mismatch -> keep server step statuses but refresh draft shape.
+          if (server && server.version !== ONBOARDING_VERSION) {
+            next = { ...server, version: ONBOARDING_VERSION };
+          }
+          // Resume at first incomplete step unless already completed.
+          if (!next.completed) {
+            next = { ...next, currentStep: firstIncompleteStep(next) };
+          }
+          set({ userId, state: next, hydrated: true });
+          return next;
+        } catch (err) {
+          // Malformed persisted or server state must still release the spinner.
+          logger.warn('[Onboarding] hydrate failed; continuing with local mirror', err);
+          const fallback = local ?? createInitialState();
+          set({ userId, state: fallback, hydrated: true });
+          return fallback;
         }
-        // Resume at first incomplete step unless already completed.
-        if (!next.completed) {
-          next = { ...next, currentStep: firstIncompleteStep(next) };
-        }
-        set({ userId, state: next, hydrated: true });
-        return next;
       },
 
       sync: async () => {
