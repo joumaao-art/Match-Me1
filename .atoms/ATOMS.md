@@ -19,6 +19,8 @@ MatchMe - AI-powered recruitment platform with Tinder-style swipe matching. Bili
 | 2026-07-17 | Repository/Service pattern | Alex | Decouples UI from data layer, testable, swappable backends |
 | 2026-07-17 | Expo for mobile app | Alex | User requested React Native/Expo, cross-platform Android support |
 | 2026-07-17 | Shared architecture across web+mobile | Alex | Same patterns (services, stores, types) for consistency |
+| 2026-09-21 | Engineering language is English; product localization stays EN + AR | Alex | Requested cleanup: classify all Han occurrences, translate accidental engineering text, keep Arabic localization and signup behavior intact. Policy: docs/enterprise/EngineeringLanguagePolicy.md; enforced by scripts/check-cjk-engineering-text.mjs (pnpm run check:language), which flags Han only so Arabic is never touched |
+| 2026-09-21 | Locale native display names are approved reference data | Alex | The supported-languages registry and the language reference table list each locale by its own native name; these 4 occurrences are the only Han text in project-owned files and are explicitly approved with reasons in the validator |
 
 ## Constraints
 - Color Palette: Primary #2563EB, Secondary #3B82F6, Background #F8FAFC, Text #1E293B, CTA #F97316

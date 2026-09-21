@@ -192,11 +192,14 @@ localization metadata:
 
 | File | Occurrence | Verdict |
 |------|-----------|---------|
-| `src/lib/i18n.ts` | `{ code: 'zh', nativeName: '中文' }`, `{ code: 'ja', nativeName: '日本語' }` | Intentional — language registry display names |
-| `supabase/migrations/009_production_realtime_seeds.sql` | `('zh', 'Chinese', '中文')`, `('ja', 'Japanese', '日本語')` | Intentional — language reference table seed data |
+| `src/lib/i18n.ts` | the `zh`, `ja`, and `ko` entries carry each language's native display name | Intentional — language registry display names |
+| `supabase/migrations/009_production_realtime_seeds.sql` | the `zh` and `ja` rows of the language reference table carry native display names | Intentional — language reference table seed data |
 
 No accidental Chinese engineering, debug, or test text remains in the project. All
 reports and documentation for this work are therefore written entirely in English.
+These two approved locations are recorded in `docs/enterprise/EngineeringLanguagePolicy.md`
+and enforced by `scripts/check-cjk-engineering-text.mjs` (`pnpm run check:language`),
+which reports file, line, and text for any Han character that is not explicitly approved.
 
 ## 12. Signup outcome contract
 
