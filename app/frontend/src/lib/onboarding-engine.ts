@@ -12,6 +12,8 @@
  * Company onboarding is intentionally NOT touched by this engine.
  */
 
+import { mergePreferences } from '@/lib/job-preferences';
+import { EMPLOYMENT_TYPES, normalizeDegree, type EmploymentTypeCode } from '@/lib/profile-standards';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { apiClient } from '@/services/api-client';
@@ -308,7 +310,7 @@ export function normalizeDraft(raw: unknown): OnboardingDraft {
     headline: stringOr(r.headline, base.headline),
     skills: stringArray(r.skills),
     experience_years: numberOrNull(r.experience_years),
-    education: stringOr(r.education, base.education),
+    education: normalizeDegree(stringOr(r.education, base.education)) || '',
     resume,
     gender: optionalString(r.gender),
     disability: optionalString(r.disability),
@@ -391,6 +393,7 @@ export function validateStep(id: OnboardingStepId, draft: OnboardingDraft): Step
     case 'profile_setup':
       if (!draft.full_name || draft.full_name.trim().length < 2) errors.full_name = 'ob_err_name';
       if (draft.skills.length === 0) errors.skills = 'ob_err_skills';
+      if (!draft.education) errors.education = 'pp_err_required';
       break;
     case 'birthday': {
       if (!draft.birth_date) { errors.birth_date = 'ob_err_birthday'; break; }
@@ -401,6 +404,7 @@ export function validateStep(id: OnboardingStepId, draft: OnboardingDraft): Step
     case 'current_location':
       if (!draft.country) errors.country = 'ob_err_country';
       if (!draft.city || draft.city.trim().length < 2) errors.city = 'ob_err_city';
+      if (errors.country) errors.country = 'ob_err_country';
       break;
     case 'target_countries':
       if (draft.target_countries.length === 0) errors.target_countries = 'ob_err_target';
@@ -805,6 +809,14 @@ export async function finalizeOnboarding(userId: string): Promise<void> {
     onboarding_version: ONBOARDING_VERSION,
     ...(alreadyGranted ? {} : { signup_credits: 50 }),
   });
+
+  // Keep the canonical preferences record (Profile → Preferences) in sync.
+  mergePreferences(userId, {
+    expertise: state.draft.desired_roles,
+    targetCountries: state.draft.target_countries,
+    employmentTypes: state.draft.work_styles.filter((w): w is EmploymentTypeCode => (EMPLOYMENT_TYPES as readonly string[]).includes(w)),
+  });
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event('matchme:preferences-changed'));
 
   await profileService.completeOnboarding(userId);
   useOnboardingStore.setState((s) => ({ state: { ...s.state, completed: true } }));

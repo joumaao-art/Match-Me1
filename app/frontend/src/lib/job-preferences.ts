@@ -83,6 +83,8 @@ export function suggestExpertise(signals: { skills: string[]; titles: string[]; 
 
 export interface JobPreferences {
   expertise: string[];
+  /** ISO 3166-1 alpha-2 codes of countries the seeker wants to work in. */
+  targetCountries: string[];
   employmentTypes: EmploymentTypeCode[];
   industries: string[];
   locations: string[];
@@ -92,12 +94,12 @@ export interface JobPreferences {
 }
 
 export const EMPTY_PREFERENCES: JobPreferences = {
-  expertise: [], employmentTypes: [], industries: [], locations: [], salaryMin: '', salaryMax: '', willingToRelocate: false,
+  expertise: [], targetCountries: [], employmentTypes: [], industries: [], locations: [], salaryMin: '', salaryMax: '', willingToRelocate: false,
 };
 
 const key = (userId: string) => `matchme-job-preferences:${userId || 'anonymous'}`;
 
-interface LegacyShape { titles?: string; type?: string; desired_roles?: string[]; work_styles?: string[]; industries?: string | string[]; locations?: string | string[] }
+interface LegacyShape { target_countries?: string[]; titles?: string; type?: string; desired_roles?: string[]; work_styles?: string[]; industries?: string | string[]; locations?: string | string[] }
 
 /** Converts any older preference/onboarding shape into the canonical record without losing values. */
 export function migrateLegacyPreferences(raw: LegacyShape & Partial<JobPreferences>): JobPreferences {
@@ -109,6 +111,7 @@ export function migrateLegacyPreferences(raw: LegacyShape & Partial<JobPreferenc
   return {
     ...EMPTY_PREFERENCES, ...raw,
     expertise: [...expertise], employmentTypes: [...types],
+    targetCountries: [...new Set([...(raw.targetCountries ?? []), ...(raw.target_countries ?? [])])].filter((c) => /^[A-Z]{2}$/.test(c)),
     industries: split(raw.industries), locations: split(raw.locations),
     salaryMin: String(raw.salaryMin ?? ''), salaryMax: String(raw.salaryMax ?? ''),
     willingToRelocate: !!raw.willingToRelocate,
@@ -127,13 +130,20 @@ export function loadPreferences(userId: string): JobPreferences {
   return { ...EMPTY_PREFERENCES };
 }
 
+/** Merges a partial update into the stored canonical record (used by onboarding). */
+export function mergePreferences(userId: string, patch: Partial<JobPreferences>): JobPreferences {
+  const next = { ...loadPreferences(userId), ...patch };
+  savePreferences(userId, next);
+  return next;
+}
+
 export function savePreferences(userId: string, prefs: JobPreferences): void {
   localStorage.setItem(key(userId), JSON.stringify(prefs));
   window.dispatchEvent(new CustomEvent('matchme:preferences-changed'));
 }
 
 /** Soft 0..1 preference fit used as a weighted ranking signal, never a hard filter. */
-export function preferenceFit(prefs: JobPreferences, job: { title: string; employmentType?: string; skills?: string[] }): number {
+export function preferenceFit(prefs: JobPreferences, job: { title: string; employmentType?: string; skills?: string[]; countryCode?: string }): number {
   if (!prefs.expertise.length && !prefs.employmentTypes.length) return 0.5;
   const title = job.title.toLowerCase();
   const role = prefs.expertise.some((c) => {
@@ -142,5 +152,6 @@ export function preferenceFit(prefs: JobPreferences, job: { title: string; emplo
   });
   const type = normalizeEmploymentType(job.employmentType);
   const typeOk = !prefs.employmentTypes.length || (!!type && prefs.employmentTypes.includes(type));
-  return (prefs.expertise.length ? (role ? 0.7 : 0.1) : 0.35) + (typeOk ? 0.3 : 0);
+  const countryOk = !prefs.targetCountries.length || !job.countryCode || prefs.targetCountries.includes(job.countryCode);
+  return ((prefs.expertise.length ? (role ? 0.6 : 0.1) : 0.3) + (typeOk ? 0.25 : 0) + (countryOk ? 0.15 : 0));
 }

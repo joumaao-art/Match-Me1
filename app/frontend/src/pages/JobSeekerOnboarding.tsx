@@ -38,6 +38,10 @@ import {
   type OnboardingStepId, type OnboardingDraft,
 } from '@/lib/onboarding-engine';
 import { ensureJobSeekerInitialized } from '@/lib/signup-flow';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FormField, LocationSelector, CountryMultiSelector } from '@/components/shared/ProfileFields';
+import { JobExpertiseSelector, EmploymentTypeMultiSelect } from '@/components/shared/PreferenceSelectors';
+import { DEGREES, DEGREE_LABEL_KEYS, EMPLOYMENT_TYPES, type EmploymentTypeCode } from '@/lib/profile-standards';
 import { ROUTES } from '@/config/constants';
 import { cn } from '@/lib/utils';
 
@@ -51,7 +55,6 @@ const groupLabelKey: Record<string, string> = {
   launch: 'ob_group_launch',
 };
 
-const EDUCATION_OPTIONS = ['none', 'secondary', 'diploma', 'bachelor', 'master', 'phd'];
 
 export default function JobSeekerOnboarding() {
   const { t } = useTranslation();
@@ -120,7 +123,7 @@ export default function JobSeekerOnboarding() {
   }, [draft, hydrated, userId, sync]);
 
   const measurable = useMemo(() => STEP_ORDER.filter((s) => s !== 'welcome'), []);
-  const stepNumber = Math.max(1, measurable.indexOf(stepId) + 1);
+  const stepNumber = Math.max(1, (measurable as string[]).indexOf(stepId) + 1);
   const progress = computeProgress(state);
 
   const set = (patch: Partial<OnboardingDraft>) => patchDraft(patch);
@@ -282,14 +285,14 @@ export default function JobSeekerOnboarding() {
                       </p>
                     </div>
                   </Field>
-                  <Field label={t('ob_education')}>
-                    <ChipMultiSelect
-                      options={EDUCATION_OPTIONS.map((v) => ({ value: v, label: t(`ob_edu_${v}`) }))}
-                      selected={[draft.education || 'none']}
-                      onToggle={(v) => set({ education: v })}
-                      max={1}
-                    />
-                  </Field>
+                  <FormField id="ob-degree" label={t('ob_education')} required error={errors.education}>
+                    <Select value={draft.education || undefined} onValueChange={(v) => set({ education: v })}>
+                      <SelectTrigger id="ob-degree" className={cn('h-12', errors.education && 'border-destructive')} aria-invalid={!!errors.education || undefined}>
+                        <SelectValue placeholder={t('select_degree')} />
+                      </SelectTrigger>
+                      <SelectContent>{DEGREES.map((d) => <SelectItem key={d} value={d}>{t(DEGREE_LABEL_KEYS[d])}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </FormField>
                 </div>
               </StepBody>
             </>
@@ -401,16 +404,9 @@ export default function JobSeekerOnboarding() {
               <StepBody>
                 <div className="space-y-4">
                   <LocationStep draft={draft} set={set} userId={userId} />
-                  <Field label={t('ob_city')} error={errors.city ? t(errors.city) : undefined}>
-                    <Input
-                      value={draft.city}
-                      onChange={(e) => set({ city: e.target.value })}
-                      placeholder={t('ob_city_placeholder')}
-                      className="h-12"
-                      autoComplete="address-level2"
-                    />
-                  </Field>
-                  {errors.country && <p className="text-xs text-destructive">{t(errors.country)}</p>}
+                  <LocationSelector idPrefix="ob-loc" country={draft.country ?? ''} city={draft.city}
+                    onChange={({ country, city }) => set({ country: country || null, city })}
+                    errors={{ country: errors.country, city: errors.city }} />
                 </div>
               </StepBody>
             </>
@@ -421,14 +417,9 @@ export default function JobSeekerOnboarding() {
             <>
               <StepHeading title={t('ob_target_title')} subtitle={t('ob_target_subtitle')} />
               <StepBody>
-                <CountryMultiSelect
-                  selected={draft.target_countries}
-                  onToggle={(code) => set({
-                    target_countries: draft.target_countries.includes(code)
-                      ? draft.target_countries.filter((c) => c !== code)
-                      : [...draft.target_countries, code],
-                  })}
-                />
+                <CountryMultiSelector id="ob-target" value={draft.target_countries} invalid={!!errors.target_countries}
+                  onChange={(v) => set({ target_countries: v })} />
+                <p className="mt-2 text-xs text-muted-foreground">{t('ob_target_selected', { count: draft.target_countries.length })}</p>
                 {errors.target_countries && <p className="mt-3 text-xs text-destructive">{t(errors.target_countries)}</p>}
               </StepBody>
             </>
@@ -440,30 +431,16 @@ export default function JobSeekerOnboarding() {
               <StepHeading title={t('ob_prefs_title')} subtitle={t('ob_prefs_subtitle')} />
               <StepBody>
                 <div className="space-y-6">
-                  <Field label={t('ob_roles')} error={errors.desired_roles ? t(errors.desired_roles) : undefined}>
-                    <ChipMultiSelect
-                      options={ROLE_OPTIONS.map((v) => ({ value: v, label: v }))}
-                      selected={draft.desired_roles}
-                      onToggle={(v) => set({
-                        desired_roles: draft.desired_roles.includes(v)
-                          ? draft.desired_roles.filter((x) => x !== v)
-                          : [...draft.desired_roles, v],
-                      })}
-                      max={5}
-                    />
-                  </Field>
-                  <Field label={t('ob_work_styles')} error={errors.work_styles ? t(errors.work_styles) : undefined}>
-                    <ChipMultiSelect
-                      options={WORK_STYLES.map((v) => ({ value: v, label: t(`ob_ws_${v}`) }))}
-                      selected={draft.work_styles}
-                      onToggle={(v) => set({
-                        work_styles: draft.work_styles.includes(v)
-                          ? draft.work_styles.filter((x) => x !== v)
-                          : [...draft.work_styles, v],
-                      })}
-                      max={4}
-                    />
-                  </Field>
+                  <FormField id="ob-roles" label={t('ob_roles')} required error={errors.desired_roles}>
+                    <JobExpertiseSelector id="ob-roles" value={draft.desired_roles} invalid={!!errors.desired_roles}
+                      onChange={(v) => set({ desired_roles: v })}
+                      signals={{ skills: draft.skills, titles: draft.headline ? [draft.headline] : [], fields: [] }} />
+                  </FormField>
+                  <FormField id="ob-types" label={t('ob_work_styles')} required error={errors.work_styles}>
+                    <EmploymentTypeMultiSelect labelledBy="ob-types"
+                      value={draft.work_styles.filter((w): w is EmploymentTypeCode => (EMPLOYMENT_TYPES as readonly string[]).includes(w))}
+                      onChange={(v) => set({ work_styles: v })} />
+                  </FormField>
                 </div>
               </StepBody>
             </>

@@ -251,6 +251,16 @@ export function LocationSelector({ idPrefix, country, city, onChange, errors, re
   );
 }
 
+/** All-country searchable multi-select (chips, keyboard, RTL) on the canonical country index. */
+export function CountryMultiSelector({ id, value, onChange, invalid, describedBy, placeholderKey = 'pp_select_country' }: {
+  id: string; value: string[]; onChange: (codes: string[]) => void; invalid?: boolean; describedBy?: string; placeholderKey?: string;
+}) {
+  const { t } = useTranslation();
+  const { options, loading } = useCountryOptions();
+  return <SearchableCombobox id={id} multiple options={options} loading={loading} value={value}
+    onChange={(v) => onChange([...new Set(v)])} placeholder={t(placeholderKey)} invalid={invalid} describedBy={describedBy} />;
+}
+
 export function NationalityMultiSelect({ id, value, onChange, invalid, describedBy }: {
   id: string; value: string[]; onChange: (codes: string[]) => void; invalid?: boolean; describedBy?: string;
 }) {
