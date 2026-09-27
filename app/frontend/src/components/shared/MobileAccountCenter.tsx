@@ -132,10 +132,8 @@ export function MobileAccountCenter({
       titleKey: 'profile_management',
       items: [
         { id: 'profile', icon: User, labelKey: 'profile', badge: `${profileCompletion}%`, badgeVariant: profileCompletion >= 80 ? 'default' : 'secondary' },
-        { id: 'cv', icon: FileText, labelKey: 'my_resume' },
         { id: 'experience', icon: Briefcase, labelKey: 'experience' },
         { id: 'education', icon: GraduationCap, labelKey: 'education' },
-        { id: 'certificates', icon: Award, labelKey: 'certificates' },
         { id: 'skills', icon: Star, labelKey: 'skills' },
         { id: 'languages', icon: LanguagesIcon, labelKey: 'languages' },
         { id: 'portfolio', icon: Layers, labelKey: 'portfolio' },

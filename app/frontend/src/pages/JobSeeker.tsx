@@ -43,41 +43,12 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuthStore } from '@/stores';
 import { logger } from '@/lib/logger';
 import { ensureJobSeekerInitialized } from '@/lib/signup-flow';
+import { ProfileView, ExperienceView, EducationView, LanguagesView } from '@/components/seeker/ProfessionalProfile';
 import { ScoreBreakdown, ConfidenceIndicator } from '@/components/shared/ScoreVisualizationEngine';
 
 // ============================================================
 // Types
 // ============================================================
-
-interface Experience {
-  id: string;
-  company: string;
-  title: string;
-  type: string;
-  from: string;
-  to: string;
-  current: boolean;
-  description: string;
-}
-
-interface Education {
-  id: string;
-  institution: string;
-  degree: string;
-  field: string;
-  from: string;
-  to: string;
-  grade: string;
-}
-
-interface Certificate {
-  id: string;
-  name: string;
-  issuer: string;
-  date: string;
-  expiry: string | null;
-  verified: boolean;
-}
 
 interface Skill {
   id: string;
@@ -85,12 +56,6 @@ interface Skill {
   level: string;
   years: number;
   endorsed: number;
-}
-
-interface Language {
-  id: string;
-  name: string;
-  level: string;
 }
 
 interface PortfolioItem {
@@ -137,32 +102,12 @@ const mockNotifications = [
   { id: '4', type: 'message', message: 'New message from DataFlow recruiter', time: '2 days ago', read: true },
 ];
 
-const initialExperience: Experience[] = [
-  { id: '1', company: 'StartupX', title: 'Frontend Developer', type: 'Full-time', from: '2023-01', to: '2026-07', current: true, description: 'Building modern web applications with React and TypeScript.' },
-  { id: '2', company: 'WebAgency', title: 'Junior Developer', type: 'Full-time', from: '2021-06', to: '2023-01', current: false, description: 'Developed responsive websites and e-commerce platforms.' },
-];
-
-const initialEducation: Education[] = [
-  { id: '1', institution: 'University of Dubai', degree: "Bachelor's", field: 'Computer Science', from: '2017', to: '2021', grade: '3.8 GPA' },
-];
-
-const initialCertificates: Certificate[] = [
-  { id: '1', name: 'AWS Solutions Architect', issuer: 'Amazon Web Services', date: '2025-03', expiry: '2028-03', verified: true },
-  { id: '2', name: 'React Advanced Patterns', issuer: 'Frontend Masters', date: '2024-11', expiry: null, verified: true },
-];
-
 const initialSkills: Skill[] = [
   { id: '1', name: 'React', level: 'expert', years: 4, endorsed: 12 },
   { id: '2', name: 'TypeScript', level: 'advanced', years: 3, endorsed: 8 },
   { id: '3', name: 'Node.js', level: 'advanced', years: 3, endorsed: 6 },
   { id: '4', name: 'Tailwind CSS', level: 'expert', years: 3, endorsed: 5 },
   { id: '5', name: 'PostgreSQL', level: 'intermediate', years: 2, endorsed: 3 },
-];
-
-const initialLanguages: Language[] = [
-  { id: '1', name: 'Arabic', level: 'native' },
-  { id: '2', name: 'English', level: 'advanced' },
-  { id: '3', name: 'French', level: 'intermediate' },
 ];
 
 const initialPortfolio: PortfolioItem[] = [
@@ -190,10 +135,8 @@ function SeekerNav({ activeTab, setActiveTab }: { activeTab: NavSection; setActi
     ]},
     { items: [
       { id: 'profile' as NavSection, icon: User, label: t('profile') },
-      { id: 'cv' as NavSection, icon: FileText, label: t('my_resume') },
       { id: 'experience' as NavSection, icon: Briefcase, label: t('experience') },
       { id: 'education' as NavSection, icon: GraduationCap, label: t('education') },
-      { id: 'certificates' as NavSection, icon: Award, label: t('certificates') },
       { id: 'skills' as NavSection, icon: Star, label: t('skills') },
       { id: 'languages' as NavSection, icon: LanguagesIcon, label: t('languages') },
       { id: 'portfolio' as NavSection, icon: Layers, label: t('portfolio') },
@@ -746,6 +689,11 @@ function SwipeView() {
 // ============================================================
 
 // Mock profile data for demonstration (in production, this comes from state/API)
+function ProfileCompletionSlot({ onNavigate }: { onNavigate: (section: string) => void }) {
+  const data = useMockProfileData();
+  return <ProfileCompletionMini profileData={data} onNavigateToSection={onNavigate} />;
+}
+
 function useMockProfileData(): ProfileData {
   return {
     hasBasicInfo: true,
@@ -799,356 +747,6 @@ function DashboardView({ onNavigateToSection }: { onNavigateToSection?: (section
       <div className="space-y-3">{mockMatches.map(m => (
         <UCDecisionCard key={m.id} config={{ type: 'decision', title: m.role, subtitle: m.company, avatar: { fallback: m.company, icon: Building2, size: 'md', shape: 'rounded' }, matchScore: { score: m.score, showPercentage: true, size: 'sm' }, badges: m.hasMessage ? [{ label: t('new_message'), variant: 'info' }] : [], density: 'normal', variant: 'default', interactive: true }} />
       ))}</div>
-    </div>
-  );
-}
-
-// ============================================================
-// Profile
-// ============================================================
-
-function ProfileView({ onNavigateToSection }: { onNavigateToSection?: (section: string) => void }) {
-  const { t } = useTranslation();
-  const profileData = useMockProfileData();
-  const [profile, setProfile] = useState({
-    firstName: 'Ahmed', lastName: 'Hassan', email: 'ahmed@example.com',
-    mobile: '+971 50 123 4567', country: 'UAE', city: 'Dubai',
-    nationality: 'Egyptian', dob: '1995-03-15',
-    headline: 'Senior Frontend Developer | React & TypeScript Expert',
-    summary: 'Passionate frontend developer with 5+ years of experience building scalable web applications...',
-    openToWork: true,
-  });
-  const [saving, setSaving] = useState(false);
-
-  const handleSave = () => {
-    setSaving(true);
-    setTimeout(() => {
-      setSaving(false);
-      toast.success(t('profile_saved'));
-    }, 800);
-  };
-
-  const handleNavigate = (section: string) => {
-    if (onNavigateToSection) onNavigateToSection(section);
-  };
-
-  return (
-    <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('profile')}</h2>
-      <div className="max-w-2xl space-y-6">
-        {/* Profile Completion Mini */}
-        <ProfileCompletionMini profileData={profileData} onNavigateToSection={handleNavigate} />
-        <Card><CardContent className="p-6">
-          <div className="flex items-center gap-4 mb-6"><div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center"><User className="w-10 h-10 text-primary" /></div><div><Button variant="outline" size="sm" className="cursor-pointer" onClick={() => toast.success(t('photo_upload_started'))}>{t('upload_photo')}</Button><p className="text-xs text-muted-foreground mt-1">{t('photo_hint')}</p></div></div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div><Label>{t('first_name')}</Label><Input value={profile.firstName} onChange={(e) => setProfile({...profile, firstName: e.target.value})} className="mt-1" /></div>
-            <div><Label>{t('last_name')}</Label><Input value={profile.lastName} onChange={(e) => setProfile({...profile, lastName: e.target.value})} className="mt-1" /></div>
-            <div><Label>{t('email')}</Label><Input value={profile.email} className="mt-1" disabled /></div>
-            <div><Label>{t('mobile')}</Label><Input value={profile.mobile} onChange={(e) => setProfile({...profile, mobile: e.target.value})} className="mt-1" /></div>
-            <div><Label>{t('country')}</Label><Input value={profile.country} onChange={(e) => setProfile({...profile, country: e.target.value})} className="mt-1" /></div>
-            <div><Label>{t('city')}</Label><Input value={profile.city} onChange={(e) => setProfile({...profile, city: e.target.value})} className="mt-1" /></div>
-            <div><Label>{t('nationality')}</Label><Input value={profile.nationality} onChange={(e) => setProfile({...profile, nationality: e.target.value})} className="mt-1" /></div>
-            <div><Label>{t('date_of_birth')}</Label><Input type="date" value={profile.dob} onChange={(e) => setProfile({...profile, dob: e.target.value})} className="mt-1" /></div>
-          </div>
-          <div className="mt-4"><Label>{t('headline')}</Label><Input value={profile.headline} onChange={(e) => setProfile({...profile, headline: e.target.value})} className="mt-1" /></div>
-          <div className="mt-4"><Label>{t('professional_summary')}</Label><Textarea value={profile.summary} onChange={(e) => setProfile({...profile, summary: e.target.value})} className="mt-1" rows={4} /></div>
-          <div className="flex items-center gap-3 mt-4"><Switch checked={profile.openToWork} onCheckedChange={(v) => setProfile({...profile, openToWork: v})} /><Label>{t('open_to_work')}</Label></div>
-          <Button className="mt-4 cursor-pointer" onClick={handleSave} disabled={saving}>{saving ? t('loading') : t('save')}</Button>
-        </CardContent></Card>
-      </div>
-    </div>
-  );
-}
-
-// ============================================================
-// CV / Resume
-// ============================================================
-
-function CVView() {
-  const { t } = useTranslation();
-  const [resumes, setResumes] = useState([
-    { id: '1', name: 'Ahmed_Hassan_CV_2026.pdf', size: '2.4 MB', date: 'Jul 10, 2026', primary: true },
-  ]);
-
-  const handleUpload = () => {
-    const newResume = { id: Date.now().toString(), name: `Resume_${new Date().toISOString().slice(0, 10)}.pdf`, size: '1.8 MB', date: new Date().toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' }), primary: resumes.length === 0 };
-    setResumes([...resumes, newResume]);
-    toast.success(t('resume_uploaded'));
-  };
-
-  const handleDelete = (id: string) => {
-    setResumes(resumes.filter(r => r.id !== id));
-    toast.success(t('resume_deleted'));
-  };
-
-  const handleDownload = (name: string) => {
-    toast.success(t('download_started'));
-  };
-
-  return (
-    <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('my_resume')}</h2>
-      <div className="max-w-2xl space-y-4">
-        <Card className="border-dashed border-2"><CardContent className="p-8 text-center">
-          <Upload className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
-          <h3 className="font-medium mb-1">{t('upload_resume')}</h3>
-          <p className="text-sm text-muted-foreground mb-4">{t('resume_formats')}</p>
-          <Button className="cursor-pointer gap-2" onClick={handleUpload}><Upload className="w-4 h-4" />{t('upload')}</Button>
-        </CardContent></Card>
-        {resumes.map(resume => (
-          <Card key={resume.id}><CardContent className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3"><FileText className="w-8 h-8 text-primary" /><div><p className="font-medium text-sm">{resume.name}</p><p className="text-xs text-muted-foreground">{resume.size} · {t('uploaded')} {resume.date}</p></div></div>
-            <div className="flex items-center gap-2">{resume.primary && <Badge variant="default" className="text-xs">{t('primary')}</Badge>}<Button size="sm" variant="ghost" className="cursor-pointer" onClick={() => handleDownload(resume.name)}><Download className="w-4 h-4" /></Button><Button size="sm" variant="ghost" className="cursor-pointer text-destructive" onClick={() => handleDelete(resume.id)}><Trash2 className="w-4 h-4" /></Button></div>
-          </CardContent></Card>
-        ))}
-        <Card><CardContent className="p-4"><div className="flex items-center justify-between"><div><p className="font-medium text-sm">{t('ai_resume_score')}</p><p className="text-xs text-muted-foreground">{t('ai_resume_score_desc')}</p></div><div className="text-2xl font-bold text-primary font-[Poppins]">82/100</div></div><Progress value={82} className="h-2 mt-3" /></CardContent></Card>
-      </div>
-    </div>
-  );
-}
-
-// ============================================================
-// Experience (Full CRUD)
-// ============================================================
-
-function ExperienceView() {
-  const { t } = useTranslation();
-  const [experiences, setExperiences] = useState<Experience[]>(initialExperience);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingExp, setEditingExp] = useState<Experience | null>(null);
-  const [form, setForm] = useState<Omit<Experience, 'id'>>({ company: '', title: '', type: 'Full-time', from: '', to: '', current: false, description: '' });
-
-  const openAdd = () => {
-    setEditingExp(null);
-    setForm({ company: '', title: '', type: 'Full-time', from: '', to: '', current: false, description: '' });
-    setDialogOpen(true);
-  };
-
-  const openEdit = (exp: Experience) => {
-    setEditingExp(exp);
-    setForm({ company: exp.company, title: exp.title, type: exp.type, from: exp.from, to: exp.to, current: exp.current, description: exp.description });
-    setDialogOpen(true);
-  };
-
-  const handleSave = () => {
-    if (!form.company || !form.title || !form.from) {
-      toast.error(t('fill_all_fields'));
-      return;
-    }
-    if (editingExp) {
-      setExperiences(prev => prev.map(e => e.id === editingExp.id ? { ...e, ...form } : e));
-      toast.success(t('experience_updated'));
-    } else {
-      setExperiences(prev => [...prev, { id: Date.now().toString(), ...form }]);
-      toast.success(t('experience_added'));
-    }
-    setDialogOpen(false);
-  };
-
-  const handleDelete = (id: string) => {
-    setExperiences(prev => prev.filter(e => e.id !== id));
-    toast.success(t('experience_deleted'));
-  };
-
-  return (
-    <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold font-[Poppins]">{t('experience')}</h2><Button className="cursor-pointer gap-2" onClick={openAdd}><Plus className="w-4 h-4" />{t('add_experience')}</Button></div>
-      <div className="max-w-2xl space-y-4">
-        {experiences.map(exp => (
-          <Card key={exp.id}><CardContent className="p-4">
-            <div className="flex items-start justify-between mb-2"><div><p className="font-semibold">{exp.title}</p><p className="text-sm text-muted-foreground">{exp.company} · {exp.type}</p><p className="text-xs text-muted-foreground flex items-center gap-1"><Calendar className="w-3 h-3" />{exp.from} - {exp.current ? t('present') : exp.to}</p></div><div className="flex gap-1"><Button size="sm" variant="ghost" className="cursor-pointer" onClick={() => openEdit(exp)}><Edit className="w-3 h-3" /></Button><Button size="sm" variant="ghost" className="cursor-pointer text-destructive" onClick={() => handleDelete(exp.id)}><Trash2 className="w-3 h-3" /></Button></div></div>
-            <p className="text-sm text-muted-foreground">{exp.description}</p>
-            {exp.current && <Badge variant="default" className="mt-2 text-xs">{t('current_position')}</Badge>}
-          </CardContent></Card>
-        ))}
-        {experiences.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_experience_yet')}</p>}
-      </div>
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle className="font-[Poppins]">{editingExp ? t('edit_experience') : t('add_experience')}</DialogTitle></DialogHeader>
-          <div className="space-y-4 mt-2">
-            <div><Label>{t('job_title')}</Label><Input value={form.title} onChange={(e) => setForm({...form, title: e.target.value})} className="mt-1" placeholder={t('job_title_placeholder')} /></div>
-            <div><Label>{t('company_name')}</Label><Input value={form.company} onChange={(e) => setForm({...form, company: e.target.value})} className="mt-1" /></div>
-            <div><Label>{t('employment_type')}</Label>
-              <Select value={form.type} onValueChange={(v) => setForm({...form, type: v})}>
-                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="Full-time">{t('full_time')}</SelectItem><SelectItem value="Part-time">{t('part_time')}</SelectItem><SelectItem value="Contract">{t('contract')}</SelectItem><SelectItem value="Remote">{t('remote')}</SelectItem><SelectItem value="Internship">{t('internship')}</SelectItem></SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div><Label>{t('from')}</Label><Input type="month" value={form.from} onChange={(e) => setForm({...form, from: e.target.value})} className="mt-1" /></div>
-              <div><Label>{t('to')}</Label><Input type="month" value={form.to} onChange={(e) => setForm({...form, to: e.target.value})} className="mt-1" disabled={form.current} /></div>
-            </div>
-            <div className="flex items-center gap-3"><Switch checked={form.current} onCheckedChange={(v) => setForm({...form, current: v, to: v ? '' : form.to})} /><Label>{t('current_position')}</Label></div>
-            <div><Label>{t('description')}</Label><Textarea value={form.description} onChange={(e) => setForm({...form, description: e.target.value})} className="mt-1" rows={3} /></div>
-          </div>
-          <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={() => setDialogOpen(false)} className="cursor-pointer">{t('cancel')}</Button>
-            <Button onClick={handleSave} className="cursor-pointer">{t('save')}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
-
-// ============================================================
-// Education (Full CRUD)
-// ============================================================
-
-function EducationView() {
-  const { t } = useTranslation();
-  const [educations, setEducations] = useState<Education[]>(initialEducation);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingEdu, setEditingEdu] = useState<Education | null>(null);
-  const [form, setForm] = useState<Omit<Education, 'id'>>({ institution: '', degree: '', field: '', from: '', to: '', grade: '' });
-
-  const openAdd = () => {
-    setEditingEdu(null);
-    setForm({ institution: '', degree: '', field: '', from: '', to: '', grade: '' });
-    setDialogOpen(true);
-  };
-
-  const openEdit = (edu: Education) => {
-    setEditingEdu(edu);
-    setForm({ institution: edu.institution, degree: edu.degree, field: edu.field, from: edu.from, to: edu.to, grade: edu.grade });
-    setDialogOpen(true);
-  };
-
-  const handleSave = () => {
-    if (!form.institution || !form.degree || !form.field) {
-      toast.error(t('fill_all_fields'));
-      return;
-    }
-    if (editingEdu) {
-      setEducations(prev => prev.map(e => e.id === editingEdu.id ? { ...e, ...form } : e));
-      toast.success(t('education_updated'));
-    } else {
-      setEducations(prev => [...prev, { id: Date.now().toString(), ...form }]);
-      toast.success(t('education_added'));
-    }
-    setDialogOpen(false);
-  };
-
-  const handleDelete = (id: string) => {
-    setEducations(prev => prev.filter(e => e.id !== id));
-    toast.success(t('education_deleted'));
-  };
-
-  return (
-    <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold font-[Poppins]">{t('education')}</h2><Button className="cursor-pointer gap-2" onClick={openAdd}><Plus className="w-4 h-4" />{t('add_education')}</Button></div>
-      <div className="max-w-2xl space-y-4">
-        {educations.map(edu => (
-          <Card key={edu.id}><CardContent className="p-4">
-            <div className="flex items-start justify-between"><div><p className="font-semibold">{edu.degree} - {edu.field}</p><p className="text-sm text-muted-foreground">{edu.institution}</p><p className="text-xs text-muted-foreground">{edu.from} - {edu.to} · {edu.grade}</p></div><div className="flex gap-1"><Button size="sm" variant="ghost" className="cursor-pointer" onClick={() => openEdit(edu)}><Edit className="w-3 h-3" /></Button><Button size="sm" variant="ghost" className="cursor-pointer text-destructive" onClick={() => handleDelete(edu.id)}><Trash2 className="w-3 h-3" /></Button></div></div>
-          </CardContent></Card>
-        ))}
-        {educations.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_education_yet')}</p>}
-      </div>
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle className="font-[Poppins]">{editingEdu ? t('edit_education') : t('add_education')}</DialogTitle></DialogHeader>
-          <div className="space-y-4 mt-2">
-            <div><Label>{t('institution')}</Label><Input value={form.institution} onChange={(e) => setForm({...form, institution: e.target.value})} className="mt-1" /></div>
-            <div><Label>{t('degree')}</Label>
-              <Select value={form.degree} onValueChange={(v) => setForm({...form, degree: v})}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder={t('select_degree')} /></SelectTrigger>
-                <SelectContent><SelectItem value="High School">{t('high_school')}</SelectItem><SelectItem value="Associate's">{t('associates')}</SelectItem><SelectItem value="Bachelor's">{t('bachelors')}</SelectItem><SelectItem value="Master's">{t('masters')}</SelectItem><SelectItem value="PhD">{t('phd')}</SelectItem></SelectContent>
-              </Select>
-            </div>
-            <div><Label>{t('field_of_study')}</Label><Input value={form.field} onChange={(e) => setForm({...form, field: e.target.value})} className="mt-1" /></div>
-            <div className="grid grid-cols-2 gap-4">
-              <div><Label>{t('from')}</Label><Input type="number" value={form.from} onChange={(e) => setForm({...form, from: e.target.value})} className="mt-1" placeholder="2020" /></div>
-              <div><Label>{t('to')}</Label><Input type="number" value={form.to} onChange={(e) => setForm({...form, to: e.target.value})} className="mt-1" placeholder="2024" /></div>
-            </div>
-            <div><Label>{t('grade')}</Label><Input value={form.grade} onChange={(e) => setForm({...form, grade: e.target.value})} className="mt-1" placeholder="3.8 GPA" /></div>
-          </div>
-          <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={() => setDialogOpen(false)} className="cursor-pointer">{t('cancel')}</Button>
-            <Button onClick={handleSave} className="cursor-pointer">{t('save')}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
-
-// ============================================================
-// Certificates (Full CRUD)
-// ============================================================
-
-function CertificatesView() {
-  const { t } = useTranslation();
-  const [certificates, setCertificates] = useState<Certificate[]>(initialCertificates);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingCert, setEditingCert] = useState<Certificate | null>(null);
-  const [form, setForm] = useState<Omit<Certificate, 'id' | 'verified'>>({ name: '', issuer: '', date: '', expiry: null });
-
-  const openAdd = () => {
-    setEditingCert(null);
-    setForm({ name: '', issuer: '', date: '', expiry: null });
-    setDialogOpen(true);
-  };
-
-  const openEdit = (cert: Certificate) => {
-    setEditingCert(cert);
-    setForm({ name: cert.name, issuer: cert.issuer, date: cert.date, expiry: cert.expiry });
-    setDialogOpen(true);
-  };
-
-  const handleSave = () => {
-    if (!form.name || !form.issuer || !form.date) {
-      toast.error(t('fill_all_fields'));
-      return;
-    }
-    if (editingCert) {
-      setCertificates(prev => prev.map(c => c.id === editingCert.id ? { ...c, ...form } : c));
-      toast.success(t('certificate_updated'));
-    } else {
-      setCertificates(prev => [...prev, { id: Date.now().toString(), ...form, verified: false }]);
-      toast.success(t('certificate_added'));
-    }
-    setDialogOpen(false);
-  };
-
-  const handleDelete = (id: string) => {
-    setCertificates(prev => prev.filter(c => c.id !== id));
-    toast.success(t('certificate_deleted'));
-  };
-
-  return (
-    <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold font-[Poppins]">{t('certificates')}</h2><Button className="cursor-pointer gap-2" onClick={openAdd}><Plus className="w-4 h-4" />{t('add_certificate')}</Button></div>
-      <div className="max-w-2xl space-y-4">
-        {certificates.map(cert => (
-          <Card key={cert.id}><CardContent className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center"><Award className="w-5 h-5 text-accent" /></div><div><p className="font-medium text-sm">{cert.name}</p><p className="text-xs text-muted-foreground">{cert.issuer} · {cert.date}{cert.expiry ? ` - ${cert.expiry}` : ''}</p></div></div>
-            <div className="flex items-center gap-2">{cert.verified && <Badge variant="default" className="text-xs gap-1"><Check className="w-3 h-3" />{t('verified')}</Badge>}<Button size="sm" variant="ghost" className="cursor-pointer" onClick={() => openEdit(cert)}><Edit className="w-3 h-3" /></Button><Button size="sm" variant="ghost" className="cursor-pointer text-destructive" onClick={() => handleDelete(cert.id)}><Trash2 className="w-3 h-3" /></Button></div>
-          </CardContent></Card>
-        ))}
-        {certificates.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_certificates_yet')}</p>}
-      </div>
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle className="font-[Poppins]">{editingCert ? t('edit_certificate') : t('add_certificate')}</DialogTitle></DialogHeader>
-          <div className="space-y-4 mt-2">
-            <div><Label>{t('certificate_name')}</Label><Input value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} className="mt-1" /></div>
-            <div><Label>{t('issuing_organization')}</Label><Input value={form.issuer} onChange={(e) => setForm({...form, issuer: e.target.value})} className="mt-1" /></div>
-            <div className="grid grid-cols-2 gap-4">
-              <div><Label>{t('issue_date')}</Label><Input type="month" value={form.date} onChange={(e) => setForm({...form, date: e.target.value})} className="mt-1" /></div>
-              <div><Label>{t('expiry_date')}</Label><Input type="month" value={form.expiry || ''} onChange={(e) => setForm({...form, expiry: e.target.value || null})} className="mt-1" /></div>
-            </div>
-          </div>
-          <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={() => setDialogOpen(false)} className="cursor-pointer">{t('cancel')}</Button>
-            <Button onClick={handleSave} className="cursor-pointer">{t('save')}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
@@ -1223,84 +821,6 @@ function SkillsView() {
               </Select>
             </div>
             <div><Label>{t('years_of_experience')}</Label><Input type="number" min={0} value={form.years} onChange={(e) => setForm({...form, years: parseInt(e.target.value) || 0})} className="mt-1" /></div>
-          </div>
-          <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={() => setDialogOpen(false)} className="cursor-pointer">{t('cancel')}</Button>
-            <Button onClick={handleSave} className="cursor-pointer">{t('save')}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
-
-// ============================================================
-// Languages (Full CRUD)
-// ============================================================
-
-function LanguagesView() {
-  const { t } = useTranslation();
-  const [languages, setLanguages] = useState<Language[]>(initialLanguages);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingLang, setEditingLang] = useState<Language | null>(null);
-  const [form, setForm] = useState<{ name: string; level: string }>({ name: '', level: 'intermediate' });
-
-  const openAdd = () => {
-    setEditingLang(null);
-    setForm({ name: '', level: 'intermediate' });
-    setDialogOpen(true);
-  };
-
-  const openEdit = (lang: Language) => {
-    setEditingLang(lang);
-    setForm({ name: lang.name, level: lang.level });
-    setDialogOpen(true);
-  };
-
-  const handleSave = () => {
-    if (!form.name) {
-      toast.error(t('fill_all_fields'));
-      return;
-    }
-    if (editingLang) {
-      setLanguages(prev => prev.map(l => l.id === editingLang.id ? { ...l, ...form } : l));
-      toast.success(t('language_updated'));
-    } else {
-      setLanguages(prev => [...prev, { id: Date.now().toString(), ...form }]);
-      toast.success(t('language_added'));
-    }
-    setDialogOpen(false);
-  };
-
-  const handleDelete = (id: string) => {
-    setLanguages(prev => prev.filter(l => l.id !== id));
-    toast.success(t('language_deleted'));
-  };
-
-  return (
-    <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <div className="flex justify-between items-center mb-6"><h2 className="text-xl font-bold font-[Poppins]">{t('languages')}</h2><Button className="cursor-pointer gap-2" onClick={openAdd}><Plus className="w-4 h-4" />{t('add_language')}</Button></div>
-      <div className="max-w-2xl space-y-3">
-        {languages.map(lang => (
-          <Card key={lang.id}><CardContent className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3"><LanguagesIcon className="w-5 h-5 text-primary" /><div><p className="font-medium">{lang.name}</p></div></div>
-            <div className="flex items-center gap-2"><Badge variant="secondary" className="text-xs">{t(lang.level)}</Badge><Button size="sm" variant="ghost" className="cursor-pointer" onClick={() => openEdit(lang)}><Edit className="w-3 h-3" /></Button><Button size="sm" variant="ghost" className="cursor-pointer text-destructive" onClick={() => handleDelete(lang.id)}><Trash2 className="w-3 h-3" /></Button></div>
-          </CardContent></Card>
-        ))}
-        {languages.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_languages_yet')}</p>}
-      </div>
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle className="font-[Poppins]">{editingLang ? t('edit_language') : t('add_language')}</DialogTitle></DialogHeader>
-          <div className="space-y-4 mt-2">
-            <div><Label>{t('language_name')}</Label><Input value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} className="mt-1" placeholder="English, Arabic, etc." /></div>
-            <div><Label>{t('proficiency_level')}</Label>
-              <Select value={form.level} onValueChange={(v) => setForm({...form, level: v})}>
-                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="beginner">{t('beginner')}</SelectItem><SelectItem value="intermediate">{t('intermediate')}</SelectItem><SelectItem value="advanced">{t('advanced')}</SelectItem><SelectItem value="native">{t('native')}</SelectItem></SelectContent>
-              </Select>
-            </div>
           </div>
           <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setDialogOpen(false)} className="cursor-pointer">{t('cancel')}</Button>
@@ -1806,11 +1326,9 @@ export default function JobSeeker() {
     switch(activeTab) {
       case 'swipe': return <SwipeView />;
       case 'dashboard': return <DashboardView onNavigateToSection={(section) => setActiveTab(section as NavSection)} />;
-      case 'profile': return <ProfileView onNavigateToSection={(section) => setActiveTab(section as NavSection)} />;
-      case 'cv': return <CVView />;
-      case 'experience': return <ExperienceView />;
-      case 'education': return <EducationView />;
-      case 'certificates': return <CertificatesView />;
+      case 'profile': case 'cv': return <ProfileView completion={<ProfileCompletionSlot onNavigate={(section) => setActiveTab(section as NavSection)} />} />;
+            case 'experience': return <ExperienceView />;
+      case 'education': case 'certificates': return <EducationView />;
       case 'skills': return <SkillsView />;
       case 'languages': return <LanguagesView />;
       case 'portfolio': return <PortfolioView />;
