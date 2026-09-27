@@ -18,6 +18,13 @@ import { ROUTES, STORAGE_KEYS } from '@/config/constants';
 import { initializeSecurity, sessionManager, auditLogger } from '@/lib/security';
 import { ensureIdentity, resolvePostAuthDestination } from '@/lib/signup-flow';
 import { logger } from '@/lib/logger';
+import { useOnboardingStore } from '@/lib/onboarding-engine';
+
+/** Drop user-scoped onboarding state that belongs to a different (or no) account. */
+function clearForeignOnboardingState(nextUserId: string | null): void {
+  const owner = useOnboardingStore.getState().userId;
+  if (owner && owner !== nextUserId) useOnboardingStore.getState().reset();
+}
 import { optimizeStartup, trackPerformance, updateSEO } from '@/lib/performance';
 import '@/lib/i18n';
 
@@ -180,9 +187,11 @@ function useAuthInit() {
 
       if (_event === 'SIGNED_IN' && session?.user) {
         const user = session.user;
+        clearForeignOnboardingState(user.id);
         setUser(user.id, user.email || '', !!user.email_confirmed_at);
         await fetchAndSetRole(user.id);
       } else if (_event === 'SIGNED_OUT') {
+        clearForeignOnboardingState(null);
         reset();
       } else if (_event === 'TOKEN_REFRESHED' && session?.user) {
         setUser(session.user.id, session.user.email || '', !!session.user.email_confirmed_at);

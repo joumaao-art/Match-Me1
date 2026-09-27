@@ -603,7 +603,13 @@ export const useOnboardingStore = create<OnboardingStore>()(
       hydrate: async (userId: string) => {
         // The local mirror is untrusted input (it may predate current draft
         // fields), so it is normalized before it can reach any render path.
-        const local = normalizeOnboardingState(get().state);
+        // OWNERSHIP CHECK (root cause of "new user starts at Step 12"): the
+        // mirror lives under one global localStorage key. Without this check a
+        // brand-new account with no server state inherited the previous
+        // account's step statuses. A mirror owned by anyone else is discarded,
+        // so missing server state means NOT_STARTED (welcome).
+        const local =
+          get().userId === userId ? normalizeOnboardingState(get().state) : createInitialState();
         // Load server state; fall back to the local persisted mirror when offline.
         //
         // BOUNDED BY DESIGN: `hydrated` is the single gate for the onboarding
