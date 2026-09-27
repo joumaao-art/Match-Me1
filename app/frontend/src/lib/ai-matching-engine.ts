@@ -735,6 +735,25 @@ export class AIMatchingEngine {
   /**
    * Record a user interaction to improve future recommendations
    */
+  /**
+   * Withdraws the latest pass signal for a target (Discover Undo) so it is no
+   * longer retained as negative feedback, then rebuilds that user's adaptive
+   * weights from the remaining history.
+   */
+  revokeInteraction(userId: string, targetId: string, action: InteractionSignal['action'] = 'swipe_left'): boolean {
+    for (let i = this.interactions.length - 1; i >= 0; i--) {
+      const s = this.interactions[i];
+      if (s.userId === userId && s.targetId === targetId && s.action === action) {
+        this.interactions.splice(i, 1);
+        this.adaptiveWeights.delete(userId);
+        this.interactions.filter(x => x.userId === userId).forEach(x => this.updateAdaptiveWeights(x));
+        this.saveState();
+        return true;
+      }
+    }
+    return false;
+  }
+
   recordInteraction(signal: InteractionSignal) {
     this.interactions.push(signal);
     this.updateAdaptiveWeights(signal);

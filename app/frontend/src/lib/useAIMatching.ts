@@ -16,6 +16,7 @@ export interface UseAIMatchingReturn {
 
   // Learning
   recordInteraction: (signal: Omit<InteractionSignal, 'timestamp'>) => void;
+  revokeInteraction: (userId: string, targetId: string) => boolean;
   learningStats: ReturnType<AIMatchingEngine['getLearningStats']> | null;
   resetLearning: () => void;
 }
@@ -57,6 +58,7 @@ export function useAIMatching(userId: string): UseAIMatchingReturn {
     getRecommendations,
     getCandidateRankings,
     recordInteraction,
+    revokeInteraction: (userId: string, targetId: string) => aiMatchingEngine.revokeInteraction(userId, targetId),
     learningStats,
     resetLearning,
   };

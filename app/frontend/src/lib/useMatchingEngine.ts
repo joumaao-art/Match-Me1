@@ -17,6 +17,8 @@ export interface UseMatchingEngineReturn {
   // Swipe actions
   swipe: (targetId: string, targetType: SwipeEntityType, direction: SwipeDirection, vacancyId?: string) => { match: MatchRecord | null } | null;
   undoLastSwipe: () => SwipeRecord | null;
+  undoLastPass: () => SwipeRecord | null;
+  canUndoPass: () => boolean;
   hasSwipedOn: (targetId: string) => boolean;
 
   // Match data
@@ -119,6 +121,14 @@ export function useMatchingEngine(
     return undone;
   }, [userId, userType]);
 
+  const undoLastPass = useCallback(() => {
+    const undone = engineRef.current.undoLastPass(userId);
+    if (undone) setSwipeHistory(engineRef.current.getSwipeHistory(userId));
+    return undone;
+  }, [userId]);
+
+  const canUndoPass = useCallback(() => engineRef.current.canUndoPass(userId), [userId]);
+
   const hasSwipedOn = useCallback((targetId: string) => {
     return engineRef.current.hasSwipedOn(userId, targetId);
   }, [userId]);
@@ -152,6 +162,8 @@ export function useMatchingEngine(
   return {
     swipe,
     undoLastSwipe,
+    undoLastPass,
+    canUndoPass,
     hasSwipedOn,
     matches,
     swipeHistory,

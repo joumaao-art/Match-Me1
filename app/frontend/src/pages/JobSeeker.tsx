@@ -1,4 +1,6 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { trackEvent } from '@/lib/analytics';
+import { PreferencesForm } from '@/components/seeker/PreferencesForm';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -143,10 +145,7 @@ function SeekerNav({ activeTab, setActiveTab }: { activeTab: NavSection; setActi
       { id: 'video' as NavSection, icon: Video, label: t('video_intro') },
     ]},
     { items: [
-      { id: 'preferences' as NavSection, icon: Sliders, label: t('preferences') },
       { id: 'saved' as NavSection, icon: Bookmark, label: t('saved_jobs') },
-      { id: 'applications' as NavSection, icon: FileText, label: t('applications') },
-      { id: 'matches' as NavSection, icon: Sparkles, label: t('matches') },
     ]},
     { items: [
       { id: 'visibility' as NavSection, icon: Eye, label: t('profile_visibility') },
@@ -294,7 +293,7 @@ import { UCSummaryCard, UCDecisionCard } from '@/components/shared/CardEngine';
 import type { SummaryCardConfig, DecisionCardConfig } from '@/lib/card-engine-types';
 
 /** Level 1 — Premium Decision Card Content (swipe handled by SwipeFeedbackEngine on mobile) */
-function SwipeCardContent({ job, score, onViewDetails }: { job: typeof mockJobs[0]; score: number; onViewDetails: () => void }) {
+function SwipeCardContent({ job, score, onViewDetails, onUndo, canUndo }: { job: typeof mockJobs[0]; score: number; onViewDetails: () => void; onUndo?: () => void; canUndo?: boolean }) {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const typeLabel = (type: string) => { const m: Record<string, string> = { full_time: t('full_time'), part_time: t('part_time'), contract: t('contract'), remote: t('remote'), internship: t('internship') }; return m[type] || type; };
@@ -323,10 +322,10 @@ function SwipeCardContent({ job, score, onViewDetails }: { job: typeof mockJobs[
               </div>
             </div>
             <div className="flex items-center gap-1">
-              <button className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors" onClick={(e) => { e.stopPropagation(); toast.success(t('job_saved')); }} aria-label={t('save')}>
-                <Bookmark className="w-4 h-4 text-muted-foreground" />
+              <button type="button" disabled={!canUndo} className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); onUndo?.(); }} aria-label={t('undo_last_pass')} title={t('undo_last_pass')}>
+                <Undo2 className="w-4 h-4 text-muted-foreground rtl:-scale-x-100" />
               </button>
-              <button className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors" onClick={(e) => { e.stopPropagation(); toast.success(t('link_copied')); }} aria-label={t('share')}>
+              <button type="button" className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-muted transition-colors cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); toast.success(t('link_copied')); }} aria-label={t('share')}>
                 <ExternalLink className="w-4 h-4 text-muted-foreground" />
               </button>
             </div>
@@ -485,6 +484,7 @@ function SwipeView() {
   const [showMatch, setShowMatch] = useState(false);
   const [canUndo, setCanUndo] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [showPrefs, setShowPrefs] = useState(false);
   const [currentExplanation, setCurrentExplanation] = useState<MatchExplanation | null>(null);
 
   const recommendedJobs = useMemo(() => {
@@ -524,7 +524,9 @@ function SwipeView() {
     });
 
     const result = engine.swipe(currentJob.id, 'company', dir, currentJob.id);
-    setCanUndo(true);
+    if (!result) return;
+    trackEvent(dir === 'left' ? 'discover_pass' : 'discover_apply', { jobId: currentJob.id });
+    setCanUndo(dir === 'left');
     setShowDetails(false);
 
     if (dir === 'right' && result?.match) {
@@ -542,14 +544,21 @@ function SwipeView() {
   }, [currentJob, engine, aiMatching, currentExplanation, t]);
 
   const handleUndo = useCallback(() => {
-    const undone = engine.undoLastSwipe();
-    if (undone) { setCanUndo(false); toast.success(t('swipe_undone')); }
-  }, [engine, t]);
+    const undone = engine.undoLastPass();
+    if (!undone) { setCanUndo(false); toast(t('undo_nothing')); return; }
+    aiMatching.revokeInteraction(CURRENT_SEEKER.id, undone.targetId);
+    trackEvent('discover_undo', { jobId: undone.targetId, swipeId: undone.id });
+    setCanUndo(engine.canUndoPass());
+    toast.success(t('pass_undone'));
+  }, [engine, aiMatching, t]);
 
   const handleSaveJob = useCallback(() => {
     if (!currentJob) return;
     toast.success(t('job_saved'));
   }, [currentJob, t]);
+
+  const handleUndoRef = useRef(handleUndo); handleUndoRef.current = handleUndo;
+  const canUndoRef = useRef(canUndo); canUndoRef.current = canUndo;
 
   // Prepare swipe deck items for the SwipeFeedbackEngine (must be before early return)
   const swipeDeckItems: SwipeCardItem[] = useMemo(() =>
@@ -570,9 +579,11 @@ function SwipeView() {
         job={job}
         score={job.compatibility_score}
         onViewDetails={() => setShowDetails(true)}
+        onUndo={handleUndoRef.current}
+        canUndo={canUndoRef.current}
       />
     );
-  }, []);
+  }, [canUndo]);
 
   const handleSwipeFeedback = useCallback((direction: 'left' | 'right', _item: SwipeCardItem) => {
     handleSwipe(direction);
@@ -580,7 +591,7 @@ function SwipeView() {
 
   if (!currentJob) return (
     <div className="flex-1 flex items-center justify-center p-8"><div className="text-center"><Heart className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" /><h3 className="text-lg font-semibold font-[Poppins] mb-2">{t('no_more_jobs')}</h3><p className="text-sm text-muted-foreground mb-4">{t('check_back_later')}</p>
-      {canUndo && <Button variant="outline" onClick={handleUndo} className="cursor-pointer gap-2"><Undo2 className="w-4 h-4" />{t('undo_last_swipe')}</Button>}
+      {canUndo && <Button variant="outline" onClick={handleUndo} className="cursor-pointer gap-2"><Undo2 className="w-4 h-4" />{t('undo_last_pass')}</Button>}
     </div></div>
   );
 
@@ -590,7 +601,7 @@ function SwipeView() {
       <h2 className={`font-bold font-[Poppins] ${isMobile ? 'text-base' : 'text-xl'}`}>{t('discover')}</h2>
       <div className="flex items-center gap-1.5">
         <Badge variant="secondary" className="text-[10px] gap-0.5 py-0 h-5"><Zap className="w-2.5 h-2.5" />{recommendedJobs.length}</Badge>
-        {canUndo && <Button size="sm" variant="ghost" onClick={handleUndo} className="cursor-pointer h-6 w-6 p-0"><Undo2 className="w-3 h-3" /></Button>}
+        <Button size="sm" variant="ghost" onClick={() => setShowPrefs(true)} className="cursor-pointer h-9 px-2 gap-1" aria-label={t('preferences')}><Sliders className="w-4 h-4" /><span className="text-xs">{t('preferences')}</span></Button>
       </div>
     </div>
   );
@@ -649,6 +660,9 @@ function SwipeView() {
   const overlayContent = (
     <>
       {/* Level 2 — Details Bottom Sheet */}
+      <BottomSheet open={showPrefs} onClose={() => setShowPrefs(false)} title={t('preferences')}>
+        <div className="p-4"><PreferencesForm compact signals={PREF_SIGNALS} onSaved={() => setShowPrefs(false)} /></div>
+      </BottomSheet>
       <BottomSheet
         open={showDetails}
         onClose={() => setShowDetails(false)}
@@ -723,10 +737,10 @@ function DashboardView({ onNavigateToSection }: { onNavigateToSection?: (section
   const { t } = useTranslation();
   const profileData = useMockProfileData();
   const stats = [
-    { label: t('matched_jobs'), value: '12', color: 'text-primary' },
-    { label: t('applications'), value: '28', color: 'text-accent' },
-    { label: t('interviews'), value: '3', color: 'text-green-600' },
-    { label: t('profile_views'), value: '89', color: 'text-purple-600' },
+    { label: t('matched_jobs'), value: String(mockMatches.length), color: 'text-primary', section: 'matches' },
+    { label: t('applications'), value: String(mockApplications.length), color: 'text-accent', section: 'applications' },
+    { label: t('interviews'), value: String(mockApplications.filter(a => a.status === 'interview').length), color: 'text-green-600', section: 'applications' },
+    { label: t('profile_views'), value: '89', color: 'text-purple-600', section: 'who_viewed' },
   ];
 
   const handleNavigate = (section: string) => {
@@ -737,7 +751,7 @@ function DashboardView({ onNavigateToSection }: { onNavigateToSection?: (section
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('dashboard')}</h2>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {stats.map(s => <UCSummaryCard key={s.label} config={{ type: 'summary', value: s.value, label: s.label, colorClass: s.color, density: 'compact', variant: 'default', radius: 'lg' }} />)}
+        {stats.map(s => <UCSummaryCard key={s.label} config={{ type: 'summary', value: s.value, label: s.label, colorClass: s.color, density: 'compact', variant: 'default', radius: 'lg', interactive: true, ariaLabel: `${s.label}: ${s.value}`, className: 'cursor-pointer hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring', onClick: () => { trackEvent('dashboard_card_open', { section: s.section }); handleNavigate(s.section); } }} />)}
       </div>
       {/* Profile Completion Card */}
       <div className="mb-6">
@@ -971,41 +985,14 @@ function VideoIntroView() {
 // Preferences
 // ============================================================
 
+const PREF_SIGNALS = { skills: ['React', 'TypeScript', 'Node.js', 'Tailwind CSS', 'PostgreSQL'], titles: ['Frontend Developer'], fields: ['Computer Science'] };
+
 function PreferencesView() {
   const { t } = useTranslation();
-  const [prefs, setPrefs] = useState({
-    titles: 'Frontend Developer, Full Stack Engineer',
-    industries: 'Technology, Finance, E-commerce',
-    minSalary: '8000', maxSalary: '15000',
-    locations: 'Dubai, Abu Dhabi, Riyadh',
-    type: 'full-time',
-    relocate: true, remote: true,
-  });
-  const [saving, setSaving] = useState(false);
-
-  const handleSave = () => {
-    setSaving(true);
-    setTimeout(() => { setSaving(false); toast.success(t('preferences_saved')); }, 800);
-  };
-
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('preferences')}</h2>
-      <div className="max-w-2xl space-y-6">
-        <Card><CardHeader><CardTitle className="text-sm">{t('job_preferences')}</CardTitle></CardHeader><CardContent className="space-y-4">
-          <div><Label>{t('preferred_job_titles')}</Label><Input value={prefs.titles} onChange={(e) => setPrefs({...prefs, titles: e.target.value})} className="mt-1" /></div>
-          <div><Label>{t('preferred_industries')}</Label><Input value={prefs.industries} onChange={(e) => setPrefs({...prefs, industries: e.target.value})} className="mt-1" /></div>
-          <div className="grid grid-cols-2 gap-4">
-            <div><Label>{t('min_salary')}</Label><Input type="number" value={prefs.minSalary} onChange={(e) => setPrefs({...prefs, minSalary: e.target.value})} className="mt-1" /></div>
-            <div><Label>{t('max_salary')}</Label><Input type="number" value={prefs.maxSalary} onChange={(e) => setPrefs({...prefs, maxSalary: e.target.value})} className="mt-1" /></div>
-          </div>
-          <div><Label>{t('preferred_locations')}</Label><Input value={prefs.locations} onChange={(e) => setPrefs({...prefs, locations: e.target.value})} className="mt-1" /></div>
-          <div><Label>{t('employment_type')}</Label><Select value={prefs.type} onValueChange={(v) => setPrefs({...prefs, type: v})}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="full-time">{t('full_time')}</SelectItem><SelectItem value="part-time">{t('part_time')}</SelectItem><SelectItem value="contract">{t('contract')}</SelectItem><SelectItem value="remote">{t('remote')}</SelectItem></SelectContent></Select></div>
-          <div className="flex items-center gap-3"><Switch checked={prefs.relocate} onCheckedChange={(v) => setPrefs({...prefs, relocate: v})} /><Label>{t('willing_to_relocate')}</Label></div>
-          <div className="flex items-center gap-3"><Switch checked={prefs.remote} onCheckedChange={(v) => setPrefs({...prefs, remote: v})} /><Label>{t('open_to_remote')}</Label></div>
-        </CardContent></Card>
-        <Button className="cursor-pointer" onClick={handleSave} disabled={saving}>{saving ? t('loading') : t('save')}</Button>
-      </div>
+      <div className="max-w-2xl"><PreferencesForm signals={PREF_SIGNALS} /></div>
     </div>
   );
 }
@@ -1326,7 +1313,7 @@ export default function JobSeeker() {
     switch(activeTab) {
       case 'swipe': return <SwipeView />;
       case 'dashboard': return <DashboardView onNavigateToSection={(section) => setActiveTab(section as NavSection)} />;
-      case 'profile': case 'cv': return <ProfileView completion={<ProfileCompletionSlot onNavigate={(section) => setActiveTab(section as NavSection)} />} />;
+      case 'profile': case 'cv': return <ProfileView onOpenPreferences={() => { trackEvent('preferences_opened', { from: 'profile' }); setActiveTab('preferences'); }} completion={<ProfileCompletionSlot onNavigate={(section) => setActiveTab(section as NavSection)} />} />;
             case 'experience': return <ExperienceView />;
       case 'education': case 'certificates': return <EducationView />;
       case 'skills': return <SkillsView />;

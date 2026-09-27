@@ -40,7 +40,6 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { id: 'dashboard', icon: Home, labelKey: 'dashboard' },
   { id: 'swipe', icon: Search, labelKey: 'discover' },
-  { id: 'applications', icon: FileText, labelKey: 'applications' },
   { id: 'messages', icon: MessageSquare, labelKey: 'messages' },
   { id: 'profile', icon: User, labelKey: 'account' },
 ];

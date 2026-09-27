@@ -62,17 +62,16 @@ export function MobileDashboard({ onNavigateToSection, profileCompletion = 72 }:
   const { t } = useTranslation();
 
   const stats = [
-    { label: t('matched_jobs'), value: '12', colorClass: 'text-primary', icon: Heart },
-    { label: t('applications'), value: '28', colorClass: 'text-orange-500', icon: Briefcase },
-    { label: t('interviews'), value: '3', colorClass: 'text-green-600', icon: Target },
-    { label: t('profile_views'), value: '89', colorClass: 'text-purple-600', icon: Eye },
+    { label: t('matched_jobs'), value: '12', colorClass: 'text-primary', icon: Heart, section: 'matches' },
+    { label: t('applications'), value: '28', colorClass: 'text-orange-500', icon: Briefcase, section: 'applications' },
+    { label: t('interviews'), value: '3', colorClass: 'text-green-600', icon: Target, section: 'applications' },
+    { label: t('profile_views'), value: '89', colorClass: 'text-purple-600', icon: Eye, section: 'who_viewed' },
   ];
 
   const quickActions = [
     { label: t('discover'), icon: Heart, section: 'swipe', color: 'bg-primary/10 text-primary' },
-    { label: t('applications'), icon: Briefcase, section: 'applications', color: 'bg-orange-500/10 text-orange-500' },
     { label: t('messages'), icon: MessageSquare, section: 'messages', color: 'bg-green-600/10 text-green-600' },
-    { label: t('matches'), icon: Sparkles, section: 'matches', color: 'bg-purple-600/10 text-purple-600' },
+    { label: t('preferences'), icon: Sparkles, section: 'preferences', color: 'bg-purple-600/10 text-purple-600' },
   ];
 
   const todayRecommendation = {

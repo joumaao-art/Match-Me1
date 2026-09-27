@@ -178,6 +178,24 @@ export class MatchingEngine {
   /**
    * Undo the last swipe for a given user
    */
+  /**
+   * Reverses the most recent decision only when it was a pass (left swipe).
+   * An apply is never reversed here, so an application cannot be withdrawn by
+   * accident; the undone record is kept (flagged) for analytics history.
+   */
+  undoLastPass(userId: string): SwipeRecord | null {
+    const last = [...this.swipeHistory].reverse().find(s => s.swiperId === userId && !s.undone);
+    if (!last || last.direction !== 'left') return null;
+    last.undone = true;
+    this.saveToStorage();
+    return last;
+  }
+
+  canUndoPass(userId: string): boolean {
+    const last = [...this.swipeHistory].reverse().find(s => s.swiperId === userId && !s.undone);
+    return !!last && last.direction === 'left';
+  }
+
   undoLastSwipe(userId: string): SwipeRecord | null {
     const lastSwipe = [...this.swipeHistory]
       .reverse()

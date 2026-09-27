@@ -254,7 +254,7 @@ export function validateProfile(p: SeekerProfileRecord): FieldErrors<ProfileRequ
     const v = p[f];
     if (Array.isArray(v) ? v.length === 0 : !String(v ?? '').trim()) e[f] = 'pp_err_required';
   }
-  if (!e.mobile && !/^\+?[\d\s()-]{7,20}$/.test(p.mobile.trim())) e.mobile = 'pp_err_phone';
+  if (!e.mobile && !/^\+\d{7,15}$/.test(p.mobile.replace(/[\s()-]/g, ''))) e.mobile = 'pp_err_phone';
   return e;
 }
 

@@ -310,6 +310,7 @@ export const UCDecisionCard = memo(function UCDecisionCard({ config }: { config:
     <div
       className={cn(getBaseClasses(config), densityPadding[config.density || 'normal'], className)}
       onClick={onClick}
+      onKeyDown={config.interactive && onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
       role={config.interactive ? 'button' : undefined}
       tabIndex={config.interactive ? 0 : undefined}
       aria-label={config.ariaLabel || title}

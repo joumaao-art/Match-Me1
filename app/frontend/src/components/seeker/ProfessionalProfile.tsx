@@ -1,3 +1,5 @@
+import { PhoneInput } from '@/components/shared/PhoneInput';
+import { Sliders } from 'lucide-react';
 /**
  * Job Seeker professional profile views: Profile (+ Resume & CV),
  * Experience, Education (+ Certificates) and Languages.
@@ -114,7 +116,7 @@ function focusFirstError() {
 // ============================================================
 
 const SEED_PROFILE: SeekerProfileRecord = {
-  firstName: 'Ahmed', lastName: 'Hassan', email: 'ahmed@example.com', mobile: '+971 50 123 4567',
+  firstName: 'Ahmed', lastName: 'Hassan', email: 'ahmed@example.com', mobile: '+971501234567',
   country: 'UAE', city: 'Dubai', nationalities: ['Egyptian'], dob: '1995-03-15', photoUrl: '',
   headline: 'Senior Frontend Developer | React & TypeScript Expert',
   summary: 'Passionate frontend developer with 5+ years of experience building scalable web applications.',
@@ -247,7 +249,7 @@ function useFormState<T>(initial: T) {
 // Profile (+ Resume & CV)
 // ============================================================
 
-export function ProfileView({ completion }: { completion?: React.ReactNode }) {
+export function ProfileView({ completion, onOpenPreferences }: { completion?: React.ReactNode; onOpenPreferences?: () => void }) {
   const { t } = useTranslation();
   const [stored, save, ready] = useSeekerProfile();
   const { form: profile, setForm: setProfile, reset, dirty } = useFormState<SeekerProfileRecord>(stored);
@@ -294,7 +296,8 @@ export function ProfileView({ completion }: { completion?: React.ReactNode }) {
             {text('firstName', 'first_name', { autoComplete: 'given-name' })}
             {text('lastName', 'last_name', { autoComplete: 'family-name' })}
             <FormField id="pf-email" label={t('email')} required><Input id="pf-email" value={profile.email} className="h-11" disabled /></FormField>
-            {text('mobile', 'mobile', { type: 'tel', inputMode: 'tel', autoComplete: 'tel' })}
+            <FormField id="pf-mobile" label={t('mobile')} required error={errors.mobile ? t(errors.mobile) : undefined}><PhoneInput id="pf-mobile" value={profile.mobile} onChange={(v) => set('mobile', v)} invalid={!!errors.mobile} /></FormField>
+            {onOpenPreferences && <Button type="button" variant="outline" className="h-11 sm:col-span-2 cursor-pointer gap-2" onClick={onOpenPreferences}><Sliders className="w-4 h-4" />{t('pref_manage')}</Button>}
           </div>
           <LocationSelector idPrefix="pf" country={profile.country} city={profile.city}
             errors={{ country: errors.country, city: errors.city }}
