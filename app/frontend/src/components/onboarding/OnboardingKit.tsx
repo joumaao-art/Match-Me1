@@ -11,6 +11,7 @@ import {
   ArrowLeft, ArrowRight, Check, ChevronDown, Globe2, Search,
   Sparkles, Upload, X, Apple, Mail, Phone,
 } from 'lucide-react';
+import { Star as RatingStar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
@@ -121,12 +122,13 @@ export function StepBody({ children }: { children: React.ReactNode }) {
 // ============================================================
 
 export function BottomActions({
-  onBack, onNext, onSkip, nextLabel, nextDisabled = false, busy = false, isLast = false,
+  onBack, onNext, onSkip, nextLabel, skipLabel, nextDisabled = false, busy = false, isLast = false,
 }: {
   onBack?: () => void;
   onNext: () => void;
   onSkip?: () => void;
   nextLabel?: string;
+  skipLabel?: string;
   nextDisabled?: boolean;
   busy?: boolean;
   isLast?: boolean;
@@ -141,7 +143,7 @@ export function BottomActions({
       )}
       {onSkip && (
         <Button variant="ghost" onClick={onSkip} className="shrink-0 text-muted-foreground">
-          {t('ob_skip')}
+          {skipLabel ?? t('ob_skip')}
         </Button>
       )}
       <Button
@@ -532,27 +534,32 @@ export function ResumeUploader({
 // Rating selector (1..5)
 // ============================================================
 
-export function RatingSelector({ value, onChange }: { value: number | null; onChange: (v: number) => void }) {
+/** 1–5 star App Experience rating. `labels[n-1]` gives each value's meaning for screen readers. */
+export function RatingSelector({ value, onChange, labels, ariaLabel }: {
+  value: number | null; onChange: (v: number) => void; labels: string[]; ariaLabel: string;
+}) {
+  const [hover, setHover] = useState<number | null>(null);
+  const shown = hover ?? value ?? 0;
   return (
-    <div className="flex items-center justify-between gap-2" role="radiogroup">
-      {[1, 2, 3, 4, 5].map((n) => {
-        const active = value === n;
-        return (
-          <button
-            key={n}
-            type="button"
-            role="radio"
-            aria-checked={active}
-            onClick={() => onChange(n)}
-            className={cn(
-              'flex-1 aspect-square max-w-[64px] rounded-2xl border-2 text-lg font-bold transition-all active:scale-95',
-              active ? 'border-primary bg-primary text-primary-foreground shadow-md' : 'border-border bg-card hover:border-primary/50'
-            )}
-          >
-            {n}
-          </button>
-        );
-      })}
+    <div className="flex items-center justify-center gap-1 sm:gap-2" role="radiogroup" aria-label={ariaLabel}>
+      {[1, 2, 3, 4, 5].map((n) => (
+        <button
+          key={n}
+          type="button"
+          role="radio"
+          aria-checked={value === n}
+          aria-label={`${n} / 5 – ${labels[n - 1] ?? ''}`}
+          data-rating={n}
+          onClick={() => onChange(n)}
+          onMouseEnter={() => setHover(n)}
+          onMouseLeave={() => setHover(null)}
+          className="flex h-14 w-14 items-center justify-center rounded-2xl transition-transform active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          <RatingStar
+            className={cn('h-10 w-10 transition-colors', n <= shown ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/40')}
+          />
+        </button>
+      ))}
     </div>
   );
 }

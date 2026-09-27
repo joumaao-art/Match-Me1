@@ -23,7 +23,7 @@ import { BOOTSTRAP_TIMEOUT_MS, withTimeout, ensureJobSeekerInitialized } from '@
 // Versioning
 // ============================================================
 
-export const ONBOARDING_VERSION = '1.0';
+export const ONBOARDING_VERSION = '2.0';
 
 // ============================================================
 // Canonical option registries (single source for onboarding UI)
@@ -103,10 +103,16 @@ export const SEEKER_PLAN_OPTIONS = [
 // Step registry (declarative config-over-code)
 // ============================================================
 
+/**
+ * Canonical SEMANTIC step ids (onboarding v2.0). Progress is persisted by id,
+ * never by numeric position, so the order below can change without corrupting
+ * saved progress. Legacy v1.0 ids are translated in `resolveStepKey`.
+ */
 export type OnboardingStepId =
-  | 'welcome' | 'resume' | 'review' | 'basics'
-  | 'demographics' | 'birthday' | 'location' | 'target_countries'
-  | 'preferences' | 'notifications' | 'rating' | 'plan' | 'tutorial';
+  | 'welcome' | 'profile_setup' | 'referral_source' | 'gender' | 'disability'
+  | 'birthday' | 'current_location' | 'target_countries' | 'notifications'
+  | 'profile_review' | 'job_preferences' | 'plans' | 'discover_tutorial'
+  | 'app_experience_rating';
 
 export interface StepDefinition {
   id: OnboardingStepId;
@@ -119,19 +125,52 @@ export interface StepDefinition {
 
 export const ONBOARDING_STEPS: StepDefinition[] = [
   { id: 'welcome', group: 'profile', skippable: false, chromeless: true },
-  { id: 'resume', group: 'profile', skippable: true },
-  { id: 'review', group: 'profile', skippable: true },
-  { id: 'basics', group: 'profile', skippable: false },
-  { id: 'demographics', group: 'about_you', skippable: true },
+  { id: 'profile_setup', group: 'profile', skippable: false },
+  { id: 'referral_source', group: 'about_you', skippable: true },
+  { id: 'gender', group: 'about_you', skippable: true },
+  { id: 'disability', group: 'about_you', skippable: true },
   { id: 'birthday', group: 'about_you', skippable: false },
-  { id: 'location', group: 'about_you', skippable: false },
+  { id: 'current_location', group: 'about_you', skippable: false },
   { id: 'target_countries', group: 'about_you', skippable: false },
-  { id: 'preferences', group: 'tune', skippable: false },
   { id: 'notifications', group: 'tune', skippable: true },
-  { id: 'rating', group: 'launch', skippable: false },
-  { id: 'plan', group: 'launch', skippable: true },
-  { id: 'tutorial', group: 'launch', skippable: true },
+  { id: 'profile_review', group: 'tune', skippable: false },
+  { id: 'job_preferences', group: 'tune', skippable: false },
+  { id: 'plans', group: 'launch', skippable: true },
+  { id: 'discover_tutorial', group: 'launch', skippable: false },
+  // FINAL step. Product-experience feedback only — never read by matching.
+  { id: 'app_experience_rating', group: 'launch', skippable: true },
 ];
+
+/**
+ * v1.0 -> v2.0 step translation. Audit (2026-09-27): every stored
+ * `onboarding_state` uses string ids (no numeric indexes), so ids are mapped
+ * semantically — never renumbered.
+ * - `resume` alone never completes `profile_setup` (name + skills lived in `basics`).
+ * - `rating` was a job-search self-assessment, NOT app feedback: never carried over.
+ */
+const LEGACY_STEP_MAP: Record<string, OnboardingStepId[]> = {
+  basics: ['profile_setup'],
+  demographics: ['referral_source', 'gender', 'disability'],
+  location: ['current_location'],
+  review: ['profile_review'],
+  preferences: ['job_preferences'],
+  plan: ['plans'],
+  tutorial: ['discover_tutorial'],
+  resume: [],
+  rating: [],
+};
+
+function resolveStepKey(key: string): OnboardingStepId[] {
+  if ((ONBOARDING_STEPS as StepDefinition[]).some((s) => s.id === key)) return [key as OnboardingStepId];
+  return LEGACY_STEP_MAP[key] ?? [];
+}
+
+function resolveCurrentStep(raw: unknown): OnboardingStepId | null {
+  if (typeof raw !== 'string') return null;
+  if (raw === 'resume') return 'profile_setup';
+  if (raw === 'rating') return 'plans';
+  return resolveStepKey(raw)[0] ?? null;
+}
 
 export const getStepDef = (id: OnboardingStepId) =>
   ONBOARDING_STEPS.find((s) => s.id === id) ?? ONBOARDING_STEPS[0];
@@ -176,7 +215,9 @@ export interface OnboardingDraft {
   work_styles: string[];
   notifications: Record<string, boolean>;
   notification_permission: 'granted' | 'denied' | 'undecided' | 'unsupported';
-  job_search_rating: number | null;
+  /** App-experience rating 1..5 (product feedback only; stored separately). */
+  app_rating: number | null;
+  app_feedback: string;
   plan: string;
   tutorial_seen: boolean;
 }
@@ -209,7 +250,8 @@ export const createInitialDraft = (): OnboardingDraft => ({
   work_styles: [],
   notifications: { job_matches: true, new_messages: true, application_updates: true, weekly_digest: false },
   notification_permission: 'undecided',
-  job_search_rating: null,
+  app_rating: null,
+  app_feedback: '',
   plan: 'seeker-free',
   tutorial_seen: false,
 });
@@ -288,7 +330,11 @@ export function normalizeDraft(raw: unknown): OnboardingDraft {
       permission === 'granted' || permission === 'denied' || permission === 'unsupported' || permission === 'undecided'
         ? permission
         : base.notification_permission,
-    job_search_rating: numberOrNull(r.job_search_rating),
+    app_rating:
+      typeof r.app_rating === 'number' && Number.isInteger(r.app_rating) && r.app_rating >= 1 && r.app_rating <= 5
+        ? r.app_rating
+        : null,
+    app_feedback: stringOr(r.app_feedback, '').slice(0, 2000),
     plan: stringOr(r.plan, base.plan) || base.plan,
     tutorial_seen: r.tutorial_seen === true,
   };
@@ -306,10 +352,11 @@ export function normalizeOnboardingState(raw: unknown): OnboardingState {
 
   const steps: OnboardingState['steps'] = {};
   if (r.steps && typeof r.steps === 'object') {
-    const source = r.steps as Record<string, unknown>;
-    for (const id of STEP_ORDER) {
-      const entry = source[id] as { status?: unknown; at?: unknown } | undefined;
-      if (entry && (entry.status === 'done' || entry.status === 'skipped')) {
+    for (const [key, value] of Object.entries(r.steps as Record<string, unknown>)) {
+      const entry = value as { status?: unknown; at?: unknown } | undefined;
+      if (!entry || (entry.status !== 'done' && entry.status !== 'skipped')) continue;
+      for (const id of resolveStepKey(key)) {
+        if (steps[id]) continue;
         steps[id] = {
           status: entry.status,
           at: typeof entry.at === 'string' ? entry.at : new Date().toISOString(),
@@ -321,9 +368,7 @@ export function normalizeOnboardingState(raw: unknown): OnboardingState {
   return {
     version: stringOr(r.version, base.version),
     startedAt: typeof r.startedAt === 'string' ? r.startedAt : null,
-    currentStep: STEP_ORDER.includes(r.currentStep as OnboardingStepId)
-      ? (r.currentStep as OnboardingStepId)
-      : base.currentStep,
+    currentStep: resolveCurrentStep(r.currentStep) ?? base.currentStep,
     steps,
     draft: normalizeDraft(r.draft),
     completed: r.completed === true,
@@ -343,7 +388,7 @@ export interface StepValidation {
 export function validateStep(id: OnboardingStepId, draft: OnboardingDraft): StepValidation {
   const errors: Record<string, string> = {};
   switch (id) {
-    case 'basics':
+    case 'profile_setup':
       if (!draft.full_name || draft.full_name.trim().length < 2) errors.full_name = 'ob_err_name';
       if (draft.skills.length === 0) errors.skills = 'ob_err_skills';
       break;
@@ -353,22 +398,19 @@ export function validateStep(id: OnboardingStepId, draft: OnboardingDraft): Step
       if (age === null || age < 16 || age > 80) errors.birth_date = 'ob_err_age';
       break;
     }
-    case 'location':
+    case 'current_location':
       if (!draft.country) errors.country = 'ob_err_country';
       if (!draft.city || draft.city.trim().length < 2) errors.city = 'ob_err_city';
       break;
     case 'target_countries':
       if (draft.target_countries.length === 0) errors.target_countries = 'ob_err_target';
       break;
-    case 'preferences':
+    case 'job_preferences':
       if (draft.desired_roles.length === 0) errors.desired_roles = 'ob_err_roles';
       if (draft.work_styles.length === 0) errors.work_styles = 'ob_err_work_styles';
       break;
-    case 'rating':
-      if (draft.job_search_rating === null) errors.rating = 'ob_err_rating';
-      break;
     default:
-      break; // welcome / resume / review / demographics / notifications / rating / plan / tutorial
+      break; // optional steps; the app rating is validated only when submitted
   }
   return { valid: Object.keys(errors).length === 0, errors };
 }
@@ -401,7 +443,7 @@ export function firstIncompleteStep(state: OnboardingState): OnboardingStepId {
   for (const id of STEP_ORDER) {
     if (!state.steps[id]) return id;
   }
-  return 'tutorial';
+  return 'app_experience_rating';
 }
 
 /** Progress 0..100 over all steps except the chromeless welcome screen. */
@@ -496,7 +538,8 @@ export type OnboardingEventName =
   | 'onboarding_started' | 'onboarding_resumed' | 'step_completed' | 'step_skipped'
   | 'signup_oauth_tapped' | 'signup_otp_sent' | 'signup_otp_verified'
   | 'resume_uploaded' | 'resume_parsed' | 'location_permission'
-  | 'notification_permission' | 'plan_selected' | 'onboarding_completed';
+  | 'notification_permission' | 'plan_selected' | 'onboarding_completed'
+  | 'app_rating_submitted' | 'app_rating_skipped';
 
 export async function trackOnboarding(
   userId: string,
@@ -578,7 +621,6 @@ function draftToProfileColumns(draft: OnboardingDraft): Record<string, unknown> 
   cols.job_preferences = {
     desired_roles: draft.desired_roles,
     work_styles: draft.work_styles,
-    job_search_rating: draft.job_search_rating,
     notifications: draft.notifications,
     notification_permission: draft.notification_permission,
   };
@@ -767,7 +809,51 @@ export async function finalizeOnboarding(userId: string): Promise<void> {
   await profileService.completeOnboarding(userId);
   useOnboardingStore.setState((s) => ({ state: { ...s.state, completed: true } }));
   await sync();
-  trackOnboarding(userId, 'onboarding_completed', 'tutorial', { plan, credits_granted: !alreadyGranted });
+  trackOnboarding(userId, 'onboarding_completed', 'app_experience_rating', { plan, credits_granted: !alreadyGranted });
+}
+
+/**
+ * Save the final-step App Experience Rating (or its skip).
+ *
+ * PRODUCT FEEDBACK ONLY: written to `app_experience_ratings`, separate from
+ * profile and matching data; no matching, ranking, or preference code reads it.
+ * Never throws — a failed save must not keep the user from finishing onboarding.
+ */
+export async function submitAppExperienceRating(
+  userId: string,
+  input: { rating: number | null; feedback: string; skipped: boolean }
+): Promise<boolean> {
+  const platform =
+    typeof window !== 'undefined' && window.matchMedia?.('(max-width: 767px)').matches ? 'mobile' : 'web';
+  const skipped = input.skipped || input.rating === null;
+  try {
+    const { error } = await withTimeout(
+      Promise.resolve(
+        apiClient.supabase.from('app_experience_ratings').upsert(
+          {
+            user_id: userId,
+            rating: skipped ? null : input.rating,
+            feedback_text: skipped ? null : input.feedback.trim().slice(0, 2000) || null,
+            skipped,
+            onboarding_context: 'onboarding_final_step',
+            onboarding_version: ONBOARDING_VERSION,
+            platform,
+            locale: typeof document !== 'undefined' ? document.documentElement.lang || null : null,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id,onboarding_context' }
+        )
+      ),
+      BOOTSTRAP_TIMEOUT_MS,
+      { error: new Error('app rating save timed out') } as any
+    );
+    if (error) throw error;
+    trackOnboarding(userId, skipped ? 'app_rating_skipped' : 'app_rating_submitted', 'app_experience_rating', {});
+    return true;
+  } catch (err) {
+    logger.warn('[Onboarding] app experience rating save failed (onboarding continues)', err);
+    return false;
+  }
 }
 
 // ============================================================

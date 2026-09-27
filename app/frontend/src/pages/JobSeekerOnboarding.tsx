@@ -14,7 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import {
   BellRing, CheckCircle2, Crosshair, FileText, MapPin, Rocket,
-  ShieldCheck, Sparkles, Star, Target, TrendingUp, BadgeCheck,
+  ShieldCheck, Sparkles, Star, Target, TrendingUp, BadgeCheck, Bookmark, AlertCircle,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -32,7 +32,7 @@ import {
 import {
   useOnboardingStore, ONBOARDING_STEPS, STEP_ORDER, getStepDef,
   validateStep, computeProgress, computeProfileStrength, nextStepId, prevStepId,
-  finalizeOnboarding, ageFromBirthDate, parseResumeText, requestGeolocation, nearestCountry,
+  finalizeOnboarding, submitAppExperienceRating, ageFromBirthDate, parseResumeText, requestGeolocation, nearestCountry,
   trackOnboarding, normalizeDraft, COUNTRIES, SKILL_TAXONOMY, ROLE_OPTIONS, WORK_STYLES, GENDERS,
   DISABILITIES, ACQUISITION_SOURCES, NOTIFICATION_TOPICS, SEEKER_PLAN_OPTIONS,
   type OnboardingStepId, type OnboardingDraft,
@@ -125,18 +125,41 @@ export default function JobSeekerOnboarding() {
 
   const set = (patch: Partial<OnboardingDraft>) => patchDraft(patch);
 
+  /**
+   * Final step: submitted OR skipped -> save feedback -> mark the rating step
+   * -> mark onboarding COMPLETED -> enter the real Discover experience.
+   * The feedback save never throws, so declining to rate can never block the user.
+   */
+  const finishOnboarding = async (skipped: boolean) => {
+    if (!userId) return;
+    setBusy(true);
+    try {
+      await submitAppExperienceRating(userId, {
+        rating: skipped ? null : draft.app_rating,
+        feedback: skipped ? '' : draft.app_feedback,
+        skipped,
+      });
+      await completeStep(userId, 'app_experience_rating', skipped ? 'skipped' : 'done');
+      await finalizeOnboarding(userId);
+      navigate(`${ROUTES.SEEKER}?view=swipe`, { replace: true });
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const goNext = async () => {
+    if (stepId === 'app_experience_rating') {
+      if (draft.app_rating === null) { setErrors({ rating: 'ob_err_rating' }); return; }
+      setErrors({});
+      await finishOnboarding(false);
+      return;
+    }
     const v = validateStep(stepId, draft);
     if (!v.valid) { setErrors(v.errors); return; }
     setErrors({});
     setBusy(true);
     try {
-      if (stepId === 'tutorial') {
-        await completeStep(userId!, 'tutorial', 'done');
-        if (userId) await finalizeOnboarding(userId);
-        navigate('/seeker', { replace: true });
-        return;
-      }
+      if (stepId === 'discover_tutorial') set({ tutorial_seen: true });
       await completeStep(userId!, stepId, 'done');
     } finally {
       setBusy(false);
@@ -146,14 +169,9 @@ export default function JobSeekerOnboarding() {
   const goSkip = async () => {
     if (!def.skippable) return;
     setErrors({});
+    if (stepId === 'app_experience_rating') { await finishOnboarding(true); return; }
     setBusy(true);
     try {
-      if (stepId === 'tutorial') {
-        await completeStep(userId!, 'tutorial', 'skipped');
-        if (userId) await finalizeOnboarding(userId);
-        navigate('/seeker', { replace: true });
-        return;
-      }
       await completeStep(userId!, stepId, 'skipped');
     } finally {
       setBusy(false);
@@ -182,7 +200,7 @@ export default function JobSeekerOnboarding() {
     );
   }
 
-  const isLast = stepId === 'tutorial';
+  const isLast = stepId === 'app_experience_rating';
 
   return (
     <OnboardingLayout
@@ -192,10 +210,15 @@ export default function JobSeekerOnboarding() {
           onBack={prevStepId(stepId) ? goBack : undefined}
           onNext={goNext}
           onSkip={def.skippable ? goSkip : undefined}
-          nextDisabled={busy}
+          nextDisabled={busy || (isLast && draft.app_rating === null)}
           busy={busy}
           isLast={isLast}
-          nextLabel={stepId === 'resume' ? t('ob_continue') : undefined}
+          nextLabel={
+            stepId === 'discover_tutorial' ? t('ob_finish')
+              : isLast ? t('ob_rating_submit')
+                : t('ob_continue')
+          }
+          skipLabel={isLast ? t('ob_rating_not_now') : undefined}
         />
       )}
     >
@@ -215,38 +238,17 @@ export default function JobSeekerOnboarding() {
           )}
 
           {/* ---------------- RESUME ---------------- */}
-          {stepId === 'resume' && (
+          {/* STEP 2 — resume upload OR fill the profile manually */}
+          {stepId === 'profile_setup' && (
             <>
-              <StepHeading title={t('ob_resume_title')} subtitle={t('ob_resume_subtitle')} optional />
+              <StepHeading title={t('ob_resume_title')} subtitle={t('ob_resume_subtitle')} />
               <StepBody>
                 <ResumeStep userId={userId} draft={draft} set={set} />
-                <button
-                  type="button"
-                  onClick={() => { set({ resume: { ...draft.resume, parsed: false } }); completeStep(userId, 'resume', 'skipped'); }}
-                  className="mt-5 w-full text-center text-sm font-medium text-primary underline-offset-4 hover:underline"
-                >
+                <div className="my-6 flex items-center gap-3 text-xs font-semibold text-muted-foreground">
+                  <span className="h-px flex-1 bg-border" />
                   {t('ob_resume_manual')}
-                </button>
-                <p className="mt-2 text-center text-xs text-muted-foreground">{t('ob_resume_skip_hint')}</p>
-              </StepBody>
-            </>
-          )}
-
-          {/* ---------------- REVIEW ---------------- */}
-          {stepId === 'review' && (
-            <>
-              <StepHeading title={t('ob_review_title')} subtitle={t('ob_review_subtitle')} />
-              <StepBody>
-                <ReviewStep draft={draft} set={set} />
-              </StepBody>
-            </>
-          )}
-
-          {/* ---------------- BASICS ---------------- */}
-          {stepId === 'basics' && (
-            <>
-              <StepHeading title={t('ob_basics_title')} subtitle={t('ob_basics_subtitle')} />
-              <StepBody>
+                  <span className="h-px flex-1 bg-border" />
+                </div>
                 <div className="space-y-5">
                   <Field label={t('ob_full_name')} error={errors.full_name ? t(errors.full_name) : undefined}>
                     <Input
@@ -293,10 +295,20 @@ export default function JobSeekerOnboarding() {
             </>
           )}
 
-          {/* ---------------- DEMOGRAPHICS ---------------- */}
-          {stepId === 'demographics' && (
+          {/* STEP 10 — profile review with missing-information highlights */}
+          {stepId === 'profile_review' && (
             <>
-              <StepHeading title={t('ob_demo_title')} subtitle={t('ob_demo_subtitle')} optional />
+              <StepHeading title={t('ob_review_title')} subtitle={t('ob_review_subtitle')} />
+              <StepBody>
+                <ReviewStep draft={draft} set={set} />
+              </StepBody>
+            </>
+          )}
+
+          {/* STEP 4 — gender */}
+          {stepId === 'gender' && (
+            <>
+              <StepHeading title={t('ob_gender')} subtitle={t('ob_demo_subtitle')} optional />
               <StepBody>
                 <div className="space-y-6">
                   <Field label={t('ob_gender')}>
@@ -307,6 +319,17 @@ export default function JobSeekerOnboarding() {
                       max={1}
                     />
                   </Field>
+                </div>
+              </StepBody>
+            </>
+          )}
+
+          {/* STEP 5 — disability */}
+          {stepId === 'disability' && (
+            <>
+              <StepHeading title={t('ob_disability')} subtitle={t('ob_demo_subtitle')} optional />
+              <StepBody>
+                <div className="space-y-6">
                   <Field label={t('ob_disability')}>
                     <ChipMultiSelect
                       options={DISABILITIES.map((v) => ({ value: v, label: t(`ob_disab_${v === 'prefer_not_to_say' ? 'na' : v}`) }))}
@@ -315,6 +338,17 @@ export default function JobSeekerOnboarding() {
                       max={1}
                     />
                   </Field>
+                </div>
+              </StepBody>
+            </>
+          )}
+
+          {/* STEP 3 — how did you hear about us */}
+          {stepId === 'referral_source' && (
+            <>
+              <StepHeading title={t('ob_acquisition')} subtitle={t('ob_referral_subtitle')} optional />
+              <StepBody>
+                <div className="space-y-6">
                   <Field label={t('ob_acquisition')}>
                     <ChipMultiSelect
                       options={ACQUISITION_SOURCES.map((v) => ({ value: v, label: t(`ob_acq_${v}`) }))}
@@ -361,7 +395,7 @@ export default function JobSeekerOnboarding() {
           )}
 
           {/* ---------------- LOCATION ---------------- */}
-          {stepId === 'location' && (
+          {stepId === 'current_location' && (
             <>
               <StepHeading title={t('ob_location_title')} subtitle={t('ob_location_subtitle')} />
               <StepBody>
@@ -401,7 +435,7 @@ export default function JobSeekerOnboarding() {
           )}
 
           {/* ---------------- PREFERENCES ---------------- */}
-          {stepId === 'preferences' && (
+          {stepId === 'job_preferences' && (
             <>
               <StepHeading title={t('ob_prefs_title')} subtitle={t('ob_prefs_subtitle')} />
               <StepBody>
@@ -445,29 +479,8 @@ export default function JobSeekerOnboarding() {
             </>
           )}
 
-          {/* ---------------- RATING ---------------- */}
-          {stepId === 'rating' && (
-            <>
-              <StepHeading title={t('ob_rating_title')} subtitle={t('ob_rating_subtitle')} />
-              <StepBody>
-                <div className="space-y-5 pt-2">
-                  <RatingSelector value={draft.job_search_rating} onChange={(v) => set({ job_search_rating: v })} />
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{t('ob_rating_scale')}</span>
-                    <span>{t('ob_rating_scale_max')}</span>
-                  </div>
-                  {errors.rating && <p className="text-xs text-destructive">{t(errors.rating)}</p>}
-                  <div className="rounded-xl border bg-card p-4 flex items-start gap-3">
-                    <TrendingUp className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <p className="text-sm text-muted-foreground">{t('ob_rating_hint')}</p>
-                  </div>
-                </div>
-              </StepBody>
-            </>
-          )}
-
-          {/* ---------------- PLAN ---------------- */}
-          {stepId === 'plan' && (
+          {/* ---------------- PLANS ---------------- */}
+          {stepId === 'plans' && (
             <>
               <StepHeading title={t('ob_plan_title')} subtitle={t('ob_plan_subtitle')} optional />
               <StepBody>
@@ -480,7 +493,7 @@ export default function JobSeekerOnboarding() {
                       <button
                         key={p.id}
                         type="button"
-                        onClick={() => { set({ plan: p.id }); trackOnboarding(userId, 'plan_selected', 'plan', { plan: p.id }); }}
+                        onClick={() => { set({ plan: p.id }); trackOnboarding(userId, 'plan_selected', 'plans', { plan: p.id }); }}
                         className={cn(
                           'w-full text-start rounded-2xl border-2 p-4 transition-all active:scale-[0.99]',
                           active ? 'border-primary bg-primary/5 shadow-sm' : 'border-border bg-card hover:border-primary/40'
@@ -512,11 +525,44 @@ export default function JobSeekerOnboarding() {
           )}
 
           {/* ---------------- TUTORIAL ---------------- */}
-          {stepId === 'tutorial' && (
+          {stepId === 'discover_tutorial' && (
             <>
               <StepHeading title={t('ob_tutorial_title')} subtitle={t('ob_tutorial_subtitle')} />
               <StepBody>
                 <TutorialStep draft={draft} />
+              </StepBody>
+            </>
+          )}
+
+          {/* STEP 14 (FINAL) — App Experience Rating: product feedback only */}
+          {stepId === 'app_experience_rating' && (
+            <>
+              <StepHeading title={t('ob_rating_title')} subtitle={t('ob_rating_subtitle')} optional />
+              <StepBody>
+                <div className="space-y-5 pt-2" data-testid="app-experience-rating">
+                  <RatingSelector
+                    value={draft.app_rating}
+                    onChange={(v) => { setErrors({}); set({ app_rating: v }); }}
+                    labels={[1, 2, 3, 4, 5].map((n) => t(`ob_rating_${n}`))}
+                    ariaLabel={t('ob_rating_title')}
+                  />
+                  <p className="min-h-5 text-center text-sm font-semibold text-primary" aria-live="polite">
+                    {draft.app_rating !== null ? t(`ob_rating_${draft.app_rating}`) : ''}
+                  </p>
+                  {errors.rating && <p className="text-center text-xs text-destructive">{t(errors.rating)}</p>}
+                  {draft.app_rating !== null && (
+                    <Field label={t('ob_rating_feedback_label')}>
+                      <textarea
+                        value={draft.app_feedback}
+                        onChange={(e) => set({ app_feedback: e.target.value.slice(0, 2000) })}
+                        placeholder={t('ob_rating_feedback_placeholder')}
+                        rows={4}
+                        maxLength={2000}
+                        className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      />
+                    </Field>
+                  )}
+                </div>
               </StepBody>
             </>
           )}
@@ -643,7 +689,7 @@ function ResumeStep({ userId, draft, set }: {
         set({ resume: extract as any });
         toast.info(t('ob_resume_parse_failed'));
       }
-      trackOnboarding(userId, 'resume_parsed', 'resume', {
+      trackOnboarding(userId, 'resume_parsed', 'profile_setup', {
         ext, fields: Object.keys(extract).filter((k) => k !== 'fileName' && k !== 'cvUrl' && k !== 'parsed'),
       });
     } catch (err: any) {
@@ -673,18 +719,51 @@ function ReviewStep({ draft, set }: { draft: OnboardingDraft; set: (p: Partial<O
   const { t } = useTranslation();
   const r = draft.resume;
   const hasAnything = !!(r.full_name || r.headline || r.skills?.length || r.experience_years != null || r.education);
-
-  if (!hasAnything) {
-    return (
-      <div className="rounded-2xl border border-dashed bg-muted/30 p-6 text-center">
-        <FileText className="h-8 w-8 mx-auto text-muted-foreground mb-3" />
-        <p className="text-sm text-muted-foreground">{t('ob_review_none')}</p>
-      </div>
-    );
-  }
+  const checklist = [
+    { key: 'ob_review_name', ok: !!draft.full_name.trim(), required: true },
+    { key: 'ob_review_skills', ok: draft.skills.length > 0, required: true },
+    { key: 'ob_birthday_label', ok: !!draft.birth_date, required: true },
+    { key: 'ob_country', ok: !!draft.country && !!draft.city.trim(), required: true },
+    { key: 'ob_target_title', ok: draft.target_countries.length > 0, required: true },
+    { key: 'ob_review_headline', ok: !!draft.headline.trim(), required: false },
+    { key: 'ob_review_experience', ok: draft.experience_years !== null, required: false },
+    { key: 'ob_review_education', ok: !!draft.education && draft.education !== 'none', required: false },
+  ];
+  const missingRequired = checklist.some((c) => c.required && !c.ok);
 
   return (
     <div className="space-y-4">
+      <div className="rounded-2xl border bg-card p-4" data-testid="profile-review-checklist">
+        <p className="mb-3 text-sm font-bold">{t('ob_review_checklist')}</p>
+        <ul className="space-y-2">
+          {checklist.map((c) => (
+            <li
+              key={c.key}
+              className={cn(
+                'flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm',
+                !c.ok && c.required ? 'bg-destructive/10 text-destructive' : 'bg-muted/40'
+              )}
+            >
+              <span className="flex items-center gap-2">
+                {c.ok
+                  ? <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  : <AlertCircle className={cn('h-4 w-4', c.required ? 'text-destructive' : 'text-muted-foreground')} />}
+                {t(c.key)}
+              </span>
+              <span className="text-xs font-semibold">
+                {c.ok ? t('ob_review_complete') : c.required ? t('ob_review_missing_required') : t('ob_review_missing')}
+              </span>
+            </li>
+          ))}
+        </ul>
+        {missingRequired && <p className="mt-3 text-xs text-destructive">{t('ob_review_missing_hint')}</p>}
+      </div>
+      {!hasAnything && (
+        <div className="rounded-2xl border border-dashed bg-muted/30 p-4 text-center">
+          <FileText className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
+          <p className="text-sm text-muted-foreground">{t('ob_review_none')}</p>
+        </div>
+      )}
       {r.full_name && (
         <Field label={t('ob_review_name')}>
           <Input value={draft.full_name || r.full_name} onChange={(e) => set({ full_name: e.target.value })} className="h-12" />
@@ -742,13 +821,13 @@ function LocationStep({ draft, set, userId }: {
     if (!pos) {
       set({ country: draft.country });
       toast.error(t('ob_location_denied'));
-      trackOnboarding(userId, 'location_permission', 'location', { granted: false });
+      trackOnboarding(userId, 'location_permission', 'current_location', { granted: false });
       return;
     }
     const near = nearestCountry(pos.lat, pos.lng);
     set({ country: near.code });
     toast.success(t('ob_location_granted'));
-    trackOnboarding(userId, 'location_permission', 'location', { granted: true, matched_country: near.code });
+    trackOnboarding(userId, 'location_permission', 'current_location', { granted: true, matched_country: near.code });
   };
 
   return (
@@ -845,6 +924,7 @@ function TutorialStep({ draft }: { draft: OnboardingDraft }) {
     { key: '1', icon: <Target className="h-5 w-5" />, title: t('ob_tut1_title'), desc: t('ob_tut1_desc') },
     { key: '2', icon: <Star className="h-5 w-5" />, title: t('ob_tut2_title'), desc: t('ob_tut2_desc') },
     { key: '3', icon: <FileText className="h-5 w-5" />, title: t('ob_tut3_title'), desc: t('ob_tut3_desc') },
+    { key: '4', icon: <Bookmark className="h-5 w-5" />, title: t('ob_tut4_title'), desc: t('ob_tut4_desc') },
   ];
   return (
     <div className="space-y-4">

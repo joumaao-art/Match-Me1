@@ -54,8 +54,8 @@ async function signUp(tag) {
 
 /** A mirror owned by User A at Step 12 (`plan`), steps 1-11 done. */
 function mirrorFor(userId, completed) {
-  const order = ['welcome', 'resume', 'review', 'basics', 'demographics', 'birthday', 'location',
-    'target_countries', 'preferences', 'notifications', 'rating'];
+  const order = ['welcome', 'profile_setup', 'referral_source', 'gender', 'disability', 'birthday', 'current_location',
+    'target_countries', 'notifications', 'profile_review', 'job_preferences'];
   const steps = Object.fromEntries(order.map((id) => [id, { status: 'done', at: new Date().toISOString() }]));
   return JSON.stringify({
     state: { userId, state: { version: '1.0', startedAt: new Date().toISOString(), currentStep: 'plan', steps, draft: {}, completed } },
@@ -88,7 +88,7 @@ try {
 
   await openAs(page, A, mirrorFor(A.user.id, false));
   const a = await onWelcome(page);
-  check('T1', 'User A resumes at own saved Step 12 (plan)', a.step === 'plan', JSON.stringify(a));
+  check('T1', 'User A resumes at own saved Step 12 (plans)', a.step === 'plans', JSON.stringify(a));
 
   // Keep A's mirror, switch the session to brand-new User B.
   const aMirror = await page.evaluate(() => localStorage.getItem('matchme-onboarding'));
@@ -99,12 +99,12 @@ try {
   await page.getByRole('button', { name: /start building my profile|get started/i }).first().click();
   await page.waitForTimeout(3000);
   const b2 = await onWelcome(page);
-  check('T3', 'Get Started advances to next registry step (resume)', b2.step === 'resume', JSON.stringify(b2));
+  check('T3', 'Get Started advances to next registry step (profile_setup)', b2.step === 'profile_setup', JSON.stringify(b2));
 
   await page.reload();
   await page.waitForTimeout(6000);
   const b3 = await onWelcome(page);
-  check('T4', 'Refresh restores User B step, not User A', b3.step === 'resume', JSON.stringify(b3));
+  check('T4', 'Refresh restores User B step, not User A', b3.step === 'profile_setup', JSON.stringify(b3));
 
   const C = await signUp('c');
   await openAs(page, C, mirrorFor(A.user.id, true));
