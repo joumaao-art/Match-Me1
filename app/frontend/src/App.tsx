@@ -19,6 +19,7 @@ import { initializeSecurity, sessionManager, auditLogger } from '@/lib/security'
 import { ensureIdentity, resolvePostAuthDestination } from '@/lib/signup-flow';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { logger } from '@/lib/logger';
+import { rememberSharedJob } from '@/lib/swipe-presentation';
 import { useOnboardingStore } from '@/lib/onboarding-engine';
 
 /** Drop user-scoped onboarding state that belongs to a different (or no) account. */
@@ -45,6 +46,7 @@ const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const LearnMore = lazy(() => import('./pages/LearnMore'));
 
 // Feature pages - large, lazy loaded
+const SharedJob = lazy(() => import('./pages/SharedJob'));
 const JobSeeker = lazy(() => import('./pages/JobSeeker'));
 const JobSeekerOnboarding = lazy(() => import('./pages/JobSeekerOnboarding'));
 const MobileOnboarding = lazy(() => import('./pages/MobileOnboarding'));
@@ -237,6 +239,8 @@ function ProtectedRoute({
   }
 
   if (!isAuthenticated) {
+    const shared=new URLSearchParams(location.search).get('job');
+    if(location.pathname.startsWith('/seeker')&&shared)rememberSharedJob(shared);
     return <Navigate to={ROUTES.AUTH} state={{ from: location }} replace />;
   }
 
@@ -394,6 +398,7 @@ function AppRoutes() {
         }
       />
 
+      <Route path="/jobs/:id" element={<Suspense fallback={<PageLoader loaderId="shared-job" />}><SharedJob /></Suspense>} />
       {/* Guest-only routes */}
       <Route
         path={ROUTES.AUTH}

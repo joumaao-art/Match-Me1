@@ -23,6 +23,7 @@ import {
   TrendingUp, Calendar, Download, Filter, Search, MoreVertical, Star,
   GitBranch, Lock, Unlock, Receipt, PieChart, UserCheck, Layers
 } from 'lucide-react';
+import PersistedVacanciesView from '@/components/shared/PersistedVacanciesView';
 import { ChangePassword } from '@/components/shared/ChangePassword';
 import CandidateDirectory from '@/components/shared/CandidateDirectory';
 import PortalBrand, { getPortalBrandConfig } from '@/components/shared/PortalBrand';
@@ -1534,7 +1535,7 @@ export default function Company() {
       case 'profile': return <ProfileView />;
       case 'branches': return <BranchesView />;
       case 'recruiters': return <RecruitersView />;
-      case 'vacancies': return <VacanciesView />;
+      case 'vacancies': return <PersistedVacanciesView />;
       case 'candidates': return <CandidatesView />;
       case 'pipeline': return <PipelineView />;
       case 'saved': return <TalentCollections />;

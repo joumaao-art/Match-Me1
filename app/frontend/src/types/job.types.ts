@@ -71,6 +71,11 @@ export interface Vacancy {
   education_level: string;
   salary_min?: number;
   salary_max?: number;
+  salary_currency?: string | null;
+  salary_period?: 'hour' | 'day' | 'week' | 'month' | 'year' | null;
+  show_salary?: boolean | null;
+  employment_style?: 'onsite' | 'remote' | 'hybrid' | null;
+  qualifications?: string | null;
   benefits?: string[];
   status: VacancyStatus;
   posting_date: string;

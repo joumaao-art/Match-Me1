@@ -1,0 +1,711 @@
+# MATCHME — PREMIUM MOBILE SWIPE PAGE REDESIGN
+## Job Seeker | Mobile Only | UI/UX + Functional Implementation
+
+### 1. Objective
+
+Redesign the existing MatchMe Job Seeker **Swipe** page to create a premium, professional, mobile-first job discovery experience.
+
+The page must feel like a professionally designed recruitment application, not a generic AI-generated interface.
+
+Implement the exact layout and functionality described below.
+
+**Critical rules:**
+
+- Apply visual layout changes to the mobile application only.
+- Do not modify the desktop Swipe/Discover page layout.
+- Preserve the existing AI Matching Engine, Career Graph, credit system, authentication, and job application workflows.
+- Keep the application name **MatchMe**.
+- Preserve English and Arabic localization, including RTL.
+- All Atoms Working Process updates, technical explanations, and final reports must be in English only.
+- Reuse existing components and backend services rather than creating duplicate functionality.
+
+---
+
+### 2. Overall Swipe Page Layout
+
+The mobile Swipe page must follow this hierarchy:
+
+**TOP HEADER**
+
+Left: MatchMe logo
+
+Right: Available Credits | Preferences icon
+
+**BELOW HEADER**
+
+Centered: Profile Completion Percentage
+
+**MAIN CONTENT**
+
+Centered Job Card
+
+**INSIDE JOB CARD**
+
+Top-right: Undo | Share
+
+Company Logo
+
+Position Title
+
+Compensation Package (if declared)
+
+Job Location
+
+Employment Type
+
+Employment Style
+
+Click More / View More
+
+Expandable Job Description and Qualifications
+
+**BOTTOM OF JOB CARD**
+
+Left: X (Pass)
+
+Center: Save (Bookmark)
+
+Right: Heart (Apply)
+
+**BOTTOM OF SCREEN**
+
+Existing three-tab navigation:
+
+Swipe | Dashboard | Profile
+
+Keep the job card as the main visual focus.
+
+---
+
+### 3. Top Header — MatchMe Logo
+
+Position the official MatchMe application logo at the **top left**.
+
+Requirements:
+
+- Use the existing approved MatchMe logo.
+- Maintain correct proportions.
+- Do not stretch or distort it.
+- Keep the logo relatively compact.
+- Align it vertically with the Credits and Preferences controls.
+- Use appropriate mobile safe-area spacing.
+- Do not add unnecessary slogans or decorative elements.
+
+The logo should look professional and consistent with the MatchMe brand.
+
+### 4. Top Right — Available Credits
+
+Display the Job Seeker's available swiping credits in the top-right header.
+
+Example:
+
+**20 Credits**
+
+Include the existing credit icon where appropriate.
+
+Requirements:
+
+- Display the actual available balance from the centralized MatchMe credit system.
+- Make the entire Credits control clickable.
+- Clicking opens the existing Credits/Plans experience, where the user can view their balance, credit information, and available purchase/upgrade options.
+- Do not create a separate mobile credit wallet.
+- Preserve the unified mobile/desktop credit policy.
+- New eligible Job Seekers receive 20 free credits exactly once.
+- Existing users retain their actual balances.
+- Update the balance when credit-consuming actions succeed.
+- Never hardcode the displayed balance.
+
+Ensure the Credits control remains visible without overcrowding the header.
+
+### 5. Top Right — Preferences Icon
+
+Place a clickable Preferences icon immediately beside the Credits control.
+
+Use a recognizable settings/sliders icon.
+
+Requirements:
+
+- Clicking the icon opens the existing Job Seeker Preferences page.
+- Reuse the same canonical Preferences experience accessed from Profile.
+- Do not create a second Preferences page.
+- Preserve all saved preferences.
+- When the user returns from Preferences, they should return naturally to Swipe.
+- If preferences change, refresh job recommendations through the existing matching architecture.
+
+Keep the icon compact, accessible, and visually aligned with Credits.
+
+---
+
+### 6. Profile Completion Percentage
+
+Below the header, with comfortable vertical spacing, display the Job Seeker's profile completion percentage.
+
+Example:
+
+**Your profile is 75% complete**
+
+Place it horizontally centered.
+
+Requirements:
+
+- Use the actual Profile Completion Engine.
+- Do not hardcode the percentage.
+- Make the entire element clickable.
+- Clicking should navigate to the Profile page and guide the Job Seeker toward incomplete mandatory information.
+- Highlight missing required fields or sections.
+- If possible, scroll or navigate directly to the first incomplete section.
+- When profile information is completed, update the percentage automatically.
+- Do not penalize optional fields such as profile photo or other explicitly optional fields unless product rules have subsequently made them mandatory.
+
+Visual design:
+
+- Small but readable text.
+- Percentage clearly emphasized.
+- Optional thin progress indicator.
+- No oversized card.
+- No intrusive warning banner.
+- No unnecessary animation.
+
+When the profile is 100% complete, show an appropriate completed state without hiding the Profile entry point.
+
+---
+
+### 7. Main Job Card — Centered Layout
+
+The job card must appear in the **center of the available Swipe page content area**.
+
+The layout must account for:
+
+- Top header
+- Profile completion
+- Mobile safe areas
+- Bottom navigation
+
+Requirements:
+
+- One primary job card visible at a time.
+- The card should occupy most of the available horizontal space with consistent margins.
+- Maintain balanced spacing and proportions.
+- Use a restrained border, radius, and shadow consistent with the MatchMe Design System.
+- Avoid unnecessarily tall cards or oversized empty spaces.
+- Do not allow the card to overlap the bottom navigation.
+- Preserve smooth swipe gestures.
+- Prevent accidental swipes when the user is interacting with buttons or expanded job details.
+
+On common mobile screen sizes, the primary job information and decision buttons should be visible without unnecessary page scrolling.
+
+---
+
+### 8. Job Card — Top Right Undo and Share
+
+At the top-right corner **inside the job card**, place two controls in this order:
+
+**Undo | Share**
+
+#### Undo / Go Back
+
+Use a professional backward/undo arrow icon.
+
+Purpose:
+
+Allow the Job Seeker to restore the most recently passed job when they accidentally swipe left.
+
+Requirements:
+
+- Undo must reverse the actual persisted Pass decision.
+- Restore the correct job card.
+- Do not merely display an old card while leaving its Pass state active.
+- Do not undo completed job applications.
+- Do not modify existing conversations or interviews.
+- Update relevant matching feedback correctly.
+- Disable Undo when no eligible previous Pass exists.
+- Prevent duplicate restoration and race conditions.
+- Reuse the existing Discover/Swipe Undo functionality.
+
+#### Share
+
+Place the Share icon immediately next to Undo.
+
+Clicking Share should open the native mobile share sheet where supported, with an appropriate fallback.
+
+Share content should include:
+
+- Job title
+- Company name
+- Shareable job link
+
+Do not expose private employer or candidate information.
+
+---
+
+### 9. Job Sharing — App Download and Deep Linking
+
+When a Job Seeker shares a job with a friend, the link must direct the recipient toward viewing that exact job in MatchMe.
+
+**Required behavior:**
+
+If the recipient has MatchMe installed:
+
+- Open MatchMe through the supported deep-link mechanism.
+- Navigate to the specific job.
+- If authentication is required, allow login/signup and then continue to the job.
+
+If the recipient does not have MatchMe installed:
+
+- Open a professional MatchMe job landing page.
+- Display an appropriate public preview if permitted.
+- Prompt the recipient to download MatchMe.
+- Link to the actual available app store listing.
+- After installation/signup, restore the intended job destination where supported.
+
+Do not invent App Store or Google Play URLs.
+
+Use the real deployed app links and supported deep-link infrastructure.
+
+For Android, use the existing supported Android App Links configuration. Implement iOS universal-link behavior only if an iOS app actually exists.
+
+The link must reference a stable job identifier rather than a temporary Swipe card index.
+
+If the job has expired, been removed, or is no longer accessible, show a clear unavailable-job state.
+
+Do not claim deferred deep linking works unless tested on the actual supported platform.
+
+---
+
+### 10. Company Logo
+
+Display the hiring company's logo prominently in the upper central area of the job card, below Undo and Share.
+
+Requirements:
+
+- Use the logo uploaded to the canonical Company Profile.
+- Maintain aspect ratio.
+- Avoid stretching or distortion.
+- Use a professional fallback if no logo exists.
+- Keep logo size consistent between job cards.
+- Do not make the logo disproportionately large.
+
+### 11. Position Title
+
+Directly below the company logo, display the position title.
+
+Examples:
+
+**Senior Account Executive**
+
+**Marketing Manager**
+
+**Software Engineer**
+
+Requirements:
+
+- Use the canonical vacancy title.
+- Make the title visually prominent.
+- Support long job titles with sensible wrapping.
+- Do not truncate essential information unnecessarily.
+- Preserve Arabic text rendering.
+
+### 12. Compensation Package
+
+Below the job title, display the compensation package **only if the hiring company has declared it**.
+
+Examples:
+
+SAR 15,000–20,000 / month
+
+USD 70,000 / year
+
+Requirements:
+
+- Use actual vacancy compensation data.
+- Preserve currency and pay period.
+- Support salary ranges or fixed amounts.
+- Include additional declared package information only where supported by the vacancy data model.
+- Do not invent salary figures.
+- Do not show placeholder compensation.
+- If the company has not disclosed compensation, omit this row entirely and close the spacing naturally.
+
+### 13. Job Location
+
+Below compensation, display the job location.
+
+Example:
+
+Riyadh, Saudi Arabia
+
+Requirements:
+
+- Use canonical vacancy Country/City information.
+- Display City and Country where available.
+- Do not substitute the Job Seeker's location.
+- Handle remote vacancies appropriately without creating contradictory location information.
+- Use compact, readable formatting.
+
+### 14. Employment Type
+
+Below location, display the vacancy's **Employment Type**.
+
+Use the same employment-type taxonomy introduced in the updated onboarding steps:
+
+- Full-time
+- Part-time
+- Contract
+- Internship
+
+The displayed value must come from the employer's actual vacancy data.
+
+Use the canonical shared employment-type taxonomy and normalize equivalent existing values safely.
+
+Do not show employment types selected by the Job Seeker in place of the company's actual job requirements.
+
+### 15. Employment Style
+
+Below Employment Type, display the vacancy's **Employment Style**.
+
+Use the same work-style taxonomy established during onboarding:
+
+- Onsite
+- Remote
+- Hybrid
+
+The displayed value must come from the company's job posting.
+
+Employment Type and Employment Style must remain separate concepts.
+
+Examples:
+
+Employment Type: Full-time
+
+Employment Style: Hybrid
+
+Use professional, compact labels or metadata rows rather than oversized decorative badges.
+
+---
+
+### 16. Click More — Expand Job Details
+
+Below the primary job information, add a clearly visible action:
+
+**View More**
+
+or
+
+**Click More**
+
+Use whichever wording is most consistent with the MatchMe Design System.
+
+Clicking should expand the same job card to reveal:
+
+**Job Description**
+
+The complete job description entered by the hiring company.
+
+**Qualifications**
+
+The required qualifications entered by the hiring company.
+
+Where supported, also include relevant requirements such as skills or experience without inventing data.
+
+Requirements:
+
+- Expand and collapse smoothly.
+- Keep the user on the same Swipe page.
+- Do not open an unrelated route unless the user explicitly chooses a full-detail action.
+- Allow scrolling within the expanded details when necessary.
+- Preserve the job card's primary actions.
+- Do not let expanded content overlap the bottom navigation.
+- Prevent swipe gestures from interfering with scrolling inside expanded details.
+- Preserve appropriate HTML/content sanitization.
+
+The collapsed card should remain compact.
+
+---
+
+### 17. Bottom Job Card Actions
+
+At the bottom of the job card, place exactly three primary action buttons:
+
+**LEFT — X**
+
+**CENTER — SAVE**
+
+**RIGHT — HEART**
+
+Use consistent spacing and touch-target sizes.
+
+#### Left — X / Pass
+
+- Display a recognizable X icon.
+- Tapping X performs the same action as swiping left.
+- Mark the job as Passed using the existing canonical Swipe decision workflow.
+- Advance to the next eligible job.
+- Update matching feedback correctly.
+- Allow eligible Pass actions to be reversed using Undo.
+
+Use a restrained red treatment consistent with the design system.
+
+#### Center — Save / Bookmark
+
+- Display a bookmark/save icon.
+- Tapping Save saves the current job for later review.
+- Do not submit an application.
+- Do not treat Save as Pass.
+- Use the existing Saved Jobs data architecture.
+- Prevent duplicate saved records.
+- Provide subtle confirmation that the job has been saved.
+- Ensure saved jobs are accessible later through the existing Profile/Dashboard architecture.
+- Preserve saved status across sessions and devices.
+
+The Save action should not automatically advance to the next job unless the existing product behavior explicitly requires it.
+
+#### Right — Heart / Apply
+
+- Display a heart icon.
+- Tapping Heart performs the same action as swiping right.
+- This means **Apply for the Job**, not merely Like.
+- Use the existing application workflow.
+- Apply the correct credit rules.
+- Prevent duplicate applications.
+- Confirm the backend application action before showing a successful state.
+- Advance to the next job after successful processing.
+- If the user lacks credits or mandatory eligibility information, show the appropriate existing flow rather than silently failing.
+
+Use the existing MatchMe positive-action color treatment.
+
+---
+
+### 18. Swipe Gestures
+
+Preserve intuitive gesture behavior:
+
+**Swipe Left → Pass**
+
+**Swipe Right → Apply**
+
+The X and Heart buttons must trigger the same underlying actions as their respective gestures.
+
+Do not create separate inconsistent workflows.
+
+Requirements:
+
+- Smooth card movement.
+- Clear but subtle action feedback.
+- No excessive animations.
+- No accidental applications when scrolling expanded details.
+- Prevent double submissions.
+- Disable duplicate actions while processing.
+- Keep swipe gestures responsive on mobile.
+
+---
+
+### 19. Job Card State and Persistence
+
+All job-card interactions must use the canonical backend services.
+
+Preserve:
+
+- Swipe decisions
+- Passed jobs
+- Applications
+- Saved jobs
+- Undo history
+- Available credits
+- Matching feedback
+- Recommendation ordering
+
+Do not maintain separate contradictory client-side copies of decision state.
+
+Handle network errors with a recoverable state and do not falsely display successful applications or credit deductions.
+
+---
+
+### 20. Empty States
+
+Design professional states for:
+
+- No more jobs available
+- No jobs matching current preferences
+- Unable to load jobs
+- No credits available
+- Job no longer available
+
+Provide meaningful actions such as:
+
+- Update Preferences
+- Retry
+- View Credits
+
+Do not show infinite loading indicators or blank screens.
+
+---
+
+### 21. Mobile Navigation
+
+Preserve the recently established three-tab mobile navigation:
+
+**Swipe | Dashboard | Profile**
+
+The Swipe tab must remain highlighted when the user is on the Swipe page.
+
+Do not reintroduce Discover, Messages, or Account as bottom navigation labels.
+
+Messages remain accessible from Dashboard.
+
+Preferences remain accessible from Profile and the new top-right shortcut.
+
+---
+
+### 22. Professional Visual Design Standards
+
+The page should have the visual quality of a professionally designed consumer recruitment application.
+
+Use:
+
+- Clear information hierarchy.
+- Consistent alignment.
+- Balanced whitespace.
+- Refined typography.
+- Subtle borders and shadows.
+- Consistent icon styling.
+- Professional color usage.
+- Compact metadata presentation.
+- Appropriate touch targets.
+- Smooth, restrained interactions.
+
+Avoid:
+
+- Generic AI-generated dashboard cards.
+- Unnecessary gradients.
+- Excessively rounded containers.
+- Oversized icons.
+- Too many colors.
+- Random decorative elements.
+- Unnecessary text.
+- Crowded job cards.
+- Large empty areas.
+
+The visual emphasis must remain on the **job opportunity and the user's decision**.
+
+---
+
+### 23. Mobile Responsive Requirements
+
+Test the actual Swipe page at:
+
+- 320px
+- 360px
+- 375px
+- 390px
+- 412px
+
+Also test short-height mobile screens.
+
+Verify:
+
+- Header controls do not overlap.
+- Profile completion remains visible.
+- Job card is centered.
+- Main job information is readable.
+- Action buttons are reachable.
+- Expanded details scroll correctly.
+- Bottom navigation does not cover card actions.
+- Safe areas are respected.
+- No unintended horizontal scrolling.
+- Arabic RTL works.
+
+If vertical space is limited, prioritize the main job information and Pass/Save/Apply actions. Allow secondary details to scroll rather than shrinking text to unreadable sizes.
+
+---
+
+### 24. Shared Architecture
+
+Before implementation, audit the existing:
+
+- Swipe/Discover page.
+- Job Card component.
+- Company logo handling.
+- Vacancy data model.
+- Credits service.
+- Preferences navigation.
+- Profile Completion Engine.
+- Saved Jobs service.
+- Application workflow.
+- Swipe decision service.
+- Undo functionality.
+- Deep-link infrastructure.
+
+Reuse existing enterprise components and services.
+
+Do not create parallel systems for existing capabilities.
+
+---
+
+### 25. Mandatory Real App Viewer Testing
+
+Test the actual mobile implementation.
+
+| Test | Expected Result |
+|---|---|
+| MatchMe logo | Visible top-left |
+| Credits | Correct balance, clickable |
+| Preferences | Clickable, correct destination |
+| Profile completion | Accurate percentage, clickable |
+| Job card | Centered and responsive |
+| Undo | Restores eligible previous Pass |
+| Share | Generates correct job-specific link |
+| Company logo | Correct logo and fallback |
+| Position title | Correct vacancy title |
+| Package | Displayed only when declared |
+| Location | Correct job location |
+| Employment Type | Correct canonical value |
+| Employment Style | Correct canonical value |
+| View More | Expands description and qualifications |
+| X | Passes job |
+| Save | Saves without applying |
+| Heart | Applies through existing workflow |
+| Swipe left | Same behavior as X |
+| Swipe right | Same behavior as Heart |
+| Credits | Correct deductions and synchronization |
+| Navigation | Swipe / Dashboard / Profile |
+| Mobile | No clipping or overlapping |
+| Arabic RTL | Correct layout and behavior |
+| Desktop | Existing layout unchanged |
+
+Test with real or representative vacancies containing both complete and missing optional data.
+
+Run TypeScript, ESLint, production build, and relevant integration tests.
+
+Do not declare completion based only on successful compilation.
+
+---
+
+### 26. Final Acceptance Criteria
+
+The implementation is complete only when:
+
+1. MatchMe logo appears top-left.
+2. Available Credits appears top-right and is clickable.
+3. Preferences icon appears beside Credits and is clickable.
+4. Profile completion percentage appears centered below the header and is clickable.
+5. Job card is centered.
+6. Undo and Share appear at the top-right of the job card.
+7. Share generates a job-specific link with supported app-download/deep-link behavior.
+8. Company logo appears correctly.
+9. Position title appears below the logo.
+10. Compensation appears only when declared.
+11. Job location appears correctly.
+12. Employment Type uses the canonical onboarding taxonomy.
+13. Employment Style uses the canonical onboarding taxonomy.
+14. View More expands job description and qualifications.
+15. X is positioned bottom-left and performs Pass.
+16. Save is positioned bottom-center and saves for later.
+17. Heart is positioned bottom-right and performs Apply.
+18. Swipe gestures and action buttons behave consistently.
+19. Credits and applications remain accurate.
+20. The mobile bottom navigation remains Swipe | Dashboard | Profile.
+21. The page looks professionally designed and works across mobile screen sizes.
+22. Desktop layout and functionality remain unchanged.
+
+**Begin by inspecting the existing Swipe page, shared components, and backend workflows. Implement the actual changes and verify them in the real mobile App Viewer.**
+
+Provide an English-only implementation report with files changed, test results, and any remaining limitations.

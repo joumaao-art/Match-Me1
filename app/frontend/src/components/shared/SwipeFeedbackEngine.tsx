@@ -256,8 +256,9 @@ function ActiveSwipeCard({ item, renderCard, onSwipe, onTap, config, enabled, sw
 
   return (
     <motion.div
-      className="absolute inset-0 cursor-grab active:cursor-grabbing touch-none"
+      className="absolute inset-0 cursor-grab active:cursor-grabbing"
       style={{
+        touchAction: enabled ? 'pan-y' : 'auto',
         x,
         rotate: effectiveRotate,
         opacity: cardOpacity,

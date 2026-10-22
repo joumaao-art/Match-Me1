@@ -4,7 +4,7 @@
 
 import { apiClient } from './api-client';
 import { logger } from '@/lib/logger';
-import type { Vacancy, VacancyStatus, JobCard } from '@/types';
+import type { Vacancy, VacancyStatus, JobCard } from '@/types/job.types';
 
 class JobService {
   async getVacancies(filters?: { status?: VacancyStatus; companyId?: string }) {

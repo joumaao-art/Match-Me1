@@ -1,3 +1,4 @@
+import { pendingSharedJobUrl } from '@/lib/swipe-presentation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -49,7 +50,7 @@ export default function MobileOnboarding() {
  const requestGeneration=useRef(0);const mounted=useRef(true);
  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;requestGeneration.current++;};},[]);
  const ownsAccount=useCallback(()=>mounted.current&&useAuthStore.getState().userId===uid,[uid]);
- const load=useCallback(async()=>{if(!uid)return;const generation=++requestGeneration.current;setLoadError(false);setLoaded(false);try{const result=await loadMobile(uid);if(!ownsAccount()||generation!==requestGeneration.current)return;if(result.completed && result.state.screen!=='COMPLETE'){navigate('/seeker?view=swipe',{replace:true});return;}const next=result.state;if(!next.draft.email)next.draft.email=email||'';current.current=next;setState(next);setLoaded(true);}catch{if(!ownsAccount()||generation!==requestGeneration.current)return;const local=readMobileCache(uid);if(local){current.current=local;setState(local);setLoaded(true);setStatus('error');}else setLoadError(true);}},[uid,email,navigate,ownsAccount]);
+ const load=useCallback(async()=>{if(!uid)return;const generation=++requestGeneration.current;setLoadError(false);setLoaded(false);try{const result=await loadMobile(uid,new URLSearchParams(location.search).has('repair'));if(!ownsAccount()||generation!==requestGeneration.current)return;if(result.completed && result.state.screen!=='COMPLETE' && !new URLSearchParams(location.search).has('repair')){navigate(pendingSharedJobUrl()||'/seeker?view=swipe',{replace:true});return;}const next=result.state;if(!next.draft.email)next.draft.email=email||'';current.current=next;setState(next);setLoaded(true);}catch{if(!ownsAccount()||generation!==requestGeneration.current)return;const local=readMobileCache(uid);if(local){current.current=local;setState(local);setLoaded(true);setStatus('error');}else setLoadError(true);}},[uid,email,navigate,ownsAccount,location.search]);
  useEffect(()=>{void load();},[load]);
  useEffect(()=>{const vv=window.visualViewport;const resize=()=>setViewport({height:vv?.height||window.innerHeight,top:vv?.offsetTop||0});vv?.addEventListener('resize',resize);vv?.addEventListener('scroll',resize);return()=>{vv?.removeEventListener('resize',resize);vv?.removeEventListener('scroll',resize);};},[]);
  const save=useCallback(async(next:MobileState,step:MobileStep|null=null,finish=false):Promise<MobileState|null>=>{if(!uid||!ownsAccount())return null;setStatus('saving');try{const saved=await persistMobile(uid,next,step,finish);if(!ownsAccount())return null;if(current.current.revision<=next.revision){setStatus('saved');if(!step&&(JSON.stringify(current.current.done)!==JSON.stringify(saved.done)||current.current.screen!==saved.screen)){current.current={...current.current,done:saved.done,screen:saved.screen};setState(current.current);}}return saved;}catch{if(ownsAccount())setStatus('error');return null;}},[uid,ownsAccount]);
@@ -57,11 +58,11 @@ export default function MobileOnboarding() {
  useEffect(()=>{if(!loaded)return;const candidate=location.hash.slice(1) as MobileScreen;if(['INTRO','COMPLETE',...MOBILE_STEPS].includes(candidate)&&candidate!==current.current.screen){const index=MOBILE_STEPS.indexOf(candidate as MobileStep);const first=MOBILE_STEPS.findIndex(s=>!current.current.done.includes(s));if(candidate==='INTRO'||index>=0&&(first<0||index<=first)){setState(s=>({...s,screen:candidate}));setErrors({});}}},[location.hash,loaded]);
  useEffect(()=>{heading.current?.focus();},[state.screen]);
  const patch=(p:Partial<MobileDraft>,immediate=false)=>{if(!uid||!ownsAccount())return;const draft={...current.current.draft,...p};const done=current.current.done.filter(s=>!Object.keys(validateMobile(s,draft)).length);const next={...current.current,done,draft,revision:Date.now()};current.current=next;setState(next);if(!cacheMobile(uid,next))setNotice(copy('Device storage is unavailable. Keep this page open until your edits are saved online.','التخزين على الجهاز غير متاح. أبقِ الصفحة مفتوحة حتى تُحفظ تعديلاتك عبر الإنترنت.'));setStatus('local');if(immediate&&!busyRef.current)void save(next);};
- const go=(screen:MobileScreen)=>{const next={...current.current,screen,revision:Date.now()};current.current=next;setState(next);setErrors({});navigate({pathname:location.pathname,hash:screen});};
+ const go=(screen:MobileScreen)=>{const next={...current.current,screen,revision:Date.now()};current.current=next;setState(next);setErrors({});navigate({pathname:location.pathname,search:location.search,hash:screen});};
  const next=async()=>{
   if(busyRef.current||!uid)return;const screen=current.current.screen;
   if(screen==='INTRO'){go('PERSONAL_DETAILS');return;}
-  if(screen==='COMPLETE'){navigate('/seeker?view=swipe',{replace:true});return;}
+  if(screen==='COMPLETE'){navigate(pendingSharedJobUrl()||'/seeker?view=swipe',{replace:true});return;}
   const validation=validateMobile(screen,current.current.draft);setErrors(validation);
   if(Object.keys(validation).length){requestAnimationFrame(()=>document.querySelector<HTMLElement>('[data-field-error="true"] input, [data-field-error="true"] button')?.focus());return;}
   busyRef.current=true;setBusy(true);
@@ -69,7 +70,7 @@ export default function MobileOnboarding() {
   const candidate:MobileState={...current.current,done,screen:following,revision:Date.now()};
   const ok=await save(candidate,screen,following==='COMPLETE');
   if(!ownsAccount())return;
-  if(ok){setState(ok);current.current=ok;cacheMobile(uid,ok);navigate({pathname:location.pathname,hash:ok.screen});}
+  if(ok){setState(ok);current.current=ok;cacheMobile(uid,ok);navigate({pathname:location.pathname,search:location.search,hash:ok.screen});}
   else cacheMobile(uid,current.current);
   busyRef.current=false;setBusy(false);
  };

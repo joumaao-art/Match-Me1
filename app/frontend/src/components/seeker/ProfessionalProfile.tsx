@@ -1,3 +1,6 @@
+import { MandatoryProfileGuidance } from './MandatoryProfileGuidance';
+import { useLocation } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { readHistory, writeHistory, readCanonicalProfile, writeCanonicalProfile } from '@/lib/canonical-profile';
 import { PhoneInput } from '@/components/shared/PhoneInput';
 import { Sliders } from 'lucide-react';
@@ -86,7 +89,7 @@ function usePersistedList<T>(name: string, seed: T[], normalize: (x: T) => T) {
     if (userId) void readHistory(name, userId).then(rows => { if (alive && rows !== null) { const next = rows.length?(rows as T[]).map(normalize):local; setItems(next); localStorage.setItem(key, JSON.stringify(next)); } }).catch(() => toast.error('Unable to load saved profile records.'));
     return () => { alive = false; };
   }, [key, userId, name]); // eslint-disable-line react-hooks/exhaustive-deps
-  const commit = useCallback(async (next: T[]) => { if (userId) await writeHistory(name, userId, next, items); await persist(key, next); setItems(next); }, [key, userId, name, items]);
+  const commit = useCallback(async (next: T[]) => { if (userId) await writeHistory(name, userId, next, items); await persist(key, next); setItems(next); window.dispatchEvent(new Event('matchme:profile-changed')); }, [key, userId, name, items]);
   return [items, commit] as const;
 }
 
@@ -182,7 +185,7 @@ export function useSeekerProfile() {
     const nats = resolveNationalities(profile.nationalities ?? [], countries);
     return { ...profile, country, city: country ? profile.city : '', nationalities: nats };
   }, [profile, countries]);
-  const save = useCallback(async (next: SeekerProfileRecord) => { if (userId) await writeCanonicalProfile(userId, next); await persist(key, next); setProfile(next); }, [key, userId]);
+  const save = useCallback(async (next: SeekerProfileRecord) => { if (userId) await writeCanonicalProfile(userId, next); await persist(key, next); setProfile(next); window.dispatchEvent(new Event('matchme:profile-changed')); }, [key, userId]);
   return [normalized, save, countries.length > 0] as const;
 }
 
@@ -265,6 +268,7 @@ function useFormState<T>(initial: T) {
 // ============================================================
 
 export function ProfileView({ completion, onOpenPreferences }: { completion?: React.ReactNode; onOpenPreferences?: () => void }) {
+  const location=useLocation();const mobile=useIsMobile();
   const { t } = useTranslation();
   const [stored, save, ready] = useSeekerProfile();
   const { form: profile, setForm: setProfile, reset, dirty } = useFormState<SeekerProfileRecord>(stored);
@@ -297,6 +301,7 @@ export function ProfileView({ completion, onOpenPreferences }: { completion?: Re
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto pb-28 lg:pb-6">
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('profile')}</h2>
       <div className="max-w-2xl space-y-6">
+        {mobile&&new URLSearchParams(location.search).has('complete')&&<MandatoryProfileGuidance/>}
         {completion}
         <IncompleteBanner count={Object.keys(errors).length} />
         <Card><CardContent className="p-4 sm:p-6 space-y-4">

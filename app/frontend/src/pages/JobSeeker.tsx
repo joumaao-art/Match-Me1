@@ -1,3 +1,6 @@
+import { nativeBridge } from '@/lib/native-bridge';
+import { MobileSwipePage } from '@/components/seeker/MobileSwipePage';
+import { latestEligiblePass, isAvailableJob, clearPendingSharedJob, rememberSharedJob } from '@/lib/swipe-presentation';
 import { seekerSection, seekerSectionUrl, accurateBadgeCount } from '@/lib/seeker-navigation';
 import { messageService } from '@/services/message.service';
 import { BackButton } from '@/components/shared/BackButton';
@@ -493,6 +496,7 @@ function SwipeView() {
   const { balance: creditBalance } = useCreditAccount(accountId);
   const {jobs,actions,loading:jobsLoading,error:jobsError,refresh:refreshJobs}=useSeekerJobs();
   const [lastPass,setLastPass]=useState<string|null>(null);
+  const [restoredJobId,setRestoredJobId]=useState<string|null>(null);
   const [prefs, setPrefs] = useState(() => loadPreferences(accountId || ''));
   const [swipeBusy, setSwipeBusy] = useState(false);
   const swipeLock = useRef(false);
@@ -514,11 +518,17 @@ function SwipeView() {
   const [currentExplanation, setCurrentExplanation] = useState<MatchExplanation | null>(null);
 
   const recommendedJobs = useMemo(() => {
-    const requested=requestedId;
-    return jobs.filter(j=>j.status==='open'&&!actions.some(a=>a.vacancy_id===j.id&&a.direction)).map(job=>({...job,compatibility_score:Math.round(preferenceFit(prefs,{title:job.job_title,employmentType:job.employment_type,skills:job.required_skills})*100),explanation:undefined})).sort((a,b)=>a.id===requested?-1:b.id===requested?1:b.compatibility_score-a.compatibility_score);
-  }, [jobs,actions,prefs,requestedId]);
+    const requested=restoredJobId||requestedId;
+    return jobs.filter(j=>isAvailableJob(j)&&!actions.some(a=>a.vacancy_id===j.id&&a.direction)).map(job=>({...job,compatibility_score:Math.round(preferenceFit(prefs,{title:job.job_title,employmentType:job.employment_type,skills:job.required_skills})*100),explanation:undefined})).sort((a,b)=>a.id===requested?-1:b.id===requested?1:b.compatibility_score-a.compatibility_score);
+  }, [jobs,actions,prefs,requestedId,restoredJobId]);
 
-  const currentJob = recommendedJobs[0];
+  const [handledRequestedId,setHandledRequestedId]=useState<string|null>(null);
+  const requestedPreview=isMobile&&requestedId&&requestedId!==handledRequestedId?jobs.find(j=>j.id===requestedId&&isAvailableJob(j)):undefined;
+  const requestedDecision=actions.find(a=>a.vacancy_id===requestedPreview?.id)?.direction;
+  const currentJob = requestedPreview||recommendedJobs[0];
+  const eligiblePass=latestEligiblePass(actions,jobs);
+  useEffect(()=>{setLastPass(eligiblePass);setCanUndo(!!eligiblePass);},[eligiblePass]);
+  useEffect(()=>{if(requestedId&&currentJob?.id===requestedId){clearPendingSharedJob();nativeBridge()?.postMessage(JSON.stringify({type:'job-opened',jobId:requestedId}));}},[requestedId,currentJob?.id]);
   const linkedJob=jobs.find(j=>j.id===detailJobId);
   const requestedJobExists=jobs.some(j=>j.id===requestedId);
   useEffect(()=>{if(requestedJobExists){setDetailJobId(requestedId);setShowDetails(true);}},[requestedId,requestedJobExists]);
@@ -529,24 +539,26 @@ function SwipeView() {
     try {
       await recordJobAction(currentJob.id,dir);
       if(useAuthStore.getState().userId!==accountId)return;
-      setLastPass(dir==='left'?currentJob.id:null);setCanUndo(dir==='left');setShowDetails(false);
+      setHandledRequestedId(requestedId);setRestoredJobId(null);setLastPass(dir==='left'?currentJob.id:null);setCanUndo(dir==='left');setShowDetails(false);
+      await refreshJobs();
       toast(dir==='right'?t('interest_recorded'):t('job_skipped'));return true;
     }catch(error){toast.error((error as {message?:string}).message||t('try_again'));return false;}
     finally{swipeLock.current=false;setSwipeBusy(false);}
-  }, [currentJob,t,accountId]);
+  }, [currentJob,t,accountId,refreshJobs,requestedId]);
 
   const handleUndo = useCallback(async () => {
-    if(!lastPass||swipeLock.current)return;
+    if(!lastPass||!accountId||swipeLock.current)return;
     swipeLock.current=true;setSwipeBusy(true);
-    try{await recordJobAction(lastPass,'undo');setLastPass(null);setCanUndo(false);toast.success(t('pass_undone'));}
+    try{await recordJobAction(lastPass,'undo');if(useAuthStore.getState().userId!==accountId)return;setRestoredJobId(lastPass);setHandledRequestedId(null);await refreshJobs();setLastPass(null);setCanUndo(false);toast.success(t('pass_undone'));}
     catch{toast.error(t('try_again'));}finally{swipeLock.current=false;setSwipeBusy(false);}
-  },[lastPass,t]);
+  },[lastPass,t,refreshJobs,accountId]);
 
   const handleSaveJob = useCallback(async () => {
-    if(!currentJob)return;
-    try{await recordJobAction(currentJob.id,'save');toast.success(t('job_saved'));}
-    catch{toast.error(t('try_again'));}
-  },[currentJob,t]);
+    if(!currentJob||!accountId||swipeLock.current)return;
+    swipeLock.current=true;setSwipeBusy(true);
+    try{await recordJobAction(currentJob.id,'save');if(useAuthStore.getState().userId!==accountId)return;await refreshJobs();toast.success(t('job_saved'));}
+    catch{toast.error(t('try_again'));}finally{swipeLock.current=false;setSwipeBusy(false);}
+  },[currentJob,t,refreshJobs,accountId]);
 
   const handleUndoRef = useRef(handleUndo); handleUndoRef.current = handleUndo;
   const canUndoRef = useRef(canUndo); canUndoRef.current = canUndo;
@@ -580,6 +592,7 @@ function SwipeView() {
     return handleSwipe(direction);
   }, [handleSwipe]);
 
+  if(isMobile)return <MobileSwipePage decision={requestedDecision||undefined} onBrowse={()=>setHandledRequestedId(requestedId)} job={currentJob} loading={jobsLoading} error={jobsError} balance={creditBalance} busy={swipeBusy} saved={actions.some(a=>a.vacancy_id===currentJob?.id&&a.saved)} canUndo={canUndo} onPass={()=>handleSwipe('left')} onApply={()=>handleSwipe('right')} onSave={()=>void handleSaveJob()} onUndo={()=>void handleUndo()} onShare={()=>{if(currentJob)void shareJob(currentJob).then(result=>{if(result==='copied')toast.success(t('link_copied'));}).catch(error=>{if(error?.name!=='AbortError')toast.error(t('try_again'));});}} onRetry={()=>void refreshJobs()} unavailable={!!requestedId&&requestedId!==handledRequestedId&&!jobsLoading&&!jobsError&&!jobs.some(j=>j.id===requestedId&&isAvailableJob(j))}/>;
   if(jobsLoading)return <div className="flex-1 p-6" role="status">{t('loading')}</div>;
   if(jobsError)return <div className="flex-1 p-6" role="alert"><p>{t('try_again')}</p><Button onClick={()=>void refreshJobs()}>{t('try_again')}</Button></div>;
   if (!currentJob) return (
@@ -1170,6 +1183,7 @@ export default function JobSeeker() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location=useLocation();
+  useEffect(()=>{const id=new URLSearchParams(location.search).get('job');if(id)rememberSharedJob(id);},[location.search]);
   const activeTab = seekerSection(location.pathname, location.search) as NavSection;
   const setActiveTab = (section: NavSection) => navigate(seekerSectionUrl(section));
   const [unreadMessages,setUnreadMessages] = useState<number|null>(null);

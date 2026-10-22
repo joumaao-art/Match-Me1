@@ -97,6 +97,11 @@ const WEIGHTS = {
   availability: 2.5,
 };
 
+export function calculateMandatoryCompletion<T extends { completed: boolean; optional?: boolean }>(checklist: T[]) {
+  const required = checklist.filter(item => !item.optional);
+  return { checklist, percentage: required.length ? Math.round(required.filter(item => item.completed).length / required.length * 100) : 100 };
+}
+
 export function calculateProfileCompletion(data: ProfileData): ProfileCompletionResult {
   // Calculate completion percentage
   let completed = 0;

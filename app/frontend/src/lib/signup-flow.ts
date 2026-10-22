@@ -20,6 +20,7 @@
  * affected by this module.
  */
 
+import { pendingSharedJobUrl } from './swipe-presentation';
 import { authService, profileService } from '@/services';
 import { ROUTES } from '@/config/constants';
 import { logger } from '@/lib/logger';
@@ -240,7 +241,7 @@ export async function resolvePostAuthDestination(
   if (role !== 'job_seeker') return ROUTES.AUTH;
 
   const init = await ensureJobSeekerInitialized(userId);
-  return init.destination;
+  return !init.needsOnboarding ? pendingSharedJobUrl() || init.destination : init.destination;
 }
 
 /**

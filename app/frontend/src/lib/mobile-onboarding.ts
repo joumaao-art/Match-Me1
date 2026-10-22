@@ -68,14 +68,15 @@ export function validateMobile(step: MobileStep, d: MobileDraft): Record<string,
 async function checked<T>(request:PromiseLike<{data:T|null;error:unknown}>):Promise<T> {
  const result=await request;if(result.error)throw result.error;if(result.data===null)throw new Error('Empty persistence response');return result.data;
 }
-export async function loadMobile(uid:string):Promise<{state:MobileState;completed:boolean}> {
+export async function loadMobile(uid:string,repair=false):Promise<{state:MobileState;completed:boolean}> {
  const response=await apiClient.supabase.from('user_profiles').select('*').eq('user_id',uid).abortSignal(AbortSignal.timeout(10000)).maybeSingle();if(response.error)throw response.error;
  const base=response.data as Record<string,unknown>|null;if(!base)throw new Error('Account profile unavailable');
  const seeker=await apiClient.supabase.from('job_seeker_profiles').select('*').eq('user_id',uid).abortSignal(AbortSignal.timeout(10000)).maybeSingle();if(seeker.error)throw seeker.error;
  const p=(seeker.data||{}) as Record<string,unknown>;
  let state=base.mobile_onboarding_state ? normalizeMobile(base.mobile_onboarding_state as MobileState) : migrateMobile(base.onboarding_state as OnboardingState|null,p);
- const local=readMobileCache(uid);if(local && local.revision>state.revision)state={...local,done:state.done,screen:state.screen};
- if(!base.mobile_onboarding_state){
+ const local=readMobileCache(uid);if(!repair && local && local.revision>state.revision)state={...local,done:state.done,screen:state.screen};
+ if(repair)state={...state,draft:migrateMobile(null,p).draft};
+ if(repair || !base.mobile_onboarding_state){
   const [education,experience]=await Promise.all([apiClient.supabase.from('education').select('*').eq('user_id',uid).abortSignal(AbortSignal.timeout(10000)),apiClient.supabase.from('experience').select('*').eq('user_id',uid).abortSignal(AbortSignal.timeout(10000))]);
   if(education.error||experience.error)throw education.error||experience.error;
   const serverEducations=(education.data||[]).map(r=>({...normalizeEducation({id:r.id,institution:r.institution,degree:r.degree_code||r.degree,field:r.field_of_study,from:r.start_date,to:r.end_date,current:r.is_current,grade:r.grade}),country:r.country||'',city:r.city||''}));
@@ -83,7 +84,7 @@ export async function loadMobile(uid:string):Promise<{state:MobileState;complete
   state.draft.educations=[...state.draft.educations,...serverEducations.filter(x=>!state.draft.educations.some(c=>c.id===x.id))];
   state.draft.experiences=[...state.draft.experiences,...serverExperiences.filter(x=>!state.draft.experiences.some(c=>c.id===x.id))];
  }
- return {state,completed:base.onboarding_completed===true};
+ return {state:repair?{...state,done:state.done.filter(s=>!Object.keys(validateMobile(s,state.draft)).length)}:state,completed:base.onboarding_completed===true};
 }
 /** A single writer serializes autosaves and completion transactions. Failed writes remain local. */
 let tail:Promise<unknown>=Promise.resolve();

@@ -10,6 +10,8 @@ import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppNavigator } from './src/navigation/AppNavigator';
+import { MatchMeSharedScreen } from './src/screens/MatchMeSharedScreen';
+import { configuredOrigin } from './src/lib/job-links';
 import { useAuthStore } from './src/stores';
 import { useAppStore } from './src/stores';
 import { authService } from './src/services';
@@ -45,6 +47,8 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   const { theme } = useAppStore();
+  const origin = configuredOrigin(process.env.EXPO_PUBLIC_MATCHME_WEB_ORIGIN);
+  if(origin)return <SafeAreaProvider><StatusBar style={theme==='dark'?'light':'dark'}/><MatchMeSharedScreen origin={origin}/></SafeAreaProvider>;
 
   return (
     <SafeAreaProvider>
