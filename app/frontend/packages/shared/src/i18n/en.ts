@@ -197,7 +197,8 @@ export const en = {
   // ============================================================
   // Job Seeker
   // ============================================================
-  discover: 'Discover',
+  discover: 'Swipe',
+  swipe: 'Swipe',
   swipe_jobs: 'Swipe Jobs',
   applications: 'Applications',
   skills: 'Skills',
@@ -2263,7 +2264,7 @@ export const en = {
   ob_plan_credits: '20 free swiping credits for eligible new accounts.',
 
   // Tutorial
-  ob_tutorial_title: 'How Discover works',
+  ob_tutorial_title: 'How Swipe works',
   ob_tutorial_subtitle: 'Three gestures and you are ready.',
   ob_tut1_title: 'Swipe right to apply',
   ob_tut1_desc: 'Like a job? Swipe right and your application goes out instantly.',
@@ -2271,7 +2272,7 @@ export const en = {
   ob_tut2_desc: 'Not a fit? Swipe left and you will never see it again.',
   ob_tut3_title: 'Tap for full details',
   ob_tut3_desc: 'Open any card to see salary, requirements and your AI match score.',
-  ob_tutorial_done: 'Go to Discover',
+  ob_tutorial_done: 'Go to Swipe',
   ob_completion_title: 'You are all set',
   ob_completion_subtitle: 'Your profile is {{score}}% complete.',
   ob_strength: 'Profile strength',

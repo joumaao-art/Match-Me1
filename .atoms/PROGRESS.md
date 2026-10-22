@@ -1,5 +1,11 @@
 ## Task Breakdown
 
+| Three-tab seeker mobile navigation | Implementation | Validation |
+|---|---|---|
+| Route/badge audit, EN/AR labels and mobile-only three-tab bar | done | done |
+| Dashboard Messages/applications/matches access and Profile preservation | done | done |
+| Regression contracts, TypeScript, lint/build and mobile acceptance evidence | done | blocked |
+
 | Welcome login and derived birthday age | Implementation | Validation |
 |---|---|---|
 | Center EN/AR account-login phrase; reuse existing login callback | done | blocked |
@@ -24,6 +30,10 @@
 | Approved legal sheets and required mobile A–W acceptance evidence | blocked | blocked |
 
 ## Progress Log
+- Three-tab request: MobileBottomNav now physical LTR Swipe/Dashboard/Profile with localized EN/AR labels,20px icons,64px safe-area bar and existing content clearance; mobile Dashboard adds visible Messages/Applications/Matches shortcuts; Profile retains existing editor plus resume/certificates links. Desktop structure unchanged; requested seeker Discover and tutorial labels renamed Swipe.
+- seeker-navigation.ts owns URL section/active-tab contracts; browser history supports back, /seeker/discover and old query/account aliases retained, Messages /messages unchanged. Removed arbitrary bottom2/3 badges; Dashboard Messages reads existing get_unread_count API on entry/focus/30s and suppresses unknown/error counts; no count assigned to unrelated tabs. Existing Notifications/chat functionality preserved; removed fake Profile notification3 badge.
+- Changed MobileBottomNav.tsx, MobileDashboard.tsx, MobileAccountCenter.tsx, JobSeeker.tsx, packages/shared/src/i18n/en.ts and ar.ts; added src/lib/seeker-navigation.ts and scripts/seeker-navigation-contract.mjs. All35 navigation+42 onboarding contracts, TypeScript, ESLint and production build passed.
+- Actual viewer evidence: desktop guest homepage only; no signed-in screens/actions reached. Requested320/360/375/390/412 tabs/navigation/RTL/badge accuracy/content overlap/Profile/chat/back and desktop signed-in regression remain UNEXECUTED. Landing marketing phrase Discover Matches is outside seeker-navigation naming scope and unchanged. Existing Messages page is simulation/demo-backed; this request preserves it, and live unread API/chat consistency cannot be claimed verified.
 - Welcome/age request: updated MobileEntry.tsx with centered EN/AR account phrase and bold primary Login, preserving onLogin; MobileOnboarding.tsx INTRO unchanged/no Login, age line immediately below birthday wheels, refresh on reentry/focus/visibility/local midnight; no age persistence or backend/desktop/auth/credits changes.
 - mobile-date-wheel.ts adds strict complete calendar DOB-to-age helper (invalid/incomplete/future → null; Feb29 advances March1 in non-leap years); scripts/mobile-onboarding-contract.mjs adds11 cases. All42 contracts, TypeScript, ESLint and production build passed.
 - Current welcome/age visual check reached desktop homepage only. Actual mobile320/390/412 welcome placement/login callback interaction, authenticated INTRO/BIRTHDAY wheel changes/back/reentry, Arabic/RTL and real midnight refresh remain UNEXECUTED; available check cannot establish requested mobile acceptance. No credentials bypass or fake acceptance added.

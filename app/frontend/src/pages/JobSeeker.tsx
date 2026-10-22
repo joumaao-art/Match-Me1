@@ -1,3 +1,6 @@
+import { seekerSection, seekerSectionUrl, accurateBadgeCount } from '@/lib/seeker-navigation';
+import { messageService } from '@/services/message.service';
+import { BackButton } from '@/components/shared/BackButton';
 import { loadPreferences, migrateLegacyPreferences, preferenceFit, savePreferences } from '@/lib/job-preferences';
 import { apiClient } from '@/services/api-client';
 import { useCreditAccount } from '@/lib/seeker-credits';
@@ -1167,9 +1170,25 @@ export default function JobSeeker() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location=useLocation();
-  const [activeTab, setActiveTab] = useState<NavSection>(()=>new URLSearchParams(location.search).get('view')==='swipe'?'swipe':'dashboard');
-  useEffect(()=>{if(new URLSearchParams(location.search).get('view')==='swipe')setActiveTab('swipe');},[location.search]);
+  const activeTab = seekerSection(location.pathname, location.search) as NavSection;
+  const setActiveTab = (section: NavSection) => navigate(seekerSectionUrl(section));
+  const [unreadMessages,setUnreadMessages] = useState<number|null>(null);
   const isMobile = useIsMobile();
+  const messageUserId = useAuthStore(s=>s.userId);
+  useEffect(()=>{
+    if(!isMobile || activeTab!=='dashboard' || !messageUserId)return;
+    let alive=true;
+    const refresh=async()=>{
+      try {
+        const result=await messageService.getUnreadCount(messageUserId);
+        if(alive && useAuthStore.getState().userId===messageUserId)setUnreadMessages(result.error?null:accurateBadgeCount(result.data));
+      } catch { if(alive)setUnreadMessages(null); }
+    };
+    setUnreadMessages(null);void refresh();
+    const timer=setInterval(()=>void refresh(),30000);
+    window.addEventListener('focus',refresh);
+    return()=>{alive=false;clearInterval(timer);window.removeEventListener('focus',refresh);};
+  },[isMobile,activeTab,messageUserId]);
 
   // Simulated seeker tier - in production this comes from subscription state
   const seekerTier: SeekerTier = 'premium';
@@ -1245,25 +1264,9 @@ export default function JobSeeker() {
     return () => { alive = false; clearTimeout(watchdog); };
   }, [userId, onboardingChecked, navigate]);
 
-  // Handle bottom nav tab changes - maps MobileNavTab to NavSection
-  // One Tap = One Destination: Messages navigates directly to /messages route
-  const handleMobileTabChange = (tab: MobileNavTab) => {
-    if (tab === 'messages') {
-      navigate('/messages');
-      return;
-    }
-    // Reset account center state when switching to profile tab
-    if (tab === 'profile') {
-      setShowAccountCenter(true);
-    }
-    setActiveTab(tab as NavSection);
-  };
-
-  // Mock notification badges for bottom nav
-  const navBadges = { messages: 2, swipe: 3 };
-
-  // Track if user is in "account" mode on mobile (shows Account Center first)
-  const [showAccountCenter, setShowAccountCenter] = useState(true);
+  // Three primary destinations; Messages is reached from Dashboard.
+  const handleMobileTabChange = (tab: MobileNavTab) => setActiveTab(tab as NavSection);
+  const showAccountCenter = true;
 
   // Hold the dashboard until the onboarding guard has resolved (avoids a content flash).
   if (!onboardingChecked) {
@@ -1279,14 +1282,13 @@ export default function JobSeeker() {
   }
 
   const handleMobileAccountNav = (section: string) => {
-    setShowAccountCenter(false);
-    setActiveTab(section as NavSection);
+    setActiveTab((section==='profile'?'cv':section) as NavSection);
   };
 
   const renderContent = () => {
     // On mobile, dashboard tab shows MobileDashboard instead of desktop DashboardView
     if (isMobile && activeTab === 'dashboard') {
-      return <MobileDashboard onNavigateToSection={(section) => setActiveTab(section as NavSection)} />;
+      return <MobileDashboard unreadMessages={unreadMessages} onNavigateToSection={(section) => setActiveTab(section as NavSection)} />;
     }
 
     // On mobile, profile tab shows Account Center (all features within 3 taps)
@@ -1298,7 +1300,7 @@ export default function JobSeeker() {
           userEmail="ahmed@example.com"
           profileCompletion={72}
           subscriptionPlan="Premium"
-          unreadNotifications={3}
+          unreadNotifications={0}
           portalType="job_seeker"
         />
       );
@@ -1339,6 +1341,7 @@ export default function JobSeeker() {
 
       {/* Main content area — pb accounts for fixed MobileBottomNav on mobile */}
       <main className="flex-1 flex flex-col min-w-0 pb-[calc(4rem+env(safe-area-inset-bottom,0px))] md:pb-0">
+        {isMobile && !['dashboard','swipe'].includes(activeTab) && !(activeTab==='profile' && showAccountCenter) && <div className="flex items-center gap-2 px-4 py-2 border-b shrink-0"><BackButton fallbackRoute={seekerSectionUrl(['applications','matches','saved'].includes(activeTab)?'dashboard':'profile')} /></div>}
         {renderContent()}
       </main>
 
@@ -1346,7 +1349,6 @@ export default function JobSeeker() {
       <MobileBottomNav
         activeTab={activeTab}
         onTabChange={handleMobileTabChange}
-        badges={navBadges}
       />
     </div>
   );

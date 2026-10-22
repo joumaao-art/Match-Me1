@@ -197,7 +197,8 @@ export const ar = {
   // ============================================================
   // Job Seeker
   // ============================================================
-  discover: 'اكتشف',
+  discover: 'تمرير',
+  swipe: 'تمرير',
   swipe_jobs: 'تصفح الوظائف',
   applications: 'طلباتي',
   skills: 'المهارات',
@@ -2262,7 +2263,7 @@ export const ar = {
   ob_plan_credits: '٢٠ رصيد تمرير مجاني للحسابات الجديدة المؤهلة.',
 
   // Tutorial
-  ob_tutorial_title: 'كيف يعمل قسم اكتشف',
+  ob_tutorial_title: 'كيف يعمل قسم التمرير',
   ob_tutorial_subtitle: 'ثلاث حركات وتصبح جاهزاً.',
   ob_tut1_title: 'اسحب يميناً للتقديم',
   ob_tut1_desc: 'أعجبتك الوظيفة؟ اسحب يميناً ليُرسَل طلبك فوراً.',
@@ -2270,7 +2271,7 @@ export const ar = {
   ob_tut2_desc: 'لا تناسبك؟ اسحب يساراً ولن تظهر لك مجدداً.',
   ob_tut3_title: 'اضغط لعرض التفاصيل',
   ob_tut3_desc: 'افتح أي بطاقة لترى الراتب والمتطلبات ودرجة المطابقة.',
-  ob_tutorial_done: 'اذهب إلى اكتشف',
+  ob_tutorial_done: 'اذهب إلى التمرير',
   ob_completion_title: 'كل شيء جاهز',
   ob_completion_subtitle: 'اكتمل ملفك بنسبة {{score}}%.',
   ob_strength: 'قوة الملف الشخصي',

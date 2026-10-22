@@ -1,0 +1,184 @@
+# MATCHME — MOBILE BOTTOM NAVIGATION REDESIGN
+
+## Objective
+
+Redesign the Job Seeker mobile bottom navigation to have exactly **three tabs**, in this specific order:
+
+**Swipe | Dashboard | Profile**
+
+This replaces the existing four-tab navigation:
+
+Dashboard | Discover | Messages | Account
+
+Apply these visual/navigation changes to the **mobile version only**. Do not change the desktop sidebar layout.
+
+## 1. New Bottom Navigation
+
+Implement exactly three equally spaced navigation items:
+
+**LEFT — Swipe**
+- Icon: Professional swipe/cards icon.
+- Label: Swipe.
+- Opens the existing Discover/swiping experience.
+
+**CENTER — Dashboard**
+- Icon: Home/dashboard icon.
+- Label: Dashboard.
+- Opens the existing Job Seeker Dashboard.
+
+**RIGHT — Profile**
+- Icon: User/profile icon.
+- Label: Profile.
+- Opens the existing Job Seeker Profile/Account experience.
+
+The Dashboard must remain in the center, not be turned into a floating button.
+
+## 2. Rename Discover to Swipe
+
+Rename **Discover** to **Swipe** throughout the Job Seeker user-facing interface, including:
+
+- Bottom navigation
+- Dashboard shortcuts
+- Page headings
+- Internal navigation labels
+- Tooltips and accessibility labels
+- Onboarding completion destination references
+- Relevant Job Seeker menus
+
+Preserve the existing Discover functionality, AI Matching Engine, swipe decisions, applications, undo, sharing, and credit behavior.
+
+The existing `/seeker/discover` route may remain internally for backward compatibility. Do not break existing bookmarks or deep links.
+
+Do not rename database tables, APIs, or internal architecture unnecessarily.
+
+## 3. Remove Messages From Bottom Navigation
+
+Remove Messages from the mobile bottom navigation.
+
+**Do not delete Messages or its functionality.**
+
+Make Messages accessible from the Dashboard through a clearly visible, clickable Messages card or shortcut.
+
+Preserve:
+- Message conversations
+- Unread counts
+- Notifications
+- Chat functionality
+- Existing routes and deep links
+
+## 4. Rename Account to Profile
+
+Change the mobile bottom navigation label:
+
+Account → Profile
+
+The Profile tab should open the existing Job Seeker profile experience.
+
+Keep access to:
+- Personal information
+- Resume
+- Preferences
+- Experience
+- Education and Certificates
+- Languages
+- Account settings
+- Password/security settings
+- Logout
+
+Do not remove these features or create a duplicate profile system.
+
+## 5. Notification Badges
+
+The existing bottom navigation has notification badges.
+
+Update badge placement for the new three-tab layout.
+
+- Swipe may retain its existing relevant notification badge if its count has a meaningful, accurate definition.
+- Messages unread notifications must remain accessible through Dashboard and the existing notification system.
+- Do not transfer Messages unread counts to unrelated tabs.
+- Do not display arbitrary badge numbers.
+
+## 6. Professional Mobile Design
+
+The new bottom navigation must look polished, modern, and professionally designed.
+
+Requirements:
+
+- Three evenly distributed items.
+- Consistent icon sizes.
+- Consistent label typography.
+- Clear active/inactive states.
+- Use the existing MatchMe brand colors.
+- No unnecessary gradients or heavy shadows.
+- No oversized floating Dashboard button.
+- Respect device safe areas.
+- Maintain a compact navigation height.
+- Ensure labels do not wrap.
+- Use accessible touch targets.
+- Keep the navigation fixed at the bottom without covering page content.
+
+Avoid generic AI-generated styling.
+
+## 7. Active Navigation State
+
+The correct tab must be highlighted based on the current page.
+
+Swipe pages → Swipe active.
+
+Dashboard → Dashboard active.
+
+Profile and its related sections → Profile active.
+
+For Messages accessed from Dashboard, maintain sensible navigation and back behavior without incorrectly showing another tab as active.
+
+## 8. Navigation Consistency
+
+Ensure that:
+
+- Swipe opens the actual job-swiping page.
+- Dashboard opens the Job Seeker dashboard.
+- Profile opens the Job Seeker profile.
+- Messages can be opened from Dashboard.
+- Applications and Matches remain accessible from Dashboard.
+- Preferences remains accessible from Profile and the Swipe page shortcut.
+- Back navigation works.
+- No infinite loading screens are introduced.
+
+## 9. Mobile-Only Scope
+
+Do not visually modify the desktop sidebar or desktop page layout.
+
+Preserve all existing backend functionality, permissions, and data.
+
+The application name remains **MatchMe**.
+
+The product continues supporting English and Arabic.
+
+All Atoms engineering communication and final reporting must be in English only.
+
+## 10. Mandatory Testing
+
+Test in the actual mobile App Viewer:
+
+1. Exactly three bottom navigation tabs appear.
+2. Order is Swipe | Dashboard | Profile.
+3. All three tabs navigate correctly.
+4. Discover is renamed Swipe in the Job Seeker UI.
+5. Messages is removed from the bottom bar.
+6. Messages remains accessible from Dashboard.
+7. Account is renamed Profile in the bottom bar.
+8. Existing Profile functionality remains accessible.
+9. Active tab highlighting works.
+10. Notification badges remain accurate.
+11. Bottom navigation does not overlap content.
+12. English and Arabic RTL work correctly while preserving the intended navigation order.
+13. Desktop layout remains unchanged.
+14. No broken routes or infinite loading states.
+
+Test at mobile widths of 320px, 360px, 375px, 390px, and 412px.
+
+Run TypeScript, ESLint, production build, and relevant regression tests.
+
+**Implement these changes in the actual application, not just in a design mockup.**
+
+Provide an English-only final report identifying the files changed and real App Viewer test results.

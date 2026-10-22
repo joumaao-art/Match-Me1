@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils';
 
 interface MobileDashboardProps {
   onNavigateToSection: (section: string) => void;
+  unreadMessages?: number | null;
   profileCompletion?: number;
 }
 
@@ -58,7 +59,7 @@ function CollapsibleSection({ title, defaultOpen = false, children, badge }: {
   );
 }
 
-export function MobileDashboard({ onNavigateToSection, profileCompletion = 72 }: MobileDashboardProps) {
+export function MobileDashboard({ onNavigateToSection, profileCompletion = 72, unreadMessages = null }: MobileDashboardProps) {
   const { t } = useTranslation();
 
   const stats = [
@@ -69,7 +70,9 @@ export function MobileDashboard({ onNavigateToSection, profileCompletion = 72 }:
   ];
 
   const quickActions = [
-    { label: t('discover'), icon: Heart, section: 'swipe', color: 'bg-primary/10 text-primary' },
+    { label: t('swipe'), icon: Heart, section: 'swipe', color: 'bg-primary/10 text-primary' },
+    { label: t('applications'), icon: Briefcase, section: 'applications', color: 'bg-primary/10 text-primary' },
+    { label: t('matches'), icon: Heart, section: 'matches', color: 'bg-primary/10 text-primary' },
     { label: t('messages'), icon: MessageSquare, section: 'messages', color: 'bg-green-600/10 text-green-600' },
     { label: t('preferences'), icon: Sparkles, section: 'preferences', color: 'bg-purple-600/10 text-purple-600' },
   ];
@@ -113,13 +116,14 @@ export function MobileDashboard({ onNavigateToSection, profileCompletion = 72 }:
         </div>
 
         {/* Section 2: Quick Actions - horizontal scroll on mobile */}
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
+        <div className="grid grid-cols-2 gap-2">
           {quickActions.map((action) => (
             <button
               key={action.section}
               onClick={() => onNavigateToSection(action.section)}
               className={cn(
-                'flex items-center gap-2 px-3 py-2.5 rounded-xl shrink-0',
+                'flex min-w-0 items-center gap-2 px-3 py-2.5 rounded-xl',
+                action.section==='messages' && 'col-span-2',
                 'border border-border bg-card',
                 'transition-all active:scale-95 hover:shadow-sm',
                 'min-h-[44px]'
@@ -128,7 +132,8 @@ export function MobileDashboard({ onNavigateToSection, profileCompletion = 72 }:
               <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center', action.color)}>
                 <action.icon className="w-4 h-4" />
               </div>
-              <span className="text-xs font-medium whitespace-nowrap">{action.label}</span>
+              <span className="text-xs font-medium text-start">{action.label}</span>
+              {action.section==='messages' && unreadMessages!==null && unreadMessages>0 && <Badge aria-label={`${t('unread')}: ${unreadMessages}`} className="ms-auto text-[10px]">{unreadMessages>99?'99+':unreadMessages}</Badge>}
             </button>
           ))}
         </div>
