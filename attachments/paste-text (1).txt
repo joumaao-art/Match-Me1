@@ -1,0 +1,113 @@
+# MATCHME — MOBILE LOGIN PLACEMENT & BIRTHDAY AGE DISPLAY
+
+## Objective
+
+Implement the following targeted UI improvements to the existing MatchMe mobile welcome, signup, and onboarding experience.
+
+Do not rebuild the signup flow, change the 11-step onboarding sequence, or modify unrelated functionality.
+
+All Atoms Working Process updates and final reports must be in **English only**. Preserve English and Arabic app localization.
+
+## 1. First Page — Replace Login
+
+On the first mobile welcome page, replace the existing standalone **Login** button/text with:
+
+**Already have an account? Login**
+
+Requirements:
+
+- Display "Already have an account?" in regular text.
+- Display "Login" in bold, using the existing MatchMe primary brand color.
+- Make "Login" clickable and navigate to the existing login page.
+- Position the phrase neatly beneath the signup options and above the Privacy Policy / Terms & Conditions agreement.
+- Center-align the phrase.
+- Maintain professional spacing, typography, and visual hierarchy.
+- Do not create a new login page or change existing authentication logic.
+
+## 2. Second Page — Remove Login
+
+On the second mobile page (the onboarding introduction displaying "Find your job match"):
+
+- Completely remove the Login button/link.
+- Do not display "Already have an account?" on this page.
+- Keep the existing heading, supporting text, progress bar where applicable, and **Get Started** button.
+- Preserve the existing back navigation.
+- Do not remove Login from the first welcome page.
+
+The intended flow is:
+
+**Welcome page → Signup → Find your job match → Get Started → Step 1**
+
+Login should be accessible from the first welcome page, not duplicated on the onboarding introduction.
+
+## 3. Step 3 — Display Age When Selecting Birthday
+
+On Step 3, **"When is your birthday?"**, automatically calculate and display the user's age when they select their date of birth.
+
+### Expected behavior
+
+As soon as a valid Day, Month, and Year are selected, display:
+
+**You are 28 years old**
+
+The displayed age must update automatically whenever the user changes the selected birthday.
+
+### Age calculation requirements
+
+- Calculate the age from the complete date of birth.
+- Use the current calendar date, not simply the difference between birth year and current year.
+- Account for whether the user's birthday has already occurred this year.
+- Handle leap years correctly.
+- Do not calculate age from an incomplete or invalid date.
+- Do not allow future dates.
+- Recalculate the age when reopening Step 3 if the date has changed or the user returns on a later date.
+- Keep the birthday mandatory.
+
+### UI requirements
+
+- Display the age directly below the existing Day / Month / Year scroll-wheel picker.
+- Use a clean, subtle, professional presentation.
+- Example: **You are 28 years old**
+- Do not add a large card or unnecessary visual effects.
+- Do not add a separate age input field.
+- Age must be calculated automatically and must not be manually editable.
+- Ensure the display works in both English and Arabic.
+
+The canonical date of birth remains the stored source of truth. Age should be derived from it rather than stored as a permanent value that can become outdated.
+
+## 4. Mobile-Only Scope
+
+These layout changes apply only to the mobile application.
+
+Do not modify:
+
+- Desktop welcome or login layouts
+- Existing signup methods
+- Authentication
+- Other onboarding steps
+- Profile data
+- Credits
+- AI Matching
+- Dashboard or Discover
+
+## 5. Mandatory Testing
+
+Verify in the actual mobile App Viewer:
+
+1. First welcome page displays **Already have an account? Login**.
+2. Login is clickable and opens the correct existing login page.
+3. Second page no longer displays Login.
+4. Get Started continues to work.
+5. Step 3 shows the calculated age after a valid birthday is selected.
+6. Changing the birthday updates the age immediately.
+7. Age calculation is correct before and after the user's birthday in the current year.
+8. Leap-year dates are handled correctly.
+9. Back navigation and autosave continue to work.
+10. English and Arabic RTL layouts display correctly.
+11. Desktop layout remains unchanged.
+
+Run TypeScript, ESLint, production build, and relevant tests.
+
+**Do not report completion based only on successful compilation. Verify the changes in the real mobile App Viewer.**
+
+Provide the final implementation report in English only, including files changed and test results.

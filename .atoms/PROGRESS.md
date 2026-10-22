@@ -1,5 +1,11 @@
 ## Task Breakdown
 
+| Welcome login and derived birthday age | Implementation | Validation |
+|---|---|---|
+| Center EN/AR account-login phrase; reuse existing login callback | done | blocked |
+| Strict calendar-derived age below birthday wheels; refresh on date changes | done | done |
+| Contract tests, TypeScript, lint/build and actual mobile acceptance evidence | done | blocked |
+
 | Targeted mobile refinement phase | Implementation | Validation |
 |---|---|---|
 | Audit labels, date-wheel geometry and centralized credit eligibility | done | done |
@@ -18,6 +24,9 @@
 | Approved legal sheets and required mobile A–W acceptance evidence | blocked | blocked |
 
 ## Progress Log
+- Welcome/age request: updated MobileEntry.tsx with centered EN/AR account phrase and bold primary Login, preserving onLogin; MobileOnboarding.tsx INTRO unchanged/no Login, age line immediately below birthday wheels, refresh on reentry/focus/visibility/local midnight; no age persistence or backend/desktop/auth/credits changes.
+- mobile-date-wheel.ts adds strict complete calendar DOB-to-age helper (invalid/incomplete/future → null; Feb29 advances March1 in non-leap years); scripts/mobile-onboarding-contract.mjs adds11 cases. All42 contracts, TypeScript, ESLint and production build passed.
+- Current welcome/age visual check reached desktop homepage only. Actual mobile320/390/412 welcome placement/login callback interaction, authenticated INTRO/BIRTHDAY wheel changes/back/reentry, Arabic/RTL and real midnight refresh remain UNEXECUTED; available check cannot establish requested mobile acceptance. No credentials bypass or fake acceptance added.
 - Targeted refinement request: preserved eleven-step sequence/progress and desktop layout; stronger mobile blue/slate progress; removed Step1 headline/summary requirements, duplicate visible Gender/Birthday/Skills labels, and Step10 technical paragraph.
 - Education wheel root cause found in code: inline buttons introduced baseline/line-box spacing despite index math assuming exact44px rows; regenerated options triggered resynchronization on unrelated renders. Fixed explicit block44px rows/spacers, stable option-value synchronization, latest controlled callbacks, drag-click suppression and ascending unique year mapping; calendar serialization avoids timezone conversion.
 - Credit root cause: grant occurred only when FREE_CREDITS was completed; confirmed ungranted accounts could display0 even after completion. Added server identity-insert entitlement and idempotent repair via same ledger; shared initialization/hook repair before showing balance. Imported entitlement flags and positive legacy signup evidence remain authoritative.

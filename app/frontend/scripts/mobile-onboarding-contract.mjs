@@ -45,5 +45,16 @@ try{
  test('reopening date retains selected calendar components',()=>{const saved=wheels.dateWheelValue(2028,6,1,true,true,now);assert.deepEqual(wheels.dateWheelParts(saved,now),{year:2028,month:6,day:1});});
  test('leap date clamps only invalid day',()=>assert.equal(wheels.dateWheelValue(2023,2,29,false,true,now),'2023-02-28'));
  test('Current education accepts unknown expected graduation',()=>assert.deepEqual(m.validateMobile('EDUCATION',{...m.emptyMobileState().draft,educations:[{...education,current:true,to:''}]}),{}));
+ test('age before birthday uses completed years',()=>assert.equal(wheels.ageFromBirthday('1998-10-23',now),27));
+ test('age on birthday increments immediately',()=>assert.equal(wheels.ageFromBirthday('1998-10-22',now),28));
+ test('age after birthday uses current completed year',()=>assert.equal(wheels.ageFromBirthday('1998-10-21',now),28));
+ test('later calendar date recalculates without stored age',()=>assert.equal(wheels.ageFromBirthday('1998-10-23',new Date(2026,9,23)),28));
+ test('today is a valid zero-year birthday',()=>assert.equal(wheels.ageFromBirthday('2026-10-22',now),0));
+ test('future birthdays in same or later year have no age',()=>{for(const value of ['2026-10-23','2026-11-01','2027-01-01'])assert.equal(wheels.ageFromBirthday(value,now),null);});
+ test('incomplete and malformed birthday values have no age',()=>{for(const value of ['','1998','1998-10','1998-1-01','1998-01-01T00:00:00Z','not-a-date'])assert.equal(wheels.ageFromBirthday(value,now),null);});
+ test('invalid calendar dates have no age',()=>{for(const value of ['0000-01-01','1998-00-01','1998-13-01','1998-01-00','1998-04-31','1900-02-29','2001-02-29'])assert.equal(wheels.ageFromBirthday(value,now),null);});
+ test('leap birthday increments on leap day',()=>{assert.equal(wheels.ageFromBirthday('2000-02-29',new Date(2024,1,28)),23);assert.equal(wheels.ageFromBirthday('2000-02-29',new Date(2024,1,29)),24);});
+ test('leap birthday increments March 1 in non-leap year',()=>{assert.equal(wheels.ageFromBirthday('2000-02-29',new Date(2026,1,28)),25);assert.equal(wheels.ageFromBirthday('2000-02-29',new Date(2026,2,1)),26);});
+ test('invalid current date has no age',()=>assert.equal(wheels.ageFromBirthday('2000-01-01',new Date(NaN)),null));
  console.log(`${passed} onboarding contract checks passed.`);
 }finally{await server.close();}

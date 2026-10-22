@@ -20,6 +20,7 @@ import { cacheMobile, emptyMobileState, loadMobile, MOBILE_STEPS, persistMobile,
 import { INDUSTRIES, MOBILE_DEGREES, MOBILE_WORK_TYPES, SENIORITY, SPECIALIZATIONS, taxonomyLabel, WORKING_STYLES } from '@/lib/mobile-onboarding-options';
 import { sortChronological, type DegreeCode, type EmploymentTypeCode } from '@/lib/profile-standards';
 import { useCreditAccount } from '@/lib/seeker-credits';
+import { ageFromBirthday } from '@/lib/mobile-date-wheel';
 import { cn } from '@/lib/utils';
 
 const titles:Record<MobileStep,[string,string]>={PERSONAL_DETAILS:['Personal details','البيانات الشخصية'],GENDER:['Gender','الجنس'],BIRTHDAY:['When is your birthday?','متى عيد ميلادك؟'],CURRENT_LOCATION:['Current location','الموقع الحالي'],SKILLS:['Skills','المهارات'],EDUCATION:['Education','التعليم'],EXPERIENCE:['Experience','الخبرة'],PREFERENCES:['Your Preferences','تفضيلاتك'],SENIORITY:['Which levels should we show you?','ما المستويات التي نعرضها لك؟'],FREE_CREDITS:['Almost there…20 free swiping credits await you!','أوشكت على الانتهاء…20 رصيد تمرير مجاني بانتظارك!'],HOW_IT_WORKS:['How it works','كيف يعمل']};
@@ -28,6 +29,22 @@ export default function MobileOnboarding() {
  const [state,setState]=useState<MobileState>(emptyMobileState);const current=useRef(state);current.current=state;
  const [loaded,setLoaded]=useState(false);const [loadError,setLoadError]=useState(false);const [status,setStatus]=useState<'saved'|'saving'|'error'|'local'>('saved');const [busy,setBusy]=useState(false);const busyRef=useRef(false);
  const [errors,setErrors]=useState<Record<string,string>>({});const [notice,setNotice]=useState('');const heading=useRef<HTMLHeadingElement>(null);const {balance}=useCreditAccount(uid);const [viewport,setViewport]=useState({height:window.visualViewport?.height||window.innerHeight,top:0});
+ const [calendarNow,setCalendarNow]=useState(()=>new Date());
+ useEffect(()=>{
+  if(state.screen!=='BIRTHDAY')return;
+  let timer:ReturnType<typeof setTimeout>;
+  const refresh=()=>{
+   clearTimeout(timer);
+   const now=new Date();setCalendarNow(now);
+   const midnight=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+   timer=setTimeout(refresh,midnight.getTime()-now.getTime()+50);
+  };
+  refresh();
+  window.addEventListener('focus',refresh);
+  document.addEventListener('visibilitychange',refresh);
+  return()=>{clearTimeout(timer);window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh);};
+ },[state.screen]);
+ const birthdayAge=ageFromBirthday(state.draft.birthday,calendarNow);
  const copy=(en:string,arabic:string)=>ar?arabic:en;
  const requestGeneration=useRef(0);const mounted=useRef(true);
  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;requestGeneration.current++;};},[]);
@@ -82,7 +99,7 @@ export default function MobileOnboarding() {
  <fieldset disabled={busy} className="contents">
  {step==='PERSONAL_DETAILS'&&<div className="space-y-6"><FormField id="cv" label={copy('CV (optional)','السيرة الذاتية (اختياري)')}><input id="cv" type="file" accept=".pdf,.doc,.docx,.txt" className="text-sm w-full py-3" onChange={e=>{if(e.target.files?.[0])void upload(e.target.files[0]);}}/>{d.cvName&&<p className="text-sm break-all mt-2">{d.cvName}</p>}</FormField>{textField('firstName',copy('Legal First Name','الاسم الأول القانوني'))}{textField('lastName',copy('Legal Family Name','اسم العائلة القانوني'))}{textField('email',t('email'))}<FormField id="mobile" label={t('phone')} required error={errors.mobile}><PhoneInput id="mobile" value={d.mobile} onChange={mobile=>patch({mobile})} invalid={!!errors.mobile}/></FormField><FormField id="nationalities" label={t('nationality')} required error={errors.nationalities}><NationalityMultiSelect id="nationalities" value={d.nationalities} onChange={nationalities=>patch({nationalities},true)}/></FormField></div>}
  {step==='GENDER'&&<FormField id="gender" hideLabel label={t('gender')} required error={errors.gender}>{choices([{code:'male',en:'Male',ar:'ذكر'},{code:'female',en:'Female',ar:'أنثى'},{code:'prefer_not_to_say',en:'Prefer not to say',ar:'أفضل عدم الإفصاح'}],[d.gender],v=>patch({gender:v[0]},true),true)}</FormField>}
- {step==='BIRTHDAY'&&<FormField id="birthday" hideLabel label={copy('Birthday','تاريخ الميلاد')} required error={errors.birthday}><DateWheels label={copy('Birthday','تاريخ الميلاد')} value={d.birthday} lang={lang} onChange={birthday=>patch({birthday},true)}/></FormField>}
+ {step==='BIRTHDAY'&&<FormField id="birthday" hideLabel label={copy('Birthday','تاريخ الميلاد')} required error={errors.birthday}><DateWheels label={copy('Birthday','تاريخ الميلاد')} value={d.birthday} lang={lang} onChange={birthday=>patch({birthday},true)}/><p aria-live="polite" aria-atomic="true" className="mt-3 text-center text-sm text-muted-foreground">{birthdayAge!==null?copy(`You are ${birthdayAge} years old`,`عمرك ${birthdayAge} سنة`):''}</p></FormField>}
  {step==='CURRENT_LOCATION'&&<div className="space-y-6"><Button variant="outline" className="w-full h-12 !bg-transparent" disabled={busy} onClick={()=>void locate()}><MapPin className="me-2" size={18}/>{copy('Use my current location','استخدم موقعي الحالي')}</Button><LocationSelector idPrefix="mobile-location" country={d.country} city={d.city} errors={errors} onChange={p=>patch(p,true)}/></div>}
  {step==='SKILLS'&&<FormField id="skills" hideLabel label={t('skills')} required error={errors.skills} hint={copy('The more skills you add the more matches you discover','كلما أضفت المزيد من المهارات، اكتشفت المزيد من المطابقات')}><SkillPicker taxonomy={SKILL_TAXONOMY} skills={d.skills} onChange={skills=>patch({skills:[...new Set(skills)]},true)}/>{d.detectedSkills.length>0&&<div className="mt-4"><p className="text-xs text-muted-foreground mb-2">{copy('Detected in your CV — tap to add','اكتُشفت في سيرتك الذاتية — اضغط للإضافة')}</p>{choices(d.detectedSkills.map(s=>({code:s,en:s,ar:s})),d.skills,skills=>patch({skills},true))}</div>}</FormField>}
  {step==='EDUCATION'&&<div className="space-y-6">{sortChronological(d.educations).map(x=><section key={x.id} className="border rounded-xl p-4 space-y-6"><FormField id={`${x.id}-institution`} label={t('institution')} required error={errors[`${x.id}.institution`]}><MobileSearch id={`${x.id}-institution`} label={t('institution')} options={d.educations.map(e=>e.institution).filter(Boolean)} value={[x.institution]} custom lang={lang} onChange={v=>updateEducation(x.id,{institution:v[0]})}/></FormField><LocationSelector idPrefix={`${x.id}-location`} country={x.country} city={x.city} errors={{country:errors[`${x.id}.country`],city:errors[`${x.id}.city`]}} onChange={p=>updateEducation(x.id,p)}/><FormField id={`${x.id}-degree`} label={t('degree')} required error={errors[`${x.id}.degree`]}><select id={`${x.id}-degree`} className="w-full h-12 border rounded-lg bg-background px-3" value={x.degree} onChange={e=>updateEducation(x.id,{degree:e.target.value as DegreeCode})}><option value="">{t('select_degree')}</option>{MOBILE_DEGREES.map(o=><option key={o.code} value={o.code}>{ar?o.ar:o.en}</option>)}</select></FormField>{x.degree!=='NOT_APPLICABLE'&&<FormField id={`${x.id}-field`} label={copy('Specialization','التخصص')} required error={errors[`${x.id}.field`]}><MobileSearch id={`${x.id}-field`} label={copy('Specialization','التخصص')} options={SPECIALIZATIONS.map(s=>taxonomyLabel(s,ar))} value={[taxonomyLabel(x.field,ar)]} lang={lang} onChange={v=>updateEducation(x.id,{field:SPECIALIZATIONS.find(s=>taxonomyLabel(s,ar)===v[0])||v[0]})}/></FormField>}{range(x.id,x,true,p=>updateEducation(x.id,p))}</section>)}<Button variant="outline" className="h-12 w-full !bg-transparent" onClick={addEducation}><Plus size={18} className="me-2"/>{t('add_education')}</Button>{errors.educations&&<p role="alert" className="text-sm text-destructive">{t(errors.educations)}</p>}</div>}

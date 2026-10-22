@@ -11,6 +11,19 @@ export function calendarDays(year: number, month: number): number {
   if (month === 2) return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0) ? 29 : 28;
   return [4, 6, 9, 11].includes(month) ? 30 : 31;
 }
+/** Completed calendar years; a leap-day birthday advances on March 1 in non-leap years. */
+export function ageFromBirthday(value: string, now: Date = new Date()): number | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || !Number.isFinite(now.getTime())) return null;
+  const [year, month, day] = value.split('-').map(Number);
+  if (year < 1 || month < 1 || month > 12 || day < 1 || day > calendarDays(year, month)) return null;
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  const currentDay = now.getDate();
+  const birthdayPending = currentMonth < month || (currentMonth === month && currentDay < day);
+  const age = currentYear - year - Number(birthdayPending);
+  return age < 0 ? null : age;
+}
+
 export function dateWheelParts(value: string, now: Date) {
   const normalized = normalizeYearMonth(value);
   const [year, month] = normalized.split('-').map(Number);
