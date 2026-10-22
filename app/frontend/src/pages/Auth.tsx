@@ -246,8 +246,8 @@ export default function Auth() {
             const destination = await resolvePostAuthDestination('job_seeker', user.id);
             navigate(from || destination, { replace: true });
           } else {
-            await authService.createUserProfile(user.id, selectedRole);
-            await authService.createRoleProfile(user.id, selectedRole, user.email || '');
+            const identity=await ensureIdentity(user.id,user.email||null,selectedRole);
+            if(!identity.ok)throw new Error(identity.errors.join('; '));
             navigate(from || ROUTES.COMPANY, { replace: true });
           }
         } else {
@@ -327,15 +327,8 @@ export default function Auth() {
         const { destination } = await settleSeekerSignup(outcome.userId!, outcome.email || email);
         navigate(destination, { replace: true });
       } else {
-        // Company authentication and its destination are preserved unchanged.
-        await withTimeout(
-          (async () => {
-            await authService.createUserProfile(outcome.userId!, selectedRole);
-            await authService.createRoleProfile(outcome.userId!, selectedRole, email);
-          })(),
-          SIGNUP_SETTLE_TIMEOUT_MS,
-          null
-        );
+        const identity=await ensureIdentity(outcome.userId!,email,selectedRole);
+        if(!identity.ok)throw new Error(identity.errors.join('; '));
         navigate(ROUTES.COMPANY, { replace: true });
       }
     } catch (error: any) {

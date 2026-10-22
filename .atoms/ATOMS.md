@@ -16,6 +16,9 @@ MatchMe is a bilingual EN/AR recruitment web app using React/Vite/shadcn and the
 | One server completion authority | ensureJobSeekerInitialized repairs only missing identity rows and resolves destination; cached completion never overrides server. |
 | Per-user version3 mobile state and canonical profile/history | Prevent account leakage, preserve stable IDs/manual values and legacy records; database RPC owns completion. |
 | Unified20 signup credits across mobile/desktop | User explicitly superseded50; server identity-insert grants once, shared initialization repairs missing entitlements; imported entitlements/balances preserved and ledger owns deductions/purchases. |
+| Critical MVP Company → vacancy → seeker → application workflow | Current scope replaces disconnected core screens; no production filler data or parallel vacancy/application database. |
+| Canonical applications remain seeker_job_actions | Company review column supplies actual mutual acceptance; owner-authorized projection excludes candidate email/phone/DOB/disability/CV. |
+| Publication uses existing open status | open means Published; server checks completeness/expiry, drafts stay editable; no moderation triggers or approvals found in live schema. |
 | English engineering; EN/AR product | Preserve RTL and Arabic; language checker retains approved locale-native registry names. |
 | No invented legal content or fake success | Missing approved legal text and provider/extraction configuration must be reported as blockers. |
 

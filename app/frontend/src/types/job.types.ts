@@ -75,6 +75,7 @@ export interface Vacancy {
   salary_period?: 'hour' | 'day' | 'week' | 'month' | 'year' | null;
   show_salary?: boolean | null;
   employment_style?: 'onsite' | 'remote' | 'hybrid' | null;
+  seniority_level?: string | null;
   qualifications?: string | null;
   benefits?: string[];
   status: VacancyStatus;

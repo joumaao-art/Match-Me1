@@ -1,5 +1,13 @@
 ## Task Breakdown
 
+| Critical MVP live-data integration | Implementation | Validation |
+|---|---|---|
+| Auth/environment/schema/RLS and live portal audit | done | done |
+| Persisted Company profile/logo and publication contract | done | blocked |
+| Canonical Company applicants/dashboard and seeker dashboards | done | blocked |
+| Discovery identity, eligibility/ranking and registration recovery | done | blocked |
+| Authenticated database checks, lint/build and actual MVP A–F evidence | done | blocked |
+
 | Premium mobile Swipe redesign | Implementation | Validation |
 |---|---|---|
 | Canonical vacancy/profile/decision and deep-link audit | done | done |
@@ -38,6 +46,10 @@
 | Approved legal sheets and required mobile A–W acceptance evidence | blocked | blocked |
 
 ## Progress Log
+- Critical live marketplace: audit found zero canonical vacancies, mock Company Profile/dashboard/applicants, missing logos storage, mock seeker dashboards/matches, swallowed signup errors and broad Company candidate access; frontend .env and singleton client verified same connected Supabase project ykvlaakotyouojkdydzh.
+- Applied migrations018–019: nullable Company location/culture and vacancy seniority, server publication/timestamp/ownership checks, secure logos bucket, minimal owner-only applicant projection/review, private candidate isolation, RPC-only application writes, TRUNCATE/trigger privilege revocation and deletion-history guard. No production jobs or balance changes inserted.
+- Core Company routes now persist profile/logo/vacancies/applicant review and show actual counts; seeker dashboards/matches/applications use canonical decisions and accepted Company review; discovery preserves Company ID, newest publication fallback, focus/poll refresh and real desktop metadata. Existing auth/onboarding/Swipe structure retained.
+- Current13 marketplace+29 Swipe contracts, TypeScript, lint/build and authenticated rollback-only SQL passed publication/real joined read/actions/credits/duplicate/application review/foreign ownership/private candidate isolation; these are NOT portal A–F evidence. Current UI check reached guest homepage only. Actual registered Company→portal vacancy→seeker card→Company applicant/logout-relogin/security browser acceptance remains NOT RUN; final requested success condition unverified, report LIVE_MARKETPLACE_REPORT.md.
 - Current premium Swipe continuation supersedes earlier schema/native blockers: applied nullable canonical vacancy metadata migration016 and decision-guard migration017; Company Vacancies navigation now mounts real owner-scoped jobService CRUD/editor, including compensation disclosure/currency/period, separate type/style and qualifications. No old rows backfilled or production demo vacancies inserted.
 - Shared mandatory aggregation added to existing ProfileCompletion engine; mobile uses nine onboarding required validators, optional fields excluded. Repair hydrates freshest canonical profile/history instead of stale draft/cache; unknown eligibility blocks Apply. Exact shared jobs load even outside initial deck and show prior-decision read-only controls; expired jobs rejected client/server.
 - Persisted decision RPC now serializes per-account operations, rejects conflicting decision/duplicate Undo/application Undo, preserves Save and one-credit-per-vacancy replay policy; browser Undo/Save account guards added. Existing matching/application consumers retained; no parallel matches/application system added.

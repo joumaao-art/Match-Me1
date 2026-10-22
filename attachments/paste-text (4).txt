@@ -1,0 +1,383 @@
+# MATCHME — CRITICAL MVP LIVE DATA INTEGRATION
+## Connect Real Company Accounts, Published Jobs and Job Seeker Swipe
+
+### Priority: Critical — Core Marketplace Functionality
+
+MatchMe must now operate as a real recruitment marketplace, not a simulated or demo-driven application.
+
+I am experiencing a critical issue: I cannot find actual job cards in the running MVP, and I need jobs posted by real Company accounts to appear in the Job Seeker Swipe experience.
+
+**Implement and verify the complete end-to-end workflow:**
+
+Company Registration → Company Profile → Job Posting → Published Vacancy → Job Seeker Swipe → Application → Company Applicant Dashboard.
+
+This must use actual persisted data and real user accounts.
+
+Do not solve this by adding generated jobs, sample cards, hardcoded arrays, or fake database records.
+
+### 1. Audit the Existing Architecture
+
+Before changing code, inspect:
+
+- Supabase authentication and project configuration.
+- Company registration and profile creation.
+- Company-to-user ownership relationships.
+- Company job-posting forms.
+- Vacancy database tables and relationships.
+- Vacancy publication statuses.
+- Supabase Row Level Security policies.
+- Job Seeker profile and onboarding data.
+- Swipe/Discover vacancy-fetching services.
+- AI Matching and recommendation filtering.
+- Applications database and Company applicant views.
+- Development, preview, and production environment configuration.
+
+Identify exactly where the real-data workflow is broken.
+
+Determine whether the problem is caused by missing persistence, different Supabase environments, RLS, publication status, incorrect queries, matching filters, frontend state, or another issue.
+
+Do not assume the cause without testing.
+
+### 2. Real Company Accounts
+
+When I create a Company account, it must be a real authenticated account in Supabase.
+
+The Company profile must be saved persistently and linked to the authenticated user.
+
+Requirements:
+
+- Company profiles persist after logout and login.
+- Company users can view and edit their own company profiles.
+- Company logos are stored and retrievable.
+- Each Company account has the correct ownership/permissions.
+- Company records must not be simulated or stored only in browser state.
+- Different Company accounts must remain properly isolated.
+
+Preserve the existing mandatory Company profile fields.
+
+### 3. Real Job Posting
+
+When a Company creates a vacancy using Post Vacancy, the job must be saved to the canonical vacancy database.
+
+Each vacancy must have a stable unique identifier and a valid relationship to its Company.
+
+Persist the existing job-posting information, including where applicable:
+
+- Position title
+- Company ID
+- Job description
+- Qualifications
+- Required skills
+- Industry
+- Employment type
+- Employment style
+- Country and City
+- Salary/compensation package, if declared
+- Experience requirements
+- Seniority level
+- Publication status
+- Creation and update timestamps
+- Expiration date, if applicable
+
+Use the actual existing MatchMe data model and extend it only where necessary.
+
+Do not create a second independent vacancy database.
+
+### 4. Publish Jobs Properly
+
+Implement or repair a clear vacancy lifecycle:
+
+DRAFT → PUBLISHED → CLOSED / EXPIRED
+
+A Company must be able to save a draft and publish a completed vacancy.
+
+When a job is successfully published:
+
+- It is persisted in Supabase.
+- It belongs to the correct Company.
+- It has a published status.
+- It becomes eligible for Job Seeker discovery.
+- The Company can see it in its own vacancies list.
+
+Draft, closed, expired, deleted, or otherwise ineligible vacancies must not appear in Swipe.
+
+If MatchMe already has a moderation or approval workflow, preserve it. Do not bypass an existing approval requirement.
+
+### 5. Remove Generated Jobs From the Live Swipe Experience
+
+The production/MVP Job Seeker Swipe page must retrieve real published vacancies from the database.
+
+Do not populate the live Swipe experience with:
+
+- AI-generated vacancies
+- Hardcoded sample job arrays
+- Random companies
+- Placeholder job cards presented as real opportunities
+- Mock API responses
+- Demo fallback records
+
+If no real eligible vacancies exist, display a professional empty state.
+
+Example:
+
+"No jobs available yet. Check back soon or update your preferences."
+
+Do not invent jobs to fill the screen.
+
+Keep any demo fixtures restricted to explicitly identified development/test environments.
+
+### 6. Connect Company Postings to Swipe
+
+When a Company publishes a job, it must become discoverable to eligible Job Seekers through the existing Swipe data service.
+
+The Swipe card must display information from that exact vacancy:
+
+- Real Company logo
+- Real position title
+- Actual compensation, if disclosed
+- Job location
+- Employment type
+- Employment style
+- Description
+- Qualifications
+
+The card must retain the canonical vacancy ID and Company ID.
+
+Do not generate a separate version of the job.
+
+Updates to the published vacancy must be reflected in Swipe after appropriate data refresh or cache invalidation.
+
+### 7. Fix Visibility and Matching Filters
+
+Inspect the AI Matching Engine and recommendation retrieval pipeline.
+
+A published vacancy may be missing because filters are too restrictive or because a matching service fails.
+
+Implement clear separation between:
+
+**Eligibility filters**
+
+Examples:
+- Vacancy is published and active.
+- Vacancy is visible to the Job Seeker.
+- Vacancy has not already been applied to or passed, according to existing rules.
+
+**Preference and ranking signals**
+
+Examples:
+- Preferred job roles
+- Skills
+- Employment type
+- Employment style
+- Seniority
+- Location
+
+Do not silently hide all published vacancies because an AI score cannot be calculated.
+
+If AI ranking is unavailable, use a deterministic fallback ranking over eligible real vacancies, such as most recently published first.
+
+This fallback must use real database records only.
+
+Preserve genuinely mandatory eligibility restrictions.
+
+### 8. Supabase Row Level Security
+
+Audit and correct RLS policies where necessary.
+
+Expected behavior:
+
+- Company owners can manage their own vacancies.
+- Job Seekers can read eligible published vacancies.
+- Job Seekers cannot modify Company vacancy records.
+- Companies cannot modify another Company's vacancies.
+- Applications are accessible only to authorized parties.
+- Private candidate information remains protected.
+
+Do not disable RLS to make the MVP work.
+
+Do not expose service-role credentials in the frontend.
+
+### 9. One Shared Backend Environment
+
+Verify that the Company portal and Job Seeker portal connect to the same intended Supabase project and database environment.
+
+Check:
+
+- Supabase project URL
+- Environment variables
+- Authentication configuration
+- API clients
+- Preview configuration
+- Mobile and desktop configuration
+
+A Company posting created in the running MVP must be visible to a Job Seeker using that same MVP environment.
+
+Do not accidentally connect Company to development data and Job Seeker to another database.
+
+### 10. Real Applications
+
+When a Job Seeker swipes right or taps Heart:
+
+- Create a real application associated with the authenticated Job Seeker and vacancy.
+- Preserve the correct credit-deduction rules.
+- Prevent duplicate applications.
+- Update the Job Seeker Applications page.
+- Make the applicant visible to the authorized Company.
+- Update the Company's applicant counts.
+
+Use the canonical Applications workflow.
+
+Do not simulate application success without a confirmed backend result.
+
+### 11. Real Pass, Save and Undo
+
+Ensure these actions operate against actual vacancies:
+
+**Pass**
+- Persist the Job Seeker's Pass decision.
+
+**Save**
+- Save the real vacancy to the Job Seeker's saved jobs.
+
+**Undo**
+- Reverse the most recent eligible Pass and restore that vacancy.
+
+These actions must remain consistent across refreshes and sessions.
+
+### 12. Company Dashboard Integration
+
+The Company dashboard must reflect real data.
+
+When a Company publishes a job:
+
+- Active vacancy count updates.
+- Vacancy appears in the Company's vacancy list.
+- Published status is visible.
+- Applicant count reflects actual applications.
+- Company can open the vacancy and review applicants.
+
+No hardcoded dashboard statistics.
+
+### 13. Job Seeker Dashboard Integration
+
+The Job Seeker Dashboard must reflect actual data:
+
+- Applications
+- Matches
+- Saved jobs, where applicable
+- Available credits
+- Profile completion
+
+The Dashboard must not show fictional activity.
+
+### 14. Preserve Existing MatchMe Features
+
+Do not break:
+
+- Company registration
+- Job Seeker registration
+- Authentication
+- Mobile onboarding
+- Desktop onboarding
+- Profile
+- Preferences
+- Education
+- Experience
+- Languages
+- Swipe page layout
+- Credits
+- Messages
+- AI Matching
+- Career Graph
+- English/Arabic localization
+
+Do not redesign unrelated pages.
+
+### 15. End-to-End Acceptance Test — Mandatory
+
+Perform this test in the actual running MVP using real test accounts and the intended Supabase environment.
+
+**TEST A — Create Company**
+
+1. Register a new Company account.
+2. Complete the Company profile.
+3. Save the profile.
+4. Refresh the application.
+5. Confirm the Company profile still exists.
+
+**TEST B — Publish Job**
+
+1. Log in as the Company.
+2. Open Post Vacancy.
+3. Create a complete test vacancy with a unique identifiable title.
+4. Publish the vacancy.
+5. Confirm its published status and database record.
+6. Confirm it appears in the Company's vacancies list.
+
+**TEST C — Job Seeker Swipe**
+
+1. Log in using a separate Job Seeker account.
+2. Ensure the account is eligible to view the test vacancy.
+3. Open Swipe.
+4. Confirm the exact vacancy created in TEST B appears as a real job card.
+5. Verify the Company logo, title, location, employment type, employment style, and description match the stored vacancy.
+
+If matching preferences exclude the test vacancy, identify the actual reason and test with appropriate eligible preferences. Do not silently bypass security or genuine eligibility rules.
+
+**TEST D — Application**
+
+1. Swipe right or tap Heart on the test vacancy.
+2. Confirm the application is persisted.
+3. Confirm the Job Seeker sees it in Applications.
+4. Log in as the Company.
+5. Confirm the Company sees the actual applicant for that vacancy.
+
+**TEST E — Persistence**
+
+1. Log out of both accounts.
+2. Log back in.
+3. Confirm Company, vacancy, application, and relevant dashboard information remain available.
+
+**TEST F — Security**
+
+1. Verify another Company cannot edit the vacancy.
+2. Verify unauthorized users cannot access private candidate records.
+3. Confirm RLS remains enabled and effective.
+
+### 16. No Fake Success Reports
+
+Do not report this task as complete simply because:
+
+- The app compiles.
+- The Swipe page renders.
+- A mock job card is visible.
+- A test fixture passes.
+- A synthetic API response contains jobs.
+
+Completion requires demonstrating that a real vacancy created through the Company portal is retrieved and displayed through the Job Seeker Swipe page, and that an application is visible to the Company.
+
+If the testing environment cannot perform a required step, report that limitation explicitly instead of claiming success.
+
+### 17. Final Report — English Only
+
+Provide:
+
+1. Root cause of missing real job cards.
+2. Company authentication and persistence status.
+3. Vacancy database and publication workflow.
+4. Supabase environment configuration findings.
+5. RLS changes.
+6. Swipe data source and filtering changes.
+7. AI Matching fallback behavior.
+8. Application persistence and Company visibility.
+9. Files and migrations changed.
+10. End-to-end test results with PASS/FAIL.
+11. Remaining blockers and exact steps required to resolve them.
+
+**Final success condition:**
+
+I can create a real Company account, publish a real vacancy, log in as a Job Seeker, see that exact vacancy as a Swipe card, apply for it, and then see the application in the Company's applicant dashboard.
+
+This must work with persisted Supabase data, not generated demo content.
+
+Begin implementation by tracing the actual running MVP's Company → Vacancy → Swipe data flow. Fix the root cause and verify the complete workflow.

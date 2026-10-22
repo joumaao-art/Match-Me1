@@ -1,13 +1,15 @@
 import { nativeBridge } from '@/lib/native-bridge';
 import { MobileSwipePage } from '@/components/seeker/MobileSwipePage';
-import { latestEligiblePass, isAvailableJob, clearPendingSharedJob, rememberSharedJob } from '@/lib/swipe-presentation';
+import { useMandatoryProfile } from '@/lib/mandatory-profile';
+import { latestEligiblePass, isAvailableJob, compensationText, clearPendingSharedJob, rememberSharedJob } from '@/lib/swipe-presentation';
 import { seekerSection, seekerSectionUrl, accurateBadgeCount } from '@/lib/seeker-navigation';
 import { messageService } from '@/services/message.service';
 import { BackButton } from '@/components/shared/BackButton';
+import { rankEligibleVacancies } from '@/lib/vacancy-discovery';
 import { loadPreferences, migrateLegacyPreferences, preferenceFit, savePreferences } from '@/lib/job-preferences';
 import { apiClient } from '@/services/api-client';
 import { useCreditAccount } from '@/lib/seeker-credits';
-import { useSeekerJobs, recordJobAction, shareJob } from '@/lib/seeker-jobs';
+import { useSeekerJobs, recordJobAction, shareJob, type DiscoverJob } from '@/lib/seeker-jobs';
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { trackEvent } from '@/lib/analytics';
 import { PreferencesForm } from '@/components/seeker/PreferencesForm';
@@ -303,8 +305,10 @@ import { UCSummaryCard, UCDecisionCard } from '@/components/shared/CardEngine';
 import type { SummaryCardConfig, DecisionCardConfig } from '@/lib/card-engine-types';
 
 /** Level 1 — Premium Decision Card Content (swipe handled by SwipeFeedbackEngine on mobile) */
-function SwipeCardContent({ job, score, onViewDetails, onUndo, canUndo }: { job: typeof mockJobs[0]; score: number; onViewDetails: () => void; onUndo?: () => void; canUndo?: boolean }) {
-  const { t } = useTranslation();
+function SwipeCardContent({ job, score, onViewDetails, onUndo, canUndo }: { job: DiscoverJob; score: number; onViewDetails: () => void; onUndo?: () => void; canUndo?: boolean }) {
+  const { t,i18n } = useTranslation();
+  const compensation=compensationText(job,i18n.language);
+  const completion=useMandatoryProfile();
   const isMobile = useIsMobile();
   const typeLabel = (type: string) => { const m: Record<string, string> = { full_time: t('full_time'), part_time: t('part_time'), contract: t('contract'), remote: t('remote'), internship: t('internship') }; return m[type] || type; };
   const [expanded, setExpanded] = useState(false);
@@ -321,12 +325,12 @@ function SwipeCardContent({ job, score, onViewDetails, onUndo, canUndo }: { job:
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className={`rounded-xl bg-primary/10 flex items-center justify-center shrink-0 ${isMobile ? 'w-10 h-10' : 'w-12 h-12'}`}>
-                <Building2 className={`text-primary ${isMobile ? 'w-5 h-5' : 'w-6 h-6'}`} />
+                {job.company_logo?<img src={job.company_logo} alt={job.company_name} className="w-full h-full object-contain rounded-xl"/>:<Building2 className={`text-primary ${isMobile ? 'w-5 h-5' : 'w-6 h-6'}`} />}
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1">
                   <p className="font-medium text-sm leading-tight truncate">{job.company_name}</p>
-                  <Check className="w-3.5 h-3.5 text-primary bg-primary/10 rounded-full p-0.5 shrink-0" />
+
                 </div>
                 <p className="text-[11px] text-muted-foreground leading-tight truncate">{job.industry}</p>
               </div>
@@ -350,11 +354,7 @@ function SwipeCardContent({ job, score, onViewDetails, onUndo, canUndo }: { job:
                 <p className="text-[8px] opacity-70 leading-tight">{t('match_score')}</p>
               </div>
             </div>
-            {job.salary_min && (
-              <p className="text-sm font-medium text-green-600 dark:text-green-400 mt-0.5">
-                ${job.salary_min.toLocaleString()} - ${job.salary_max?.toLocaleString()} <span className="text-[10px] font-normal text-muted-foreground">/{t('per_month')}</span>
-              </p>
-            )}
+            {compensation && <p className="text-sm font-medium text-green-600 dark:text-green-400 mt-0.5">{compensation}</p>}
           </div>
 
           {/* Metadata: Location · Type · Experience · Company Size */}
@@ -362,13 +362,13 @@ function SwipeCardContent({ job, score, onViewDetails, onUndo, canUndo }: { job:
             <Badge variant="secondary" className="gap-0.5 text-[11px] py-0 px-1.5 h-5"><MapPin className="w-2.5 h-2.5" />{job.city}, {job.country}</Badge>
             <Badge variant="secondary" className="gap-0.5 text-[11px] py-0 px-1.5 h-5"><Briefcase className="w-2.5 h-2.5" />{typeLabel(job.employment_type)}</Badge>
             <Badge variant="secondary" className="gap-0.5 text-[11px] py-0 px-1.5 h-5"><GraduationCap className="w-2.5 h-2.5" />{job.min_experience}-{job.max_experience}y</Badge>
-            <Badge variant="secondary" className="gap-0.5 text-[11px] py-0 px-1.5 h-5"><Users className="w-2.5 h-2.5" />50-200</Badge>
+            {job.employment_style&&<Badge variant="secondary" className="text-[11px]">{t(job.employment_style)}</Badge>}
           </div>
 
           {/* Skills: Top 3 + "+N more" */}
           <div className="flex flex-wrap gap-1">
             {topSkills.map(s => {
-              const hasSkill = CURRENT_SEEKER.skills.map(sk => sk.toLowerCase()).includes(s.toLowerCase());
+              const hasSkill = (completion.draft?.skills||[]).map(sk => sk.toLowerCase()).includes(s.toLowerCase());
               return <Badge key={s} variant={hasSkill ? 'default' : 'outline'} className={`text-[11px] py-0 px-1.5 h-5 ${hasSkill ? '' : 'opacity-60'}`}>{s}{hasSkill && <Check className="w-2 h-2 ms-0.5" />}</Badge>;
             })}
             {remainingSkills > 0 && (
@@ -406,20 +406,16 @@ function SwipeCardContent({ job, score, onViewDetails, onUndo, canUndo }: { job:
 }
 
 /** Level 2 — Job Details View (Bottom Sheet content) */
-function JobDetailsContent({ job, explanation }: { job: typeof mockJobs[0] & { compatibility_score: number; explanation?: MatchExplanation }; explanation: MatchExplanation | null }) {
-  const { t } = useTranslation();
+function JobDetailsContent({ job, explanation }: { job: DiscoverJob & { explanation?: MatchExplanation }; explanation: MatchExplanation | null }) {
+  const { t,i18n } = useTranslation();
+  const compensation=compensationText(job,i18n.language);
+  const completion=useMandatoryProfile();
 
   return (
     <div className="space-y-4">
       {/* Salary */}
-      {job.salary_min && (
-        <div className="bg-green-50 dark:bg-green-950/30 rounded-xl p-3">
-          <p className="text-xs font-medium text-green-800 dark:text-green-300 mb-0.5">{t('salary_range')}</p>
-          <p className="text-lg font-bold text-green-700 dark:text-green-400 font-[Poppins]">
-            ${job.salary_min.toLocaleString()} - ${job.salary_max?.toLocaleString()} <span className="text-sm font-normal">/ {t('per_month')}</span>
-          </p>
-        </div>
-      )}
+      {compensation && <div className="bg-green-50 dark:bg-green-950/30 rounded-xl p-3"><p className="text-xs font-medium">{t('salary_range')}</p><p className="text-lg font-bold text-green-700 dark:text-green-400">{compensation}</p></div>}
+      {job.qualifications&&<div><h4 className="font-semibold text-sm">{i18n.language.startsWith('ar')?'المؤهلات':'Qualifications'}</h4><p className="text-sm whitespace-pre-wrap">{job.qualifications}</p></div>}
 
       {/* Job Description */}
       <div>
@@ -432,7 +428,7 @@ function JobDetailsContent({ job, explanation }: { job: typeof mockJobs[0] & { c
         <h4 className="text-sm font-semibold mb-1.5">{t('required_skills')}</h4>
         <div className="flex flex-wrap gap-1.5">
           {job.required_skills.map(s => {
-            const hasSkill = CURRENT_SEEKER.skills.map(sk => sk.toLowerCase()).includes(s.toLowerCase());
+            const hasSkill = (completion.draft?.skills||[]).map(sk => sk.toLowerCase()).includes(s.toLowerCase());
             return (
               <Badge key={s} variant={hasSkill ? 'default' : 'outline'} className={`text-xs ${hasSkill ? '' : 'opacity-60'}`}>
                 {s}{hasSkill && <Check className="w-2.5 h-2.5 ms-0.5" />}
@@ -493,6 +489,8 @@ function SwipeView() {
   const isMobile = useIsMobile();
   const accountId = useAuthStore(s => s.userId);
   const engine = useMatchingEngine(accountId || CURRENT_SEEKER.id, 'job_seeker');
+  const profileEligibility=useMandatoryProfile();
+  const navigate=useNavigate();
   const { balance: creditBalance } = useCreditAccount(accountId);
   const {jobs,actions,loading:jobsLoading,error:jobsError,refresh:refreshJobs}=useSeekerJobs();
   const [lastPass,setLastPass]=useState<string|null>(null);
@@ -519,7 +517,7 @@ function SwipeView() {
 
   const recommendedJobs = useMemo(() => {
     const requested=restoredJobId||requestedId;
-    return jobs.filter(j=>isAvailableJob(j)&&!actions.some(a=>a.vacancy_id===j.id&&a.direction)).map(job=>({...job,compatibility_score:Math.round(preferenceFit(prefs,{title:job.job_title,employmentType:job.employment_type,skills:job.required_skills})*100),explanation:undefined})).sort((a,b)=>a.id===requested?-1:b.id===requested?1:b.compatibility_score-a.compatibility_score);
+    return rankEligibleVacancies(jobs,actions,prefs,requested);
   }, [jobs,actions,prefs,requestedId,restoredJobId]);
 
   const [handledRequestedId,setHandledRequestedId]=useState<string|null>(null);
@@ -535,6 +533,7 @@ function SwipeView() {
 
   const handleSwipe = useCallback(async (dir: 'left' | 'right') => {
     if (!currentJob || !accountId || swipeLock.current) return false;
+    if(dir==='right'&&(profileEligibility.error||profileEligibility.percentage!==100)){navigate('/seeker?view=cv&complete=1');return false;}
     swipeLock.current = true; setSwipeBusy(true);
     try {
       await recordJobAction(currentJob.id,dir);
@@ -544,7 +543,7 @@ function SwipeView() {
       toast(dir==='right'?t('interest_recorded'):t('job_skipped'));return true;
     }catch(error){toast.error((error as {message?:string}).message||t('try_again'));return false;}
     finally{swipeLock.current=false;setSwipeBusy(false);}
-  }, [currentJob,t,accountId,refreshJobs,requestedId]);
+  }, [currentJob,t,accountId,refreshJobs,requestedId,profileEligibility.error,profileEligibility.percentage,navigate]);
 
   const handleUndo = useCallback(async () => {
     if(!lastPass||!accountId||swipeLock.current)return;
@@ -576,7 +575,7 @@ function SwipeView() {
   }, [currentJob, swipeDeckItems]);
 
   const renderSwipeCard = useCallback((item: SwipeCardItem, _isActive: boolean) => {
-    const job = item as unknown as typeof mockJobs[0];
+    const job = item as unknown as DiscoverJob;
     return (
       <SwipeCardContent
         job={job}
@@ -740,35 +739,7 @@ function useMockProfileData(): ProfileData {
 }
 
 function DashboardView({ onNavigateToSection }: { onNavigateToSection?: (section: string) => void }) {
-  const { t } = useTranslation();
-  const profileData = useMockProfileData();
-  const stats = [
-    { label: t('matched_jobs'), value: String(mockMatches.length), color: 'text-primary', section: 'matches' },
-    { label: t('applications'), value: String(mockApplications.length), color: 'text-accent', section: 'applications' },
-    { label: t('interviews'), value: String(mockApplications.filter(a => a.status === 'interview').length), color: 'text-green-600', section: 'applications' },
-    { label: t('profile_views'), value: '89', color: 'text-purple-600', section: 'who_viewed' },
-  ];
-
-  const handleNavigate = (section: string) => {
-    if (onNavigateToSection) onNavigateToSection(section);
-  };
-
-  return (
-    <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('dashboard')}</h2>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {stats.map(s => <UCSummaryCard key={s.label} config={{ type: 'summary', value: s.value, label: s.label, colorClass: s.color, density: 'compact', variant: 'default', radius: 'lg', interactive: true, ariaLabel: `${s.label}: ${s.value}`, className: 'cursor-pointer hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring', onClick: () => { trackEvent('dashboard_card_open', { section: s.section }); handleNavigate(s.section); } }} />)}
-      </div>
-      {/* Profile Completion Card */}
-      <div className="mb-6">
-        <ProfileCompletionCard profileData={profileData} onNavigateToSection={handleNavigate} />
-      </div>
-      <h3 className="text-lg font-semibold font-[Poppins] mb-3">{t('recent_matches')}</h3>
-      <div className="space-y-3">{mockMatches.map(m => (
-        <UCDecisionCard key={m.id} config={{ type: 'decision', title: m.role, subtitle: m.company, avatar: { fallback: m.company, icon: Building2, size: 'md', shape: 'rounded' }, matchScore: { score: m.score, showPercentage: true, size: 'sm' }, badges: m.hasMessage ? [{ label: t('new_message'), variant: 'info' }] : [], density: 'normal', variant: 'default', interactive: true }} />
-      ))}</div>
-    </div>
-  );
+  return <MobileDashboard onNavigateToSection={section=>onNavigateToSection?.(section)} />;
 }
 
 // ============================================================
@@ -1040,7 +1011,7 @@ function SavedJobsView() {
 function ApplicationsView() {
   const { t } = useTranslation();
   const {jobs,actions,loading,error,refresh}=useSeekerJobs();
-  const applications=actions.filter(a=>a.direction==='right'&&a.application_status!=='withdrawn').flatMap(a=>{const j=jobs.find(j=>j.id===a.vacancy_id);return j?[{id:j.id,title:j.job_title,company:j.company_name,appliedDate:a.updated_at.slice(0,10),status:a.application_status||'pending'}]:[];});
+  const applications=actions.filter(a=>a.direction==='right'&&a.application_status!=='withdrawn').flatMap(a=>{const j=jobs.find(j=>j.id===a.vacancy_id);return j?[{id:j.id,title:j.job_title,company:j.company_name,appliedDate:a.updated_at.slice(0,10),status:a.company_status||a.application_status||'pending'}]:[];});
   const statusColor = (s: string) => { switch(s) { case 'interview': return 'default'; case 'reviewed': return 'secondary'; case 'pending': return 'outline'; case 'rejected': return 'destructive'; default: return 'secondary'; } };
 
   const handleWithdraw = async (id: string) => {
@@ -1057,7 +1028,7 @@ function ApplicationsView() {
             <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><FileText className="w-5 h-5 text-primary" /></div><div><p className="font-medium text-sm">{app.title}</p><p className="text-xs text-muted-foreground">{app.company} · {t('applied')}: {app.appliedDate}</p></div></div>
             <div className="flex items-center gap-2">
               <Badge variant={statusColor(app.status) as any} className="text-xs">{t(app.status)}</Badge>
-              {app.status === 'pending' && <Button size="sm" variant="ghost" className="cursor-pointer text-destructive text-xs" onClick={() => handleWithdraw(app.id)}>{t('withdraw')}</Button>}
+              {!['withdrawn','rejected','hired'].includes(app.status) && <Button size="sm" variant="ghost" className="cursor-pointer text-destructive text-xs" onClick={() => handleWithdraw(app.id)}>{t('withdraw')}</Button>}
             </div>
           </CardContent></Card>
         ))}
@@ -1072,21 +1043,10 @@ function ApplicationsView() {
 // ============================================================
 
 function MatchesView() {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  return (
-    <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('matches')}</h2>
-      <div className="space-y-3">
-        {mockMatches.map(m => (
-          <Card key={m.id} className="hover:shadow-md transition-smooth cursor-pointer" onClick={() => navigate('/messages')}><CardContent className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3"><div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center"><Building2 className="w-6 h-6 text-primary" /></div><div><p className="font-semibold text-sm">{m.role}</p><p className="text-xs text-muted-foreground">{m.company} · {t('matched')}: {m.matchedDate}</p></div></div>
-            <div className="flex items-center gap-3"><span className="text-xl font-bold text-primary font-[Poppins]">{m.score}%</span><Button size="sm" className="cursor-pointer gap-1" onClick={(e) => { e.stopPropagation(); navigate('/messages'); }}><MessageSquare className="w-3 h-3" />{t('send')}</Button></div>
-          </CardContent></Card>
-        ))}
-      </div>
-    </div>
-  );
+  const {t}=useTranslation();const navigate=useNavigate();
+  const {jobs,actions,loading,error,refresh}=useSeekerJobs();
+  const matches=actions.filter(a=>a.direction==='right'&&a.application_status==='pending'&&['accepted','hired'].includes(a.company_status||'')).flatMap(a=>{const job=jobs.find(j=>j.id===a.vacancy_id);return job?[{job,status:a.company_status}]:[];});
+  return <div className="flex-1 p-4 sm:p-6 overflow-y-auto"><h2 className="text-xl font-bold mb-6">{t('matches')}</h2>{loading?<p role="status">{t('loading')}</p>:error?<Button onClick={()=>void refresh()}>{t('try_again')}</Button>:<div className="space-y-3">{matches.map(({job,status})=><Card key={job.id}><CardContent className="p-4 flex justify-between gap-3"><div><p className="font-semibold">{job.job_title}</p><p className="text-sm text-muted-foreground">{job.company_name}</p><Badge variant="outline">{t(status||'accepted')}</Badge></div><Button onClick={()=>navigate('/messages')}>{t('messages')}</Button></CardContent></Card>)}{!matches.length&&<p className="text-muted-foreground">{t('no_matches_yet')}</p>}</div>}</div>;
 }
 
 // ============================================================

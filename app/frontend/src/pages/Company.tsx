@@ -23,6 +23,8 @@ import {
   TrendingUp, Calendar, Download, Filter, Search, MoreVertical, Star,
   GitBranch, Lock, Unlock, Receipt, PieChart, UserCheck, Layers
 } from 'lucide-react';
+import CompanyLiveView from '@/components/shared/CompanyLiveView';
+import CompanyProfileView from '@/components/shared/CompanyProfileView';
 import PersistedVacanciesView from '@/components/shared/PersistedVacanciesView';
 import { ChangePassword } from '@/components/shared/ChangePassword';
 import CandidateDirectory from '@/components/shared/CandidateDirectory';
@@ -1506,6 +1508,8 @@ export default function Company() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<NavSection>('dashboard');
+  const [applicantVacancy, setApplicantVacancy] = useState<string|null>(null);
+  const openLiveSection = (section:'profile'|'vacancies'|'candidates', jobId?:string) => { setApplicantVacancy(jobId||null); setActiveTab(section); };
 
   // Navigation Reliability: Intercept 'messages' tab at all entry points
   // If activeTab is ever set to 'messages' (from sidebar or any source), navigate immediately
@@ -1531,15 +1535,15 @@ export default function Company() {
     }
 
     switch(activeTab) {
-      case 'dashboard': return <DashboardView onNavigate={setActiveTab} />;
-      case 'profile': return <ProfileView />;
+      case 'dashboard': return <CompanyLiveView onNavigate={openLiveSection} />;
+      case 'profile': return <CompanyProfileView />;
       case 'branches': return <BranchesView />;
       case 'recruiters': return <RecruitersView />;
-      case 'vacancies': return <PersistedVacanciesView />;
-      case 'candidates': return <CandidatesView />;
-      case 'pipeline': return <PipelineView />;
+      case 'vacancies': return <PersistedVacanciesView onApplicants={id=>openLiveSection('candidates',id)} />;
+      case 'candidates': return <CompanyLiveView key={applicantVacancy||'all'} view="applicants" vacancyId={applicantVacancy} />;
+      case 'pipeline': return <CompanyLiveView view="pipeline" />;
       case 'saved': return <TalentCollections />;
-      case 'matching': return <MatchingQueueView />;
+      case 'matching': return <CompanyLiveView view="matching" />;
       case 'messages': return null; // Handled by useEffect — navigates to /messages
       case 'notifications': return <NotificationsView />;
       case 'analytics': return <AnalyticsView />;
@@ -1561,7 +1565,7 @@ export default function Company() {
       case 'feature_flags': return <FeatureFlagsView />;
       case 'org_settings': return <OrganizationSettingsView />;
       case 'security': return <SecurityDashboardView />;
-      default: return <DashboardView onNavigate={setActiveTab} />;
+      default: return <CompanyLiveView onNavigate={openLiveSection} />;
     }
   };
 

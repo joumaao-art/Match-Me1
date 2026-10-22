@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import { createServer } from 'vite';
+import { readFile } from 'node:fs/promises';
+const cache=new Map();globalThis.localStorage={getItem:k=>cache.get(k)||null,setItem:(k,v)=>cache.set(k,v),removeItem:k=>cache.delete(k)};
+globalThis.WebSocket=class {static OPEN=1;static CONNECTING=0;static CLOSED=3;};
+globalThis.window={location:{origin:'https://example.com'},dispatchEvent:()=>{}};
+const server=await createServer({server:{middlewareMode:true},appType:'custom'});
+let count=0;const test=(name,run)=>{run();count++;console.log(`PASS ${name}`);};
+try{
+ const {rankEligibleVacancies}=await server.ssrLoadModule('/src/lib/vacancy-discovery.ts');
+ const {EMPTY_PREFERENCES}=await server.ssrLoadModule('/src/lib/job-preferences.ts');
+ const job={id:'a',company_id:'company-a',company_name:'Test Company',job_title:'Test role',job_description:'Test description',required_skills:[],employment_type:'full-time',status:'open',posting_date:'2026-10-20'};
+ const newer={...job,id:'b',posting_date:'2026-10-21'};
+ test('published real input retained with canonical identities',()=>{const r=rankEligibleVacancies([job],[],EMPTY_PREFERENCES);assert.equal(r[0].id,job.id);assert.equal(r[0].company_id,job.company_id);});
+ test('draft closed expired excluded, not preferences',()=>{const r=rankEligibleVacancies([job,{...job,id:'draft',status:'draft'},{...job,id:'closed',status:'closed'},{...job,id:'expired',expiration_date:'2020-01-01'}],[],{...EMPTY_PREFERENCES,targetCountries:['ZZ'],expertise:['nurse']});assert.deepEqual(r.map(j=>j.id),['a']);});
+ test('empty source remains empty without fabricated fallback',()=>assert.deepEqual(rankEligibleVacancies([],[],EMPTY_PREFERENCES),[]));
+ test('equal signals rank newest publication first',()=>assert.deepEqual(rankEligibleVacancies([job,newer],[],EMPTY_PREFERENCES).map(j=>j.id),['b','a']));
+ test('malformed rank signals fall back without hiding jobs',()=>assert.equal(rankEligibleVacancies([job,newer],[],{...EMPTY_PREFERENCES,expertise:null}).length,2));
+ test('pass and apply excluded; save stays eligible',()=>assert.deepEqual(rankEligibleVacancies([job,newer], [{vacancy_id:'a',direction:'left'},{vacancy_id:'b',direction:null,saved:true}],EMPTY_PREFERENCES).map(j=>j.id),['b']));
+ test('requested job prioritized only within eligibility',()=>assert.equal(rankEligibleVacancies([job,newer],[],EMPTY_PREFERENCES,'a')[0].id,'a'));
+ const dashboard=await readFile('src/components/shared/MobileDashboard.tsx','utf8');
+ test('dashboard derives counts from actions rather than fixtures',()=>{assert.ok(dashboard.includes('useSeekerJobs()'));assert.ok(!/TechCorp|Ahmed|mockMatches|value:.*28/.test(dashboard));});
+ const portal=await readFile('src/pages/Company.tsx','utf8');
+ test('Company core mounts canonical screens',()=>{assert.ok(portal.includes("case 'profile': return <CompanyProfileView"));assert.ok(portal.includes("case 'candidates': return <CompanyLiveView"));assert.ok(portal.includes('onApplicants={id=>'));});
+ const api=await readFile('src/lib/company-marketplace.ts','utf8');
+ test('Company uses existing client and owner-scoped vacancies',()=>{assert.ok(api.includes(".eq('company_id',company.id)"));assert.ok(api.includes("rpc('get_company_applicants')"));assert.ok(!api.includes("from('matches')"));});
+ const env=await readFile('.env','utf8');
+ test('intended shared Supabase environment configured',()=>assert.ok(env.includes('VITE_SUPABASE_URL=https://ykvlaakotyouojkdydzh.supabase.co')));
+ const migration=await readFile('supabase/migrations/018_live_marketplace.sql','utf8');
+ test('applicant projection excludes sensitive candidate columns',()=>{const rpc=migration.split('CREATE OR REPLACE FUNCTION public.get_company_applicants()')[1].split('REVOKE ALL')[0];assert.ok(rpc.includes('c.user_id=auth.uid()'));assert.ok(!/s\.(email|phone|date_of_birth|disability|cv_url)/.test(rpc));});
+ const privileges=await readFile('supabase/migrations/019_marketplace_privileges.sql','utf8');
+ test('RLS bypass privileges revoked and history protected',()=>{assert.ok(privileges.includes('REVOKE TRUNCATE,REFERENCES,TRIGGER'));assert.ok(privileges.includes('vacancy_history_guard'));});
+ console.log(`${count} live marketplace contracts passed; not browser end-to-end evidence.`);
+}finally{await server.close();}

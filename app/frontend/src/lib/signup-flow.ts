@@ -91,6 +91,7 @@ export async function ensureIdentity(
     BOOTSTRAP_TIMEOUT_MS,
     null
   );
+  if (!base) errors.push('user_profile: initialization timed out; please retry');
   if ((base as any)?.error) errors.push(`user_profile: ${(base as any).error.message}`);
 
   const roleProfile = await withTimeout(
@@ -98,6 +99,7 @@ export async function ensureIdentity(
     BOOTSTRAP_TIMEOUT_MS,
     null
   );
+  if (!roleProfile) errors.push('role_profile: initialization timed out; please retry');
   if ((roleProfile as any)?.error) errors.push(`role_profile: ${(roleProfile as any).error.message}`);
 
   if (errors.length) logger.warn('[SignupFlow] Identity bootstrap reported issues', errors);

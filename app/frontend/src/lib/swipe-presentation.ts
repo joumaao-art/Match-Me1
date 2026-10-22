@@ -8,8 +8,8 @@ export function vacancyDimensions(value: string) {
 export function isAvailableJob(job: {status:string;expiration_date?:string|null}) {
   if(job.status!=='open')return false;
   if(!job.expiration_date)return true;
-  const date=/^\d{4}-\d{2}-\d{2}$/.test(job.expiration_date)?`${job.expiration_date}T23:59:59.999Z`:job.expiration_date;
-  return Number.isFinite(Date.parse(date))&&Date.parse(date)>=Date.now();
+  const date=job.expiration_date.slice(0,10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(date)&&date>=new Date().toISOString().slice(0,10);
 }
 export function compensationText(job: DiscoverJob, locale: string): string | null {
   if (job.show_salary === false || !job.salary_currency || !job.salary_period) return null;
