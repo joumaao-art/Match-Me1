@@ -27,7 +27,8 @@ MatchMe React/Vite/shadcn with existing Supabase Auth, PostgreSQL/RLS, Storage a
 | Persistence | Server owns completed steps; per-user local draft recovery, revision guard, mounted/account/request guards |
 | History safety | Server wrapper rejects foreign history UUIDs before internal canonical writes |
 | Purchase safety | Configured server price; app/product/user/paid amount validation; browser cannot call grant RPC |
-| Migrations |012 additive mobile/credit schema,013 server integrity/live actions,014 foreign-history and nullable purchase hardening |
+| Migrations |012 additive mobile/credit schema,013 server integrity/live actions,014 ownership/purchase hardening,015 mobile field preservation and idempotent initial-credit trigger/repair |
+| Date wheels | Fixed44px block rows and spacers, stable controlled option-value synchronization, ascending unique years, direct calendar serialization; mobile architecture only |
 | Deployment artifacts | App-prefixed function directories contain deployed source; credit-payments directory contains readable equivalent implementation |
 
 ## Validation / Limitations

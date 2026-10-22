@@ -1,5 +1,12 @@
 ## Task Breakdown
 
+| Targeted mobile refinement phase | Implementation | Validation |
+|---|---|---|
+| Audit labels, date-wheel geometry and centralized credit eligibility | done | done |
+| Mobile-only labels/progress and canonical wheel fix | done | in_progress |
+| Idempotent missing credit repair; preserve profile and balances | done | done |
+| TypeScript, ESLint/build, live ledger and mobile acceptance | done | blocked |
+
 | Current mobile onboarding phase | Implementation | Validation |
 |---|---|---|
 | Mobile entry, eleven steps, canonical persistence and recovery | done | in_progress |
@@ -11,6 +18,12 @@
 | Approved legal sheets and required mobile A–W acceptance evidence | blocked | blocked |
 
 ## Progress Log
+- Targeted refinement request: preserved eleven-step sequence/progress and desktop layout; stronger mobile blue/slate progress; removed Step1 headline/summary requirements, duplicate visible Gender/Birthday/Skills labels, and Step10 technical paragraph.
+- Education wheel root cause found in code: inline buttons introduced baseline/line-box spacing despite index math assuming exact44px rows; regenerated options triggered resynchronization on unrelated renders. Fixed explicit block44px rows/spacers, stable option-value synchronization, latest controlled callbacks, drag-click suppression and ascending unique year mapping; calendar serialization avoids timezone conversion.
+- Credit root cause: grant occurred only when FREE_CREDITS was completed; confirmed ungranted accounts could display0 even after completion. Added server identity-insert entitlement and idempotent repair via same ledger; shared initialization/hook repair before showing balance. Imported entitlement flags and positive legacy signup evidence remain authoritative.
+- Applied migration015; repaired24 explicitly ungranted/missing accounts with20 each. Latest37 accounts total850, seven legacy50 balances preserved;25 total signup20 ledger entries, zero duplicate signup accounts/invalid amounts. No balance reduced; ambiguous imported zero balances unchanged.
+- Rollback-only new auth/profile fixture verified immediate20, five repeat claims stay20/one grant, Step1 saves without headline/summary and preserves existing professional data, legacy50 unchanged. Fixtures rolled back; not a genuine browser registration test.
+- Final31 deterministic contract checks, TypeScript, ESLint and production build passed. Current-request UI check showed desktop homepage only; mobile authenticated flow, real account signup/logout/revisit, RTL/device gestures, back navigation/routing and desktop onboarding regression remain UNEXECUTED. No second UI check allowed after passing first result.
 - Scope: MOBILE-ONLY guest entry/onboarding below768; existing Supabase/auth/routes, Company/Admin and desktop presentation retained; EN/AR product.
 - Exact sequence: INTRO → PERSONAL_DETAILS → GENDER → BIRTHDAY → CURRENT_LOCATION → SKILLS → EDUCATION → EXPERIENCE → PREFERENCES → SENIORITY → FREE_CREDITS → HOW_IT_WORKS → COMPLETE → actual Discover.
 - Mobile version3 registry, completion-based progress, optional CV, shared controls, exact selectors, multi-entry history, no-experience confirmation and server-authoritative saves/retry implemented.

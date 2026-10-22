@@ -1,32 +1,59 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { calendarDays, chronologicalYears, dateWheelParts, dateWheelValue, wheelIndex, WHEEL_ROW_HEIGHT } from '@/lib/mobile-date-wheel';
 
-/** Scroll-snap wheel with keyboard and explicit accessible option selection. */
+/** Fixed-height block rows keep the highlighted option, scroll index and stored value identical. */
 export function Wheel({ label, options, value, onChange }: {label:string;options:{value:string;label:string}[];value:string;onChange:(value:string)=>void}) {
- const root=useRef<HTMLDivElement>(null);const settling=useRef<ReturnType<typeof setTimeout>>();const interacting=useRef(false);
- useEffect(()=>{clearTimeout(settling.current);interacting.current=false;const i=options.findIndex(o=>o.value===value);if(root.current&&i>=0&&Math.abs(root.current.scrollTop-i*44)>22)root.current.scrollTo({top:i*44,behavior:'auto'});},[value,options]);
+ const root=useRef<HTMLDivElement>(null);
+ const settling=useRef<ReturnType<typeof setTimeout>>();
+ const interacting=useRef(false);
+ const pointerStart=useRef<number|null>(null);
+ const dragged=useRef(false);
+ const latest=useRef({options,value,onChange});latest.current={options,value,onChange};
+ const optionValues=options.map(o=>o.value).join('|');
+ useEffect(()=>{
+  clearTimeout(settling.current);interacting.current=false;
+  const i=latest.current.options.findIndex(o=>o.value===value);
+  if(root.current&&i>=0)root.current.scrollTo({top:i*WHEEL_ROW_HEIGHT,behavior:'instant' as ScrollBehavior});
+ },[value,optionValues]);
  useEffect(()=>()=>clearTimeout(settling.current),[]);
+ const select=(next:string)=>{clearTimeout(settling.current);interacting.current=false;latest.current.onChange(next);};
  return <div className="min-w-0"><p className="text-xs text-muted-foreground mb-2 text-center">{label}</p><div className="relative rounded-xl border overflow-hidden bg-background">
- <div className="absolute inset-x-0 top-[44px] h-11 border-y bg-primary/5 pointer-events-none" />
- <div ref={root} role="listbox" aria-label={label} tabIndex={0} className="h-[132px] overflow-y-auto snap-y snap-mandatory overscroll-contain scrollbar-hide relative py-11"
- onKeyDown={e=>{const i=options.findIndex(o=>o.value===value);if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();onChange(options[Math.max(0,Math.min(options.length-1,i+(e.key==='ArrowDown'?1:-1)))].value);}}}
- onPointerDown={()=>{interacting.current=true;}} onWheel={()=>{interacting.current=true;}}
- onScroll={()=>{if(!interacting.current)return;clearTimeout(settling.current);settling.current=setTimeout(()=>{if(!root.current||!interacting.current)return;interacting.current=false;const i=Math.max(0,Math.min(options.length-1,Math.round(root.current.scrollTop/44)));if(options[i].value!==value)onChange(options[i].value);},120);}}>
- {options.map(o=><button key={o.value} type="button" role="option" aria-selected={value===o.value} onClick={()=>onChange(o.value)} className={cn('w-full h-11 snap-center text-sm px-1',value===o.value?'font-semibold text-primary':'text-muted-foreground')}>{o.label}</button>)}
+ <div className="absolute inset-x-0 top-[44px] h-11 border-y border-primary/30 bg-primary/5 pointer-events-none" />
+ <div ref={root} role="listbox" aria-label={label} tabIndex={0} className="h-[132px] overflow-y-auto snap-y snap-mandatory overscroll-contain scrollbar-hide relative"
+ onKeyDown={e=>{const i=options.findIndex(o=>o.value===value);if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();const option=options[Math.max(0,Math.min(options.length-1,i+(e.key==='ArrowDown'?1:-1)))];if(option)select(option.value);}}}
+ onPointerDown={e=>{pointerStart.current=e.clientY;dragged.current=false;interacting.current=true;}}
+ onPointerMove={e=>{if(pointerStart.current!==null&&Math.abs(e.clientY-pointerStart.current)>5)dragged.current=true;}}
+ onPointerUp={()=>{pointerStart.current=null;}} onPointerCancel={()=>{pointerStart.current=null;dragged.current=true;}}
+ onWheel={()=>{dragged.current=true;interacting.current=true;}}
+ onScroll={()=>{if(!interacting.current)return;clearTimeout(settling.current);settling.current=setTimeout(()=>{
+  if(!root.current||!interacting.current)return;
+  interacting.current=false;
+  const {options:items,value:selected,onChange:commit}=latest.current;
+  const index=wheelIndex(root.current.scrollTop,items.length);
+  const option=items[index];if(!option)return;
+  root.current.scrollTo({top:index*WHEEL_ROW_HEIGHT,behavior:'instant' as ScrollBehavior});
+  if(option.value!==selected)commit(option.value);
+ },180);}}>
+ <div aria-hidden="true" className="h-11 shrink-0" />
+ {options.map(o=><button key={o.value} type="button" role="option" aria-selected={value===o.value} tabIndex={-1} onClick={()=>{if(!dragged.current)select(o.value);}} className={cn('block w-full h-11 snap-center text-sm px-1 leading-[44px] tabular-nums',value===o.value?'font-semibold text-primary':'text-muted-foreground')}>{o.label}</button>)}
+ <div aria-hidden="true" className="h-11 shrink-0" />
  </div></div></div>;
 }
 export function DateWheels({label,value,onChange,monthOnly=false,future=false,lang='en'}:{label:string;value:string;onChange:(v:string)=>void;monthOnly?:boolean;future?:boolean;lang?:string}) {
- const now=new Date();const parts=value.split('-');const y=Number(parts[0])||now.getFullYear()-20,m=Number(parts[1])||1,d=Number(parts[2])||1;
- const maxYear=now.getFullYear()+(future?10:0);const maxMonth=!future&&y===now.getFullYear()?now.getMonth()+1:12;
- const days=Math.min(new Date(y,m,0).getDate(),!future&&y===now.getFullYear()&&m===now.getMonth()+1?now.getDate():31);
- const update=(year:number,month:number,day:number)=>{const mm=Math.min(month,!future&&year===now.getFullYear()?now.getMonth()+1:12);const dd=Math.min(day,new Date(year,mm,0).getDate(),!future&&year===now.getFullYear()&&mm===now.getMonth()+1?now.getDate():31);onChange(`${year}-${String(mm).padStart(2,'0')}${monthOnly?'':`-${String(dd).padStart(2,'0')}`}`);};
+ const now=new Date();const {year:y,month:m,day:d}=dateWheelParts(value,now);
+ const minYear=Math.min(now.getFullYear()-100,y),maxYear=Math.max(now.getFullYear()+(future?10:0),y);
+ const maxMonth=!future&&y===now.getFullYear()?now.getMonth()+1:12;
+ const days=Math.min(calendarDays(y,m),!future&&y===now.getFullYear()&&m===now.getMonth()+1?now.getDate():31);
+ const yearOptions=useMemo(()=>chronologicalYears(minYear,maxYear).map(year=>({value:year,label:year})),[minYear,maxYear]);
+ const update=(year:number,month:number,day:number)=>onChange(dateWheelValue(year,month,day,monthOnly,future,now));
  const nums=(n:number)=>Array.from({length:n},(_,i)=>({value:String(i+1),label:String(i+1).padStart(2,'0')}));
- return <div role="group" aria-label={label} className={cn('grid gap-2',monthOnly?'grid-cols-2':'grid-cols-3')}>
+ return <div role="group" aria-label={label} className={cn('grid gap-2 w-full mx-auto',monthOnly?'grid-cols-2':'grid-cols-3')}>
  {!monthOnly&&<Wheel label={lang==='ar'?'اليوم':'Day'} options={nums(days)} value={String(Math.min(d,days))} onChange={v=>update(y,m,Number(v))}/>}
  <Wheel label={lang==='ar'?'الشهر':'Month'} options={nums(maxMonth).map(o=>({...o,label:monthOnly?o.label:new Intl.DateTimeFormat(lang,{month:'short'}).format(new Date(2000,Number(o.value)-1,1))}))} value={String(m)} onChange={v=>update(y,Number(v),d)}/>
- <Wheel label={lang==='ar'?'السنة':'Year'} options={Array.from({length:maxYear-(now.getFullYear()-100)+1},(_,i)=>({value:String(maxYear-i),label:String(maxYear-i)}))} value={String(y)} onChange={v=>update(Number(v),m,d)}/>
+ <Wheel label={lang==='ar'?'السنة':'Year'} options={yearOptions} value={String(y)} onChange={v=>update(Number(v),m,d)}/>
  </div>;
 }
 /** Bounded searchable selections; a typed query is never silently committed. */

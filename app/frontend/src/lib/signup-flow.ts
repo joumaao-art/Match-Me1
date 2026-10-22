@@ -23,6 +23,7 @@
 import { authService, profileService } from '@/services';
 import { ROUTES } from '@/config/constants';
 import { logger } from '@/lib/logger';
+import { claimSignupCredits } from '@/lib/seeker-credits';
 import type { UserRole } from '@/types';
 
 /** Hard ceiling for any single bootstrap/profile step (ms). */
@@ -205,6 +206,9 @@ export async function ensureJobSeekerInitialized(
     // Idempotent repair: creates what is missing, preserves what exists.
     await ensureIdentity(id, email, 'job_seeker');
 
+    // Shared backend entitlement is idempotently repaired before either mobile or desktop routing.
+    const profile=await withTimeout(profileService.getUserProfile(id),BOOTSTRAP_TIMEOUT_MS,null);
+    if((profile?.data as {role?:string}|null)?.role==='job_seeker')await withTimeout(claimSignupCredits(),BOOTSTRAP_TIMEOUT_MS,null);
     const complete = await isSeekerOnboardingComplete(id);
     return {
       ready: true,

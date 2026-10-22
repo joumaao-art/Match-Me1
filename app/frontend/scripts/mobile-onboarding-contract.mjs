@@ -34,5 +34,16 @@ try{
  test('malformed preference fields cannot crash recovery',()=>{const next=p.migrateLegacyPreferences({expertise:17,work_styles:{},targetCountries:[null,'GB'],keywords:[false,'React'],employmentTypes:['REMOTE','FULL_TIME']});assert.deepEqual(next.expertise,[]);assert.deepEqual(next.targetCountries,['GB']);assert.deepEqual(next.keywords,['react']);assert.ok(next.workingStyles.includes('remote'));});
  test('null preferences recover to empty',()=>assert.deepEqual(p.migrateLegacyPreferences(null).keywords,[]));
  test('browser quota failure does not throw',()=>{const original=localStorage.setItem;localStorage.setItem=()=>{throw new Error('Quota exceeded');};try{assert.equal(m.cacheMobile('quota',m.emptyMobileState()),false);assert.doesNotThrow(()=>p.savePreferences('quota',p.EMPTY_PREFERENCES));}finally{localStorage.setItem=original;}});
+ const wheels=await server.ssrLoadModule('/src/lib/mobile-date-wheel.ts');
+ const now=new Date(2026,9,22);
+ test('Step1 no longer requires headline or summary',()=>{const draft={...m.emptyMobileState().draft,firstName:'Test',lastName:'Seeker',email:'test@example.com',mobile:'+447700900123',nationalities:['GB']};assert.deepEqual(m.validateMobile('PERSONAL_DETAILS',draft),{});});
+ test('year options are unique ascending calendar years',()=>{const years=wheels.chronologicalYears(1926,2036);assert.equal(years.length,new Set(years).size);assert.equal(years[0],'1926');assert.equal(years.at(-1),'2036');for(let i=1;i<years.length;i++)assert.equal(Number(years[i]),Number(years[i-1])+1);});
+ test('every highlighted wheel row maps to the same stored year',()=>{const years=wheels.chronologicalYears(1926,2036);years.forEach((year,index)=>assert.equal(years[wheels.wheelIndex(index*44,years.length)],year));});
+ test('editing year preserves month',()=>assert.equal(wheels.dateWheelValue(2028,6,1,true,true,now),'2028-06'));
+ test('editing month preserves year',()=>assert.equal(wheels.dateWheelValue(2024,9,1,true,true,now),'2024-09'));
+ test('full ISO history parses without timezone conversion',()=>assert.deepEqual(wheels.dateWheelParts('2024-09-01',now),{year:2024,month:9,day:1}));
+ test('reopening date retains selected calendar components',()=>{const saved=wheels.dateWheelValue(2028,6,1,true,true,now);assert.deepEqual(wheels.dateWheelParts(saved,now),{year:2028,month:6,day:1});});
+ test('leap date clamps only invalid day',()=>assert.equal(wheels.dateWheelValue(2023,2,29,false,true,now),'2023-02-28'));
+ test('Current education accepts unknown expected graduation',()=>assert.deepEqual(m.validateMobile('EDUCATION',{...m.emptyMobileState().draft,educations:[{...education,current:true,to:''}]}),{}));
  console.log(`${passed} onboarding contract checks passed.`);
 }finally{await server.close();}

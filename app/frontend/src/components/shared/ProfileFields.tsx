@@ -31,14 +31,14 @@ export function RequiredFieldIndicator() {
   );
 }
 
-export function FormField({ id, label, required, error, hint, children, className }: {
+export function FormField({ id, label, required, error, hint, children, className, hideLabel = false }: {
   id: string; label: string; required?: boolean; error?: string; hint?: React.ReactNode;
-  children: React.ReactNode; className?: string;
+  children: React.ReactNode; className?: string; hideLabel?: boolean;
 }) {
   const { t } = useTranslation();
   return (
     <div className={className} data-field-error={error ? 'true' : undefined}>
-      <Label htmlFor={id} className="flex items-center">{label}{required && <RequiredFieldIndicator />}</Label>
+      <Label htmlFor={id} className={hideLabel ? 'sr-only' : 'flex items-center'}>{label}{required && <RequiredFieldIndicator />}</Label>
       {hint && <div id={`${id}-hint`} className="text-xs text-muted-foreground mt-1">{hint}</div>}
       <div className="mt-1">{children}</div>
       {error && (

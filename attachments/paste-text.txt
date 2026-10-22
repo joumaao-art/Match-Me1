@@ -1,0 +1,216 @@
+# MATCHME — MOBILE ONBOARDING UI REFINEMENTS & CREDIT BALANCE FIX
+
+## Objective
+
+Implement the following adjustments to the existing MatchMe mobile Job Seeker onboarding experience.
+
+**Important:** These are targeted corrections to the existing 11-step onboarding flow. Do not redesign or rebuild the flow, change the step sequence, reset user progress, or modify unrelated functionality.
+
+Preserve the existing MatchMe branding and professional mobile-first design.
+
+All Atoms Working Process updates, technical explanations, and final reports must be in **English only**. The application must continue supporting English and Arabic.
+
+## 1. Onboarding Completion Bar — Improve Color Visibility
+
+The current completion/progress bar colors are not sufficiently visible.
+
+Update the progress bar to use a more distinguishable, professional color combination.
+
+Requirements:
+
+- Use a strong, accessible accent color consistent with the MatchMe brand for the completed portion.
+- Use a clearly contrasting neutral color for the incomplete portion.
+- Ensure the completed and incomplete segments are visually distinguishable on both light and dark backgrounds.
+- Maintain the existing slim, modern progress bar design.
+- Do not introduce gradients, glowing effects, or excessive animations.
+- Ensure the progress bar updates accurately after each completed onboarding step.
+- Keep the progress bar in the same position across all 11 steps.
+- Do not reintroduce numerical step labels.
+
+The result should be clean, highly visible, and consistent with a premium professional application.
+
+## 2. Step 1 — Remove Two Fields
+
+On Step 1, completely remove the following fields:
+
+- Professional Headline
+- Professional Summary
+
+Remove them from the Step 1 UI and from Step 1 mandatory-field validation.
+
+Do not delete existing professional headline or summary data from the Job Seeker database or remove these fields from other areas of the application where they are still used.
+
+Keep all other Step 1 fields and their existing validation rules unchanged.
+
+CV upload remains optional.
+
+## 3. Step 2 — Remove Duplicate Gender Label
+
+The word **Gender** currently appears twice.
+
+Keep the main heading and remove the smaller, secondary "Gender" label above the selection options.
+
+Preserve the three choices:
+
+- Male
+- Female
+- Prefer not to say
+
+Selection remains mandatory.
+
+Adjust spacing after removing the duplicate label so the page looks balanced.
+
+## 4. Step 3 — Remove Duplicate Birthday Label
+
+Remove the smaller label:
+
+**Birthday**
+
+Keep the main heading:
+
+**When is your birthday?**
+
+Preserve the mandatory Day, Month, and Year scroll-wheel selectors.
+
+Ensure the date selector remains centered and professionally aligned after removing the label.
+
+## 5. Step 5 — Remove Duplicate Skills Label
+
+Remove the smaller secondary label:
+
+**Skills**
+
+Keep the main heading:
+
+**Skills**
+
+Keep the supporting phrase:
+
+"The more skills you add the more matches you discover"
+
+Preserve the searchable skills dropdown, autocomplete suggestions, multiple selections, and mandatory validation.
+
+Ensure the layout has appropriate spacing between the heading, supporting text, and selection component.
+
+## 6. Step 6 — Fix Education Year Selection
+
+There is currently a problem with the Education date selectors: **the years are mixed up or displayed incorrectly**.
+
+Investigate and fix the root cause.
+
+Requirements:
+
+- Start Date and End Date / Expected Graduation must use consistent Month/Year scroll-wheel pickers.
+- Years must appear in a logical, predictable chronological order.
+- Do not mix years, repeat values, or display years in an inconsistent sequence.
+- The selected year must match the year displayed and the value saved.
+- Ensure scroll positioning does not select a different year from the highlighted value.
+- Prevent invalid date ranges where End Date is earlier than Start Date.
+- Support future years for expected graduation where appropriate.
+- Support Current education without requiring a completed graduation date.
+- Ensure changing the month or year does not unexpectedly reset the other selection.
+- Verify correct behavior when opening, closing, reopening, and editing the picker.
+- Test the selector on actual mobile devices/viewports and in Arabic RTL.
+
+Audit year-array generation, sorting, picker indexing, controlled component state, date parsing, and timezone conversions.
+
+**Do not fix this by merely reversing the visual order if the underlying selected and saved values remain incorrect.**
+
+Reuse the canonical date-picker architecture so the same bug does not occur elsewhere.
+
+## 7. Step 10 — Remove Technical Credit Explanation
+
+Remove the following text completely from the Step 10 mobile onboarding screen:
+
+"20 free swiping credits for eligible new accounts. Your balance follows your account across devices; returning here never grants them twice."
+
+This text is unnecessarily technical and should not appear in the user-facing onboarding experience.
+
+Keep the main heading:
+
+**"Almost there…20 free swiping credits await you!"**
+
+Maintain a clean, premium layout with the existing credit icon and Continue button.
+
+Do not replace the removed paragraph with another technical explanation.
+
+## 8. Step 10 — Ensure New Users Receive 20 Credits
+
+The unified MatchMe credit policy is:
+
+**20 free swiping credits for every eligible new Job Seeker account, on both mobile and desktop.**
+
+Verify and correct the actual credit-awarding logic.
+
+Requirements:
+
+- Every eligible newly registered Job Seeker receives exactly 20 free credits.
+- The initial available balance must display 20 before any credit-consuming activity.
+- Credits must be granted exactly once per account.
+- Mobile and desktop must share the same account credit balance.
+- Refreshing the page must not award additional credits.
+- Returning to Step 10 must not award additional credits.
+- Logging out and back in must not award additional credits.
+- Completing onboarding again must not award additional credits.
+- Credit awards and deductions must use the existing centralized backend credit ledger.
+- Do not create a separate mobile credit balance.
+- Do not change the actual balance merely by hardcoding "20" in the interface.
+- Preserve existing users' legitimately earned or purchased credits.
+- Do not retroactively reduce balances belonging to existing users.
+
+If an eligible new account has not received its initial 20-credit grant because of a signup or onboarding error, repair the missing grant safely using an idempotent backend operation.
+
+Do not grant another 20 credits to accounts that have already received their initial entitlement.
+
+## 9. Mobile-Only Scope
+
+All requested layout changes must apply to the **mobile onboarding experience only**.
+
+Do not modify the desktop onboarding layout or other desktop visual components.
+
+The unified 20-credit entitlement and shared account balance must remain consistent across mobile and desktop.
+
+Preserve all other onboarding fields, features, and steps.
+
+## 10. Mandatory Acceptance Testing
+
+Test the actual mobile App Viewer, not just TypeScript or build success.
+
+| Test | Expected result |
+|---|---|
+| Completion bar | Clearly visible progress and remaining segments |
+| Step 1 | Professional Headline and Professional Summary removed |
+| Step 2 | Only one Gender heading |
+| Step 3 | Smaller Birthday label removed |
+| Step 5 | Smaller Skills label removed |
+| Step 6 | Years correctly ordered and saved |
+| Step 6 | Start/End dates validate correctly |
+| Step 10 | Technical credit paragraph removed |
+| Step 10 | Main 20-credit heading preserved |
+| New account | Initial credit balance equals 20 |
+| Existing account | Existing balance preserved |
+| Mobile/desktop | Same account shows same balance |
+| Refresh/revisit | No duplicate credit grant |
+| Back navigation | Previous inputs remain saved |
+| Arabic RTL | Layout and date pickers work correctly |
+| Desktop | No unintended visual changes |
+
+Test with both a genuinely new account and an existing account.
+
+## 11. Final Implementation Requirements
+
+Before declaring completion:
+
+1. Audit the existing affected components.
+2. Make the requested changes directly in the application.
+3. Preserve all existing data.
+4. Run TypeScript, ESLint, and production build.
+5. Test the actual mobile onboarding flow.
+6. Verify the backend credit balance and transaction history.
+7. Confirm no infinite loading states or routing regressions.
+8. Report the root cause of the Education year-picker issue.
+9. Report any tests that could not actually be executed.
+
+**Do not claim the changes are completed unless they have been implemented and verified.**
+
+The final report must be in English and include the files changed, test results, and confirmation that the 20-credit policy works consistently across mobile and desktop.

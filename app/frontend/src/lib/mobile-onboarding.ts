@@ -44,7 +44,7 @@ export function migrateMobile(legacy: OnboardingState | null, profile: Record<st
 export function validateMobile(step: MobileStep, d: MobileDraft): Record<string,string> {
  const e:Record<string,string>={}; const need=(field:string,ok:unknown)=>{if(!ok)e[field]='pp_err_required';};
  if(step==='PERSONAL_DETAILS') {
-  for(const f of ['firstName','lastName','email','mobile','headline','summary'] as const) need(f,d[f].trim());
+  for(const f of ['firstName','lastName','email','mobile'] as const) need(f,d[f].trim());
   need('nationalities',d.nationalities.length);
   if(d.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email))e.email='invalid_email';
   if(d.mobile && !/^\+\d{7,15}$/.test(d.mobile))e.mobile='pp_err_phone';
