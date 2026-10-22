@@ -1,0 +1,346 @@
+# MATCHME — CREDITS POPUP & VIA PREMIUM SUBSCRIPTION FLOW
+## Mobile Job Seeker | UI/UX, Subscription Selection & Checkout
+
+### Objective
+
+Redesign the Credits experience on the MatchMe mobile Swipe page and implement the VIA Premium subscription journey.
+
+The experience must be premium, professional, clean, and consistent with the existing MatchMe design system.
+
+The application name remains **MatchMe**.
+
+The premium subscription product is called **VIA Premium**.
+
+Do not rename MatchMe to VIA.
+
+All Atoms Working Process updates, implementation explanations, and final reports must be in English only. Preserve English and Arabic product localization.
+
+### 1. Credits — Open as a Popup
+
+When a Job Seeker is on the mobile Swipe page and taps the available Credits indicator in the top-right header, open a **Credits popup within the same view**.
+
+Do not navigate to a separate Credits page.
+
+Use a polished mobile modal or bottom sheet, whichever best fits the existing MatchMe design system.
+
+Requirements:
+
+- The Swipe page remains behind the popup.
+- The current job card and Swipe state must be preserved.
+- The popup must not trigger a new job fetch or reset the current card.
+- Provide a clear close icon.
+- Allow dismissal using supported mobile gestures or backdrop interaction.
+- Respect mobile safe areas.
+- Do not show the mobile bottom navigation above the popup.
+- Prevent accidental job swipes while the popup is open.
+
+### 2. Credits Popup Layout
+
+The Credits popup must have this exact hierarchy:
+
+**Top-left:** MatchMe application logo.
+
+**Below logo:** Available credit balance.
+
+Example:
+
+**47 credits remaining**
+
+Use the actual balance from the centralized MatchMe credit system, not a hardcoded value.
+
+**Below available credits:** A prominent clickable button:
+
+**Unlock more now**
+
+Requirements:
+
+- Use the existing official MatchMe logo.
+- Keep the popup visually simple.
+- Make the credit balance the main focal point.
+- Use clear, premium typography.
+- Do not add unnecessary explanations or decorative elements.
+- Keep spacing balanced.
+- Make the button full-width or appropriately sized for mobile.
+
+### 3. Unlock More Now — Navigation
+
+When the user clicks:
+
+**Unlock more now**
+
+Navigate to the VIA Premium subscriptions experience.
+
+The Credits popup should close cleanly.
+
+The Swipe page state must remain preserved so the user can return to the same job card.
+
+Do not automatically subscribe the user.
+
+Do not deduct credits.
+
+Do not initiate payment until the user selects a plan and explicitly continues to checkout.
+
+### 4. VIA Premium Subscription Page
+
+Create or update the existing mobile subscription page.
+
+At the top display the exact phrase:
+
+**Unlimited applications with VIA Premium**
+
+Below it, display two subscription options.
+
+### Monthly Plan
+
+**Monthly — $10**
+
+Display a small, tasteful label next to this plan:
+
+**Most Popular**
+
+The Most Popular label must be a marketing label only and must not be confused with a discount.
+
+### Yearly Plan
+
+**Yearly — $100**
+
+Do not invent additional discounts, benefits, or promotional claims.
+
+Display both plans as clearly selectable options.
+
+Only one plan may be selected at a time.
+
+Default to Monthly if no previous plan selection exists.
+
+Use the canonical billing catalog for plan identifiers, prices, and billing intervals. Configure or reconcile the catalog to the requested prices rather than hardcoding display values that disagree with checkout.
+
+If the existing billing provider cannot support these exact prices or currency, report the blocker instead of charging a different amount.
+
+### 5. Subscription Auto-Renewal Disclosure
+
+Below the subscription options display:
+
+**Subscription auto renews until cancelled**
+
+This statement must be clearly readable and visible before the user proceeds to checkout.
+
+Do not hide it behind a tooltip or expandable section.
+
+Ensure the checkout flow also displays the applicable billing interval, currency, renewal terms, and cancellation information required by the payment provider and relevant platform rules.
+
+### 6. Subscribe Button
+
+At the bottom of the subscription page display a prominent button:
+
+**Subscribe VIA Premium**
+
+When clicked:
+
+- Validate that a subscription plan has been selected.
+- Pass the selected plan to the existing billing/checkout service.
+- Navigate to the actual payment and checkout experience.
+- Display the correct price and billing interval.
+- Do not immediately mark the user as subscribed.
+- Do not activate Premium before payment confirmation.
+
+The button must remain visible and accessible on mobile without being covered by the bottom navigation or keyboard.
+
+### 7. Payment and Checkout
+
+Connect the subscription page to the existing MatchMe billing architecture.
+
+If a payment provider is already integrated, reuse it.
+
+Do not build a second independent billing system.
+
+The checkout must support:
+
+- Selected plan
+- Correct billing amount
+- Correct billing interval
+- Secure payment processing
+- Payment success
+- Payment failure
+- Payment cancellation
+- Subscription activation after verified payment
+- Renewal status
+- Cancellation status
+
+Do not store raw payment card details in MatchMe's database.
+
+Use verified provider webhooks or equivalent server-side confirmation before activating a subscription.
+
+If a real payment provider is not yet configured, implement the integration boundary and identify the exact missing configuration. Do not simulate a successful purchase or activate paid access without verified payment.
+
+For native mobile apps, check the applicable Apple App Store or Google Play billing requirements before selecting the production checkout method. Do not assume a web checkout is permitted for digital subscriptions on every platform.
+
+### 8. VIA Premium Entitlements
+
+The requested subscription benefit is:
+
+**Unlimited job applications while VIA Premium is active.**
+
+Implement this through the canonical MatchMe entitlement system.
+
+Requirements:
+
+- Active VIA Premium users can apply without consuming standard swiping credits.
+- Free users continue using their existing credit-based application rules.
+- Premium must not bypass vacancy eligibility, duplicate-application prevention, or other legitimate restrictions.
+- Do not overwrite or delete a user's existing credit balance when they subscribe.
+- If Premium expires or is cancelled at the end of its paid term, normal credit-based rules resume.
+- The same subscription status must be recognized across mobile and desktop for the same account, subject to applicable platform billing rules.
+
+Do not use a frontend-only Premium flag as proof of entitlement.
+
+### 9. Subscription State
+
+Support the existing or appropriate subscription lifecycle:
+
+- Inactive
+- Checkout pending
+- Active
+- Payment failed
+- Cancelled but active until paid-through date
+- Expired
+
+Use the billing provider as the authoritative source for payment events.
+
+Avoid duplicate subscriptions and duplicate checkout submissions.
+
+### 10. Existing Premium Subscribers
+
+If a user already has an active VIA Premium subscription:
+
+- Do not encourage purchasing a duplicate subscription.
+- Display their current plan and subscription status.
+- Provide an appropriate Manage Subscription action.
+- Preserve the existing cancellation and renewal management workflow.
+
+### 11. Return Navigation
+
+The expected flow is:
+
+**Swipe → Credits Popup → Unlock More Now → VIA Premium Plans → Checkout**
+
+If the user exits the subscription page without purchasing, they should be able to return to Swipe.
+
+Preserve the previous Swipe job card and recommendation position.
+
+If checkout succeeds, refresh the user's subscription entitlement and return them to an appropriate confirmation or Swipe experience.
+
+Do not reset onboarding or authentication.
+
+### 12. Mobile Visual Design
+
+Follow the existing MatchMe premium mobile design principles:
+
+- Clean typography.
+- Strong visual hierarchy.
+- Professional spacing.
+- Consistent brand colors.
+- Refined borders.
+- Subtle shadows.
+- Compact plan selection cards.
+- Clear selected-plan state.
+- No unnecessary gradients.
+- No generic AI-generated marketing illustrations.
+- No oversized decorative icons.
+- No excessive scrolling.
+
+The Credits popup should feel lightweight and quick.
+
+The subscription page should feel like a polished commercial purchase experience.
+
+### 13. English and Arabic
+
+Preserve English and Arabic localization.
+
+Verify RTL behavior for:
+
+- Credits popup.
+- Logo alignment where appropriate.
+- Credit balance.
+- Unlock More Now button.
+- Subscription plan selection.
+- Most Popular label.
+- Renewal disclosure.
+- Checkout navigation.
+
+The requested English copy must be used exactly in English mode.
+
+### 14. Mobile-Only Visual Scope
+
+Apply the Credits popup and subscription layout changes to the mobile Job Seeker experience.
+
+Do not visually redesign the desktop application.
+
+However, subscription entitlements and credit balances must remain account-based and synchronized across platforms.
+
+Do not introduce separate mobile and desktop subscription databases.
+
+### 15. Mandatory Testing
+
+Test in the actual running App Viewer.
+
+**Credits popup**
+- Tapping Credits opens the popup.
+- Popup remains within Swipe.
+- MatchMe logo appears top-left.
+- Actual balance is displayed.
+- Unlock More Now is clickable.
+- Closing the popup preserves the job card.
+
+**Subscription page**
+- Correct heading appears.
+- Monthly $10 is displayed.
+- Monthly shows Most Popular.
+- Yearly $100 is displayed.
+- Plan selection works.
+- Auto-renewal disclosure is visible.
+- Subscribe VIA Premium is clickable.
+
+**Checkout**
+- Selected plan reaches checkout.
+- Checkout amount matches the selected plan.
+- No payment occurs without user confirmation.
+- Successful verified payment activates Premium.
+- Failed or cancelled payment does not activate Premium.
+- Existing credits are preserved.
+- Active Premium users have unlimited eligible applications.
+
+**Regression**
+- Swipe remains functional.
+- Pass, Save, Apply and Undo remain functional.
+- Credits remain synchronized.
+- Existing subscribers are handled correctly.
+- Mobile navigation remains Swipe | Dashboard | Profile.
+- Desktop functionality remains unchanged.
+- English and Arabic work.
+- No infinite loading screens occur.
+
+Use payment-provider sandbox transactions for testing where available. Do not charge real users during acceptance tests.
+
+### 16. Final Implementation Report
+
+Provide an English-only report covering:
+
+1. Credits popup implementation.
+2. Subscription page implementation.
+3. Monthly and yearly plan configuration.
+4. Billing provider integration.
+5. Checkout behavior.
+6. Premium entitlement logic.
+7. Credit preservation.
+8. Mobile/desktop account synchronization.
+9. Files changed.
+10. Tests actually executed.
+11. Any outstanding payment-provider or app-store dependencies.
+
+Do not report checkout or subscription activation as fully working unless a verified test transaction has completed successfully.
+
+**Final success condition:**
+
+A Job Seeker taps Credits on Swipe, sees the actual remaining balance in a popup, selects Unlock More Now, chooses Monthly $10 or Yearly $100, proceeds to secure checkout, and receives unlimited eligible job applications only after successful payment confirmation.
+
+Implement the real workflow, not merely a visual prototype.

@@ -25,15 +25,16 @@ export async function shareJob(job:DiscoverJob):Promise<'shared'|'copied'> {
  if(navigator.share){await navigator.share({title:job.job_title,text:`${job.job_title} — ${job.company_name}`,url:url.toString()});return 'shared';}
  await navigator.clipboard.writeText(url.toString());return 'copied';
 }
-export function useSeekerJobs() {
+export function useSeekerJobs(paused = false) {
+ const pauseRef=useRef(paused);pauseRef.current=paused;
  const uid=useAuthStore(s=>s.userId);
  const route=useLocation();const requested=new URLSearchParams(route.search).get('job');
  const [jobs,setJobs]=useState<DiscoverJob[]>([]);const [actions,setActions]=useState<JobAction[]>([]);
  const [loading,setLoading]=useState(true);const [error,setError]=useState(false);
  const generation=useRef(0);const mounted=useRef(false);
  const refresh=useCallback(async()=>{
-  if(!uid)return;const request=++generation.current;
-  const owned=()=>mounted.current&&generation.current===request&&useAuthStore.getState().userId===uid;
+  if(!uid||pauseRef.current)return;const request=++generation.current;
+  const owned=()=>mounted.current&&!pauseRef.current&&generation.current===request&&useAuthStore.getState().userId===uid;
   try {
    const [vacancies,history]=await Promise.all([
     apiClient.supabase.from('vacancies').select('*,company:company_profiles(company_name,industry,logo_url)').eq('status','open').order('posting_date',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false}).limit(100).abortSignal(AbortSignal.timeout(10000)),

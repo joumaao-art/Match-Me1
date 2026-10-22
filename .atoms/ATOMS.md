@@ -11,6 +11,7 @@ MatchMe is a bilingual EN/AR recruitment web app using React/Vite/shadcn and the
 ## Key Decisions
 | Decision | Rationale |
 |---|---|
+| VIA Premium uses existing Stripe service and canonical subscriptions | USD10 monthly/USD100 yearly; only provider-verified paid terms exempt Apply credits; Pass and balances unchanged. Native external checkout blocked pending store billing. |
 | Preserve existing Supabase project and unprefixed tables | Existing users/data must survive; do not activate another backend or recreate schema. |
 | Mobile breakpoint below768px | Desktop onboarding/presentation remain legacy; synchronous media query prevents desktop flash. |
 | One server completion authority | ensureJobSeekerInitialized repairs only missing identity rows and resolves destination; cached completion never overrides server. |

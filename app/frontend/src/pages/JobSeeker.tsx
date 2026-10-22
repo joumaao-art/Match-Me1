@@ -1,3 +1,4 @@
+import { useViaPremium } from '@/lib/via-premium';
 import { nativeBridge } from '@/lib/native-bridge';
 import { MobileSwipePage } from '@/components/seeker/MobileSwipePage';
 import { useMandatoryProfile } from '@/lib/mandatory-profile';
@@ -492,7 +493,9 @@ function SwipeView() {
   const profileEligibility=useMandatoryProfile();
   const navigate=useNavigate();
   const { balance: creditBalance } = useCreditAccount(accountId);
-  const {jobs,actions,loading:jobsLoading,error:jobsError,refresh:refreshJobs}=useSeekerJobs();
+  const premium=useViaPremium(accountId);
+  const [creditsPaused,setCreditsPaused]=useState(false);
+  const {jobs,actions,loading:jobsLoading,error:jobsError,refresh:refreshJobs}=useSeekerJobs(creditsPaused);
   const [lastPass,setLastPass]=useState<string|null>(null);
   const [restoredJobId,setRestoredJobId]=useState<string|null>(null);
   const [prefs, setPrefs] = useState(() => loadPreferences(accountId || ''));
@@ -529,7 +532,7 @@ function SwipeView() {
   useEffect(()=>{if(requestedId&&currentJob?.id===requestedId){clearPendingSharedJob();nativeBridge()?.postMessage(JSON.stringify({type:'job-opened',jobId:requestedId}));}},[requestedId,currentJob?.id]);
   const linkedJob=jobs.find(j=>j.id===detailJobId);
   const requestedJobExists=jobs.some(j=>j.id===requestedId);
-  useEffect(()=>{if(requestedJobExists){setDetailJobId(requestedId);setShowDetails(true);}},[requestedId,requestedJobExists]);
+  useEffect(()=>{if(requestedJobExists&&!new URLSearchParams(route.search).has('via_return')){setDetailJobId(requestedId);setShowDetails(true);}},[requestedId,requestedJobExists]);
 
   const handleSwipe = useCallback(async (dir: 'left' | 'right') => {
     if (!currentJob || !accountId || swipeLock.current) return false;
@@ -591,7 +594,7 @@ function SwipeView() {
     return handleSwipe(direction);
   }, [handleSwipe]);
 
-  if(isMobile)return <MobileSwipePage decision={requestedDecision||undefined} onBrowse={()=>setHandledRequestedId(requestedId)} job={currentJob} loading={jobsLoading} error={jobsError} balance={creditBalance} busy={swipeBusy} saved={actions.some(a=>a.vacancy_id===currentJob?.id&&a.saved)} canUndo={canUndo} onPass={()=>handleSwipe('left')} onApply={()=>handleSwipe('right')} onSave={()=>void handleSaveJob()} onUndo={()=>void handleUndo()} onShare={()=>{if(currentJob)void shareJob(currentJob).then(result=>{if(result==='copied')toast.success(t('link_copied'));}).catch(error=>{if(error?.name!=='AbortError')toast.error(t('try_again'));});}} onRetry={()=>void refreshJobs()} unavailable={!!requestedId&&requestedId!==handledRequestedId&&!jobsLoading&&!jobsError&&!jobs.some(j=>j.id===requestedId&&isAvailableJob(j))}/>;
+  if(isMobile)return <MobileSwipePage onCreditsOpenChange={setCreditsPaused} premium={premium.active} decision={requestedDecision||undefined} onBrowse={()=>setHandledRequestedId(requestedId)} job={currentJob} loading={jobsLoading} error={jobsError} balance={creditBalance} busy={swipeBusy} saved={actions.some(a=>a.vacancy_id===currentJob?.id&&a.saved)} canUndo={canUndo} onPass={()=>handleSwipe('left')} onApply={()=>handleSwipe('right')} onSave={()=>void handleSaveJob()} onUndo={()=>void handleUndo()} onShare={()=>{if(currentJob)void shareJob(currentJob).then(result=>{if(result==='copied')toast.success(t('link_copied'));}).catch(error=>{if(error?.name!=='AbortError')toast.error(t('try_again'));});}} onRetry={()=>void refreshJobs()} unavailable={!!requestedId&&requestedId!==handledRequestedId&&!jobsLoading&&!jobsError&&!jobs.some(j=>j.id===requestedId&&isAvailableJob(j))}/>;
   if(jobsLoading)return <div className="flex-1 p-6" role="status">{t('loading')}</div>;
   if(jobsError)return <div className="flex-1 p-6" role="alert"><p>{t('try_again')}</p><Button onClick={()=>void refreshJobs()}>{t('try_again')}</Button></div>;
   if (!currentJob) return (
@@ -655,7 +658,7 @@ function SwipeView() {
     <DecisionActionBar
       onPass={() => void handleSwipe('left')}
       passDisabled={swipeBusy || creditBalance === 0}
-      likeDisabled={swipeBusy || creditBalance === 0}
+      likeDisabled={swipeBusy || (!premium.active && (creditBalance === 0 || creditBalance === null))}
       onSave={handleSaveJob}
       onLike={() => handleSwipe('right')}
       variant={isMobile ? 'default' : 'default'}

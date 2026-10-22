@@ -1,3 +1,5 @@
+import { CreditsPopup } from './CreditsPopup';
+import { viaSwipeReturn } from '@/lib/via-premium';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -9,16 +11,20 @@ import { MobileSwipeCard } from './MobileSwipeCard';
 import type { DiscoverJob } from '@/lib/seeker-jobs';
 import { useMandatoryProfile } from '@/lib/mandatory-profile';
 
-export function MobileSwipePage({job,loading,error,balance,busy,saved,canUndo,onPass,onApply,onSave,onUndo,onShare,onRetry,unavailable,decision,onBrowse}:{
- job:DiscoverJob|undefined;loading:boolean;error:boolean;balance:number|null;busy:boolean;saved:boolean;canUndo:boolean;
+export function MobileSwipePage({job,loading,error,balance,busy,premium,onCreditsOpenChange,saved,canUndo,onPass,onApply,onSave,onUndo,onShare,onRetry,unavailable,decision,onBrowse}:{
+ job:DiscoverJob|undefined;loading:boolean;error:boolean;balance:number|null;busy:boolean;premium:boolean;onCreditsOpenChange:(open:boolean)=>void;saved:boolean;canUndo:boolean;
  onPass:()=>Promise<boolean|undefined>;onApply:()=>Promise<boolean|undefined>;onSave:()=>void;onUndo:()=>void;onShare:()=>void;onRetry:()=>void;unavailable:boolean;decision?:'left'|'right';onBrowse:()=>void;
 }) {
  const {t,i18n}=useTranslation();const ar=i18n.language.startsWith('ar');const copy=(en:string,arabic:string)=>ar?arabic:en;
  const navigate=useNavigate();const completion=useMandatoryProfile();  const [expandedJob,setExpandedJob]=useState<string|null>(null);const expanded=expandedJob===job?.id;
- const preferences=()=>navigate('/seeker?view=preferences');const credits=()=>navigate('/seeker/subscription?view=billing');
+ const [creditsOpen,setCreditsOpen]=useState(false);
+ const changeCredits=(open:boolean)=>{setCreditsOpen(open);onCreditsOpenChange(open);};
+ const preferences=()=>navigate('/seeker?view=preferences');const credits=()=>changeCredits(true);
+ const unlock=()=>{const back=viaSwipeReturn(job?.id);changeCredits(false);navigate(back,{replace:true});navigate(`/seeker/subscription?return=${encodeURIComponent(back)}`);};
  const decide=async(direction:'left'|'right')=>{
-   if(balance===null)return false;
-   if(balance===0){credits();return false;}
+   if(creditsOpen||busy)return false;
+   if(!(direction==='right'&&premium)&&balance===null)return false;
+   if(!(direction==='right'&&premium)&&balance===0){credits();return false;}
    if(direction==='right'&&(completion.error||completion.percentage===null)){navigate('/seeker?view=cv&complete=1');return false;}
    if(direction==='right'&&completion.percentage!==null&&completion.percentage<100){navigate('/seeker?view=cv&complete=1');return false;}
    return direction==='left'?onPass():onApply();
@@ -37,7 +43,7 @@ export function MobileSwipePage({job,loading,error,balance,busy,saved,canUndo,on
    </button>
    <div className="flex-1 min-h-0 flex items-center justify-center pt-2">
      {!loading&&!error&&job&&!unavailable?<div className="relative h-full max-h-[650px] w-full max-w-md">
-       <SwipeFeedbackEngine key={job.id} items={[{...job}]} activeIndex={0} enabled={!busy&&!expanded&&!decision} config={{showStack:false,maxRotation:8,threshold:90}} onSwipe={direction=>decide(direction)}
+       <SwipeFeedbackEngine key={job.id} items={[{...job}]} activeIndex={0} enabled={!busy&&!expanded&&!decision&&!creditsOpen} config={{showStack:false,maxRotation:8,threshold:90}} onSwipe={direction=>decide(direction)}
          renderCard={()=> <MobileSwipeCard decision={decision} job={job} busy={busy} saved={saved} canUndo={canUndo} onUndo={onUndo} onShare={onShare} onPass={()=>void decide('left')} onApply={()=>void decide('right')} onSave={onSave} onExpandedChange={value=>setExpandedJob(value?job.id:null)}/>}/>
      </div>:<div className="text-center space-y-3 p-4" role={error?'alert':'status'}>
        <h1 className="text-lg font-semibold">{loading?t('loading'):error?copy('Unable to load jobs','تعذر تحميل الوظائف'):unavailable?copy('This job is no longer available','هذه الوظيفة لم تعد متاحة'):t('no_more_jobs')}</h1>
@@ -46,5 +52,6 @@ export function MobileSwipePage({job,loading,error,balance,busy,saved,canUndo,on
    </div>
    {(decision||unavailable)&&<button type="button" className="shrink-0 min-h-11 text-sm text-primary" onClick={onBrowse}>{copy('Browse other jobs','تصفح وظائف أخرى')}</button>}
    {balance===0&&<button className="shrink-0 text-xs text-primary min-h-11" onClick={credits}>{copy('No credits remaining — View Credits','لا يوجد رصيد متبقٍ — عرض الرصيد')}</button>}
+ <CreditsPopup open={creditsOpen} onOpenChange={changeCredits} balance={balance} onUnlock={unlock}/>
  </section>;
 }

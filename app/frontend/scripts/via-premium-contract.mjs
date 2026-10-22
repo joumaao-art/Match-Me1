@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { createServer } from 'vite';
+globalThis.WebSocket=class { static OPEN=1; static CONNECTING=0; static CLOSED=3; };
+globalThis.window={location:{origin:'https://example.com',assign:()=>{}},dispatchEvent:()=>{}};
+const server=await createServer({server:{middlewareMode:true},appType:'custom'});
+let count=0;const test=(name,run)=>{run();count++;console.log(`PASS ${name}`);};
+try {
+ const v=await server.ssrLoadModule('/src/lib/via-premium.ts');
+ test('Swipe card anchor round-trips',()=>assert.equal(v.safeViaReturn(v.viaSwipeReturn('abc')),'/seeker?view=swipe&job=abc&via_return=1'));
+ test('external return rejected',()=>assert.equal(v.safeViaReturn('https://evil.example/seeker?view=swipe'),'/seeker?view=swipe'));
+ test('non-Swipe return rejected',()=>assert.equal(v.safeViaReturn('/company'),'/seeker?view=swipe'));
+ test('only Stripe HTTPS checkout accepted',()=>{assert.throws(()=>v.openBillingUrl('https://evil.example'));assert.throws(()=>v.openBillingUrl('http://checkout.stripe.com'));v.openBillingUrl('https://checkout.stripe.com/c/pay/test');});
+ const sheet=await readFile('src/components/seeker/CreditsPopup.tsx','utf8');
+ const page=await readFile('src/components/seeker/ViaPremiumPage.tsx','utf8');
+ const swipe=await readFile('src/components/seeker/MobileSwipePage.tsx','utf8');
+ const jobs=await readFile('src/lib/seeker-jobs.ts','utf8');
+ const payment=await readFile('supabase/functions/app_91d3436dfc_via_payments/index.ts','utf8');
+ const migration=await readFile('supabase/migrations/020_via_premium.sql','utf8');
+ test('popup real balance and existing MatchMe brand',()=>{assert.ok(sheet.includes("balance ?? '—'"));assert.ok(sheet.includes('Sparkles'));assert.ok(sheet.includes('MatchMe'));});
+ test('popup accessible safe-area close and gesture sheet',()=>{for(const x of ['DrawerTitle','DrawerDescription','DrawerClose','safe-area-inset-bottom','shouldScaleBackground={false}'])assert.ok(sheet.includes(x));});
+ test('popup never fetches jobs or navigates',()=>{assert.ok(!sheet.includes('fetch('));assert.ok(!sheet.includes('navigate('));assert.ok(swipe.includes('!creditsOpen'));assert.ok(jobs.includes('pauseRef.current'));});
+ test('exact English purchase copy',()=>{for(const x of ['Unlimited applications with VIA Premium','Most Popular','Subscription auto renews until cancelled','Subscribe VIA Premium'])assert.ok(page.includes(x));assert.ok(sheet.includes('Unlock more now'));});
+ test('canonical catalog exact USD prices',()=>{assert.ok(migration.includes("1000,'usd','month'"));assert.ok(migration.includes("10000,'usd','year'"));assert.ok(page.includes('plan.amount / 100'));});
+ test('one radio group monthly default, account-scoped selection',()=>{assert.ok(page.includes('name="via-plan"'));assert.ok(page.includes("useState<ViaPlanId>('via_premium_monthly')"));assert.ok(page.includes('matchme:via-plan:${uid}'));});
+ test('selection does not create payment',()=>{const body=page.slice(page.indexOf('const choose'),page.indexOf('const checkout'));assert.ok(!body.includes('createCheckoutSession'));});
+ test('verified provider ownership price amount before entitlement',()=>{for(const x of ['constructEventAsync','createSubtleCryptoProvider','session.metadata.user_id!==user.id','session.amount_total!==row.amount','price.unit_amount!==row.amount','session.payment_status','verified_at:healthy'])assert.ok(payment.includes(x));});
+ test('duplicate checkout protected',()=>{assert.ok(payment.includes('idempotencyKey:`via:${record.checkout_key}`'));assert.ok(migration.includes('pg_advisory_xact_lock'));assert.ok(payment.includes('existing subscription must be managed'));});
+ test('server premium only exempts right action',()=>{assert.ok(migration.includes("action=''right'' AND has_via_premium(uid)"));assert.ok(migration.includes('current_period_end>now()'));assert.ok(migration.includes('verified_at IS NOT NULL'));});
+ test('browser cannot write subscriptions',()=>assert.ok(migration.includes('REVOKE INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')));
+ test('native checkout blocked, no raw card storage',()=>{assert.ok(payment.includes("body.platform==='native'"));assert.ok(!page.includes('card_number'));});
+ test('pending and management and retry reachable',()=>{for(const x of ['cancelPending','Resume secure checkout','Manage Subscription','Retry payment verification','AbortSignal.timeout'])assert.ok(page.includes(x));});
+ console.log(`${count} VIA Premium contract checks passed.`);
+} finally { await server.close(); }

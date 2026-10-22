@@ -1,3 +1,5 @@
+import { ViaPremiumPage } from '@/components/seeker/ViaPremiumPage';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { SeekerCreditPanel } from '@/components/seeker/SeekerCreditPanel';
 import { subscriptionService } from '@/services/subscription.service';
 import { useState, useMemo } from 'react';
@@ -852,6 +854,10 @@ function FeatureComparisonTable({ plans }: { plans: PlanConfig[] }) {
 // ============================================================
 
 export default function Subscription() {
+ const mobile=useIsMobile();const role=useAuthStore(s=>s.userRole);
+ return mobile&&role==='job_seeker'?<ViaPremiumPage/>:<DesktopSubscription/>;
+}
+function DesktopSubscription() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { userRole,userId } = useAuthStore();
@@ -957,7 +963,7 @@ export default function Subscription() {
 
           {/* Plans Tab */}
           <TabsContent value="plans" className="space-y-8">
-            <div className={`grid grid-cols-1 md:grid-cols-2 ${plans.length >= 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-4`}>
+            {effectiveRole==='job_seeker'?<ViaPremiumPage desktop/>:<><div className={`grid grid-cols-1 md:grid-cols-2 ${plans.length >= 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-4`}>
               {plans.map(plan => (
                 <PlanCard
                   key={plan.id}
@@ -969,15 +975,15 @@ export default function Subscription() {
                 />
               ))}
             </div>
-            <FeatureComparisonTable plans={plans} />
+            <FeatureComparisonTable plans={plans} /></>}
           </TabsContent>
 
           {/* My Subscription Tab */}
           <TabsContent value="subscription" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {effectiveRole==='job_seeker'?<ViaPremiumPage desktop/>:<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <CurrentSubscriptionInfo subscription={mockSubscription} />
               <TrialManager planId={currentPlanId} />
-            </div>
+            </div>}
           </TabsContent>
 
           {/* Usage Tab */}

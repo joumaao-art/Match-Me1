@@ -1,5 +1,12 @@
 ## Task Breakdown
 
+| VIA Premium mobile credits and checkout | Implementation | Validation |
+|---|---|---|
+| Billing audit, canonical catalog and subscription entitlement | done | done |
+| Credits popup, plan selection and preserved Swipe return | done | blocked |
+| Stripe checkout, verification, lifecycle and management | done | blocked |
+| Credit exemption, regression contracts and sandbox/viewer evidence | done | blocked |
+
 | Critical MVP live-data integration | Implementation | Validation |
 |---|---|---|
 | Auth/environment/schema/RLS and live portal audit | done | done |
@@ -46,6 +53,8 @@
 | Approved legal sheets and required mobile A–W acceptance evidence | blocked | blocked |
 
 ## Progress Log
+- VIA Premium: deployed canonical Stripe boundary ACTIVE; mobile local Credits sheet pauses job refresh/gestures, live catalog monthly10/yearly100, explicit checkout/verify/pending/management/RTL and stable Swipe return implemented; account-wide server Apply exemption preserves Pass and balances. TypeScript,123 contracts, lint/build and authenticated rollback-only entitlement/action/RLS checks passed. Viewer guest-only; webhook probe503; sandbox and signed-in mobile/desktop acceptance NOT RUN, production/native purchase release blocked; English implementation report saved.
+- VIA Premium purchase path: Swipe Credits sheet → /seeker/subscription → app_91d3436dfc_via_payments checkout action (create_payment_session), preserved return query with via_session/via_cancelled → verify action (verify_payment). Existing Stripe provider and subscription service reused; canonical USD1000/month and USD10000/year minor-unit catalog, RLS-only reads, server action exemption; no paid access from browser flags.
 - Critical live marketplace: audit found zero canonical vacancies, mock Company Profile/dashboard/applicants, missing logos storage, mock seeker dashboards/matches, swallowed signup errors and broad Company candidate access; frontend .env and singleton client verified same connected Supabase project ykvlaakotyouojkdydzh.
 - Applied migrations018–019: nullable Company location/culture and vacancy seniority, server publication/timestamp/ownership checks, secure logos bucket, minimal owner-only applicant projection/review, private candidate isolation, RPC-only application writes, TRUNCATE/trigger privilege revocation and deletion-history guard. No production jobs or balance changes inserted.
 - Core Company routes now persist profile/logo/vacancies/applicant review and show actual counts; seeker dashboards/matches/applications use canonical decisions and accepted Company review; discovery preserves Company ID, newest publication fallback, focus/poll refresh and real desktop metadata. Existing auth/onboarding/Swipe structure retained.

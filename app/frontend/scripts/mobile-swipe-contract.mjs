@@ -33,7 +33,7 @@ try {
  test('job actions stay physically Pass Save Apply',()=>{assert.ok(card.indexOf('onClick={onPass}')<card.indexOf('onClick={onSave}'));assert.ok(card.indexOf('onClick={onSave}')<card.indexOf('onClick={onApply}'));assert.ok(card.includes('dir="ltr"'));});
  test('gesture actions share button decision handler',()=>assert.ok(page.includes("onSwipe={direction=>decide(direction)}")));
  test('live balance has no fixed 20-credit value',()=>{assert.ok(page.includes("balance??'—'"));assert.ok(!page.includes('20 Credits'));});
- test('canonical Preferences and Credits destinations',()=>{assert.ok(page.includes('/seeker?view=preferences'));assert.ok(page.includes('/seeker/subscription?view=billing'));});
+ test('canonical Preferences and in-view Credits popup',()=>{assert.ok(page.includes('/seeker?view=preferences'));assert.ok(page.includes('const credits=()=>changeCredits(true)'));assert.ok(page.includes('CreditsPopup'));});
  const employer=await server.ssrLoadModule('/src/components/shared/PersistedVacanciesView.tsx');
  const engine=await server.ssrLoadModule('/src/components/shared/ProfileCompletion.tsx');
  test('mandatory engine excludes explicitly optional records',()=>assert.equal(engine.calculateMandatoryCompletion([{completed:true},{completed:false,optional:true}]).percentage,100));

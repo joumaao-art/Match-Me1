@@ -28,8 +28,8 @@ try {
   test('labels are unwrapped and targets accessible', () => { assert.ok(bar.includes('whitespace-nowrap')); assert.ok(bar.includes('min-h-11')); assert.ok(bar.includes('aria-current')); });
   test('bottom bar has no fabricated badges or Messages item', () => { assert.ok(!bar.includes('badges')); assert.ok(!bar.includes("id: 'messages'")); });
   const dashboard = await readFile('src/components/shared/MobileDashboard.tsx','utf8');
-  test('Dashboard exposes Messages, Applications and Matches shortcuts', () => { for (const section of ['messages','applications','matches']) assert.ok(dashboard.includes(`section: '${section}'`)); });
-  test('Messages badge stays on Messages shortcut', () => assert.ok(dashboard.includes("action.section==='messages' && unreadMessages!==null && unreadMessages>0")));
+  test('Dashboard exposes Messages, Applications and Matches shortcuts', () => { for (const section of ['messages','applications','matches']) assert.ok(dashboard.includes(`section:'${section}'`)); });
+  test('Messages badge stays on Messages shortcut', () => assert.ok(dashboard.includes("l.section==='messages'&&unreadMessages!==null&&unreadMessages>0")));
   for (const language of ['en','ar']) {
     const translations = await server.ssrLoadModule(`/packages/shared/src/i18n/${language}.ts`);
     const strings = translations[language];
