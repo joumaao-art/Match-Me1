@@ -1,5 +1,11 @@
 # VIA Premium implementation report
 
+## Targeted plan update — 2026-10-22
+The new request supersedes the earlier monthly-default and monthly popularity descriptions below. Fresh subscription page openings now select Yearly, ignoring stale stored selections; an existing pending checkout still retains its original plan to avoid a duplicate purchase. Monthly stays first and selectable. Mobile labels derive from the unchanged catalog: Monthly — $10/month and Yearly — $100/year. Most Popular appears only on Yearly, with a subtle mobile border/tint/shadow highlight. Arabic interval copy is updated. Heading, renewal disclosure and Subscribe VIA Premium remain unchanged. Selected canonical plan and month/year billing cycle continue through the existing checkout service; both plans share the same payment-verified entitlement. No backend, catalog, credit, application or billing-system rebuild was performed.
+
+Changed this round: the shared VIA Premium page and its contract test, plus this report/progress notes. TypeScript,20 subscription+29 Swipe+35 navigation+42 onboarding contracts (126 total), lint and production build passed. These are pure/static regression checks, not verified provider transactions. The running viewer again showed only the guest landing page; signed-in mobile default/radio/RTL/checkout acceptance remains NOT RUN. No second viewer check was attempted because there is no legitimate source fix for missing authenticated access without bypassing login. Previous Stripe configuration and sandbox verification release gates remain unresolved; no real charge or paid activation was performed.
+
+
 ## Release status
 Implemented the real database and Stripe integration boundary, mobile Credits sheet, localized plan selection, verified-payment return, management, and server-owned application credit exemption. **The final purchase success condition is not verified.** No sandbox transaction completed and no paid account was activated for acceptance. The deployed webhook configuration probe returned HTTP503 `Stripe webhook is not configured`. The running viewer showed the guest landing page only; authenticated mobile acceptance remains NOT RUN.
 

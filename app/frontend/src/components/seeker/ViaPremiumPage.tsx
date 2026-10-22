@@ -15,13 +15,13 @@ export function ViaPremiumPage({ desktop = false }: { desktop?: boolean }) {
  const query = new URLSearchParams(location.search); const back = safeViaReturn(query.get('return'));
  const premium = useViaPremium(uid, true);
  const [catalog, setCatalog] = useState<ViaCatalog | null>(null);
- const [selected, setSelected] = useState<ViaPlanId>('via_premium_monthly');
+ const [selected, setSelected] = useState<ViaPlanId>('via_premium_yearly');
  const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const [notice, setNotice] = useState('');
  const [loaded, setLoaded] = useState(false); const [retry, setRetry] = useState(0); const lock = useRef(false); const alive = useRef(false);
  const owned = () => alive.current && useAuthStore.getState().userId === uid;
+ useEffect(() => { setSelected('via_premium_yearly'); }, [uid]);
  useEffect(() => {
   alive.current = true; let current = true; setLoaded(false); setCatalog(null); setError('');
-  try { const saved = sessionStorage.getItem(`matchme:via-plan:${uid}`); setSelected(saved === 'via_premium_yearly' ? saved : 'via_premium_monthly'); } catch { setSelected('via_premium_monthly'); }
   const load = async () => {
    const result = await subscriptionService.getCatalog();
    if (!current || useAuthStore.getState().userId !== uid) return;
@@ -78,8 +78,8 @@ export function ViaPremiumPage({ desktop = false }: { desktop?: boolean }) {
   <div className={desktop ? '' : 'w-full max-w-md mx-auto px-5 pt-7 pb-6 flex-1'}>
    <h1 className="text-2xl font-semibold leading-tight mb-7">{copy('Unlimited applications with VIA Premium', 'طلبات توظيف غير محدودة مع VIA Premium')}</h1>
    {existing ? <div className="rounded-2xl border p-5 space-y-3"><h2 className="font-semibold">VIA Premium</h2><p>{statusCopy[premium.subscription?.status || 'inactive']}</p><p className="text-sm text-muted-foreground">{premium.subscription?.plan === 'via_premium_yearly' ? copy('Yearly', 'سنوي') : copy('Monthly', 'شهري')}{premium.subscription?.current_period_end && ` · ${new Date(premium.subscription.current_period_end).toLocaleDateString(ar ? 'ar' : 'en')}`}</p><Button className="w-full h-12" disabled={busy} onClick={manage}>{copy('Manage Subscription', 'إدارة الاشتراك')}</Button></div> : <fieldset disabled={busy || pending || premium.loading} className="space-y-3"><legend className="sr-only">{copy('Select a subscription plan', 'اختر خطة الاشتراك')}</legend>
-    {configuredPlans.map(plan => <label key={plan.id} className={`flex items-center justify-between gap-3 p-5 rounded-2xl border-2 cursor-pointer focus-within:ring-2 focus-within:ring-primary ${selected === plan.id ? 'border-primary bg-primary/5' : 'border-border'}`}>
-     <span><span className="block font-semibold" dir={ar ? 'rtl' : 'ltr'}>{plan.billing_interval === 'month' ? copy(`Monthly — $${plan.amount / 100}`, `شهري — ${plan.amount / 100} دولار`) : copy(`Yearly — $${plan.amount / 100}`, `سنوي — ${plan.amount / 100} دولار`)}</span>{plan.billing_interval === 'month' && <span className="inline-block mt-2 text-xs font-medium rounded-full bg-primary/10 text-primary px-2 py-1">{copy('Most Popular', 'الأكثر شعبية')}</span>}</span>
+    {configuredPlans.map(plan => <label key={plan.id} className={`flex items-center justify-between gap-3 p-5 rounded-2xl border-2 cursor-pointer focus-within:ring-2 focus-within:ring-primary ${!desktop && plan.billing_interval === 'year' ? 'shadow-sm' : ''} ${selected === plan.id ? 'border-primary bg-primary/5' : !desktop && plan.billing_interval === 'year' ? 'border-primary/30 bg-primary/[0.02]' : 'border-border'}`}>
+     <span><span className="block font-semibold" dir={ar ? 'rtl' : 'ltr'}>{plan.billing_interval === 'month' ? copy(`Monthly — $${plan.amount / 100}${desktop ? '' : '/month'}`, `شهري — ${plan.amount / 100} دولار${desktop ? '' : '/شهر'}`) : copy(`Yearly — $${plan.amount / 100}${desktop ? '' : '/year'}`, `سنوي — ${plan.amount / 100} دولار${desktop ? '' : '/سنة'}`)}</span>{plan.billing_interval === 'year' && <span className="inline-block mt-2 text-xs font-medium rounded-full bg-primary/10 text-primary px-2 py-1">{copy('Most Popular', 'الأكثر شعبية')}</span>}</span>
      <input type="radio" name="via-plan" className="sr-only" value={plan.id} checked={selected === plan.id} onChange={() => choose(plan.id)}/><span aria-hidden="true" className={`w-6 h-6 border rounded-full grid place-items-center ${selected === plan.id ? 'bg-primary text-primary-foreground border-primary' : 'border-muted-foreground'}`}>{selected === plan.id && <Check size={16}/>}</span>
     </label>)}
    </fieldset>}

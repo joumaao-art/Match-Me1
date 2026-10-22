@@ -1,5 +1,10 @@
 ## Task Breakdown
 
+| Targeted VIA Premium yearly-default update | Implementation | Validation |
+|---|---|---|
+| Yearly default, yearly-only mobile popularity label and interval copy | done | blocked |
+| Selected-plan checkout and unchanged entitlement regression checks | done | done |
+
 | VIA Premium mobile credits and checkout | Implementation | Validation |
 |---|---|---|
 | Billing audit, canonical catalog and subscription entitlement | done | done |
@@ -53,6 +58,7 @@
 | Approved legal sheets and required mobile A–W acceptance evidence | blocked | blocked |
 
 ## Progress Log
+- Targeted VIA plan update: fresh page Yearly default, pending checkout original plan retained, Yearly-only Most Popular, mobile10/month and100/year localized copy and subtle Yearly highlight; catalog/provider/entitlements/credits untouched. TypeScript,126 contracts, lint/build passed. Viewer guest-only; authenticated mobile and sandbox acceptance unexecuted, no auth bypass or unjustified repeat check; previous provider release blockers remain.
 - VIA Premium: deployed canonical Stripe boundary ACTIVE; mobile local Credits sheet pauses job refresh/gestures, live catalog monthly10/yearly100, explicit checkout/verify/pending/management/RTL and stable Swipe return implemented; account-wide server Apply exemption preserves Pass and balances. TypeScript,123 contracts, lint/build and authenticated rollback-only entitlement/action/RLS checks passed. Viewer guest-only; webhook probe503; sandbox and signed-in mobile/desktop acceptance NOT RUN, production/native purchase release blocked; English implementation report saved.
 - VIA Premium purchase path: Swipe Credits sheet → /seeker/subscription → app_91d3436dfc_via_payments checkout action (create_payment_session), preserved return query with via_session/via_cancelled → verify action (verify_payment). Existing Stripe provider and subscription service reused; canonical USD1000/month and USD10000/year minor-unit catalog, RLS-only reads, server action exemption; no paid access from browser flags.
 - Critical live marketplace: audit found zero canonical vacancies, mock Company Profile/dashboard/applicants, missing logos storage, mock seeker dashboards/matches, swallowed signup errors and broad Company candidate access; frontend .env and singleton client verified same connected Supabase project ykvlaakotyouojkdydzh.

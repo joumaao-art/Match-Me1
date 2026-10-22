@@ -1,0 +1,73 @@
+# MATCHME — VIA PREMIUM SUBSCRIPTION PLAN UPDATE
+
+Update the previously requested **Credits Popup & VIA Premium Subscription Flow** with the following change.
+
+## 1. Monthly Subscription
+
+- Plan: Monthly
+- Price: **$10/month**
+- Remove the "Most Popular" label from this plan.
+- Keep the Monthly plan selectable.
+
+## 2. Yearly Subscription
+
+- Plan: Yearly
+- Price: **$100/year**
+- Display the **"Most Popular"** label next to the Yearly subscription.
+- Make the Yearly plan the default selected option when the subscription page opens.
+- Use a subtle, professional visual highlight to distinguish the Yearly plan from the Monthly plan.
+
+## 3. Subscription Page Layout
+
+Keep the heading:
+
+**Unlimited applications with VIA Premium**
+
+Display the plans in this order:
+
+**Monthly — $10/month**
+
+**Yearly — $100/year | Most Popular**
+
+Below the plans, retain:
+
+"Subscription auto renews until cancelled"
+
+Keep the primary button:
+
+**Subscribe VIA Premium**
+
+## 4. Checkout Behavior
+
+- Yearly is selected by default.
+- If the user clicks Subscribe VIA Premium without changing the selection, checkout must show **$100 billed annually**.
+- If the user selects Monthly, checkout must show **$10 billed monthly**.
+- Ensure the correct plan, price, currency, and billing interval are passed to the payment provider.
+- Do not activate Premium until payment is verified.
+
+## 5. Preserve Everything Else
+
+Do not modify any other requirements from the previous prompt, including:
+
+- Credits popup within the Swipe page.
+- Actual account credit balance.
+- Unlock more now button.
+- Unlimited applications for active VIA Premium subscribers.
+- Existing credit preservation.
+- Mobile and desktop subscription synchronization.
+- Secure checkout and subscription management.
+- English and Arabic localization.
+- Mobile-only visual adjustments.
+
+## 6. Validation
+
+Verify that:
+
+1. "Most Popular" appears only on Yearly.
+2. Yearly is selected by default.
+3. Monthly remains selectable.
+4. Checkout reflects the selected plan.
+5. Both plans activate the same VIA Premium benefits after verified payment.
+6. All other functionality remains unchanged.
+
+**Implement this as a targeted adjustment to the previous VIA Premium subscription implementation. Do not rebuild the subscription system.**
