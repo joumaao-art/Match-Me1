@@ -61,8 +61,8 @@ export interface SwipeFeedbackEngineProps {
   activeIndex: number;
   /** Render function for card content */
   renderCard: (item: SwipeCardItem, isActive: boolean) => React.ReactNode;
-  /** Called when swipe action is triggered */
-  onSwipe: (direction: 'left' | 'right', item: SwipeCardItem) => void;
+  /** Called when swipe action is triggered; false restores the card after a failed server action. */
+  onSwipe: (direction: 'left' | 'right', item: SwipeCardItem) => void | boolean | Promise<void | boolean>;
   /** Called when card details are tapped */
   onTap?: (item: SwipeCardItem) => void;
   /** Engine configuration */
@@ -173,7 +173,7 @@ function CardStack({ items, activeIndex, renderCard, config, swipeProgress }: Ca
 interface ActiveSwipeCardProps {
   item: SwipeCardItem;
   renderCard: (item: SwipeCardItem, isActive: boolean) => React.ReactNode;
-  onSwipe: (direction: 'left' | 'right', item: SwipeCardItem) => void;
+  onSwipe: SwipeFeedbackEngineProps['onSwipe'];
   onTap?: (item: SwipeCardItem) => void;
   config: Required<SwipeFeedbackConfig>;
   enabled: boolean;
@@ -222,14 +222,14 @@ function ActiveSwipeCard({ item, renderCard, onSwipe, onTap, config, enabled, sw
       animate(x, window.innerWidth + 200, {
         duration: config.exitDuration / 1000,
         ease: 'easeOut',
-        onComplete: () => onSwipe('right', item),
+        onComplete: async () => {try{if(await onSwipe('right',item)===false)animate(x,0,{type:'spring',stiffness:300,damping:25});}catch{animate(x,0,{type:'spring',stiffness:300,damping:25});}},
       });
     } else if (offset < -config.threshold || velocity < -500) {
       // Animate card off-screen to the left
       animate(x, -(window.innerWidth + 200), {
         duration: config.exitDuration / 1000,
         ease: 'easeOut',
-        onComplete: () => onSwipe('left', item),
+        onComplete: async () => {try{if(await onSwipe('left',item)===false)animate(x,0,{type:'spring',stiffness:300,damping:25});}catch{animate(x,0,{type:'spring',stiffness:300,damping:25});}},
       });
     } else {
       // Spring back to center

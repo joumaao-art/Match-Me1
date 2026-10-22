@@ -12,6 +12,7 @@
  * Company onboarding is intentionally NOT touched by this engine.
  */
 
+import { claimSignupCredits } from '@/lib/seeker-credits';
 import { mergePreferences } from '@/lib/job-preferences';
 import { EMPLOYMENT_TYPES, normalizeDegree, type EmploymentTypeCode } from '@/lib/profile-standards';
 import { create } from 'zustand';
@@ -800,14 +801,12 @@ export async function finalizeOnboarding(userId: string): Promise<void> {
   const plan = state.draft.plan || 'seeker-free';
   patchDraft({ plan });
 
-  // Idempotent signup credits: only grant once, guarded by the column value.
-  const { data: existing } = await profileService.getSeekerProfile(userId);
-  const alreadyGranted = (existing as any)?.signup_credits != null && (existing as any).signup_credits > 0;
+  // The backend owns signup awards for both mobile and desktop.
+  await claimSignupCredits();
   await profileService.upsertSeekerProfile(userId, {
     ...draftToProfileColumns(state.draft),
     plan,
     onboarding_version: ONBOARDING_VERSION,
-    ...(alreadyGranted ? {} : { signup_credits: 50 }),
   });
 
   // Keep the canonical preferences record (Profile → Preferences) in sync.
@@ -821,7 +820,7 @@ export async function finalizeOnboarding(userId: string): Promise<void> {
   await profileService.completeOnboarding(userId);
   useOnboardingStore.setState((s) => ({ state: { ...s.state, completed: true } }));
   await sync();
-  trackOnboarding(userId, 'onboarding_completed', 'app_experience_rating', { plan, credits_granted: !alreadyGranted });
+  trackOnboarding(userId, 'onboarding_completed', 'app_experience_rating', { plan });
 }
 
 /**

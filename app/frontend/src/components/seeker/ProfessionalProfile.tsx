@@ -1,3 +1,4 @@
+import { readHistory, writeHistory, readCanonicalProfile, writeCanonicalProfile } from '@/lib/canonical-profile';
 import { PhoneInput } from '@/components/shared/PhoneInput';
 import { Sliders } from 'lucide-react';
 /**
@@ -74,9 +75,18 @@ function persist(key: string, value: unknown): Promise<void> {
 function usePersistedList<T>(name: string, seed: T[], normalize: (x: T) => T) {
   const userId = useAuthStore((s) => s.userId);
   const key = storageKey(userId, name);
-  const [items, setItems] = useState<T[]>(() => readStored<T[]>(key, seed).map(normalize));
-  useEffect(() => { setItems(readStored<T[]>(key, seed).map(normalize)); }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
-  const commit = useCallback(async (next: T[]) => { await persist(key, next); setItems(next); }, [key]);
+  const fallback = userId ? [] : seed;
+  const [items, setItems] = useState<T[]>(() => readStored<T[]>(key, fallback).map(normalize));
+  useEffect(() => {
+    let alive = true;
+    const cached=readStored<T[]>(key,userId?[]:seed).map(normalize);
+    const isDemo=JSON.stringify(cached)===JSON.stringify(seed.map(normalize));
+    const local=userId&&isDemo?[]:cached;
+    setItems(local);
+    if (userId) void readHistory(name, userId).then(rows => { if (alive && rows !== null) { const next = rows.length?(rows as T[]).map(normalize):local; setItems(next); localStorage.setItem(key, JSON.stringify(next)); } }).catch(() => toast.error('Unable to load saved profile records.'));
+    return () => { alive = false; };
+  }, [key, userId, name]); // eslint-disable-line react-hooks/exhaustive-deps
+  const commit = useCallback(async (next: T[]) => { if (userId) await writeHistory(name, userId, next, items); await persist(key, next); setItems(next); }, [key, userId, name, items]);
   return [items, commit] as const;
 }
 
@@ -158,8 +168,13 @@ export function useSeekerProfile() {
   const userId = useAuthStore((s) => s.userId);
   const key = storageKey(userId, 'profile');
   const { countries } = useCountries();
-  const [profile, setProfile] = useState<SeekerProfileRecord>(() => readStored(key, SEED_PROFILE));
-  useEffect(() => { setProfile(readStored(key, SEED_PROFILE)); }, [key]);
+  const emptyProfile: SeekerProfileRecord = {firstName:'',lastName:'',email:'',mobile:'',country:'',city:'',nationalities:[],dob:'',photoUrl:'',headline:'',summary:'',openToWork:true};
+  const [profile, setProfile] = useState<SeekerProfileRecord>(() => readStored(key, userId ? emptyProfile : SEED_PROFILE));
+  useEffect(() => {
+    let alive = true; setProfile(readStored(key, userId ? emptyProfile : SEED_PROFILE));
+    if (userId) void readCanonicalProfile(userId).then(next => { if (alive) { setProfile(next); localStorage.setItem(key, JSON.stringify(next)); } }).catch(() => toast.error('Unable to load saved profile.'));
+    return () => { alive = false; };
+  }, [key, userId]);
   // Legacy free text ("UAE", "Egyptian") → ISO codes once the country index is available.
   const normalized = useMemo<SeekerProfileRecord>(() => {
     if (!countries.length) return profile;
@@ -167,7 +182,7 @@ export function useSeekerProfile() {
     const nats = resolveNationalities(profile.nationalities ?? [], countries);
     return { ...profile, country, city: country ? profile.city : '', nationalities: nats };
   }, [profile, countries]);
-  const save = useCallback(async (next: SeekerProfileRecord) => { await persist(key, next); setProfile(next); }, [key]);
+  const save = useCallback(async (next: SeekerProfileRecord) => { if (userId) await writeCanonicalProfile(userId, next); await persist(key, next); setProfile(next); }, [key, userId]);
   return [normalized, save, countries.length > 0] as const;
 }
 

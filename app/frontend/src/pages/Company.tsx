@@ -282,7 +282,7 @@ function DashboardView({ onNavigate }: { onNavigate: (tab: NavSection) => void }
               type: 'summary',
               value: String(s.value),
               label: s.label,
-              icon: s.icon,
+              icon: s.icon as import('lucide-react').LucideIcon,
               colorClass: s.color,
               density: 'normal',
               variant: 'default',

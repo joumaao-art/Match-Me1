@@ -5,6 +5,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { changeLanguage } from '@/lib/i18n';
 import { useAuth } from '@/App';
 import { Brain, Sparkles, Shield, ArrowRight, Globe, Moon, Sun, UserCircle, Building2 } from 'lucide-react';
+import { MobileEntry } from '@/components/onboarding/MobileEntry';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useState } from 'react';
 
 export default function Index() {
@@ -30,6 +32,9 @@ export default function Index() {
       navigate('/auth');
     }
   };
+
+  const isMobile = useIsMobile();
+  if (isMobile && !user) return <MobileEntry onMethod={(method) => navigate(`/auth?role=job_seeker&method=${method}`)} onLogin={() => navigate('/auth?role=job_seeker')} />;
 
   return (
     <div className="min-h-screen bg-background">

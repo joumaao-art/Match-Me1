@@ -4,7 +4,9 @@
  * and password recovery for Job Seekers and Companies.
  */
 
-import { useState, useEffect } from 'react';
+import { MobileEntry } from '@/components/onboarding/MobileEntry';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -403,6 +405,24 @@ export default function Auth() {
     if (passwordStrength <= 4) return t('strong');
     return t('very_strong');
   };
+
+  const isMobile = useIsMobile();
+  const launchedMethod = searchParams.get('method');
+  useEffect(() => {
+    if (!isMobile || searchParams.get('role') === 'company') return;
+    setSelectedRole('job_seeker');
+    if (launchedMethod === 'email') setView('register');
+    else if (launchedMethod === 'phone') setView('seeker_phone');
+    else if (launchedMethod === 'google' || launchedMethod === 'apple') setView('seeker_signup');
+    else if (!searchParams.get('role')) setView('seeker_signup');
+  }, [isMobile, launchedMethod, searchParams]);
+  const oauthLaunched = useRef<string | null>(null);
+  useEffect(() => {
+    if (!isMobile || (launchedMethod !== 'google' && launchedMethod !== 'apple') || oauthLaunched.current === launchedMethod) return;
+    oauthLaunched.current = launchedMethod;
+    void startOAuth(launchedMethod);
+  }, [isMobile, launchedMethod]);
+  if (isMobile && selectedRole !== 'company' && (view === 'role_select' || view === 'seeker_signup')) return <MobileEntry busy={loading} onMethod={kind => { setSelectedRole('job_seeker'); if (kind === 'apple' || kind === 'google') void startOAuth(kind); else setView(kind === 'phone' ? 'seeker_phone' : 'register'); }} onLogin={() => { setSelectedRole('job_seeker'); setView('login'); }} />;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

@@ -222,10 +222,10 @@ export function splitDuties(text: string): string[] {
 
 export interface ExperienceRecord extends DateRangeValue {
   id: string; title: string; company: string; type: EmploymentTypeCode | '';
-  country: string; city: string; description: string;
+  country: string; city: string; description: string; industry?: string;
 }
 export interface EducationRecord extends DateRangeValue {
-  id: string; institution: string; degree: DegreeCode | ''; field: string;
+  id: string; institution: string; degree: DegreeCode | ''; field: string; country?: string; city?: string;
   /** Deprecated: retained for historical data only, never shown or required. */
   grade?: string;
 }
@@ -308,7 +308,7 @@ function applyRangeError(e: Record<string, string | undefined>, err: DateRangeEr
 
 export function normalizeExperience(raw: Partial<ExperienceRecord> & { id: string }): ExperienceRecord {
   return {
-    id: raw.id, title: raw.title ?? '', company: raw.company ?? '',
+    industry: raw.industry, id: raw.id, title: raw.title ?? '', company: raw.company ?? '',
     type: normalizeEmploymentType(raw.type as string), country: raw.country ?? '', city: raw.city ?? '',
     from: normalizeYearMonth(raw.from), to: raw.current ? '' : normalizeYearMonth(raw.to),
     current: !!raw.current, description: raw.description ?? '',
@@ -317,9 +317,9 @@ export function normalizeExperience(raw: Partial<ExperienceRecord> & { id: strin
 
 export function normalizeEducation(raw: Partial<EducationRecord> & { id: string }): EducationRecord {
   return {
-    id: raw.id, institution: raw.institution ?? '', degree: normalizeDegree(raw.degree as string),
+    country: raw.country, city: raw.city, id: raw.id, institution: raw.institution ?? '', degree: normalizeDegree(raw.degree as string),
     field: raw.field ?? '', from: normalizeYearMonth(raw.from),
-    to: raw.current ? '' : normalizeYearMonth(raw.to), current: !!raw.current, grade: raw.grade,
+    to: normalizeYearMonth(raw.to), current: !!raw.current, grade: raw.grade,
   };
 }
 

@@ -17,6 +17,7 @@ import { authService } from '@/services';
 import { ROUTES, STORAGE_KEYS } from '@/config/constants';
 import { initializeSecurity, sessionManager, auditLogger } from '@/lib/security';
 import { ensureIdentity, resolvePostAuthDestination } from '@/lib/signup-flow';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { logger } from '@/lib/logger';
 import { useOnboardingStore } from '@/lib/onboarding-engine';
 
@@ -46,6 +47,12 @@ const LearnMore = lazy(() => import('./pages/LearnMore'));
 // Feature pages - large, lazy loaded
 const JobSeeker = lazy(() => import('./pages/JobSeeker'));
 const JobSeekerOnboarding = lazy(() => import('./pages/JobSeekerOnboarding'));
+const MobileOnboarding = lazy(() => import('./pages/MobileOnboarding'));
+function SeekerOnboardingRoute() {
+  const isMobile = useIsMobile();
+  const userId = useAuthStore(s => s.userId);
+  return isMobile ? <MobileOnboarding key={userId ?? 'guest'} /> : <JobSeekerOnboarding />;
+}
 const Company = lazy(() => import('./pages/Company'));
 const Messages = lazy(() => import('./pages/Messages'));
 const Subscription = lazy(() => import('./pages/Subscription'));
@@ -459,7 +466,7 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['job_seeker']}>
             <Suspense fallback={<PageLoader loaderId="lazy-route" />}>
-              <JobSeekerOnboarding />
+              <SeekerOnboardingRoute />
             </Suspense>
           </ProtectedRoute>
         }

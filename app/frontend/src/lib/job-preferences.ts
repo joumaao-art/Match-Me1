@@ -86,6 +86,9 @@ export interface JobPreferences {
   /** ISO 3166-1 alpha-2 codes of countries the seeker wants to work in. */
   targetCountries: string[];
   employmentTypes: EmploymentTypeCode[];
+  keywords: string[];
+  workingStyles: string[];
+  seniorityLevels: string[];
   industries: string[];
   locations: string[];
   salaryMin: string;
@@ -94,7 +97,7 @@ export interface JobPreferences {
 }
 
 export const EMPTY_PREFERENCES: JobPreferences = {
-  expertise: [], targetCountries: [], employmentTypes: [], industries: [], locations: [], salaryMin: '', salaryMax: '', willingToRelocate: false,
+  expertise: [], targetCountries: [], employmentTypes: [], keywords: [], workingStyles: [], seniorityLevels: [], industries: [], locations: [], salaryMin: '', salaryMax: '', willingToRelocate: false,
 };
 
 const key = (userId: string) => `matchme-job-preferences:${userId || 'anonymous'}`;
@@ -103,18 +106,22 @@ interface LegacyShape { target_countries?: string[]; titles?: string; type?: str
 
 /** Converts any older preference/onboarding shape into the canonical record without losing values. */
 export function migrateLegacyPreferences(raw: LegacyShape & Partial<JobPreferences>): JobPreferences {
-  const split = (v?: string | string[]) => (Array.isArray(v) ? v : (v ?? '').split(',')).map((s) => s.trim()).filter(Boolean);
-  const expertise = new Set<string>(raw.expertise ?? []);
-  split(raw.titles).concat(raw.desired_roles ?? []).forEach((r) => mapLegacyRole(r).forEach((c) => expertise.add(c)));
-  const types = new Set<EmploymentTypeCode>((raw.employmentTypes ?? []).filter((t) => (EMPLOYMENT_TYPES as readonly string[]).includes(t)));
-  [raw.type, ...(raw.work_styles ?? [])].forEach((t) => { const n = normalizeEmploymentType(t); if (n) types.add(n); });
+  raw = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+  const split = (v: unknown): string[] => (Array.isArray(v) ? v : typeof v === 'string' ? v.split(',') : []).filter((s): s is string => typeof s === 'string').map(s => s.trim()).filter(Boolean);
+  const expertise = new Set<string>(split(raw.expertise));
+  split(raw.titles).concat(split(raw.desired_roles)).forEach((r) => mapLegacyRole(r).forEach((c) => expertise.add(c)));
+  const types = new Set<EmploymentTypeCode>(split(raw.employmentTypes).filter((t): t is EmploymentTypeCode => (EMPLOYMENT_TYPES as readonly string[]).includes(t)));
+  [raw.type, ...split(raw.work_styles)].forEach((t) => { const n = normalizeEmploymentType(t); if (n) types.add(n); });
   return {
     ...EMPTY_PREFERENCES, ...raw,
     expertise: [...expertise], employmentTypes: [...types],
-    targetCountries: [...new Set([...(raw.targetCountries ?? []), ...(raw.target_countries ?? [])])].filter((c) => /^[A-Z]{2}$/.test(c)),
+    targetCountries: [...new Set([...split(raw.targetCountries), ...split(raw.target_countries)])].filter((c) => /^[A-Z]{2}$/.test(c)),
     industries: split(raw.industries), locations: split(raw.locations),
     salaryMin: String(raw.salaryMin ?? ''), salaryMax: String(raw.salaryMax ?? ''),
     willingToRelocate: !!raw.willingToRelocate,
+    keywords: [...new Set(split(raw.keywords).map(s=>s.toLowerCase()))],
+    workingStyles: [...new Set(split(raw.workingStyles).concat(split(raw.work_styles).map(s=>s.toLowerCase()).filter(s=>['onsite','remote','hybrid'].includes(s))).concat(split(raw.employmentTypes).map(s=>s.toLowerCase()).filter(s=>['onsite','remote','hybrid'].includes(s))))],
+    seniorityLevels: [...new Set(split(raw.seniorityLevels))],
   };
 }
 
@@ -125,7 +132,7 @@ export function loadPreferences(userId: string): JobPreferences {
     const ob = JSON.parse(localStorage.getItem('matchme-onboarding') || 'null');
     const draft = ob?.state?.draft ?? ob?.draft;
     const owner = ob?.state?.userId ?? ob?.userId;
-    if (draft && (!owner || owner === userId)) return migrateLegacyPreferences(draft);
+    if (draft && owner === userId) return migrateLegacyPreferences(draft);
   } catch { /* corrupt storage falls back to empty */ }
   return { ...EMPTY_PREFERENCES };
 }
@@ -138,13 +145,13 @@ export function mergePreferences(userId: string, patch: Partial<JobPreferences>)
 }
 
 export function savePreferences(userId: string, prefs: JobPreferences): void {
-  localStorage.setItem(key(userId), JSON.stringify(prefs));
+  try { localStorage.setItem(key(userId), JSON.stringify(prefs)); } catch { /* Server persistence remains authoritative when browser storage is unavailable. */ }
   window.dispatchEvent(new CustomEvent('matchme:preferences-changed'));
 }
 
 /** Soft 0..1 preference fit used as a weighted ranking signal, never a hard filter. */
 export function preferenceFit(prefs: JobPreferences, job: { title: string; employmentType?: string; skills?: string[]; countryCode?: string }): number {
-  if (!prefs.expertise.length && !prefs.employmentTypes.length) return 0.5;
+  if (!prefs.expertise.length && !prefs.employmentTypes.length && !prefs.seniorityLevels.length && !prefs.keywords.length) return 0.5;
   const title = job.title.toLowerCase();
   const role = prefs.expertise.some((c) => {
     const e = BY_CODE.get(c);
@@ -153,5 +160,10 @@ export function preferenceFit(prefs: JobPreferences, job: { title: string; emplo
   const type = normalizeEmploymentType(job.employmentType);
   const typeOk = !prefs.employmentTypes.length || (!!type && prefs.employmentTypes.includes(type));
   const countryOk = !prefs.targetCountries.length || !job.countryCode || prefs.targetCountries.includes(job.countryCode);
-  return ((prefs.expertise.length ? (role ? 0.6 : 0.1) : 0.3) + (typeOk ? 0.25 : 0) + (countryOk ? 0.15 : 0));
+  const text = [title, ...(job.skills ?? [])].join(' ').toLowerCase();
+  const keywordFit = !prefs.keywords.length || prefs.keywords.some(k => text.includes(k.toLowerCase()));
+  const level = /executive|chief|director/.test(title) ? 'executive' : /senior|lead/.test(title) ? 'senior' : /junior/.test(title) ? 'junior' : /intern|entry|graduate/.test(title) ? 'entry' : 'mid';
+  const seniorityFit = !prefs.seniorityLevels.length || prefs.seniorityLevels.includes(level);
+  const styleFit = !prefs.workingStyles.length || prefs.workingStyles.some(w => (job.employmentType ?? '').toLowerCase().includes(w));
+  return (prefs.expertise.length ? (role ? 0.4 : 0.1) : 0.2) + (typeOk ? 0.15 : 0) + (countryOk ? 0.1 : 0) + (keywordFit ? 0.15 : 0) + (seniorityFit ? 0.1 : 0) + (styleFit ? 0.1 : 0);
 }

@@ -209,7 +209,7 @@ function ConversionFunnel({ analytics }: { analytics: BillingAnalyticsType }) {
               <ScoreBar
                 value={width / 100}
                 size="md"
-                color={step.color}
+                colorClass={step.color}
                 animated
                 aria-label={`${step.label}: ${width.toFixed(0)}%`}
               />

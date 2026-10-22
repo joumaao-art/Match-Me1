@@ -42,7 +42,7 @@ class AuthService {
    */
   async signOut() {
     logger.info('[AuthService] Signing out user');
-    return apiClient.query('signOut', () => apiClient.auth.signOut());
+    return apiClient.query('signOut', async () => ({ data: null, ...(await apiClient.auth.signOut()) }));
   }
 
   /**

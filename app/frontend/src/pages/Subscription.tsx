@@ -1,3 +1,5 @@
+import { SeekerCreditPanel } from '@/components/seeker/SeekerCreditPanel';
+import { subscriptionService } from '@/services/subscription.service';
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -727,10 +729,11 @@ function CheckoutDialog({
 
   const handleCheckout = async () => {
     setProcessing(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setProcessing(false);
-    toast.success(t('subscription_activated'));
-    onClose();
+    try {
+      const response=await subscriptionService.createCheckoutSession(plan.id as Parameters<typeof subscriptionService.createCheckoutSession>[0],billingCycle as Parameters<typeof subscriptionService.createCheckoutSession>[1]);
+      if(response.error||!response.data?.url)throw response.error||new Error('Checkout unavailable');
+      window.location.assign(response.data.url);
+    }catch{toast.error(t('try_again'));}finally{setProcessing(false);}
   };
 
   return (
@@ -851,7 +854,7 @@ function FeatureComparisonTable({ plans }: { plans: PlanConfig[] }) {
 export default function Subscription() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { userRole } = useAuthStore();
+  const { userRole,userId } = useAuthStore();
 
   const effectiveRole: 'job_seeker' | 'company' = userRole === 'company' ? 'company' : 'job_seeker';
   const backFallback = userRole === 'company' ? '/company' : userRole === 'admin' ? '/admin' : '/seeker';
@@ -876,7 +879,7 @@ export default function Subscription() {
   const invoices = useMemo(() => generateMockInvoices(6), []);
 
   const [billingCycle, setBillingCycle] = useState<BillingCycleType>('annual');
-  const [activeTab, setActiveTab] = useState('plans');
+  const [activeTab, setActiveTab] = useState(() => {const query=new URLSearchParams(window.location.search);return query.has('credit_session')||query.has('credits_cancelled')||query.get('tab')==='billing'?'billing':'plans';});
   const [selectedPayment, setSelectedPayment] = useState<PaymentProviderType>('stripe');
   const [discount, setDiscount] = useState(0);
   const [checkoutPlan, setCheckoutPlan] = useState<PlanConfig | null>(null);
@@ -984,6 +987,7 @@ export default function Subscription() {
 
           {/* Billing Tab */}
           <TabsContent value="billing" className="space-y-6">
+            {effectiveRole==='job_seeker'&&<SeekerCreditPanel key={userId} />}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <PaymentMethodSelector selected={selectedPayment} onSelect={setSelectedPayment} />
               <CouponManager onApply={setDiscount} />

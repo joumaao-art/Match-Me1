@@ -234,9 +234,7 @@ export function LocationSelector({ idPrefix, country, city, onChange, errors, re
   const { t } = useTranslation();
   const changeCountry = async (code: string) => {
     if (code === country) return;
-    if (!city || !code) { onChange({ country: code, city: '' }); return; }
-    const list = await loadCities(code);
-    onChange({ country: code, city: list.includes(city) ? city : '' });
+    onChange({ country: code, city: '' });
   };
   const cId = `${idPrefix}-country`; const tId = `${idPrefix}-city`;
   return (

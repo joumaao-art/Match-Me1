@@ -11,4 +11,4 @@ import { apiClient } from '@/services/api-client';
 export const supabase = apiClient.supabase;
 
 // Re-export types for backward compatibility
-export type { UserProfile, JobSeekerProfile, CompanyProfile, Vacancy, JobMatch as Match, Message, Subscription } from '@/types';
+export type { UserProfile, JobSeekerProfile, CompanyProfile, Vacancy, JobMatch as Match, Message, UserSubscription as Subscription } from '@/types';

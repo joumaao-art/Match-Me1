@@ -66,7 +66,7 @@ class MessageService {
    */
   async getConversationWorkflow(matchId: string): Promise<ConversationWorkflow | null> {
     logger.info('[MessageService] Fetching conversation workflow', { matchId });
-    const result = await apiClient.query('getConversationWorkflow', () =>
+    const result = await apiClient.query<ConversationWorkflow>('getConversationWorkflow', () =>
       apiClient.supabase
         .from('conversation_workflows')
         .select('*')

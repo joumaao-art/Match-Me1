@@ -92,7 +92,7 @@ function DefaultLogo({ className = 'w-8 h-8' }: { className?: string }) {
 // ============================================================
 
 function EnvironmentBadge({ environment, compact = false }: { environment: EnvironmentType; compact?: boolean }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const config = ENVIRONMENT_CONFIG[environment];
 
   if (!config.visible && environment === 'production') return null;
@@ -126,7 +126,7 @@ export function detectEnvironment(): EnvironmentType {
 // ============================================================
 
 const PortalBrand = memo(function PortalBrand({ config }: { config: PortalBrandConfig }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const appName = config.appNameKey ? t(config.appNameKey) : (config.appName || 'MatchMe');
   const portalName = t(config.portalNameKey);
@@ -148,7 +148,7 @@ const PortalBrand = memo(function PortalBrand({ config }: { config: PortalBrandC
               {logo}
             </div>
           </TooltipTrigger>
-          <TooltipContent side="end" className="space-y-0.5 p-3">
+          <TooltipContent side={i18n.language === 'ar' ? 'left' : 'right'} className="space-y-0.5 p-3">
             <p className="text-sm font-bold font-[Poppins]">{appName}</p>
             <p className="text-xs text-muted-foreground">{portalName}</p>
             {workspaceName && <p className="text-[10px] text-muted-foreground">{workspaceName}</p>}

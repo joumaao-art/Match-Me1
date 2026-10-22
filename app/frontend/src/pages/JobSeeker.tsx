@@ -1,8 +1,12 @@
+import { loadPreferences, migrateLegacyPreferences, preferenceFit, savePreferences } from '@/lib/job-preferences';
+import { apiClient } from '@/services/api-client';
+import { useCreditAccount } from '@/lib/seeker-credits';
+import { useSeekerJobs, recordJobAction, shareJob } from '@/lib/seeker-jobs';
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { trackEvent } from '@/lib/analytics';
 import { PreferencesForm } from '@/components/seeker/PreferencesForm';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -325,7 +329,7 @@ function SwipeCardContent({ job, score, onViewDetails, onUndo, canUndo }: { job:
               <button type="button" disabled={!canUndo} className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); onUndo?.(); }} aria-label={t('undo_last_pass')} title={t('undo_last_pass')}>
                 <Undo2 className="w-4 h-4 text-muted-foreground rtl:-scale-x-100" />
               </button>
-              <button type="button" className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-muted transition-colors cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); toast.success(t('link_copied')); }} aria-label={t('share')}>
+              <button type="button" className="w-11 h-11 rounded-full flex items-center justify-center hover:bg-muted transition-colors cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); void shareJob({...job,status:'open'}).then(result=>{if(result==='copied')toast.success(t('link_copied'));}).catch(error=>{if(error?.name!=='AbortError')toast.error(t('try_again'));}); }} aria-label={t('share')}>
                 <ExternalLink className="w-4 h-4 text-muted-foreground" />
               </button>
             </div>
@@ -478,84 +482,68 @@ function JobDetailsContent({ job, explanation }: { job: typeof mockJobs[0] & { c
 
 function SwipeView() {
   const { t } = useTranslation();
+  const route=useLocation();
+  const requestedId=new URLSearchParams(route.search).get('job');
   const isMobile = useIsMobile();
-  const engine = useMatchingEngine(CURRENT_SEEKER.id, 'job_seeker');
+  const accountId = useAuthStore(s => s.userId);
+  const engine = useMatchingEngine(accountId || CURRENT_SEEKER.id, 'job_seeker');
+  const { balance: creditBalance } = useCreditAccount(accountId);
+  const {jobs,actions,loading:jobsLoading,error:jobsError,refresh:refreshJobs}=useSeekerJobs();
+  const [lastPass,setLastPass]=useState<string|null>(null);
+  const [prefs, setPrefs] = useState(() => loadPreferences(accountId || ''));
+  const [swipeBusy, setSwipeBusy] = useState(false);
+  const swipeLock = useRef(false);
+  useEffect(() => {
+    if (!accountId) return;
+    const refresh = () => setPrefs(loadPreferences(accountId));
+    setPrefs(loadPreferences(accountId));
+    let alive=true;
+    void apiClient.supabase.from('job_seeker_profiles').select('job_preferences').eq('user_id', accountId).abortSignal(AbortSignal.timeout(10000)).maybeSingle().then(r => { if (alive && useAuthStore.getState().userId===accountId && !r.error && r.data) savePreferences(accountId, migrateLegacyPreferences(r.data.job_preferences||{})); });
+    window.addEventListener('matchme:preferences-changed', refresh);
+    return () => {alive=false;window.removeEventListener('matchme:preferences-changed', refresh);};
+  }, [accountId]);
   const aiMatching = useAIMatching(CURRENT_SEEKER.id);
   const [showMatch, setShowMatch] = useState(false);
   const [canUndo, setCanUndo] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [detailJobId,setDetailJobId]=useState<string|null>(null);
   const [showPrefs, setShowPrefs] = useState(false);
   const [currentExplanation, setCurrentExplanation] = useState<MatchExplanation | null>(null);
 
   const recommendedJobs = useMemo(() => {
-    const recommendations = aiMatching.getRecommendations(AI_SEEKER, AI_VACANCIES);
-    return recommendations.map(r => {
-      const job = mockJobs.find(j => j.id === r.vacancy.id)!;
-      return { ...job, compatibility_score: r.explanation.overallScore, explanation: r.explanation };
-    }).filter(j => !engine.hasSwipedOn(j.id));
-  }, [engine.swipeHistory.length]);
+    const requested=requestedId;
+    return jobs.filter(j=>j.status==='open'&&!actions.some(a=>a.vacancy_id===j.id&&a.direction)).map(job=>({...job,compatibility_score:Math.round(preferenceFit(prefs,{title:job.job_title,employmentType:job.employment_type,skills:job.required_skills})*100),explanation:undefined})).sort((a,b)=>a.id===requested?-1:b.id===requested?1:b.compatibility_score-a.compatibility_score);
+  }, [jobs,actions,prefs,requestedId]);
 
   const currentJob = recommendedJobs[0];
+  const linkedJob=jobs.find(j=>j.id===detailJobId);
+  const requestedJobExists=jobs.some(j=>j.id===requestedId);
+  useEffect(()=>{if(requestedJobExists){setDetailJobId(requestedId);setShowDetails(true);}},[requestedId,requestedJobExists]);
 
-  useMemo(() => {
-    if (currentJob) {
-      const vacancy = AI_VACANCIES.find(v => v.id === currentJob.id);
-      if (vacancy) {
-        setCurrentExplanation(aiMatching.calculateMatch(AI_SEEKER, vacancy));
-      }
-    }
-  }, [currentJob?.id]);
+  const handleSwipe = useCallback(async (dir: 'left' | 'right') => {
+    if (!currentJob || !accountId || swipeLock.current) return false;
+    swipeLock.current = true; setSwipeBusy(true);
+    try {
+      await recordJobAction(currentJob.id,dir);
+      if(useAuthStore.getState().userId!==accountId)return;
+      setLastPass(dir==='left'?currentJob.id:null);setCanUndo(dir==='left');setShowDetails(false);
+      toast(dir==='right'?t('interest_recorded'):t('job_skipped'));return true;
+    }catch(error){toast.error((error as {message?:string}).message||t('try_again'));return false;}
+    finally{swipeLock.current=false;setSwipeBusy(false);}
+  }, [currentJob,t,accountId]);
 
-  const handleSwipe = useCallback((dir: 'left' | 'right') => {
-    if (!currentJob) return;
-    const matchContext = currentExplanation ? {
-      skillMatch: currentExplanation.factors.find(f => f.name === 'Skills')?.score || 0,
-      locationMatch: currentExplanation.factors.find(f => f.name === 'Location')?.score || 0,
-      salaryMatch: currentExplanation.factors.find(f => f.name === 'Salary')?.score || 0,
-      remoteMatch: currentExplanation.factors.find(f => f.name === 'Remote/Hybrid/Office')?.score || 0,
-      overallScore: currentExplanation.overallScore,
-    } : {};
+  const handleUndo = useCallback(async () => {
+    if(!lastPass||swipeLock.current)return;
+    swipeLock.current=true;setSwipeBusy(true);
+    try{await recordJobAction(lastPass,'undo');setLastPass(null);setCanUndo(false);toast.success(t('pass_undone'));}
+    catch{toast.error(t('try_again'));}finally{swipeLock.current=false;setSwipeBusy(false);}
+  },[lastPass,t]);
 
-    aiMatching.recordInteraction({
-      userId: CURRENT_SEEKER.id,
-      targetId: currentJob.id,
-      action: dir === 'right' ? 'swipe_right' : 'swipe_left',
-      context: matchContext,
-    });
-
-    const result = engine.swipe(currentJob.id, 'company', dir, currentJob.id);
-    if (!result) return;
-    trackEvent(dir === 'left' ? 'discover_pass' : 'discover_apply', { jobId: currentJob.id });
-    setCanUndo(dir === 'left');
-    setShowDetails(false);
-
-    if (dir === 'right' && result?.match) {
-      setShowMatch(true);
-      setTimeout(() => setShowMatch(false), 2500);
-      toast.success(t('its_a_match'));
-    } else if (dir === 'right') {
-      if (Math.random() > 0.5) {
-        setTimeout(() => { engine.swipe(currentJob.id, 'company', 'right'); }, 500);
-      }
-      toast(t('interest_recorded'));
-    } else {
-      toast(t('job_skipped'));
-    }
-  }, [currentJob, engine, aiMatching, currentExplanation, t]);
-
-  const handleUndo = useCallback(() => {
-    const undone = engine.undoLastPass();
-    if (!undone) { setCanUndo(false); toast(t('undo_nothing')); return; }
-    aiMatching.revokeInteraction(CURRENT_SEEKER.id, undone.targetId);
-    trackEvent('discover_undo', { jobId: undone.targetId, swipeId: undone.id });
-    setCanUndo(engine.canUndoPass());
-    toast.success(t('pass_undone'));
-  }, [engine, aiMatching, t]);
-
-  const handleSaveJob = useCallback(() => {
-    if (!currentJob) return;
-    toast.success(t('job_saved'));
-  }, [currentJob, t]);
+  const handleSaveJob = useCallback(async () => {
+    if(!currentJob)return;
+    try{await recordJobAction(currentJob.id,'save');toast.success(t('job_saved'));}
+    catch{toast.error(t('try_again'));}
+  },[currentJob,t]);
 
   const handleUndoRef = useRef(handleUndo); handleUndoRef.current = handleUndo;
   const canUndoRef = useRef(canUndo); canUndoRef.current = canUndo;
@@ -578,7 +566,7 @@ function SwipeView() {
       <SwipeCardContent
         job={job}
         score={job.compatibility_score}
-        onViewDetails={() => setShowDetails(true)}
+        onViewDetails={() => {setDetailJobId(job.id);setShowDetails(true);}}
         onUndo={handleUndoRef.current}
         canUndo={canUndoRef.current}
       />
@@ -586,11 +574,13 @@ function SwipeView() {
   }, [canUndo]);
 
   const handleSwipeFeedback = useCallback((direction: 'left' | 'right', _item: SwipeCardItem) => {
-    handleSwipe(direction);
+    return handleSwipe(direction);
   }, [handleSwipe]);
 
+  if(jobsLoading)return <div className="flex-1 p-6" role="status">{t('loading')}</div>;
+  if(jobsError)return <div className="flex-1 p-6" role="alert"><p>{t('try_again')}</p><Button onClick={()=>void refreshJobs()}>{t('try_again')}</Button></div>;
   if (!currentJob) return (
-    <div className="flex-1 flex items-center justify-center p-8"><div className="text-center"><Heart className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" /><h3 className="text-lg font-semibold font-[Poppins] mb-2">{t('no_more_jobs')}</h3><p className="text-sm text-muted-foreground mb-4">{t('check_back_later')}</p>
+    <div className="flex-1 flex items-center justify-center p-8"><BottomSheet open={showDetails&&!!linkedJob} onClose={()=>setShowDetails(false)} title={linkedJob?.job_title||t('discover')}>{linkedJob&&<JobDetailsContent job={linkedJob} explanation={null} />}</BottomSheet><div className="text-center"><Heart className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" /><h3 className="text-lg font-semibold font-[Poppins] mb-2">{t('no_more_jobs')}</h3><p className="text-sm text-muted-foreground mb-4">{t('check_back_later')}</p>
       {canUndo && <Button variant="outline" onClick={handleUndo} className="cursor-pointer gap-2"><Undo2 className="w-4 h-4" />{t('undo_last_pass')}</Button>}
     </div></div>
   );
@@ -600,7 +590,7 @@ function SwipeView() {
     <div className="flex justify-between items-center">
       <h2 className={`font-bold font-[Poppins] ${isMobile ? 'text-base' : 'text-xl'}`}>{t('discover')}</h2>
       <div className="flex items-center gap-1.5">
-        <Badge variant="secondary" className="text-[10px] gap-0.5 py-0 h-5"><Zap className="w-2.5 h-2.5" />{recommendedJobs.length}</Badge>
+        <Badge variant="secondary" className="text-[10px] gap-0.5 py-0 h-5"><Zap className="w-2.5 h-2.5" />{creditBalance ?? '—'}</Badge>
         <Button size="sm" variant="ghost" onClick={() => setShowPrefs(true)} className="cursor-pointer h-9 px-2 gap-1" aria-label={t('preferences')}><Sliders className="w-4 h-4" /><span className="text-xs">{t('preferences')}</span></Button>
       </div>
     </div>
@@ -608,10 +598,8 @@ function SwipeView() {
 
   const summaryContent = (
     <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
-      <Badge variant="outline" className="text-[9px] gap-0.5 py-0 px-1 h-4 shrink-0 border-primary/30 text-primary"><Sparkles className="w-2 h-2" />AI</Badge>
-      <Badge variant="outline" className="text-[9px] gap-0.5 py-0 px-1 h-4 shrink-0"><TrendingUp className="w-2 h-2" />{engine.stats.matchRate}%</Badge>
-      <Badge variant="outline" className="text-[9px] gap-0.5 py-0 px-1 h-4 shrink-0"><Heart className="w-2 h-2" />{engine.stats.rightSwipes}</Badge>
-      {aiMatching.learningStats?.isPersonalized && <Badge variant="outline" className="text-[9px] gap-0.5 py-0 px-1 h-4 shrink-0 border-green-500/30 text-green-600"><Target className="w-2 h-2" />{t('personalized')}</Badge>}
+      <Badge variant="outline" className="text-[9px] gap-0.5 py-0 px-1 h-4 shrink-0"><TrendingUp className="w-2 h-2" />{actions.filter(a=>a.direction==='right').length}</Badge>
+      <Badge variant="outline" className="text-[9px] gap-0.5 py-0 px-1 h-4 shrink-0"><Heart className="w-2 h-2" />{actions.filter(a=>a.saved).length}</Badge>
     </div>
   );
 
@@ -621,8 +609,8 @@ function SwipeView() {
       activeIndex={swipeDeckIndex}
       renderCard={renderSwipeCard}
       onSwipe={handleSwipeFeedback}
-      onTap={() => setShowDetails(true)}
-      enabled={true}
+      onTap={() => {setDetailJobId(currentJob.id);setShowDetails(true);}}
+      enabled={!swipeBusy && creditBalance !== 0}
       config={{
         threshold: 100,
         maxRotation: 15,
@@ -641,7 +629,7 @@ function SwipeView() {
           <SwipeCardContent
             job={job}
             score={job.compatibility_score}
-            onViewDetails={() => setShowDetails(true)}
+            onViewDetails={() => {setDetailJobId(job.id);setShowDetails(true);}}
           />
         </div>
       ))}
@@ -650,7 +638,9 @@ function SwipeView() {
 
   const actionsContent = (
     <DecisionActionBar
-      onPass={() => handleSwipe('left')}
+      onPass={() => void handleSwipe('left')}
+      passDisabled={swipeBusy || creditBalance === 0}
+      likeDisabled={swipeBusy || creditBalance === 0}
       onSave={handleSaveJob}
       onLike={() => handleSwipe('right')}
       variant={isMobile ? 'default' : 'default'}
@@ -666,9 +656,9 @@ function SwipeView() {
       <BottomSheet
         open={showDetails}
         onClose={() => setShowDetails(false)}
-        title={currentJob.job_title}
+        title={linkedJob?.job_title||currentJob.job_title}
       >
-        <JobDetailsContent job={currentJob} explanation={currentExplanation} />
+        <JobDetailsContent job={linkedJob||currentJob} explanation={currentExplanation} />
       </BottomSheet>
 
       {/* Match Celebration */}
@@ -1003,21 +993,22 @@ function PreferencesView() {
 
 function SavedJobsView() {
   const { t } = useTranslation();
-  const [savedJobs, setSavedJobs] = useState(mockSavedJobs);
-
-  const handleRemove = (id: string) => {
-    setSavedJobs(prev => prev.filter(j => j.id !== id));
-    toast.success(t('job_removed'));
+  const navigate=useNavigate();
+  const {jobs,actions,loading,error,refresh}=useSeekerJobs();
+  const savedJobs=actions.filter(a=>a.saved).flatMap(a=>{const j=jobs.find(j=>j.id===a.vacancy_id);return j?[{id:j.id,title:j.job_title,company:j.company_name,location:`${j.city}, ${j.country}`,salary:j.salary_min?`${j.salary_min}–${j.salary_max}`:'',status:j.status}]:[];});
+  const handleRemove = async (id: string) => {
+    try{await recordJobAction(id,'unsave');toast.success(t('job_removed'));}catch{toast.error(t('try_again'));}
   };
 
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('saved_jobs')}</h2>
+      {loading&&<p role="status">{t('loading')}</p>}{error&&<Button onClick={()=>void refresh()}>{t('try_again')}</Button>}
       <div className="space-y-3">
         {savedJobs.map(job => (
-          <Card key={job.id}><CardContent className="p-4 flex items-center justify-between">
+          <Card key={job.id}><CardContent className="p-4 flex items-center justify-between" onClick={()=>navigate(`/seeker?view=swipe&job=${job.id}`)}>
             <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><Building2 className="w-5 h-5 text-primary" /></div><div><p className="font-medium text-sm">{job.title}</p><p className="text-xs text-muted-foreground">{job.company} · {job.location} · {job.salary}</p></div></div>
-            <div className="flex items-center gap-2"><Badge variant={job.status === 'open' ? 'default' : 'secondary'} className="text-xs">{t(job.status)}</Badge><Button size="sm" variant="ghost" className="cursor-pointer text-destructive" onClick={() => handleRemove(job.id)}><Trash2 className="w-3 h-3" /></Button></div>
+            <div className="flex items-center gap-2"><Badge variant={job.status === 'open' ? 'default' : 'secondary'} className="text-xs">{t(job.status)}</Badge><Button size="sm" variant="ghost" className="cursor-pointer text-destructive" onClick={(event) => {event.stopPropagation();void handleRemove(job.id);}}><Trash2 className="w-3 h-3" /></Button></div>
           </CardContent></Card>
         ))}
         {savedJobs.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_saved_jobs')}</p>}
@@ -1032,17 +1023,18 @@ function SavedJobsView() {
 
 function ApplicationsView() {
   const { t } = useTranslation();
-  const [applications, setApplications] = useState(mockApplications);
+  const {jobs,actions,loading,error,refresh}=useSeekerJobs();
+  const applications=actions.filter(a=>a.direction==='right'&&a.application_status!=='withdrawn').flatMap(a=>{const j=jobs.find(j=>j.id===a.vacancy_id);return j?[{id:j.id,title:j.job_title,company:j.company_name,appliedDate:a.updated_at.slice(0,10),status:a.application_status||'pending'}]:[];});
   const statusColor = (s: string) => { switch(s) { case 'interview': return 'default'; case 'reviewed': return 'secondary'; case 'pending': return 'outline'; case 'rejected': return 'destructive'; default: return 'secondary'; } };
 
-  const handleWithdraw = (id: string) => {
-    setApplications(prev => prev.filter(a => a.id !== id));
-    toast.success(t('application_withdrawn'));
+  const handleWithdraw = async (id: string) => {
+    try{await recordJobAction(id,'withdraw');toast.success(t('application_withdrawn'));}catch{toast.error(t('try_again'));}
   };
 
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('applications')}</h2>
+      {loading&&<p role="status">{t('loading')}</p>}{error&&<Button onClick={()=>void refresh()}>{t('try_again')}</Button>}
       <div className="space-y-3">
         {applications.map(app => (
           <Card key={app.id}><CardContent className="p-4 flex items-center justify-between">
@@ -1174,7 +1166,9 @@ function SettingsView({ seekerTier }: { seekerTier?: SeekerTier }) {
 export default function JobSeeker() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<NavSection>('dashboard');
+  const location=useLocation();
+  const [activeTab, setActiveTab] = useState<NavSection>(()=>new URLSearchParams(location.search).get('view')==='swipe'?'swipe':'dashboard');
+  useEffect(()=>{if(new URLSearchParams(location.search).get('view')==='swipe')setActiveTab('swipe');},[location.search]);
   const isMobile = useIsMobile();
 
   // Simulated seeker tier - in production this comes from subscription state

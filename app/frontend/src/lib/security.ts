@@ -555,7 +555,7 @@ export class Encryption {
     );
 
     const key = await crypto.subtle.deriveKey(
-      { name: 'PBKDF2', salt: usedSalt, iterations: 100000, hash: 'SHA-256' },
+      { name: 'PBKDF2', salt: new Uint8Array(usedSalt).buffer, iterations: 100000, hash: 'SHA-256' },
       keyMaterial,
       { name: this.ALGORITHM, length: this.KEY_LENGTH },
       false,
