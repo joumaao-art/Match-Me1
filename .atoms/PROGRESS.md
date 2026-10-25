@@ -1,17 +1,5 @@
 ## Task Breakdown
 
-| Complete mobile and desktop feature parity | Implementation | Validation |
-|---|---|---|
-| Evidence-backed complete feature matrix and source layout baseline | done | in_progress |
-| Shared account/CV/Personal/VIA/support and canonical desktop skills | in_progress | pending |
-| Shared preferences contract with independent Save/layout | in_progress | pending |
-| Desktop canonical Dashboard/details/search and discovery/credits entry | in_progress | pending |
-| Identity isolation/refetch and onboarding shared persistence review | in_progress | pending |
-| Authorized messaging/notifications and remaining legacy capabilities | in_progress | pending |
-| Permanent parity standard/contracts and final 14-section report | done | done |
-| Lint/build/database and authenticated EN/AR device acceptance | done | blocked |
-
-
 | Mobile Job Seeker Profile redesign | Implementation | Validation |
 |---|---|---|
 | Canonical account/CV/support/PDF audit and data contract | done | done |
@@ -91,13 +79,6 @@
 | Approved legal sheets and required mobile A–W acceptance evidence | blocked | blocked |
 
 ## Progress Log
-- Final hardening validated: canonical profile base variable restored; profile fields wait for server base; four history dialogs disable input/dismissal during Save and suppress stale-account feedback; Personal/optional reload and StrictMode lifecycle fixes retained. TypeScript,216 contracts plus eight static readiness/save guards, lint and2818-module build PASS. No additional UI check or production fixture mutation; complete signed-in EN/AR/cross-device/provider acceptance remains BLOCKED.
-- Parity evidence phase: final216 contracts, TypeScript/lint/build PASS without former Auth chunk cycle warning; authenticated rollback-only portfolio/optional/history validation and Company-first messaging/interview lifecycle/isolation plus notification suppression PASS. Migration031 deployed. Guest-only rendering PASS; signed-in EN/AR nine-width/cross-device/CV-reader/payment acceptance BLOCKED. English14-section report records missing directory/video/support dependencies and no100%/release claim.
-- Current hardening: Auth store imports its service directly to remove the barrel cycle; onboarding flow identity retained across responses and canonical-base-aware recovery prevents stale local overwrite. Canonical history readiness/ref locks, portfolio busy/owner/URL guards, notification account remount and mobile account focus refetch added; service-level regression and final validation pending.
-- Remaining legacy tools: migration030 extends existing history RPC for validated portfolio CRUD and owner conflict-safe optional disability/acquisition metadata; authenticated-role rollback-only persistence/isolation/unsafe-URL tests PASS. Demo contact/invitation/exposure/video/obsolete CV success removed in favor of authorized Messages and explicit unavailable boundaries; TypeScript/lint plus102 onboarding/preferences/Profile/PDF contracts PASS. Permanent parity standard/acceptance manifest added; final build/viewer and14-section evidence report pending.
-- Synchronization hardening: deployed029 coherent account/profile/onboarding snapshots, revision validation, verified-login-phone protection and atomic conflict-safe history RPC. Raw nullable profile bases and canonical history adapters repaired; feedback reused owner rating records. Preference aliases, credit pagination lifecycle and history deletion guards repaired; current validation pending, signed-in device acceptance blocked.
-- Parity synchronization phase: migrations027–028 deployed for step-scoped onboarding canonical conflicts and shared changed-field profile writes. Latest45 onboarding contracts, TypeScript/lint and rollback-only027 CV/Auth-email/revision/conflict checks PASS; production build and actual signed-in cross-device acceptance remain pending/blocked. Null-base normalization, atomic history edits and coherent snapshot loading are being repaired.
-- Parity implementation phase: shared desktop account/skills/preferences/Dashboard and one onboarding controller wired; migrations023–026 deploy conflict-safe skills/settings and authorized Company-first communications/notifications. Rollback-only communications security/idempotency checks and latest TypeScript/lint PASS; onboarding stale canonical writes remain under repair, build and signed-in cross-device evidence pending.
 - Mobile Profile implemented: real Auth/account overview, private CV/storage timestamp/signing, canonical subscription overview, deterministic selectable VIA PDF, owner conflict-safe Personal, ordered support/FAQ/persisted screenshot reports/settings; mobile Skills canonical and certificates/languages explicit server save. TypeScript/lint/build and103 Profile/navigation/Dashboard/VIA contracts plus rollback-only DB persistence/isolation PASS. Viewer guest-only; actual authenticated devices/CV HTTP/report/logout-login/billing unexecuted. Arabic shaping/text/glyph checks pass but raster feedback conflicts; visual reader acceptance BLOCKED. Official chat/email and secure login-phone change/deletion absent; no fake success. Report records13 requested sections; preserve desktop layout and existing balances/data.
 - Dashboard accepted: user confirms signed-in manual PASS for logo/search, All/Submitted, Skipped/Saved, recent/status/details, Saved actions, Pass reconsideration, mobile navigation and Arabic responsiveness; no issues. Combined with117 contracts/TypeScript/lint/build and rollback-only DB PASS, current scope ready for next phase. Preserve implementation; no closeout code/DB changes. Independent authenticated browser/per-width evidence and missing historical dates remain explicitly disclosed.
 - User confirms current Dashboard manual acceptance not tested yet; preserve implemented scope and passed117 contracts/TypeScript/lint/build/database evidence; signed-in mobile/RTL acceptance remains blocked pending observations, no completion or manual PASS claim.

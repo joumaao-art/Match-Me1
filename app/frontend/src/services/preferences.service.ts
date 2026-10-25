@@ -1,6 +1,6 @@
 import { apiClient } from './api-client';
 import { migrateLegacyPreferences, savePreferences, type JobPreferences } from '@/lib/job-preferences';
-import { validPreferenceSelections, mergePreferencePatch, PreferenceConflict, preferenceSelectionCount, type PreferenceRecord } from '@/lib/mobile-preferences';
+import { mergePreferencePatch, PreferenceConflict, preferenceSelectionCount, type PreferenceRecord } from '@/lib/mobile-preferences';
 import { useAuthStore } from '@/stores';
 
 export interface PreferenceSnapshot { raw: PreferenceRecord; prefs: JobPreferences; updatedAt: string; nullable: boolean }
@@ -17,7 +17,7 @@ class PreferencesService {
   for (let attempt = 0; attempt < 2; attempt++) {
    const latest = await this.load(userId);
    const merged = mergePreferencePatch(base.raw, latest.raw, patch);
-   if (!validPreferenceSelections(migrateLegacyPreferences(merged))) throw new Error('Choose at most 10 distinct roles and keywords.');
+   if (preferenceSelectionCount(migrateLegacyPreferences(merged)) > 10) throw new Error('Choose at most 10 roles and keywords combined.');
    // Existing owner RLS remains authoritative; compare both timestamp and original JSON atomically.
    let update = apiClient.supabase.from('job_seeker_profiles').update({ job_preferences: merged }).eq('user_id', userId).eq('updated_at', latest.updatedAt);
    update = latest.nullable ? update.is('job_preferences', null) : update.filter('job_preferences', 'eq', JSON.stringify(latest.raw));

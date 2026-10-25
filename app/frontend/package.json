@@ -5,7 +5,6 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint --quiet ./src",
-    "check:parity": "node scripts/feature-parity-contract.mjs",
     "check:language": "node scripts/check-cjk-engineering-text.mjs",
     "preview": "vite preview",
     "postinstall": "echo 'Dependencies installed successfully'"

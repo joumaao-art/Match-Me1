@@ -30,7 +30,7 @@ function RecordRow({ row, category, onOpen }: { row: DashboardRow; category: Das
   <CompanyLogo row={row}/><span className="min-w-0 flex-1 space-y-1 block"><span className="font-semibold text-sm leading-5 break-words block">{row.job.job_title}</span><span className="text-xs text-muted-foreground block break-words">{row.job.company_name} · {[row.job.city,row.job.country].filter(Boolean).join(', ')}</span><span className="text-[11px] text-muted-foreground block">{date ? new Date(date).toLocaleDateString(i18n.language) : ar ? 'التاريخ غير مسجل' : 'Date not recorded'}</span><span className="flex flex-wrap gap-1 pt-1">{status && <StatusBadge status={status} locale={i18n.language}/>}<VacancyCondition row={row} locale={i18n.language}/></span></span><ChevronRight size={16} className="shrink-0 mt-1 text-muted-foreground rtl:rotate-180"/>
  </button>;
 }
-export function RecordDetails({ row, latestPass, onClose, onRefresh, onNavigate }: { row: DashboardRow; latestPass: string | null; onClose: () => void; onRefresh: () => Promise<void>; onNavigate: (section: string) => void }) {
+function RecordDetails({ row, latestPass, onClose, onRefresh, onNavigate }: { row: DashboardRow; latestPass: string | null; onClose: () => void; onRefresh: () => Promise<void>; onNavigate: (section: string) => void }) {
  const { i18n } = useTranslation(); const ar = i18n.language.startsWith('ar'); const copy = (en: string, arabic: string) => ar ? arabic : en;
  const navigate = useNavigate(); const completion = useMandatoryProfile(); const [busy, setBusy] = useState(false); const lock = useRef(false);
  const status = applicationStatus(row.action); const active = isAvailableJob(row.job); const canApply = active && !row.action.direction && !row.action.application_status;
@@ -50,7 +50,7 @@ export function RecordDetails({ row, latestPass, onClose, onRefresh, onNavigate 
   {row.action.direction === 'left' && latestPass !== row.job.id && <p className="text-xs text-muted-foreground">{copy('Only the latest eligible Pass can be reversed under the existing Undo rules.', 'يمكن التراجع عن آخر تجاوز مؤهل فقط وفق قواعد التراجع الحالية.')}</p>}
  </DialogContent></Dialog>;
 }
-export function DashboardBrowser({ initial, search, onClose, onNavigate }: { initial: DashboardCategory; search: boolean; onClose: () => void; onNavigate: (section: string) => void }) {
+function DashboardBrowser({ initial, search, onClose, onNavigate }: { initial: DashboardCategory; search: boolean; onClose: () => void; onNavigate: (section: string) => void }) {
  const { i18n } = useTranslation(); const ar = i18n.language.startsWith('ar'); const copy = (en: string, arabic: string) => ar ? arabic : en;
  const [category,setCategory] = useState(initial); const [query,setQuery] = useState(''); const [status,setStatus] = useState(''); const [oldest,setOldest] = useState(false); const [selected,setSelected] = useState<string|null>(null);
  const state = useSeekerDashboard(category,query,status,oldest,false); const row = state.data?.rows.find(r => r.job.id === selected);

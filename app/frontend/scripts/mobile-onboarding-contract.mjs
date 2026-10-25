@@ -1,7 +1,5 @@
 import assert from 'node:assert/strict';
-import { webcrypto } from 'node:crypto';
 import { createServer } from 'vite';
-globalThis.crypto ??= webcrypto;
 
 // Pure contract tests never open realtime connections; only browser API discovery is needed.
 globalThis.WebSocket=class {static OPEN=1;static CONNECTING=0;static CLOSED=3;constructor(){throw new Error('Unexpected realtime connection in a pure contract test');}};
@@ -58,26 +56,5 @@ try{
  test('leap birthday increments on leap day',()=>{assert.equal(wheels.ageFromBirthday('2000-02-29',new Date(2024,1,28)),23);assert.equal(wheels.ageFromBirthday('2000-02-29',new Date(2024,1,29)),24);});
  test('leap birthday increments March 1 in non-leap year',()=>{assert.equal(wheels.ageFromBirthday('2000-02-29',new Date(2026,1,28)),25);assert.equal(wheels.ageFromBirthday('2000-02-29',new Date(2026,2,1)),26);});
  test('invalid current date has no age',()=>assert.equal(wheels.ageFromBirthday('2000-01-01',new Date(NaN)),null));
- test('acknowledged draft recovers only against its server revision',()=>{const s={...m.emptyMobileState(),revision:10};const local=structuredClone({...s,revision:100,serverRevision:10});local.draft.firstName='Unsaved';assert.equal(m.recoverMobileDraft(s,local).draft.firstName,'Unsaved');assert.equal(m.recoverMobileDraft({...s,revision:11},local).draft.firstName,'');});
- test('old cache clock cannot overwrite newer server state',()=>{const s={...m.emptyMobileState(),revision:10};assert.equal(m.recoverMobileDraft(s,{...s,revision:999999}).revision,10);});
- test('discard cache affects only its owner',()=>{m.cacheMobile('discard-a',m.emptyMobileState());m.cacheMobile('discard-b',m.emptyMobileState());m.discardMobileCache('discard-a');assert.equal(m.readMobileCache('discard-a'),null);assert.ok(m.readMobileCache('discard-b'));});
- test('changed canonical profile prevents stale local recovery',()=>{const s={...m.emptyMobileState(),revision:10,canonicalBase:{GENDER:'female'}};const local={...s,revision:11,serverRevision:10,canonicalBase:{GENDER:'male'}};assert.equal(m.recoverMobileDraft(s,local),s);});
- test('normalization retains controller flow identity',()=>assert.equal(m.normalizeMobile({...m.emptyMobileState(),clientFlowId:'flow-one'}).clientFlowId,'flow-one'));
- const { apiClient } = await server.ssrLoadModule('/src/services/api-client.ts');
- const originalRpc=apiClient.supabase.rpc;
- const originalUser=apiClient.auth.getUser;
- const originalSession=apiClient.auth.getSession;
- let owner='flow-owner';
- const snapshot={EDUCATION:[],EXPERIENCE:{records:[]}};
- apiClient.auth.getUser=async()=>({data:{user:{id:owner,email:'owner@example.com'}}});
- apiClient.auth.getSession=async()=>({data:{session:{user:{id:owner}}}});
- apiClient.supabase.rpc=(name,args)=>({abortSignal:async()=>({error:null,data:name==='load_seeker_onboarding'?{account:{mobile_onboarding_state:m.emptyMobileState()},profile:{},snapshot}:(({clientFlowId,...state})=>state)({...args.payload,revision:args.payload.serverRevision+1})})});
- const asyncTest=async(name,run)=>{await run();passed++;console.log(`PASS ${name}`);};
- try {
-  await asyncTest('save response retains flow for consecutive steps',async()=>{const {state}=await m.loadMobile(owner);const saved=await m.persistMobile(owner,state);assert.equal(saved.clientFlowId,state.clientFlowId);assert.equal(saved.serverRevision,1);assert.equal((await m.persistMobile(owner,saved)).serverRevision,2);});
-  await asyncTest('reload retires prior queued flow',async()=>{const old=(await m.loadMobile(owner)).state;await m.loadMobile(owner);await assert.rejects(m.persistMobile(owner,old),/flow changed/);});
-  await asyncTest('latest overlapping onboarding load owns the flow',async()=>{const delayed=[];apiClient.supabase.rpc=()=>({abortSignal:()=>new Promise(resolve=>delayed.push(resolve))});const first=m.loadMobile(owner);const second=m.loadMobile(owner);const response={error:null,data:{account:{mobile_onboarding_state:m.emptyMobileState()},profile:{},snapshot}};delayed[1](response);const latest=await second;delayed[0](response);await assert.rejects(first,/superseded/);apiClient.supabase.rpc=(name,args)=>({abortSignal:async()=>({error:null,data:{...args.payload,revision:args.payload.serverRevision+1}})});assert.equal((await m.persistMobile(owner,latest.state)).clientFlowId,latest.state.clientFlowId);});
-  await asyncTest('different account cannot persist a captured draft',async()=>{apiClient.supabase.rpc=()=>({abortSignal:async()=>({error:null,data:{account:{mobile_onboarding_state:m.emptyMobileState()},profile:{},snapshot}})});const state=(await m.loadMobile(owner)).state;owner='another-owner';await assert.rejects(m.persistMobile('flow-owner',state),/Account changed/);});
- } finally { apiClient.supabase.rpc=originalRpc;apiClient.auth.getUser=originalUser;apiClient.auth.getSession=originalSession; }
  console.log(`${passed} onboarding contract checks passed.`);
 }finally{await server.close();}

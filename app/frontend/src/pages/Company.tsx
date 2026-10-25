@@ -1,4 +1,3 @@
-import Notifications from './Notifications';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -1546,7 +1545,7 @@ export default function Company() {
       case 'saved': return <TalentCollections />;
       case 'matching': return <CompanyLiveView view="matching" />;
       case 'messages': return null; // Handled by useEffect — navigates to /messages
-      case 'notifications': return <Notifications />;
+      case 'notifications': return <NotificationsView />;
       case 'analytics': return <AnalyticsView />;
       case 'subscription': return <SubscriptionView />;
       case 'billing': return <BillingView />;

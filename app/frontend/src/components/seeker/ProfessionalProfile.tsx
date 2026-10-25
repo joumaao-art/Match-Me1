@@ -1,8 +1,7 @@
-import { DesktopAccountFeatures } from './DesktopAccountFeatures';
 import { MandatoryProfileGuidance } from './MandatoryProfileGuidance';
 import { useLocation } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { profileReady, historyReady, retainHistoryBase, readHistory, writeHistory, readCanonicalProfile, writeCanonicalProfile } from '@/lib/canonical-profile';
+import { readHistory, writeHistory, readCanonicalProfile, writeCanonicalProfile } from '@/lib/canonical-profile';
 import { PhoneInput } from '@/components/shared/PhoneInput';
 import { Sliders } from 'lucide-react';
 /**
@@ -81,64 +80,28 @@ function usePersistedList<T>(name: string, seed: T[], normalize: (x: T) => T) {
   const key = storageKey(userId, name);
   const fallback = userId ? [] : seed;
   const [items, setItems] = useState<T[]>(() => readStored<T[]>(key, fallback).map(normalize));
-  const mutation = useRef(false);
-  const alive = useRef(true);
-  useEffect(() => {
-    alive.current = true;
-    return () => { alive.current = false; };
-  }, [userId]);
   useEffect(() => {
     let alive = true;
     const cached=readStored<T[]>(key,userId?[]:seed).map(normalize);
     const isDemo=JSON.stringify(cached)===JSON.stringify(seed.map(normalize));
     const local=userId&&isDemo?[]:cached;
     setItems(local);
-    if (userId) void readHistory(name, userId).then(rows => { if (alive && rows !== null && useAuthStore.getState().userId===userId) { const next = (rows as T[]).map(normalize); retainHistoryBase(rows,next); setItems(next); try { localStorage.setItem(key, JSON.stringify(next)); } catch { /* Server records remain authoritative. */ } } }).catch(() => toast.error('Unable to load saved profile records.'));
-    const refresh=()=>{if(mutation.current||document.querySelector('[role="dialog"]'))return;if(userId)void readHistory(name,userId).then(rows=>{if(alive&&rows!==null&&useAuthStore.getState().userId===userId&&!mutation.current&&!document.querySelector('[role="dialog"]')){const next=(rows as T[]).map(normalize);retainHistoryBase(rows,next);setItems(next);}}).catch(()=>{if(alive)toast.error('Unable to refresh profile records.');});};
-    window.addEventListener('focus',refresh);window.addEventListener('matchme:profile-changed',refresh);
-    return () => { alive = false;window.removeEventListener('focus',refresh);window.removeEventListener('matchme:profile-changed',refresh); };
+    if (userId) void readHistory(name, userId).then(rows => { if (alive && rows !== null) { const next = (rows as T[]).map(normalize); setItems(next); localStorage.setItem(key, JSON.stringify(next)); } }).catch(() => toast.error('Unable to load saved profile records.'));
+    return () => { alive = false; };
   }, [key, userId, name]); // eslint-disable-line react-hooks/exhaustive-deps
-  const commit = useCallback(async (next: T[]) => {
-    if (!userId || !historyReady(items)) throw new Error('Reload saved profile records before editing');
-    if (mutation.current) throw new Error('A profile save is already in progress');
-    mutation.current = true;
-    try {
-      await writeHistory(name, userId, next, items);
-      if (!alive.current || useAuthStore.getState().userId !== userId) throw new Error('Account changed');
-      try { await persist(key, next); } catch { /* Server acknowledgement is authoritative. */ }
-      if (!alive.current || useAuthStore.getState().userId !== userId) return;
-      setItems(next);
-      window.dispatchEvent(new Event('matchme:profile-changed'));
-    } finally { mutation.current = false; }
-  }, [key, userId, name, items]);
+  const commit = useCallback(async (next: T[]) => { if (userId) await writeHistory(name, userId, next, items); await persist(key, next); setItems(next); window.dispatchEvent(new Event('matchme:profile-changed')); }, [key, userId, name, items]);
   return [items, commit] as const;
 }
 
 /** Deterministic save runner: IDLE → VALIDATING → SAVING → SUCCESS | ERROR. */
 function useSaveRunner() {
   const [state, setState] = useState<SaveState>('IDLE');
-  const lock = useRef(false);
-  const alive = useRef(true);
-  useEffect(() => {
-    alive.current = true;
-    return () => { alive.current = false; };
-  }, []);
   const run = useCallback(async (validate: () => boolean, save: () => Promise<void>, messages: { ok: string; err: string }) => {
-    if (lock.current) return false;
-    const owner = useAuthStore.getState().userId;
-    const current = () => alive.current && useAuthStore.getState().userId === owner;
-    lock.current = true;
     setState('VALIDATING');
-    if (!validate()) { setState('ERROR'); lock.current = false; return false; }
+    if (!validate()) { setState('ERROR'); return false; }
     setState('SAVING');
-    try {
-      await save();
-      if (!current()) return false;
-      setState('SUCCESS'); toast.success(messages.ok); return true;
-    } catch {
-      if (current()) { setState('ERROR'); toast.error(messages.err); }
-      return false;
-    } finally { lock.current = false; }
+    try { await save(); setState('SUCCESS'); toast.success(messages.ok); return true; }
+    catch { setState('ERROR'); toast.error(messages.err); return false; }
   }, []);
   return { state, run, reset: () => setState('IDLE'), busy: state === 'SAVING' || state === 'VALIDATING' };
 }
@@ -199,13 +162,12 @@ const normCert = (c: CertificateRecord): CertificateRecord => ({
 const normLang = (l: LanguageRecord): LanguageRecord => ({ ...l, level: normalizeLanguageLevel(l.level) });
 
 /** Shared read hooks, also consumed by the dashboard, profile completion and AI adapters. */
-export function useSeekerPortfolio() { return usePersistedList<{id:string;title:string;desc:string;url:string}>('portfolio', [], x=>x); }
 export function useSeekerExperience() { return usePersistedList<ExperienceRecord>('experience', SEED_EXPERIENCE, normalizeExperience); }
 export function useSeekerEducation() { return usePersistedList<EducationRecord>('education', SEED_EDUCATION, normalizeEducation); }
 export function useSeekerCertificates() { return usePersistedList<CertificateRecord>('certificates', SEED_CERTIFICATES, normCert); }
 export function useSeekerLanguages() { return usePersistedList<LanguageRecord>('languages', SEED_LANGUAGES, normLang); }
 
-export function useSeekerProfile(dirtyGuard?:React.MutableRefObject<boolean>) {
+export function useSeekerProfile() {
   const userId = useAuthStore((s) => s.userId);
   const key = storageKey(userId, 'profile');
   const { countries } = useCountries();
@@ -213,10 +175,8 @@ export function useSeekerProfile(dirtyGuard?:React.MutableRefObject<boolean>) {
   const [profile, setProfile] = useState<SeekerProfileRecord>(() => readStored(key, userId ? emptyProfile : SEED_PROFILE));
   useEffect(() => {
     let alive = true; setProfile(readStored(key, userId ? emptyProfile : SEED_PROFILE));
-    if (userId) void readCanonicalProfile(userId).then(next => { if (alive && useAuthStore.getState().userId===userId && !dirtyGuard?.current) { setProfile(next); try {localStorage.setItem(key, JSON.stringify(next));} catch { /* Saved server profile remains authoritative. */ } } }).catch(() => toast.error('Unable to load saved profile.'));
-    const refresh=()=>{if(dirtyGuard?.current)return;if(userId)void readCanonicalProfile(userId).then(next=>{if(alive&&useAuthStore.getState().userId===userId&&!dirtyGuard?.current)setProfile(next);}).catch(()=>{if(alive)toast.error('Unable to refresh saved profile.');});};
-    window.addEventListener('focus',refresh);window.addEventListener('matchme:profile-changed',refresh);
-    return () => { alive = false;window.removeEventListener('focus',refresh);window.removeEventListener('matchme:profile-changed',refresh); };
+    if (userId) void readCanonicalProfile(userId).then(next => { if (alive) { setProfile(next); localStorage.setItem(key, JSON.stringify(next)); } }).catch(() => toast.error('Unable to load saved profile.'));
+    return () => { alive = false; };
   }, [key, userId]);
   // Legacy free text ("UAE", "Egyptian") → ISO codes once the country index is available.
   const normalized = useMemo<SeekerProfileRecord>(() => {
@@ -225,8 +185,8 @@ export function useSeekerProfile(dirtyGuard?:React.MutableRefObject<boolean>) {
     const nats = resolveNationalities(profile.nationalities ?? [], countries);
     return { ...profile, country, city: country ? profile.city : '', nationalities: nats };
   }, [profile, countries]);
-  const save = useCallback(async (next: SeekerProfileRecord) => { if(!userId)throw new Error('Authentication required'); await writeCanonicalProfile(userId,next,profile); if(useAuthStore.getState().userId!==userId)throw new Error('Account changed'); try {await persist(key,next);} catch { /* Confirmed server data remains saved. */ } setProfile(next); window.dispatchEvent(new Event('matchme:profile-changed')); }, [key, userId,profile]);
-  return [normalized, save, countries.length > 0 && profileReady(profile)] as const;
+  const save = useCallback(async (next: SeekerProfileRecord) => { if (userId) await writeCanonicalProfile(userId, next); await persist(key, next); setProfile(next); window.dispatchEvent(new Event('matchme:profile-changed')); }, [key, userId]);
+  return [normalized, save, countries.length > 0] as const;
 }
 
 // ============================================================
@@ -267,18 +227,18 @@ function SectionHeader({ title, onAdd, addLabel }: { title: string; onAdd?: () =
 }
 
 /** Dialog wrapper with a sticky, always-reachable footer and an unsaved-change guard. */
-function RecordDialog({ open, onClose, title, dirty, busy, children, footer }: {
-  open: boolean; onClose: () => void; title: string; dirty: boolean; busy: boolean; children: React.ReactNode; footer: React.ReactNode;
+function RecordDialog({ open, onClose, title, dirty, children, footer }: {
+  open: boolean; onClose: () => void; title: string; dirty: boolean; children: React.ReactNode; footer: React.ReactNode;
 }) {
   const { t } = useTranslation();
-  const tryClose = () => { if (!busy && (!dirty || window.confirm(t('pp_unsaved_confirm')))) onClose(); };
+  const tryClose = () => { if (!dirty || window.confirm(t('pp_unsaved_confirm'))) onClose(); };
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) tryClose(); }}>
       <DialogContent className="max-w-lg w-[calc(100vw-1.5rem)] max-h-[90dvh] p-0 flex flex-col gap-0">
         <DialogHeader className="px-5 pt-5 pb-3 shrink-0"><DialogTitle className="font-[Poppins]">{title}</DialogTitle></DialogHeader>
-        <fieldset disabled={busy} aria-busy={busy} className={cn('flex-1 min-h-0 overflow-y-auto px-5 pb-4 space-y-4', busy && 'pointer-events-none')}>{children}</fieldset>
+        <div className="flex-1 min-h-0 overflow-y-auto px-5 pb-4 space-y-4">{children}</div>
         <DialogFooter className="shrink-0 border-t px-5 py-3 flex-row justify-end gap-2 bg-background" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}>
-          <Button variant="outline" disabled={busy} onClick={tryClose} className="cursor-pointer min-h-[44px]">{t('cancel')}</Button>
+          <Button variant="outline" onClick={tryClose} className="cursor-pointer min-h-[44px]">{t('cancel')}</Button>
           {footer}
         </DialogFooter>
       </DialogContent>
@@ -286,20 +246,12 @@ function RecordDialog({ open, onClose, title, dirty, busy, children, footer }: {
   );
 }
 
-function RowActions({ onEdit, onDelete, label }: { onEdit: () => void; onDelete: () => void | Promise<void>; label: string }) {
+function RowActions({ onEdit, onDelete, label }: { onEdit: () => void; onDelete: () => void; label: string }) {
   const { t } = useTranslation();
-  const [busy, setBusy] = useState(false);
-  const lock = useRef(false);
-  const remove = async () => {
-    if (lock.current || !window.confirm(`${t('delete')} ${label}?`)) return;
-    lock.current = true; setBusy(true);
-    try { await onDelete(); } catch { toast.error(t('pp_save_error')); }
-    finally { lock.current = false; setBusy(false); }
-  };
   return (
     <div className="flex gap-1 shrink-0">
-      <Button disabled={busy} size="icon" variant="ghost" className="cursor-pointer h-11 w-11" onClick={onEdit} aria-label={`${t('edit')} ${label}`}><Edit className="w-4 h-4" /></Button>
-      <Button disabled={busy} size="icon" variant="ghost" className="cursor-pointer h-11 w-11 text-destructive" onClick={() => void remove()} aria-label={`${t('delete')} ${label}`}><Trash2 className="w-4 h-4" /></Button>
+      <Button size="icon" variant="ghost" className="cursor-pointer h-10 w-10" onClick={onEdit} aria-label={`${t('edit')} ${label}`}><Edit className="w-4 h-4" /></Button>
+      <Button size="icon" variant="ghost" className="cursor-pointer h-10 w-10 text-destructive" onClick={onDelete} aria-label={`${t('delete')} ${label}`}><Trash2 className="w-4 h-4" /></Button>
     </div>
   );
 }
@@ -317,18 +269,16 @@ function useFormState<T>(initial: T) {
 
 export function ProfileView({ completion, onOpenPreferences }: { completion?: React.ReactNode; onOpenPreferences?: () => void }) {
   const location=useLocation();const mobile=useIsMobile();
-  const { t,i18n } = useTranslation();
-  const dirtyGuard=useRef(false);
-  const [stored, save, ready] = useSeekerProfile(dirtyGuard);
+  const { t } = useTranslation();
+  const [stored, save, ready] = useSeekerProfile();
   const { form: profile, setForm: setProfile, reset, dirty } = useFormState<SeekerProfileRecord>(stored);
-  dirtyGuard.current=dirty;
   const [errors, setErrors] = useState<ReturnType<typeof validateProfile>>({});
   const saver = useSaveRunner();
   useUnsavedGuard(dirty);
 
   // Re-sync when the stored/normalized profile becomes available, and
   // highlight missing required fields for profiles predating this standard.
-  useEffect(() => { if (ready && !dirty) { reset(stored); setErrors(validateProfile(stored)); } }, [ready, stored]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (ready) { reset(stored); setErrors(validateProfile(stored)); } }, [ready, stored]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const set = <K extends keyof SeekerProfileRecord>(k: K, v: SeekerProfileRecord[K]) => {
     setProfile((p) => ({ ...p, [k]: v }));
@@ -342,7 +292,7 @@ export function ProfileView({ completion, onOpenPreferences }: { completion?: Re
   );
 
   const text = (k: 'firstName' | 'lastName' | 'mobile' | 'headline', labelKey: string, extra?: object) => (
-    <FormField id={`pf-${k}`} label={t(labelKey)} required={k!=='headline'} error={errors[k]}>
+    <FormField id={`pf-${k}`} label={t(labelKey)} required error={errors[k]}>
       <Input {...fieldAria(`pf-${k}`, errors[k])} value={profile[k]} onChange={(e) => set(k, e.target.value)} className={cn('h-11', errors[k] && 'border-destructive')} {...extra} />
     </FormField>
   );
@@ -355,12 +305,10 @@ export function ProfileView({ completion, onOpenPreferences }: { completion?: Re
         {completion}
         <IncompleteBanner count={Object.keys(errors).length} />
         <Card><CardContent className="p-4 sm:p-6 space-y-4">
-          {!ready&&<div className="space-y-2"><p role="status" className="text-sm text-muted-foreground">{i18n.language.startsWith('ar')?'الملف المحفوظ لم يصبح جاهزاً بعد. أعد المحاولة إذا استمر التحميل.':'Saved profile is not ready yet. Retry if loading does not finish.'}</p><Button variant="outline" onClick={()=>window.dispatchEvent(new Event('matchme:profile-changed'))}>{t('try_again')}</Button></div>}
-          <fieldset disabled={!ready||saver.busy} className="space-y-4">
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center shrink-0"><User className="w-10 h-10 text-primary" aria-hidden="true" /></div>
             <div>
-              <Button variant="outline" size="sm" disabled className="min-h-[40px]">{t('upload_photo')}</Button><p className="text-xs text-muted-foreground">{i18n.language.startsWith('ar')?'تخزين الصور غير مُعدّ.':'Photo storage is not configured.'}</p>
+              <Button variant="outline" size="sm" className="cursor-pointer min-h-[40px]" onClick={() => toast.success(t('photo_upload_started'))}>{t('upload_photo')}</Button>
               <p className="text-xs text-muted-foreground mt-1">{t('photo_hint')} · {t('pp_photo_optional')}</p>
             </div>
           </div>
@@ -384,7 +332,7 @@ export function ProfileView({ completion, onOpenPreferences }: { completion?: Re
             </FormField>
           </div>
           {text('headline', 'headline')}
-          <FormField id="pf-summary" label={t('professional_summary')}>
+          <FormField id="pf-summary" label={t('professional_summary')} required error={errors.summary}>
             <Textarea {...fieldAria('pf-summary', errors.summary)} value={profile.summary} onChange={(e) => set('summary', e.target.value)} rows={4} className={cn(errors.summary && 'border-destructive')} />
           </FormField>
           <div className="flex items-center gap-3 min-h-[44px]">
@@ -392,11 +340,10 @@ export function ProfileView({ completion, onOpenPreferences }: { completion?: Re
             <Label htmlFor="pf-open" className="cursor-pointer">{t('open_to_work')}</Label>
           </div>
           <div className="sticky bottom-0 -mx-4 sm:mx-0 px-4 sm:px-0 py-3 bg-card/95 backdrop-blur border-t sm:border-0 sm:static">
-            <SaveButton busy={saver.busy||!ready} onClick={onSave} />
+            <SaveButton busy={saver.busy} onClick={onSave} />
           </div>
-          </fieldset>
         </CardContent></Card>
-        {!mobile && <DesktopAccountFeatures section="overview" embedded/>}
+        {!mobile && <ResumeSection />}
       </div>
     </div>
   );
@@ -406,7 +353,53 @@ export function ProfileView({ completion, onOpenPreferences }: { completion?: Re
 // Resume & CV (moved from the standalone Resume page — same capability)
 // ============================================================
 
-export function ResumeSection() { return <DesktopAccountFeatures section="overview" embedded/>; }
+const RESUME_TYPES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+const RESUME_MAX_BYTES = 5 * 1024 * 1024;
+
+interface ResumeFile { id: string; name: string; size: string; date: string; primary: boolean }
+
+export function ResumeSection() {
+  const { t } = useTranslation();
+  const [resumes, setResumes] = usePersistedList<ResumeFile>('resumes', [
+    { id: '1', name: 'Ahmed_Hassan_CV_2026.pdf', size: '2.4 MB', date: 'Jul 10, 2026', primary: true },
+  ], (r) => r);
+  const input = useRef<HTMLInputElement>(null);
+
+  const onFile = async (f: File | undefined) => {
+    if (!f) return;
+    if (!RESUME_TYPES.includes(f.type) && !/\.(pdf|docx?)$/i.test(f.name)) { toast.error(t('resume_formats')); return; }
+    if (f.size > RESUME_MAX_BYTES) { toast.error(t('resume_formats')); return; }
+    const next: ResumeFile = { id: Date.now().toString(), name: f.name, size: `${(f.size / 1024 / 1024).toFixed(1)} MB`, date: new Date().toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' }), primary: resumes.length === 0 };
+    try { await setResumes([...resumes, next]); toast.success(t('resume_uploaded')); } catch { toast.error(t('pp_save_error')); }
+  };
+
+  return (
+    <section id="resume" aria-labelledby="resume-heading" className="space-y-4 scroll-mt-4">
+      <h3 id="resume-heading" className="text-lg font-semibold font-[Poppins]">{t('pp_resume_section')}</h3>
+      <Card className="border-dashed border-2"><CardContent className="p-6 text-center">
+        <Upload className="w-10 h-10 text-muted-foreground/50 mx-auto mb-3" aria-hidden="true" />
+        <p className="font-medium mb-1">{t('upload_resume')}</p>
+        <p className="text-sm text-muted-foreground mb-4">{t('resume_formats')}</p>
+        <input ref={input} type="file" accept=".pdf,.doc,.docx" className="sr-only" id="resume-file" onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = ''; }} />
+        <Button className="cursor-pointer gap-2 min-h-[44px]" onClick={() => input.current?.click()}><Upload className="w-4 h-4" />{t('upload')}</Button>
+      </CardContent></Card>
+      {resumes.map((r) => (
+        <Card key={r.id}><CardContent className="p-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0"><FileText className="w-8 h-8 text-primary shrink-0" aria-hidden="true" /><div className="min-w-0"><p className="font-medium text-sm truncate">{r.name}</p><p className="text-xs text-muted-foreground">{r.size} · {t('uploaded')} {r.date}</p></div></div>
+          <div className="flex items-center gap-1 shrink-0">
+            {r.primary && <Badge variant="default" className="text-xs">{t('primary')}</Badge>}
+            <Button size="icon" variant="ghost" className="cursor-pointer h-10 w-10" aria-label={t('download_started')} onClick={() => toast.success(t('download_started'))}><Download className="w-4 h-4" /></Button>
+            <Button size="icon" variant="ghost" className="cursor-pointer h-10 w-10 text-destructive" aria-label={t('delete')} onClick={async () => { await setResumes(resumes.filter((x) => x.id !== r.id)); toast.success(t('resume_deleted')); }}><Trash2 className="w-4 h-4" /></Button>
+          </div>
+        </CardContent></Card>
+      ))}
+      <Card><CardContent className="p-4">
+        <div className="flex items-center justify-between"><div><p className="font-medium text-sm">{t('ai_resume_score')}</p><p className="text-xs text-muted-foreground">{t('ai_resume_score_desc')}</p></div><div className="text-2xl font-bold text-primary font-[Poppins]">82/100</div></div>
+        <Progress value={82} className="h-2 mt-3" />
+      </CardContent></Card>
+    </section>
+  );
+}
 
 // ============================================================
 // Experience
@@ -425,7 +418,7 @@ export function ExperienceView() {
   const saver = useSaveRunner();
   const words = countWords(form.description);
 
-  const openWith = (id: string | null, v: Omit<ExperienceRecord, 'id'>) => { if (!historyReady(items)) { toast.error(t('pp_save_error')); return; } setEditing(id); reset(v); setErrors(id ? validateExperience(v) : {}); saver.reset(); setOpen(true); };
+  const openWith = (id: string | null, v: Omit<ExperienceRecord, 'id'>) => { setEditing(id); reset(v); setErrors(id ? validateExperience(v) : {}); saver.reset(); setOpen(true); };
   const onSave = async () => {
     const ok = await saver.run(
       () => { const e = validateExperience(form); setErrors(e); if (hasErrors(e)) focusFirstError(); return !hasErrors(e); },
@@ -467,7 +460,7 @@ export function ExperienceView() {
         {items.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_experience_yet')}</p>}
       </div>
 
-      <RecordDialog open={open} onClose={() => setOpen(false)} dirty={dirty} busy={saver.busy} title={t(editing ? 'edit_experience' : 'add_experience')}
+      <RecordDialog open={open} onClose={() => setOpen(false)} dirty={dirty} title={t(editing ? 'edit_experience' : 'add_experience')}
         footer={<SaveButton busy={saver.busy} onClick={onSave} />}>
         <FormField id="ex-title" label={t('job_title')} required error={errors.title}>
           <Input {...fieldAria('ex-title', errors.title)} value={form.title} onChange={(e) => upd({ title: e.target.value })} className="h-11" placeholder={t('job_title_placeholder')} />
@@ -510,7 +503,7 @@ export function EducationView() {
   const [errors, setErrors] = useState<FieldErrors<string>>({});
   const saver = useSaveRunner();
 
-  const openWith = (id: string | null, v: Omit<EducationRecord, 'id'>) => { if (!historyReady(items)) { toast.error(t('pp_save_error')); return; } setEditing(id); reset(v); setErrors(id ? validateEducation(v) : {}); saver.reset(); setOpen(true); };
+  const openWith = (id: string | null, v: Omit<EducationRecord, 'id'>) => { setEditing(id); reset(v); setErrors(id ? validateEducation(v) : {}); saver.reset(); setOpen(true); };
   const onSave = async () => {
     const ok = await saver.run(
       () => { const e = validateEducation(form); setErrors(e); if (hasErrors(e)) focusFirstError(); return !hasErrors(e); },
@@ -554,7 +547,7 @@ export function EducationView() {
         <CertificatesSection />
       </div>
 
-      <RecordDialog open={open} onClose={() => setOpen(false)} dirty={dirty} busy={saver.busy} title={t(editing ? 'edit_education' : 'add_education')}
+      <RecordDialog open={open} onClose={() => setOpen(false)} dirty={dirty} title={t(editing ? 'edit_education' : 'add_education')}
         footer={<SaveButton busy={saver.busy} onClick={onSave} />}>
         <FormField id="ed-inst" label={t('institution')} required error={errors.institution}>
           <Input {...fieldAria('ed-inst', errors.institution)} value={form.institution} onChange={(e) => upd({ institution: e.target.value })} className="h-11" />
@@ -587,7 +580,7 @@ export function CertificatesSection() {
   const saver = useSaveRunner();
   const noExpiry = form.expiry === null;
 
-  const openWith = (id: string | null, v: typeof EMPTY_CERT) => { if (!historyReady(items)) { toast.error(t('pp_save_error')); return; } setEditing(id); reset(v); setErrors({}); saver.reset(); setOpen(true); };
+  const openWith = (id: string | null, v: typeof EMPTY_CERT) => { setEditing(id); reset(v); setErrors({}); saver.reset(); setOpen(true); };
   const onSave = async () => {
     const ok = await saver.run(
       () => { const e = validateCertificate(form); if (!noExpiry && !form.expiry) e.expiry = 'pp_err_required'; setErrors(e); if (hasErrors(e)) focusFirstError(); return !hasErrors(e); },
@@ -620,7 +613,7 @@ export function CertificatesSection() {
       </ol>
       {items.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_certificates_yet')}</p>}
 
-      <RecordDialog open={open} onClose={() => setOpen(false)} dirty={dirty} busy={saver.busy} title={t(editing ? 'edit_certificate' : 'add_certificate')}
+      <RecordDialog open={open} onClose={() => setOpen(false)} dirty={dirty} title={t(editing ? 'edit_certificate' : 'add_certificate')}
         footer={<SaveButton busy={saver.busy} onClick={onSave} />}>
         <FormField id="ce-name" label={t('certificate_name')} required error={errors.name}>
           <Input {...fieldAria('ce-name', errors.name)} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-11" />
@@ -655,7 +648,7 @@ export function LanguagesView() {
   const [errors, setErrors] = useState<FieldErrors<'name' | 'level'>>({});
   const saver = useSaveRunner();
 
-  const openWith = (id: string | null, v: typeof form) => { if (!historyReady(items)) { toast.error(t('pp_save_error')); return; } setEditing(id); reset(v); setErrors({}); saver.reset(); setOpen(true); };
+  const openWith = (id: string | null, v: typeof form) => { setEditing(id); reset(v); setErrors({}); saver.reset(); setOpen(true); };
   const onSave = async () => {
     const ok = await saver.run(
       () => {
@@ -690,7 +683,7 @@ export function LanguagesView() {
         </ul>
         {items.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_languages_yet')}</p>}
       </div>
-      <RecordDialog open={open} onClose={() => setOpen(false)} dirty={dirty} busy={saver.busy} title={t(editing ? 'edit_language' : 'add_language')}
+      <RecordDialog open={open} onClose={() => setOpen(false)} dirty={dirty} title={t(editing ? 'edit_language' : 'add_language')}
         footer={<SaveButton busy={saver.busy} onClick={onSave} />}>
         <FormField id="la-name" label={t('language_name')} required error={errors.name}>
           <Input {...fieldAria('la-name', errors.name)} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="h-11" />

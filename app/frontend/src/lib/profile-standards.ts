@@ -245,7 +245,7 @@ export interface SeekerProfileRecord {
 export type FieldErrors<K extends string> = Partial<Record<K, string>>;
 
 /** Required everywhere except `dob` and `photoUrl`. Returns i18n keys. */
-export const PROFILE_REQUIRED_FIELDS = ['firstName', 'lastName', 'email', 'mobile', 'country', 'city', 'nationalities'] as const;
+export const PROFILE_REQUIRED_FIELDS = ['firstName', 'lastName', 'email', 'mobile', 'country', 'city', 'nationalities', 'headline', 'summary'] as const;
 export type ProfileRequiredField = (typeof PROFILE_REQUIRED_FIELDS)[number];
 
 export function validateProfile(p: SeekerProfileRecord): FieldErrors<ProfileRequiredField> {

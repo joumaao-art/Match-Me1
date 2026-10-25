@@ -20,14 +20,11 @@ import { ensureIdentity, resolvePostAuthDestination } from '@/lib/signup-flow';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { logger } from '@/lib/logger';
 import { rememberSharedJob } from '@/lib/swipe-presentation';
-import { apiClient } from '@/services/api-client';
 import { useOnboardingStore } from '@/lib/onboarding-engine';
 
 /** Drop user-scoped onboarding state that belongs to a different (or no) account. */
-let cacheOwner: string | null | undefined;
 function clearForeignOnboardingState(nextUserId: string | null): void {
   const owner = useOnboardingStore.getState().userId;
-  if(cacheOwner!==nextUserId){void queryClient.cancelQueries();queryClient.clear();cacheOwner=nextUserId;}
   if (owner && owner !== nextUserId) useOnboardingStore.getState().reset();
 }
 import { optimizeStartup, trackPerformance, updateSEO } from '@/lib/performance';
@@ -56,7 +53,7 @@ const MobileOnboarding = lazy(() => import('./pages/MobileOnboarding'));
 function SeekerOnboardingRoute() {
   const isMobile = useIsMobile();
   const userId = useAuthStore(s => s.userId);
-  return isMobile ? <MobileOnboarding key={userId ?? 'guest'} /> : <JobSeekerOnboarding key={userId ?? 'guest'} />;
+  return isMobile ? <MobileOnboarding key={userId ?? 'guest'} /> : <JobSeekerOnboarding />;
 }
 const Company = lazy(() => import('./pages/Company'));
 const Messages = lazy(() => import('./pages/Messages'));
@@ -176,10 +173,9 @@ function useAuthInit() {
         const session = (data as any)?.session;
         if (session?.user) {
           const user = session.user;
-          clearForeignOnboardingState(user.id);
           setUser(user.id, user.email || '', !!user.email_confirmed_at);
           await fetchAndSetRole(user.id);
-        } else { clearForeignOnboardingState(null); reset(); }
+        }
         releaseLoading('session');
       })
       .catch((err) => {
@@ -207,7 +203,6 @@ function useAuthInit() {
         clearForeignOnboardingState(null);
         reset();
       } else if (_event === 'TOKEN_REFRESHED' && session?.user) {
-        clearForeignOnboardingState(session.user.id);
         setUser(session.user.id, session.user.email || '', !!session.user.email_confirmed_at);
       } else if (_event === 'PASSWORD_RECOVERY') {
         // Handled by ResetPassword page
@@ -249,9 +244,6 @@ function ProtectedRoute({
     return <Navigate to={ROUTES.AUTH} state={{ from: location }} replace />;
   }
 
-  if (allowedRoles && !userRole) {
-    return <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-6"><p role="alert">Account permissions could not be confirmed. Restricted pages remain unavailable.</p><button className="border rounded-lg px-4 py-3" onClick={()=>void useAuthStore.getState().fetchAndSetRole(useAuthStore.getState().userId!)}>Retry permissions</button><button className="underline" onClick={()=>void useAuthStore.getState().signOut()}>Sign out</button></div>;
-  }
   if (allowedRoles && userRole && !allowedRoles.includes(userRole)) {
     if (userRole === 'admin') return <Navigate to={ROUTES.ADMIN_DASHBOARD} replace />;
     if (userRole === 'company') return <Navigate to={ROUTES.COMPANY} replace />;
@@ -393,7 +385,6 @@ function AuthCallbackHandler() {
 // ============================================================
 
 function AppRoutes() {
-  const userId=useAuthStore(s=>s.userId);
   return (
     <Routes>
       {/* Public routes - Index loaded eagerly for fast LCP */}
@@ -490,7 +481,7 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['job_seeker']}>
             <Suspense fallback={<PageLoader loaderId="lazy-route" />}>
-              <JobSeeker key={userId ?? 'guest'} />
+              <JobSeeker />
             </Suspense>
           </ProtectedRoute>
         }
@@ -502,7 +493,7 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['company']}>
             <Suspense fallback={<PageLoader loaderId="lazy-route" />}>
-              <Company key={userId ?? 'guest'} />
+              <Company />
             </Suspense>
           </ProtectedRoute>
         }
@@ -524,7 +515,7 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['job_seeker', 'company', 'admin']}>
             <Suspense fallback={<PageLoader loaderId="lazy-route" />}>
-              <Notifications key={userId ?? 'guest'} />
+              <Notifications />
             </Suspense>
           </ProtectedRoute>
         }
@@ -565,14 +556,7 @@ function AppRoutes() {
 const App = () => {
   const { i18n } = useTranslation();
   const { language } = useAppStore();
-  const { signOut, isAuthenticated, userId } = useAuthStore();
-  useEffect(()=>{
-    if(!userId||!isAuthenticated)return;
-    let alive=true;
-    const refresh=async()=>{try{const r=await apiClient.supabase.from('job_seeker_profiles').select('account_settings').eq('user_id',userId).maybeSingle().abortSignal(AbortSignal.timeout(10000));const lang=r.data?.account_settings?.language;if(alive&&useAuthStore.getState().userId===userId&&!r.error&&['en','ar'].includes(lang)&&i18n.language!==lang)void i18n.changeLanguage(lang);}catch{ /* Preserve the active language when offline. */ }};
-    void refresh();window.addEventListener('focus',refresh);window.addEventListener('matchme:profile-changed',refresh);
-    return()=>{alive=false;window.removeEventListener('focus',refresh);window.removeEventListener('matchme:profile-changed',refresh);};
-  },[userId,isAuthenticated,i18n]);
+  const { signOut, isAuthenticated } = useAuthStore();
 
   // Initialize auth state
   useAuthInit();
