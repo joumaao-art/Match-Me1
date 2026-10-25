@@ -15,6 +15,9 @@ for (const [path, hash] of Object.entries(baseline.hashes)) test(`preserved ${pa
  if (path === 'src/components/shared/MobileBottomNav.tsx') {
   content = content.replace("import { useIsMobile } from '@/hooks/use-mobile';\n", '').replace('  const mobile = useIsMobile();\n', '').replace('  if (!mobile) return null;\n', '').replace('z-40 bg-background', 'z-40 md:hidden bg-background').replace('grid grid-cols-3 h-16 max-w-2xl mx-auto', 'grid grid-cols-3 h-16');
  }
+ if (path === 'src/services/mobile-account.ts') {
+  content = content.replace(' await requireAccount(uid);\n return { profile:', ' return { profile:').replace('export async function cvMetadata(a: AccountSnapshot) {\n await requireAccount(a.uid);', 'export async function cvMetadata(a: AccountSnapshot) {').replace(' if(error)throw error;\n await requireAccount(a.uid);', ' if(error)throw error;').replace("throw error||new Error('CV unavailable'); await requireAccount(uid); return data.signedUrl;", "throw error||new Error('CV unavailable'); return data.signedUrl;");
+ }
  assert.equal(crypto.createHash('sha256').update(content).digest('hex'), hash);
 });
 test('entire form unchanged except mobile layout classes', () => {

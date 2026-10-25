@@ -11,6 +11,9 @@ MatchMe is an EN/AR React/Vite/shadcn recruitment app using existing Supabase pr
 ## Key Decisions
 | Decision | Rationale |
 |---|---|
+| Supported handoff follow-up | Close stale appearance assertion with narrow normalization; preserve Personal scroll and baseline.206 source/unit/DOM checks and web lint/build pass; no native certification. |
+| Hybrid session boundary | Keep canonical Supabase web auth; no SecureStore on unused native client or insecure token bridge. External developer must implement/test actual hybrid session and OAuth contract. |
+| Android chrome / CV safeguards | Token-free origin-validated resolved-theme observer; CV metadata validation and async owner rechecks. No layout/subscription/schema changes. |
 | Attachment20 supported scope | Cross-platform objective retained; implement shared web/Android improvements only, no unsupported iOS config/development. Native builds/device/store acceptance blocked; no migration or paid integrations. |
 | Resize continuity | Candidate native WebView and compact-entered web journeys retain mobile subtree on expansion until reload; ordinary wide desktop remains desktop, Company/Admin excluded. |
 | Native root integrity | Missing origin shows real configuration error rather than mounting mock legacy Swipe/nav; canonical Supabase web experience stays authority. |

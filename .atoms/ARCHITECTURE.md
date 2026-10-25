@@ -5,6 +5,7 @@ last_updated: 2026-10-25
 # Architecture Design
 
 ## System Overview
+Supported handoff follow-up supersedes prior appearance failure: all30 appearance checks now pass after narrow approved-scroll hash normalization; Android shell consumes origin-validated resolved-theme messages for safe-area/error background and StatusBar. Shared CV metadata validation plus post-request owner checks; no native token/session bridge or billing changes. External Expo/EAS handoff records build, iOS, auth/files/push/permissions/hinge/billing/signing/device gates;206 isolated checks and web lint/build passed, native acceptance blocked.
 Active attachment20: existing Android-only Expo57/RN0.86 WebView shell loads canonical web/Supabase experience. Shared candidate responsive policy preserves mobile subtree after expansion, bounded containers and three tabs; Android orientation/keyboard/backup/lateral-safe-area safeguards. No iOS config enabled. Native secure sessions/push/OAuth callback/files/hinge/billing and all device/build validation remain unavailable/unimplemented as detailed in readiness report.
 Existing MatchMe React/Vite/shadcn frontend at /workspace/app/frontend; Supabase Auth/PostgreSQL/RLS/Storage/Deno Edge Functions in project ykvlaakotyouojkdydzh. Preserve canonical unprefixed production tables. Active VIA assistant is implemented; live AI and authenticated acceptance remain blocked.
 

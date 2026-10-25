@@ -1,5 +1,14 @@
 ## Task Breakdown
 
+| Supported mobile handoff follow-up | Implementation | Validation |
+|---|---|---|
+| Reconcile appearance assertion against approved Personal scroll change | done | done |
+| Shared CV validation/account-race guards; Android appearance bridge | done | done |
+| Audit auth/session boundaries without introducing second auth or insecure token bridge | done | done |
+| Complete appearance/regression checks, lint/build and available rendering | done | done |
+| Updated external Expo/EAS technical handoff with evidence and blockers | done | done |
+| Native builds/device acceptance, secure native sessions and iOS integrations | blocked | blocked |
+
 | Mobile compatibility (attachment20) | Implementation | Validation |
 |---|---|---|
 | Audit existing Expo/WebView, web layout, auth, files, notifications and release configuration | done | done |
@@ -26,6 +35,7 @@
 | Real Company→published vacancy→authenticated Seeker and twenty-check English report | done | blocked |
 
 ## Progress Log
+- Supported native handoff follow-up: approved Personal scroll hash normalized without reverting UI/baseline; complete30 appearance checks and27 CV/account/isolated-DOM bridge checks passed,206 total contracts plus web lint/build and guest rendering. Android shell resolved-theme/status-bar source added, native acceptance blocked. CV metadata rejects empty/oversize/type conflicts; owner rechecked after async upload/read/link. Auth audited, singleton/browser persistence retained; secure native sessions/OAuth/files/push/billing/iOS/build/device gates documented for external EAS developer. No dependencies, auth/billing/schema/data/layout migration.
 - Attachment20 targeted compatibility complete: canonical native WebView/compact candidate layout retained on expansion, bounded Swipe/Dashboard/nav, Android orientation/keyboard/backup/lateral-safe-area safeguards and honest missing-origin root.185 completed web policy/source contracts, lint/build and guest desktop rendering passed; historical appearance suite remains failed on later hash mismatch. Native iOS unsupported, all native builds/devices and22 authenticated checks blocked; eighteen-section report records secure-session/push/files/OAuth/hinge/billing/store gaps. No Supabase, auth, matching, prices or production mutations.
 - Attachment19 supersedes AI scope: external SDK/model/key code removed, deterministic endpoint version2 ACTIVE, shared explicit CRM taxonomy/provider boundary, required-first five suggestions and individual possession confirmation.62 contracts/TypeScript/lint/build,7 rollback SQL/credit assertions and live204/401 PASS. Viewer guest-only;13 actual signed-in workflows unverified, English deterministic report saved. No table-shape/credit/action/Company/Admin changes.
 - VIA assistant implemented/deployed ACTIVE: optional shared EN/AR review on active mobile/desktop cards, private cache/rate-limited owner review, confirmed atomic canonical merge, actual unchanged-engine score refresh/current-card retention.48 contracts, TypeScript/lint/build,11 rollback SQL safeguards, credit-account equality and live OPTIONS204/anonymous401 PASS. Viewer guest-only;20 real authenticated checks and live gpt-5.4 blocked (key skipped). English report records limits; no committed profile/test-job/credit mutations.

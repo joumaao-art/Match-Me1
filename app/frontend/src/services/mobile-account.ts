@@ -32,6 +32,7 @@ export async function loadAccount(uid: string): Promise<AccountSnapshot> {
   apiClient.supabase.from('user_profiles').select('display_name').eq('user_id',uid).abortSignal(AbortSignal.timeout(10000)).maybeSingle(),
  ]);
  if (profile.error || base.error) throw profile.error || base.error;
+ await requireAccount(uid);
  return { profile: profile.data, uid, email: user.email || '', authPhone: user.phone || '', displayName: base.data?.display_name || profile.data.full_name || '' };
 }
 export function cvOwnerPath(value: string | null, uid: string): string | null {
@@ -45,17 +46,19 @@ export function cvOwnerPath(value: string | null, uid: string): string | null {
  return path.startsWith(`${uid}/`) && !path.split('/').some(p => p === '..' || p === '.') ? path : null;
 }
 export async function cvMetadata(a: AccountSnapshot) {
+ await requireAccount(a.uid);
  const path=cvOwnerPath(a.profile.cv_url,a.uid); if(!path)return null;
  const folder=path.slice(0,path.lastIndexOf('/')); const file=path.slice(path.lastIndexOf('/')+1);
  const { data,error }=await apiClient.storage.from('cvs').list(folder,{search:file,limit:100});
  if(error)throw error;
+ await requireAccount(a.uid);
  const object=data?.find(x=>x.name===file); if(!object)return null;
  return { path, name:a.profile.cv_file_name||a.profile.resume_extract?.fileName||file.replace(/^\d+_/,''), updatedAt:a.profile.cv_updated_at||object.updated_at||null };
 }
 export async function cvLink(uid:string,path:string,download?:string) {
  await requireAccount(uid); if(cvOwnerPath(path,uid)!==path)throw new Error('Invalid CV owner');
  const {data,error}=await apiClient.storage.from('cvs').createSignedUrl(path,120,download?{download}:undefined);
- if(error||!data)throw error||new Error('CV unavailable'); return data.signedUrl;
+ if(error||!data)throw error||new Error('CV unavailable'); await requireAccount(uid); return data.signedUrl;
 }
 export async function loadResumeData(uid:string) {
  const account=await loadAccount(uid);
