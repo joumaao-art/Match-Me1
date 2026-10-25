@@ -1,3 +1,4 @@
+import { bootstrapSeekerTheme } from './lib/seeker-appearance';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
@@ -16,6 +17,7 @@ async function initializeApp() {
     return;
   }
 
+  bootstrapSeekerTheme();
   try {
     await loadRuntimeConfig();
     console.log('Runtime configuration loaded successfully');

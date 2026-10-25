@@ -1,5 +1,14 @@
 ## Task Breakdown
 
+| Job Seeker Settings Appearance | Implementation | Validation |
+|---|---|---|
+| Existing theme/settings contract and safe account preference audit | done | done |
+| Shared Light/Dark/System Settings control, canonical sync/cache and sidebar cleanup | done | done |
+| Platform isolation, theme contracts, TypeScript/lint/build/viewer and report | done | done |
+| Authenticated mobile/desktop theme, cross-device persistence and no-flash visual acceptance | done | blocked |
+
+Appearance validation: 67 theme/navigation checks, TypeScript, lint and build passed; existing settings RPC theme extension verified by readback, no table/column or user-record changes. Viewer showed guest landing only; public guest moon preserved by scope. Signed-in and cross-device acceptance remain unverified; report recorded.
+
 | Mobile Job Seeker date confirmation | Implementation | Validation |
 |---|---|---|
 | Audit existing date entry, canonical values and platform boundaries | done | done |

@@ -69,7 +69,7 @@ export const useAppStore = create<AppStore>()(
 );
 
 // Side effects
-function applyTheme(theme: Theme) {
+export function applyTheme(theme: Theme) {
   const root = document.documentElement;
   if (theme === 'dark') {
     root.classList.add('dark');

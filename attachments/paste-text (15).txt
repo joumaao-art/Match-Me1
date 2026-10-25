@@ -1,0 +1,221 @@
+# MATCHME — MOVE DARK MODE CONTROL TO SETTINGS
+## Mobile & Desktop | Job Seeker | Shared Theme Preference
+
+### OBJECTIVE
+
+Move the existing Dark Mode functionality into the **Settings** page for both the mobile and desktop Job Seeker applications.
+
+The Dark Mode control should no longer appear as a standalone icon in the desktop sidebar or other primary navigation areas.
+
+**Important:** Reuse the existing theme system. Do not rebuild the application's styling or redesign either platform.
+
+---
+
+## 1. DARK MODE CONTROL IN SETTINGS
+
+Inside the existing Settings page, add a section called:
+
+**Appearance**
+
+Under Appearance, display:
+
+**Theme**
+
+Provide the following three options:
+
+- Light Mode — Sun icon.
+- Dark Mode — Moon icon.
+- System Default — Device/system appearance icon.
+
+Use a professional segmented control, radio selection, or compact settings row consistent with the existing design.
+
+The user must be able to switch themes directly from Settings.
+
+### Expected behavior
+
+**Light Mode**
+- Applies the existing light theme.
+
+**Dark Mode**
+- Applies the existing dark theme.
+
+**System Default**
+- Automatically follows the operating system's light/dark appearance preference where supported.
+
+The selected option must be visually clear.
+
+---
+
+## 2. MOBILE IMPLEMENTATION
+
+On the mobile Job Seeker application:
+
+Navigate to:
+
+**Profile → Information (i) → Settings → Appearance**
+
+Requirements:
+
+1. Add the Appearance section inside Settings.
+2. Display the three theme options.
+3. Allow the user to switch themes immediately.
+4. Preserve the existing mobile Profile layout.
+5. Preserve the mobile bottom navigation: Swipe | Dashboard | Profile.
+6. Do not introduce a separate Dark Mode icon on the Profile page.
+7. Do not change the position of the existing information icon.
+8. Ensure the Settings page remains mobile-friendly.
+
+The theme must apply across all Job Seeker screens, including onboarding, Swipe, Dashboard, Profile, Preferences, VIA Resume, Credits, and Subscription Overview.
+
+---
+
+## 3. DESKTOP IMPLEMENTATION
+
+On the desktop Job Seeker application:
+
+Navigate to:
+
+**Left Sidebar → Support & Settings → Settings → Appearance**
+
+Requirements:
+
+1. Remove the existing standalone Moon/Dark Mode icon from the top section of the desktop sidebar.
+2. Preserve the existing language-selection control.
+3. Add Appearance inside the Settings page.
+4. Display the same three theme options as mobile.
+5. Allow immediate theme switching.
+6. Preserve the existing desktop sidebar structure.
+7. Do not modify the desktop navigation order.
+8. Do not redesign the desktop layout.
+
+Do not leave duplicate Dark Mode controls in the sidebar and Settings.
+
+---
+
+## 4. SYNCHRONIZE THEME PREFERENCE
+
+Both mobile and desktop must use the same canonical theme preference for the authenticated Job Seeker.
+
+If the user selects Dark Mode on mobile, the desktop must use Dark Mode when the account preference is next loaded or synchronized.
+
+Likewise, changes on desktop must be reflected on mobile.
+
+### Persistence
+
+- Reuse the existing theme preference service if available.
+- Persist the selected preference to the authenticated user's existing settings record in Supabase, extending the schema safely only if necessary.
+- Cache the preference locally for fast initial rendering.
+- Restore the preference after refresh and login.
+- Use the server preference as authoritative when reconciling cross-device changes.
+- Avoid visible light-to-dark flashing during page loading.
+- Use System Default for new accounts when no explicit theme preference exists.
+- Preserve existing users' saved theme choices during migration.
+
+Do not create separate mobile and desktop theme preferences.
+
+For logged-out users, retain the existing local or system-based theme behavior without exposing authenticated settings.
+
+---
+
+## 5. PRESERVE EXISTING VISUAL DESIGN
+
+Do not redesign the application.
+
+Reuse existing theme tokens, components, and styling.
+
+Verify that Dark Mode works correctly for:
+
+- Backgrounds.
+- Text.
+- Buttons.
+- Forms.
+- Dropdowns.
+- Date pickers.
+- Job cards.
+- Navigation.
+- Modals and popups.
+- Progress bars.
+- Application statuses.
+- Subscription pages.
+- Error and success messages.
+
+Ensure sufficient contrast and readability.
+
+Do not introduce hardcoded colors that break the existing theme system.
+
+Preserve English and Arabic localization, including RTL layouts.
+
+---
+
+## 6. STRICT SCOPE
+
+This task applies to Job Seeker mobile and desktop Settings.
+
+Do not modify:
+
+- Company interfaces.
+- Super Admin interfaces.
+- Authentication logic.
+- Profile information.
+- Credits.
+- Subscriptions.
+- Applications.
+- Matching algorithms.
+- Backend business rules.
+
+Shared theme infrastructure may be reused, but do not unintentionally change Company or Super Admin behavior.
+
+---
+
+## 7. ACCEPTANCE TESTING
+
+Test the actual running application.
+
+### Mobile
+
+1. Appearance is available under Settings.
+2. Light Mode works.
+3. Dark Mode works.
+4. System Default works.
+5. Theme applies throughout the mobile Job Seeker experience.
+6. Theme persists after refresh and login.
+7. Mobile layout and navigation remain unchanged.
+
+### Desktop
+
+8. Standalone Moon icon is removed from the sidebar.
+9. Language icon remains functional.
+10. Appearance is available under Settings.
+11. All three theme options work.
+12. Theme applies throughout the desktop Job Seeker experience.
+13. Desktop layout remains unchanged.
+
+### Cross-Platform
+
+14. Mobile and desktop use the same saved theme preference.
+15. Switching devices does not reset the preference.
+16. Existing users' preferences are preserved.
+17. No duplicate theme controls remain.
+18. No noticeable incorrect-theme flash occurs during initialization.
+19. English and Arabic layouts work correctly.
+20. No authentication or navigation regressions occur.
+
+Run TypeScript, lint, build, and relevant automated tests.
+
+Do not claim App Viewer testing passed unless actually executed.
+
+---
+
+## FINAL SUCCESS CONDITION
+
+Both mobile and desktop Job Seeker users can access:
+
+**Settings → Appearance → Light / Dark / System Default**
+
+The standalone Dark Mode icon is removed from the desktop sidebar.
+
+The selected theme applies consistently throughout MatchMe and is preserved across devices.
+
+The existing mobile and desktop layouts remain unchanged.
+
+Implement the changes in the existing project and provide an English-only implementation and testing report.

@@ -1,6 +1,5 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Heart, Home, User, Globe, Moon, Sun, CreditCard, Sliders } from 'lucide-react';
+import { Heart, Home, User, Globe, CreditCard, Sliders } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import PortalBrand, { getPortalBrandConfig } from '@/components/shared/PortalBrand';
 import { activeSeekerMobileTab } from '@/lib/seeker-navigation';
@@ -19,7 +18,6 @@ const destinations = [
 export function DesktopSeekerNavigation({ active, onNavigate }: { active:string; onNavigate:(section:string)=>void }) {
   const { t, i18n } = useTranslation();
   const ar = i18n.language.startsWith('ar');
-  const [dark, setDark] = useState(document.documentElement.classList.contains('dark'));
   const uid = useAuthStore(s=>s.userId);
   const destination = ['subscription_overview','preferences'].includes(active) ? active : activeSeekerMobileTab(active);
   const label = (id:string) => id==='subscription_overview' ? (ar?'نظرة عامة على الاشتراك':'Subscription Overview') : t(id);
@@ -28,7 +26,6 @@ export function DesktopSeekerNavigation({ active, onNavigate }: { active:string;
       <PortalBrand config={getPortalBrandConfig('job_seeker')}/>
       <div className="flex gap-1 mt-3">
         <Button size="icon" variant="ghost" aria-label={t('language')} onClick={()=>changeLanguage(ar?'en':'ar')}><Globe size={17}/></Button>
-        <Button size="icon" variant="ghost" aria-label={t(dark?'light_mode':'dark_mode')} onClick={()=>{document.documentElement.classList.toggle('dark');setDark(!dark);}}>{dark?<Sun size={17}/>:<Moon size={17}/>}</Button>
       </div>
     </header>
     <nav aria-label={ar?'التنقل الرئيسي':'Primary navigation'} className="flex-1 p-3 space-y-2">
