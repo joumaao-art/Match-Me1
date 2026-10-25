@@ -4,6 +4,8 @@
  * Used by Profile, Experience, Education, Certificates and onboarding.
  */
 
+import { MobileConfirmedDate } from '@/components/seeker/MobileConfirmedDate';
+import { confirmationRangeError } from '@/lib/mobile-date-confirmation';
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Check, ChevronDown, Search, X, Briefcase, AlertCircle } from 'lucide-react';
@@ -14,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import {
   loadCountries, loadCities, countryLabel, splitMonths, totalExperienceMonths,
-  normalizeYearMonth, type GeoCountry, type DateRangeValue,
+  validateDateRange, normalizeYearMonth, type GeoCountry, type DateRangeValue,
 } from '@/lib/profile-standards';
 
 // ============================================================
@@ -301,24 +303,28 @@ function MonthYearInput({ id, value, onChange, disabled, invalid, label, minYear
 }
 
 /** Canonical From / To / Current control shared by all professional-history forms. */
-export function DateRangeField({ idPrefix, value, onChange, errors, currentLabelKey = 'pp_current', toLabelKey = 'to', fromLabelKey = 'from', allowCurrent = true, futureYears = 0 }: {
+export function DateRangeField({ idPrefix, value, onChange, errors, currentLabelKey = 'pp_current', toLabelKey = 'to', fromLabelKey = 'from', allowCurrent = true, futureYears = 0, mobileConfirmation = false }: {
   idPrefix: string; value: DateRangeValue; onChange: (v: DateRangeValue) => void;
   errors?: { from?: string; to?: string }; currentLabelKey?: string; toLabelKey?: string; fromLabelKey?: string;
-  allowCurrent?: boolean; futureYears?: number;
+  allowCurrent?: boolean; futureYears?: number; mobileConfirmation?: boolean;
 }) {
   const { t } = useTranslation();
   const maxYear = new Date().getFullYear() + futureYears;
   const curId = useId();
+  const conflict = !value.current ? confirmationRangeError(value.from, value.to) : undefined;
+  const fromPicker = (from: string, change: (v: string) => void) => <MonthYearInput id={`${idPrefix}-from`} label={t(fromLabelKey)} value={from} invalid={!!errors?.from} maxYear={maxYear} onChange={change}/>;
+  const toPicker = (to: string, change: (v: string) => void) => <MonthYearInput id={`${idPrefix}-to`} label={t(toLabelKey)} value={to} invalid={!!errors?.to} maxYear={maxYear + 10} onChange={change}/>;
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormField id={`${idPrefix}-from-month`} label={t(fromLabelKey)} required error={errors?.from}>
-          <MonthYearInput id={`${idPrefix}-from`} label={t(fromLabelKey)} value={value.from} invalid={!!errors?.from}
-            maxYear={maxYear} onChange={(from) => onChange({ ...value, from })} />
+          {mobileConfirmation ? <MobileConfirmedDate label={t(fromLabelKey)} value={value.from} monthOnly onChange={from=>onChange({...value,from})} renderPicker={fromPicker} validate={from=>validateDateRange({from,to:'',current:true})==='future_start'?'pp_err_future_start':!value.current?confirmationRangeError(from,value.to):undefined}/> : <MonthYearInput id={`${idPrefix}-from`} label={t(fromLabelKey)} value={value.from} invalid={!!errors?.from}
+            maxYear={maxYear} onChange={(from) => onChange({ ...value, from })} />}
         </FormField>
-        <FormField id={`${idPrefix}-to-month`} label={t(toLabelKey)} required={!value.current} error={value.current ? undefined : errors?.to}>
+        <FormField id={`${idPrefix}-to-month`} label={t(toLabelKey)} required={!value.current} error={value.current ? undefined : mobileConfirmation ? conflict || errors?.to : errors?.to}>
           {value.current
-            ? <div className="h-11 flex items-center px-3 rounded-md border border-dashed text-sm text-muted-foreground">{t('present')}</div>
+            ? <div className="h-11 flex items-center px-3 rounded-md border border-dashed text-sm text-muted-foreground">{mobileConfirmation&&currentLabelKey==='pp_no_expiry'?t(currentLabelKey):t('present')}</div>
+            : mobileConfirmation ? <MobileConfirmedDate key={`${idPrefix}:${value.current}`} label={t(toLabelKey)} value={value.to} monthOnly onChange={to=>onChange({...value,to})} renderPicker={toPicker} validate={to=>confirmationRangeError(value.from,to)}/>
             : <MonthYearInput id={`${idPrefix}-to`} label={t(toLabelKey)} value={value.to} invalid={!!errors?.to}
                 maxYear={maxYear + 10} onChange={(to) => onChange({ ...value, to })} />}
         </FormField>

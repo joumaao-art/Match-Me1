@@ -1,5 +1,14 @@
 ## Task Breakdown
 
+| Mobile Job Seeker date confirmation | Implementation | Validation |
+|---|---|---|
+| Audit existing date entry, canonical values and platform boundaries | done | done |
+| Mobile-only Confirm/locked summary/Edit/Cancel and range validation | done | done |
+| Preserve save/autosave, date contracts, TypeScript/lint/build/viewer and report | done | done |
+| Authenticated mobile touch, save, refresh/login and layout acceptance | done | blocked |
+
+Mobile date confirmation validation: 47 unit/interaction/source checks and TypeScript/lint/build passed; original wheels, desktop/Company/Admin and canonical persistence baselines unchanged. Viewer rendered guest landing only; signed-in mobile and live persistence acceptance remain blocked. Report recorded; no schema/data writes.
+
 | Desktop navigation/Profile targeted cleanup | Implementation | Validation |
 |---|---|---|
 | Five-item sidebar, two Profile actions and Swipe header cleanup | done | done |

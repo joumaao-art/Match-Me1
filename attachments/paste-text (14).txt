@@ -1,0 +1,348 @@
+# MATCHME — MOBILE JOB SEEKER DATE SELECTION CONFIRMATION & LOCKING
+## Preserve Existing Date Pickers | Confirm Dates | Display Selected Dates | Edit to Unlock
+
+### OBJECTIVE
+
+Improve the date-selection experience across the entire MatchMe mobile Job Seeker application.
+
+Currently, users can select dates using the existing date-selection controls.
+
+I want to preserve those controls exactly as they are, including their scrolling behavior, date format, month/year selection, and styling.
+
+However, once a user selects a date, they must be able to confirm and lock that selection to prevent accidental changes.
+
+**The new interaction must be: Select Date → Confirm Date → Lock Date → Edit Date.**
+
+Apply this change to all applicable Job Seeker date fields in the mobile application only.
+
+Do not change the desktop date-entry experience.
+
+---
+
+## 1. PRESERVE ALL EXISTING DATE PICKERS
+
+Do not replace or redesign any existing date-selection component.
+
+Preserve:
+
+- Existing scrolling date pickers.
+- Existing day/month/year selectors.
+- Existing month/year selectors.
+- Existing date formats.
+- Existing date ranges.
+- Existing calendar validation.
+- Existing Start Date and End Date fields.
+- Existing Current or Present selections.
+- Existing expected graduation dates.
+- Existing visual styling.
+
+The purpose is to improve date confirmation, not redesign date entry.
+
+---
+
+## 2. ADD A CONFIRM DATE ACTION
+
+When a Job Seeker opens or interacts with any date selector:
+
+1. Allow the user to scroll and select the desired date as usual.
+2. Keep the date selection editable while the picker is active.
+3. Display a clear **Confirm Date** action.
+4. When the user taps Confirm Date, validate the selected date.
+5. If valid, close or collapse the picker and lock the selected value.
+6. Display the confirmed date directly below the date-selection area.
+
+Do not automatically lock a date merely because the user scrolls to it.
+
+The user must explicitly confirm the selection.
+
+---
+
+## 3. DISPLAY THE CONFIRMED DATE BELOW THE SELECTOR
+
+After confirmation, display a compact summary directly beneath the date-selection field.
+
+Example:
+
+**Birthday**
+
+15 June 1995                         Edit
+
+Or:
+
+**Start Date**
+
+March 2022                           Edit
+
+The displayed date must follow the existing formatting rules for that field.
+
+Requirements:
+
+- Use the exact date selected by the user.
+- Do not change the selected month or year.
+- Do not introduce timezone-related date shifts.
+- Keep the confirmed date clearly visible.
+- Use professional, compact styling.
+- Avoid oversized cards or unnecessary borders.
+- Maintain consistency across all mobile date fields.
+
+The selected date must remain visible even when the picker is collapsed.
+
+---
+
+## 4. LOCK THE DATE AFTER CONFIRMATION
+
+Once a date is confirmed:
+
+- Treat the field as locked against accidental scrolling or changes.
+- Collapse or disable the active date selector.
+- Display the confirmed date in read-only mode.
+- Show a clearly clickable **Edit** action beside the confirmed date.
+- Do not allow the confirmed date to change through background scrolling.
+- Do not modify the confirmed date when the user scrolls the surrounding page.
+
+Locking a date must not prevent the user from editing it intentionally.
+
+This is a user-interface editing lock, not a permanent restriction on updating profile information.
+
+---
+
+## 5. EDIT TO UNLOCK
+
+When the user taps **Edit**:
+
+1. Unlock only the selected date field.
+2. Reopen the existing date picker.
+3. Prepopulate the picker with the currently confirmed date.
+4. Allow the user to adjust the date using the existing scrolling controls.
+5. Display Confirm Date again.
+6. Validate the updated selection.
+7. Lock the new date after confirmation.
+8. Update the displayed date beneath the selector.
+
+Provide a Cancel option when editing an already confirmed date.
+
+If the user cancels, restore the previous confirmed value without changes.
+
+Do not clear or reset the date when Edit is selected.
+
+---
+
+## 6. APPLY TO ALL MOBILE JOB SEEKER DATE FIELDS
+
+Audit all Job Seeker screens and apply the same confirmation mechanism wherever dates are entered.
+
+This includes, but is not limited to:
+
+### Personal Information
+- Birthday.
+
+### Onboarding
+- Birthday.
+- Education Start Date.
+- Education End Date.
+- Experience Start Date.
+- Experience End Date.
+- Any other existing onboarding date fields.
+
+### Experience
+- Employment Start Date.
+- Employment End Date.
+
+### Education
+- Education Start Date.
+- Graduation or End Date.
+- Expected Graduation Date.
+
+### Certifications
+- Issue Date.
+- Expiration Date, where supported.
+
+### Other Job Seeker Forms
+- Any additional user-editable date fields.
+
+Do not add date fields to pages that do not currently require them.
+
+Do not change read-only timestamps such as application submission dates, CV upload dates, or subscription renewal dates.
+
+---
+
+## 7. START DATE AND END DATE VALIDATION
+
+Preserve the existing Start Date and End Date relationship.
+
+For Experience, Education, and Certifications where applicable:
+
+- End Date cannot be earlier than Start Date.
+- Validate the relationship when either date is confirmed.
+- If the Start Date is edited, revalidate the existing End Date.
+- If the new Start Date conflicts with the End Date, display a clear validation message.
+- Do not silently change the End Date.
+- Require the user to correct the conflicting value before saving.
+
+### Current / Present
+
+Preserve the existing Current or Present option.
+
+When selected:
+
+- Disable the End Date picker.
+- Display Current or Present as the confirmed end value.
+- Do not invent an End Date.
+- Preserve the actual Current/Present status in Supabase.
+
+If Current/Present is deselected, allow the user to select and confirm an End Date.
+
+---
+
+## 8. AUTOSAVE AND DATA PERSISTENCE
+
+Preserve the existing onboarding autosave behavior.
+
+For date fields:
+
+- Confirm Date updates the canonical form value.
+- During onboarding, trigger the existing autosave process.
+- In Profile, Experience, Education, or Certification editing, respect the existing Save workflow.
+- Do not bypass an existing form-level Save action.
+- Do not claim a date has been saved to Supabase until persistence is confirmed.
+- Preserve confirmed values when navigating between onboarding steps.
+- Preserve confirmed values after refresh and logout/login once saved.
+- Prepopulate existing saved dates in locked display mode when the page loads.
+
+Distinguish clearly between a date confirmed in the interface and a date successfully saved to the backend.
+
+Do not create duplicate date records.
+
+---
+
+## 9. BIRTHDAY AND AGE
+
+For Birthday:
+
+- Preserve the existing scrolling day/month/year picker.
+- Preserve the current mandatory validation.
+- Preserve the existing age calculation.
+- After confirmation, show the selected birthday and calculated age where age is already displayed.
+
+Example:
+
+**Birthday**
+
+15 June 1995 — 31 years old           Edit
+
+Calculate age using the current date and the user's birthday, accounting for whether their birthday has occurred this year.
+
+Do not calculate age by simply subtracting birth years.
+
+Do not change the underlying stored birthday.
+
+---
+
+## 10. MOBILE DESIGN REQUIREMENTS
+
+The confirmation interface must look native, professional, and consistent with MatchMe's existing design.
+
+Use:
+
+- Compact confirmed-date summaries.
+- Clear Confirm Date actions.
+- Subtle read-only styling.
+- A visible Edit control.
+- Existing application colors.
+- Consistent typography.
+- Appropriate touch targets.
+
+Avoid:
+
+- Large confirmation cards.
+- Excessive borders.
+- New date picker libraries unless necessary.
+- Unnecessary popup screens.
+- Extra navigation steps.
+- Decorative animations.
+- Layout shifts that make forms difficult to use.
+
+Ensure Confirm Date and Edit are not hidden behind the mobile keyboard or bottom navigation.
+
+---
+
+## 11. STRICT PLATFORM SCOPE
+
+This is a **mobile Job Seeker-only UI change**.
+
+Do not modify:
+
+- Desktop date-picker presentation.
+- Desktop Profile layout.
+- Desktop onboarding layout.
+- Company forms.
+- Super Admin forms.
+- Existing backend date formats.
+- Existing date storage schemas.
+
+Reuse shared date validation and persistence services where appropriate, without changing desktop behavior.
+
+---
+
+## 12. ACCEPTANCE TESTING
+
+Test the actual mobile application.
+
+### Date Selection
+
+1. Existing date pickers still work.
+2. Scrolling behavior remains unchanged.
+3. Confirm Date is visible.
+4. Selecting a date without confirmation does not lock it.
+5. Confirm Date locks the selected value.
+6. Confirmed date appears directly beneath the selector.
+7. Scrolling the page does not modify the confirmed date.
+8. Edit unlocks the correct field.
+9. Edit opens the previously selected date.
+10. Cancel restores the previously confirmed value.
+11. Confirming an edited date updates the displayed value.
+
+### Data Integrity
+
+12. Saved dates remain correct after refresh.
+13. Saved dates remain correct after logout/login.
+14. Onboarding autosave continues working.
+15. Start and End date validation works.
+16. Current/Present remains functional.
+17. Existing user dates load correctly.
+18. No timezone-related date shifts occur.
+19. Birthday age calculation remains accurate.
+
+### Platform Regression
+
+20. Desktop date-entry experience remains unchanged.
+21. Mobile layouts remain unchanged apart from the requested confirmation controls.
+22. Company and Super Admin date fields remain unchanged.
+23. English and Arabic localization works.
+24. No infinite loading, broken navigation, or save regressions occur.
+
+Run TypeScript, lint, build, and relevant date-validation tests.
+
+Do not claim mobile App Viewer testing passed unless actually executed.
+
+---
+
+## FINAL SUCCESS CONDITION
+
+Every editable date field in the MatchMe mobile Job Seeker application follows this interaction:
+
+**Select → Confirm → Locked Date Display → Edit to Unlock**
+
+The existing date picker design and scrolling behavior remain unchanged.
+
+Confirmed dates are clearly displayed beneath their selectors.
+
+Dates cannot be accidentally changed after confirmation.
+
+Users can intentionally edit them at any time.
+
+Saved values remain accurate and persist through the existing Supabase services.
+
+Desktop, Company, and Super Admin interfaces remain unchanged.
+
+Implement the actual functionality and provide an English-only report of the changes and testing results.

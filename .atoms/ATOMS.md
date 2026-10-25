@@ -11,6 +11,7 @@ MatchMe is a bilingual EN/AR recruitment web app using React/Vite/shadcn and the
 ## Key Decisions
 | Decision | Rationale |
 |---|---|
+| Approved mobile-only date confirmation | Wrap existing wheels/month-year/native date controls without redesign; draft changes commit only on explicit confirmation, saved dates load locked, Edit/Cancel stay field-local. Preserve form Save/onboarding autosave and existing expected-graduation option; no schema or desktop/Company/Admin behavior changes. |
 | Approved desktop-only navigation cleanup | Five desktop sidebar destinations: Swipe, Dashboard, Profile, Subscription Overview, Preferences. Footer Support & Settings/confirmed Logout unchanged; Profile actions VIA Resume/Personal only. Mobile three-tab navigation, Profile subscription/logout and Swipe Preferences remain unchanged; no backend/auth/billing changes. |
 | Permanent Job Seeker mobile → desktop authority | Define Job Seeker features against current mobile first; desktop must provide equivalent fields, rules, actions and shared persistence with independent layout. No unapproved desktop-only features; retain mobile regressions and desktop parity checks. Company/Admin excluded. |
 | Mobile Profile account overview | Reuse existing Supabase/Auth/billing; owner-checked Personal patch RPC, private original CV with storage timestamp, separate deterministic selectable VIA PDF; additive professional JSON and support-report table only. Missing support chat/email and verified login-phone change/deletion flows explicitly unavailable. |

@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/shared/PhoneInput';
 import { FormField, LocationSelector, SearchableCombobox, useCountries } from '@/components/shared/ProfileFields';
-import { DateWheels } from '@/components/onboarding/MobileControls';
+import { ConfirmedDateWheels as DateWheels } from './MobileConfirmedDate';
+import { hasUnconfirmedDates } from '@/lib/mobile-date-confirmation';
 import { ageFromBirthday } from '@/lib/mobile-date-wheel';
 import { isValidE164 } from '@/lib/phone';
 import { useAuthStore } from '@/stores';
@@ -49,6 +50,7 @@ export function PersonalInformationForm({ account, mobile, onSaved }: { account:
   const field = (key: 'first_name' | 'last_name', label: string) => <FormField id={`personal-${key}`} label={label} required error={errorText(key)}><Input id={`personal-${key}`} value={draft[key]} onChange={event => set(key,event.target.value)} className="h-11" maxLength={100} autoComplete={key === 'first_name' ? 'given-name' : 'family-name'} {...aria(key)}/></FormField>;
   const save = async () => {
     if (lock.current) return;
+    if (mobile && hasUnconfirmedDates()) { setError(copy('Confirm or cancel the date selection before saving.','أكد أو ألغِ اختيار التاريخ قبل الحفظ.')); return; }
     const validation = personalInformationErrors(draft,base.email);
     if (countries.length && draft.phone && !isValidE164(draft.phone,countries)) validation.phone = 'phone';
     setErrors(validation); setError(''); setNotice('');
@@ -75,8 +77,7 @@ export function PersonalInformationForm({ account, mobile, onSaved }: { account:
         <FormField id="personal-title" label={copy('Title','اللقب')} error={errorText('title')}><select id="personal-title" className="h-11 w-full border rounded-md bg-background px-3 text-sm" value={draft.title} onChange={event => set('title',event.target.value)} {...aria('title')}><option value="">{copy('Select title','اختر اللقب')}</option>{PERSONAL_TITLES.map(title => <option key={title} value={title}>{title}</option>)}</select></FormField>
         <div className={mobile ? 'space-y-4' : 'grid grid-cols-2 gap-4'}>{field('first_name',copy('Legal First Name','الاسم الأول القانوني'))}{field('last_name',copy('Legal Last Name','اسم العائلة القانوني'))}</div>
         <FormField id="personal-date_of_birth" label={copy('Birthday','تاريخ الميلاد')} required error={errorText('date_of_birth')}>
-          {mobile ? <DateWheels label={copy('Birthday','تاريخ الميلاد')} value={draft.date_of_birth} lang={lang} onChange={value => set('date_of_birth',value)}/> : <Input id="personal-date_of_birth" type="date" value={draft.date_of_birth} max={maxDate} onChange={event => set('date_of_birth',event.target.value)} className="h-11" {...aria('date_of_birth')}/>}
-          {mobile && <p className="text-xs text-muted-foreground mt-2" dir="auto">{draft.date_of_birth || copy('Choose your birthday using the wheels.','اختر تاريخ الميلاد باستخدام القوائم المتحركة.')}</p>}
+          {mobile ? <DateWheels label={copy('Birthday','تاريخ الميلاد')} value={draft.date_of_birth} lang={lang} validate={value=>personalInformationErrors({...draft,date_of_birth:value},base.email).date_of_birth ? copy('Select a valid birthday within the last 100 years, not in the future.','اختر تاريخ ميلاد صالحاً خلال آخر 100 سنة وليس في المستقبل.') : undefined} onChange={value => set('date_of_birth',value)}/> : <Input id="personal-date_of_birth" type="date" value={draft.date_of_birth} max={maxDate} onChange={event => set('date_of_birth',event.target.value)} className="h-11" {...aria('date_of_birth')}/>}
           <p aria-live="polite" className="text-xs text-muted-foreground mt-2">{age !== null ? copy(`You are ${age} years old`, `عمرك ${age} سنة`) : ''}</p>
         </FormField>
       </fieldset>

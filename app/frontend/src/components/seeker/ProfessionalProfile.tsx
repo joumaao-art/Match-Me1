@@ -1,3 +1,6 @@
+import { MobileConfirmedDate } from './MobileConfirmedDate';
+import { hasUnconfirmedDates } from '@/lib/mobile-date-confirmation';
+import { ageFromBirthday } from '@/lib/mobile-date-wheel';
 import { MandatoryProfileGuidance } from './MandatoryProfileGuidance';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -95,14 +98,17 @@ function usePersistedList<T>(name: string, seed: T[], normalize: (x: T) => T) {
 
 /** Deterministic save runner: IDLE → VALIDATING → SAVING → SUCCESS | ERROR. */
 function useSaveRunner() {
+  const mobile = useIsMobile();
+  const { i18n } = useTranslation();
   const [state, setState] = useState<SaveState>('IDLE');
   const run = useCallback(async (validate: () => boolean, save: () => Promise<void>, messages: { ok: string; err: string }) => {
+    if (mobile && hasUnconfirmedDates()) { toast.error(i18n.language.startsWith('ar') ? 'أكد أو ألغِ كل اختيار تاريخ مفتوح قبل الحفظ.' : 'Confirm or cancel each open date selection before saving.'); return false; }
     setState('VALIDATING');
     if (!validate()) { setState('ERROR'); return false; }
     setState('SAVING');
     try { await save(); setState('SUCCESS'); toast.success(messages.ok); return true; }
     catch { setState('ERROR'); toast.error(messages.err); return false; }
-  }, []);
+  }, [mobile, i18n]);
   return { state, run, reset: () => setState('IDLE'), busy: state === 'SAVING' || state === 'VALIDATING' };
 }
 
@@ -329,7 +335,7 @@ export function ProfileView({ completion, onOpenPreferences }: { completion?: Re
                 describedBy={[errors.nationalities ? 'pf-nat-error' : '', 'pf-nat-hint'].filter(Boolean).join(' ')} />
             </FormField>
             <FormField id="pf-dob" label={`${t('date_of_birth')} (${t('pp_optional')})`}>
-              <Input id="pf-dob" type="date" value={profile.dob} max={new Date().toISOString().slice(0, 10)} onChange={(e) => set('dob', e.target.value)} className="h-11" />
+              {mobile ? <MobileConfirmedDate label={t('date_of_birth')} value={profile.dob} optional onChange={value=>set('dob',value)} validate={value=>ageFromBirthday(value)===null?t('ob_err_birthday'):undefined} renderPicker={(value,change)=><Input id="pf-dob" type="date" value={value} max={new Date().toISOString().slice(0, 10)} onChange={e=>change(e.target.value)} className="h-11"/>}/> : <Input id="pf-dob" type="date" value={profile.dob} max={new Date().toISOString().slice(0, 10)} onChange={(e) => set('dob', e.target.value)} className="h-11" />}
             </FormField>
           </div>
           {text('headline', 'headline')}
@@ -409,6 +415,7 @@ export function ResumeSection() {
 const EMPTY_EXP: Omit<ExperienceRecord, 'id'> = { title: '', company: '', type: '', country: '', city: '', from: '', to: '', current: false, description: '' };
 
 export function ExperienceView() {
+  const mobile = useIsMobile();
   const { t, i18n } = useTranslation();
   const [items, commit] = useSeekerExperience();
   const sorted = useMemo(() => sortChronological(items), [items]);
@@ -476,7 +483,7 @@ export function ExperienceView() {
           </Select>
         </FormField>
         <LocationSelector idPrefix="ex" country={form.country} city={form.city} errors={{ country: errors.country, city: errors.city }} onChange={(v) => upd(v)} />
-        <DateRangeField idPrefix="ex" value={form} onChange={(v) => upd(v)} errors={{ from: errors.from, to: errors.to }} currentLabelKey="pp_current_role" />
+        <DateRangeField mobileConfirmation={mobile} idPrefix="ex" value={form} onChange={(v) => upd(v)} errors={{ from: errors.from, to: errors.to }} currentLabelKey="pp_current_role" />
         <FormField id="ex-desc" label={t('pp_duties_label')} required error={errors.description}
           hint={<span className="flex gap-1.5"><Info className="w-3.5 h-3.5 shrink-0 mt-px" aria-hidden="true" />{t('pp_duties_guidance')}</span>}>
           <Textarea id="ex-desc" aria-invalid={!!errors.description || undefined} aria-describedby={`ex-desc-hint ex-desc-count${errors.description ? ' ex-desc-error' : ''}`}
@@ -495,6 +502,7 @@ export function ExperienceView() {
 const EMPTY_EDU: Omit<EducationRecord, 'id'> = { institution: '', degree: '', field: '', from: '', to: '', current: false };
 
 export function EducationView() {
+  const mobile = useIsMobile();
   const { t, i18n } = useTranslation();
   const [items, commit] = useSeekerEducation();
   const sorted = useMemo(() => sortChronological(items), [items]);
@@ -562,7 +570,7 @@ export function EducationView() {
         <FormField id="ed-field" label={t('field_of_study')} required={form.degree !== 'NOT_APPLICABLE'} error={errors.field}>
           <Input {...fieldAria('ed-field', errors.field)} value={form.field} onChange={(e) => upd({ field: e.target.value })} className="h-11" />
         </FormField>
-        <DateRangeField idPrefix="ed" value={form} onChange={(v) => upd(v)} errors={{ from: errors.from, to: errors.to }} currentLabelKey="pp_current_study" />
+        <DateRangeField mobileConfirmation={mobile} idPrefix="ed" value={form} onChange={(v) => upd(v)} errors={{ from: errors.from, to: errors.to }} currentLabelKey="pp_current_study" />
       </RecordDialog>
     </div>
   );
@@ -571,6 +579,7 @@ export function EducationView() {
 const EMPTY_CERT = { name: '', issuer: '', date: '', expiry: null as string | null, credentialId: '' };
 
 export function CertificatesSection() {
+  const mobile = useIsMobile();
   const { t, i18n } = useTranslation();
   const [items, commit] = useSeekerCertificates();
   const sorted = useMemo(() => sortCertificates(items), [items]);
@@ -623,7 +632,7 @@ export function CertificatesSection() {
           <Input {...fieldAria('ce-issuer', errors.issuer)} value={form.issuer} onChange={(e) => setForm({ ...form, issuer: e.target.value })} className="h-11" />
         </FormField>
         {/* Same canonical From/To control; "Current" here means the credential does not expire. */}
-        <DateRangeField idPrefix="ce" fromLabelKey="issue_date" toLabelKey="expiry_date" currentLabelKey="pp_no_expiry" futureYears={0}
+        <DateRangeField mobileConfirmation={mobile} idPrefix="ce" fromLabelKey="issue_date" toLabelKey="expiry_date" currentLabelKey="pp_no_expiry" futureYears={0}
           value={{ from: form.date, to: form.expiry ?? '', current: noExpiry }}
           onChange={(v) => setForm({ ...form, date: v.from, expiry: v.current ? null : v.to })}
           errors={{ from: errors.date, to: errors.expiry }} />
