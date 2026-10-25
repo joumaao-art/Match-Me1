@@ -12,7 +12,7 @@ export interface DiscoverJob {
  company_logo?:string; education_level?:string; benefits?:string[]; expiration_date?:string|null;
  salary_currency?:string; salary_period?:string; show_salary?:boolean; employment_style?:string; seniority_level?:string; qualifications?:string;
 }
-export interface JobAction {vacancy_id:string;direction:'left'|'right'|null;saved:boolean;application_status:'pending'|'withdrawn'|null;company_status?:string;updated_at:string;}
+export interface JobAction {vacancy_id:string;direction:'left'|'right'|null;saved:boolean;application_status:'pending'|'withdrawn'|null;company_status?:string;updated_at:string;applied_at?:string|null;saved_at?:string|null;passed_at?:string|null;status_history?:{status:string;at:string}[];}
 export async function recordJobAction(jobId:string,action:'left'|'right'|'save'|'unsave'|'undo'|'withdraw'):Promise<void> {
  const {error}=await apiClient.supabase.rpc('record_seeker_job_action',{job_id:jobId,action}).abortSignal(AbortSignal.timeout(12000));
  if(error)throw error;

@@ -55,6 +55,8 @@ import {
 import { ProfileCompletionCard, ProfileCompletionMini, type ProfileData } from '@/components/shared/ProfileCompletion';
 import { MobileBottomNav, type MobileNavTab } from '@/components/shared/MobileBottomNav';
 import { MobileDashboard } from '@/components/shared/MobileDashboard';
+import LegacyDashboard from '@/components/shared/LegacyDashboard';
+import { applicationStatus, recruitmentLabel } from '@/lib/recruitment-status';
 import { MobileAccountCenter } from '@/components/shared/MobileAccountCenter';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuthStore } from '@/stores';
@@ -745,7 +747,7 @@ function useMockProfileData(): ProfileData {
 }
 
 function DashboardView({ onNavigateToSection }: { onNavigateToSection?: (section: string) => void }) {
-  return <MobileDashboard onNavigateToSection={section=>onNavigateToSection?.(section)} />;
+  return <LegacyDashboard onNavigateToSection={section=>onNavigateToSection?.(section)} />;
 }
 
 // ============================================================
@@ -1015,9 +1017,9 @@ function SavedJobsView() {
 // ============================================================
 
 function ApplicationsView() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {jobs,actions,loading,error,refresh}=useSeekerJobs();
-  const applications=actions.filter(a=>a.direction==='right'&&a.application_status!=='withdrawn').flatMap(a=>{const j=jobs.find(j=>j.id===a.vacancy_id);return j?[{id:j.id,title:j.job_title,company:j.company_name,appliedDate:a.updated_at.slice(0,10),status:a.company_status||a.application_status||'pending'}]:[];});
+  const applications=actions.filter(a=>a.application_status!==null).flatMap(a=>{const j=jobs.find(j=>j.id===a.vacancy_id);return j?[{id:j.id,title:j.job_title,company:j.company_name,appliedDate:a.applied_at?new Date(a.applied_at).toLocaleDateString(i18n.language):i18n.language.startsWith('ar')?'التاريخ غير مسجل':'Date not recorded',status:applicationStatus(a)||'unknown'}]:[];});
   const statusColor = (s: string) => { switch(s) { case 'interview': return 'default'; case 'reviewed': return 'secondary'; case 'pending': return 'outline'; case 'rejected': return 'destructive'; default: return 'secondary'; } };
 
   const handleWithdraw = async (id: string) => {
@@ -1033,7 +1035,7 @@ function ApplicationsView() {
           <Card key={app.id}><CardContent className="p-4 flex items-center justify-between">
             <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><FileText className="w-5 h-5 text-primary" /></div><div><p className="font-medium text-sm">{app.title}</p><p className="text-xs text-muted-foreground">{app.company} · {t('applied')}: {app.appliedDate}</p></div></div>
             <div className="flex items-center gap-2">
-              <Badge variant={statusColor(app.status) as any} className="text-xs">{t(app.status)}</Badge>
+              <Badge variant={statusColor(app.status) as any} className="text-xs">{recruitmentLabel(app.status,i18n.language)}</Badge>
               {!['withdrawn','rejected','hired'].includes(app.status) && <Button size="sm" variant="ghost" className="cursor-pointer text-destructive text-xs" onClick={() => handleWithdraw(app.id)}>{t('withdraw')}</Button>}
             </div>
           </CardContent></Card>
@@ -1051,7 +1053,7 @@ function ApplicationsView() {
 function MatchesView() {
   const {t}=useTranslation();const navigate=useNavigate();
   const {jobs,actions,loading,error,refresh}=useSeekerJobs();
-  const matches=actions.filter(a=>a.direction==='right'&&a.application_status==='pending'&&['accepted','hired'].includes(a.company_status||'')).flatMap(a=>{const job=jobs.find(j=>j.id===a.vacancy_id);return job?[{job,status:a.company_status}]:[];});
+  const matches=actions.filter(a=>a.direction==='right'&&a.application_status==='pending'&&['accepted','offer_received','hired'].includes(a.company_status||'')).flatMap(a=>{const job=jobs.find(j=>j.id===a.vacancy_id);return job?[{job,status:a.company_status}]:[];});
   return <div className="flex-1 p-4 sm:p-6 overflow-y-auto"><h2 className="text-xl font-bold mb-6">{t('matches')}</h2>{loading?<p role="status">{t('loading')}</p>:error?<Button onClick={()=>void refresh()}>{t('try_again')}</Button>:<div className="space-y-3">{matches.map(({job,status})=><Card key={job.id}><CardContent className="p-4 flex justify-between gap-3"><div><p className="font-semibold">{job.job_title}</p><p className="text-sm text-muted-foreground">{job.company_name}</p><Badge variant="outline">{t(status||'accepted')}</Badge></div><Button onClick={()=>navigate('/messages')}>{t('messages')}</Button></CardContent></Card>)}{!matches.length&&<p className="text-muted-foreground">{t('no_matches_yet')}</p>}</div>}</div>;
 }
 
@@ -1268,7 +1270,7 @@ export default function JobSeeker() {
   const renderContent = () => {
     // On mobile, dashboard tab shows MobileDashboard instead of desktop DashboardView
     if (isMobile && activeTab === 'dashboard') {
-      return <MobileDashboard unreadMessages={unreadMessages} onNavigateToSection={(section) => setActiveTab(section as NavSection)} />;
+      return <MobileDashboard key={messageUserId || 'guest'} unreadMessages={unreadMessages} onNavigateToSection={(section) => setActiveTab(section as NavSection)} />;
     }
 
     // On mobile, profile tab shows Account Center (all features within 3 taps)

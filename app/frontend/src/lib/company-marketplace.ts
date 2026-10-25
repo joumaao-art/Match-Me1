@@ -11,7 +11,7 @@ export interface CompanyProfile {
 }
 export interface CompanyApplicant {
  vacancy_id:string; company_id:string; seeker_user_id:string; job_title:string;
- application_status:'pending'|'withdrawn'; company_status:string; applied_at:string;
+ application_status:'pending'|'withdrawn'; company_status:string; applied_at:string|null;
  full_name:string|null; headline:string|null; location:string|null; skills:string[]|null;
  experience_years:number|null; education:string|null; bio:string|null;
 }

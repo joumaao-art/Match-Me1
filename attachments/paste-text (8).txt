@@ -1,0 +1,521 @@
+# MATCHME — MOBILE JOB SEEKER DASHBOARD REDESIGN
+## Premium Mobile UI | Application Management | Real-Time Recruitment Status
+
+### OBJECTIVE
+
+Redesign the existing MatchMe Job Seeker Dashboard for the **mobile version only**.
+
+The Dashboard must provide a clean, professional, intuitive overview of the Job Seeker's recruitment activity.
+
+The main purpose is to allow users to quickly access:
+
+1. All Applications
+2. Submitted Applications
+3. Skipped Jobs
+4. Saved Jobs
+5. Recent Applications and their current statuses
+
+The Dashboard must use actual persisted data from the existing Supabase backend, not generated or placeholder information.
+
+Preserve the existing MatchMe architecture, AI Matching Engine, authentication, credit system, and application workflows.
+
+Do not modify the desktop Dashboard layout.
+
+All Atoms engineering communication and final implementation reports must be in English only. Preserve English and Arabic application localization.
+
+---
+
+## PART 1 — DASHBOARD HEADER
+
+### 1. MatchMe Logo — Top Left
+
+Place the official MatchMe application logo in the top-left corner.
+
+Requirements:
+
+- Use the existing official logo.
+- Maintain original proportions.
+- Keep the logo compact.
+- Align it with the search icon.
+- Respect mobile safe areas.
+- Do not add unnecessary decorative elements.
+
+### 2. Search Icon — Top Right
+
+Place a clickable search icon in the top-right corner.
+
+The icon must be functional.
+
+When clicked, open a dedicated Dashboard search interface within the mobile experience.
+
+Search should support:
+
+- Job title
+- Company name
+- Application status
+- Job location
+
+Search across the authenticated Job Seeker's relevant applications, saved jobs, and skipped jobs, with appropriate category filters.
+
+Requirements:
+
+- Search actual records from Supabase.
+- Support partial matching.
+- Provide live suggestions where practical.
+- Debounce search requests.
+- Handle empty results gracefully.
+- Do not expose another user's applications or private data.
+- Provide a clear way to close search and return to Dashboard.
+- Preserve the Dashboard's previous state.
+
+Do not redirect the user to an unrelated global search page.
+
+---
+
+## PART 2 — DASHBOARD QUICK ACCESS BUTTONS
+
+Below the header, display four clickable buttons in a professional 2-column grid.
+
+Layout:
+
+Row 1:
+- All Applications
+- Submitted Applications
+
+Row 2:
+- Skipped Jobs
+- Saved Jobs
+
+Each button should have:
+
+- A clear label.
+- A relevant, subtle icon.
+- A real count of records, where appropriate.
+- A consistent size and alignment.
+- A professional selected/pressed state.
+
+Use restrained borders, shadows, and brand colors.
+
+Avoid oversized decorative cards.
+
+### 3. All Applications
+
+Button label:
+
+**All Applications**
+
+Clicking opens a complete application history.
+
+Include:
+
+- All submitted applications.
+- All application statuses.
+- Active applications.
+- Completed applications.
+- Rejected applications.
+- Withdrawn applications.
+- Applications linked to expired vacancies.
+
+Do not include jobs that were only saved or skipped and never applied to.
+
+Allow filtering by status and sorting by application date.
+
+### 4. Submitted Applications
+
+Button label:
+
+**Submitted Applications**
+
+Clicking opens applications successfully submitted by the Job Seeker.
+
+This must use actual application records, not just swipe-right events.
+
+Include successfully submitted applications across their subsequent recruitment stages, with clear status labels.
+
+Do not include failed or incomplete submissions.
+
+If the existing system distinguishes submitted from draft applications, respect that distinction.
+
+Do not double-count applications across the Dashboard.
+
+### 5. Skipped Jobs
+
+Button label:
+
+**Skipped Jobs**
+
+Clicking opens jobs that the Job Seeker previously passed by:
+
+- Swiping left.
+- Tapping the X button.
+
+Requirements:
+
+- Retrieve actual persisted Pass decisions.
+- Show the corresponding vacancy information.
+- Display jobs in reverse chronological order of the Pass decision.
+- Allow opening the job details.
+- Allow eligible users to reconsider a previously skipped job.
+- Reconsideration must follow the existing Undo/Pass reversal rules.
+- Do not automatically apply when a skipped job is reopened.
+- Respect vacancy status, eligibility, and existing application restrictions.
+
+If a skipped vacancy is no longer active, show that clearly.
+
+### 6. Saved Jobs
+
+Button label:
+
+**Saved Jobs**
+
+Clicking opens jobs bookmarked by the Job Seeker.
+
+Requirements:
+
+- Retrieve actual saved vacancy records.
+- Display Company logo, job title, location, and saved date.
+- Allow users to open the vacancy.
+- Allow removing a job from Saved Jobs.
+- Allow applying to an eligible active vacancy.
+- Prevent duplicate saves.
+- Preserve saved jobs across refresh, logout/login, and devices.
+
+Saved jobs must not be counted as applications unless an application has actually been submitted.
+
+---
+
+## PART 3 — RECENT APPLICATIONS
+
+### 7. Recent Applications Section
+
+Below the four quick-access buttons, display:
+
+**Recent Applications**
+
+Show the most recent five applications by default, ordered by application submission date, newest first.
+
+Add a small clickable:
+
+**View All**
+
+This should open All Applications.
+
+Each recent application row must display:
+
+1. Company logo.
+2. Position title.
+3. Company name.
+4. Job location, if available.
+5. Application date.
+6. Current application status.
+
+The position title should be the primary text.
+
+Company name and location should use smaller, secondary text.
+
+Status must be clearly visible.
+
+Clicking an application opens its details and current recruitment progress.
+
+Do not display fictional applications.
+
+If the user has no applications, show a professional empty state with a link to Swipe.
+
+---
+
+## PART 4 — APPLICATION STATUS SYSTEM
+
+### 8. Canonical Application Statuses
+
+Implement or reconcile the existing application workflow with the following statuses:
+
+**Applied**
+- Application successfully submitted.
+
+**Under Review**
+- Company has started reviewing the application.
+
+**Shortlisted**
+- Company has selected the candidate for further consideration.
+
+**Interview Scheduled**
+- An interview has been scheduled.
+
+**Offer Received**
+- Company has extended an offer.
+
+**Hired**
+- Candidate has accepted the offer and the hiring outcome is confirmed.
+
+**Rejected**
+- Company has declined the candidate.
+
+**Withdrawn**
+- Candidate has withdrawn their application.
+
+### 9. Expired Vacancy Handling
+
+Support an additional display condition:
+
+**Expired**
+
+However, distinguish vacancy status from application status.
+
+A vacancy expiring must not automatically overwrite an existing application outcome.
+
+For example:
+
+- An application Under Review can retain its status while the vacancy is closed, if the employer's process is still active.
+- An Offer Received application must not become Expired simply because the vacancy posting expires.
+- An application with no further active hiring process may display an Expired or Closed indicator based on actual backend state.
+
+Use separate canonical vacancy and application states.
+
+Do not invent a hiring decision from a vacancy expiration date.
+
+### 10. Status Color System
+
+Use subtle, consistent status colors:
+
+- Applied: Blue.
+- Under Review: Blue.
+- Shortlisted: Green.
+- Interview Scheduled: Blue.
+- Offer Received: Green.
+- Hired: Green.
+- Rejected: Red.
+- Withdrawn: Gray.
+- Expired: Gray.
+
+Colors must remain accessible with readable contrast.
+
+Do not rely only on color to communicate status.
+
+Use actual text labels.
+
+### 11. Status Ownership and Integrity
+
+Application statuses must be controlled by authorized Company workflows or appropriate backend events.
+
+Job Seekers must not be able to manually mark themselves as Shortlisted, Hired, or Offered.
+
+The Job Seeker can initiate permitted actions such as withdrawing an application.
+
+All changes must be persisted and authorized.
+
+Preserve an application status history where the existing architecture supports it.
+
+If any of these statuses do not yet exist in the canonical workflow, extend the existing status model safely and update authorized Company actions accordingly.
+
+Do not create a frontend-only status system that displays fictional progress.
+
+---
+
+## PART 5 — APPLICATION DETAILS
+
+### 12. Application Details View
+
+When the user clicks an application from Recent Applications or All Applications, open a professional details view.
+
+Display:
+
+- Company logo and name.
+- Position title.
+- Job location.
+- Date applied.
+- Current application status.
+- Status history or timeline where available.
+- Job description.
+- Qualifications.
+- Relevant interview or offer information when authorized and available.
+
+Do not invent interview dates, feedback, or hiring decisions.
+
+Preserve existing Company–Job Seeker messaging and interview workflows.
+
+---
+
+## PART 6 — MOBILE NAVIGATION
+
+### 13. Bottom Navigation
+
+Preserve the existing three-tab mobile navigation:
+
+**Swipe | Dashboard | Profile**
+
+Dashboard must be the active tab when viewing the Dashboard.
+
+Do not reintroduce:
+
+- Discover
+- Messages
+- Account
+
+as separate bottom navigation tabs.
+
+Keep the navigation accessible and ensure it does not overlap Dashboard content.
+
+---
+
+## PART 7 — REAL DATA AND BACKEND
+
+### 14. Supabase Integration
+
+All Dashboard information must come from the existing canonical backend.
+
+Audit:
+
+- Job Seeker accounts.
+- Applications.
+- Vacancy records.
+- Company profiles.
+- Saved jobs.
+- Swipe Pass decisions.
+- Application statuses.
+- Vacancy lifecycle.
+- Relevant permissions and RLS policies.
+
+Do not create parallel data stores or duplicate application records.
+
+Counts must be based on the authenticated Job Seeker's actual records.
+
+Refresh counts after successful application, save, pass, undo, withdrawal, or status update.
+
+Support loading, empty, and error states without infinite spinners.
+
+### 15. Cross-Device Synchronization
+
+Ensure Dashboard data remains consistent across:
+
+- Mobile.
+- Desktop.
+- Refresh.
+- Logout/login.
+
+The mobile visual layout may differ from desktop, but both must use the same backend records and application statuses.
+
+---
+
+## PART 8 — DESIGN REQUIREMENTS
+
+### 16. Premium Mobile Design
+
+The Dashboard should feel like a professionally designed recruitment application.
+
+Use:
+
+- Clean typography.
+- Strong visual hierarchy.
+- Compact navigation buttons.
+- Consistent spacing.
+- Professional icons.
+- Subtle shadows.
+- Minimal borders.
+- Readable application rows.
+- Refined status labels.
+- Responsive layouts.
+
+Avoid:
+
+- Generic AI-generated dashboard cards.
+- Large decorative charts.
+- Unnecessary gradients.
+- Excessive colors.
+- Oversized icons.
+- Crowded content.
+- Unnecessary statistics.
+- Long introductory paragraphs.
+
+The Dashboard should be easy to scan and navigate with one hand.
+
+### 17. Responsive Testing
+
+Test at:
+
+- 320px
+- 360px
+- 375px
+- 390px
+- 412px
+
+Verify:
+
+- Header alignment.
+- Search functionality.
+- Four-button grid.
+- Application list readability.
+- Status label wrapping.
+- Bottom navigation.
+- Safe areas.
+- Arabic RTL.
+- No horizontal overflow.
+
+---
+
+## PART 9 — MANDATORY ACCEPTANCE TESTING
+
+### 18. Dashboard Tests
+
+Verify in the actual running App Viewer:
+
+1. MatchMe logo appears top-left.
+2. Search icon appears top-right and works.
+3. All Applications button opens the correct records.
+4. Submitted Applications button opens submitted applications.
+5. Skipped Jobs button opens real passed jobs.
+6. Saved Jobs button opens actual bookmarked jobs.
+7. Counts reflect real backend records.
+8. Recent Applications shows the latest five applications.
+9. Recent Applications is ordered newest first.
+10. Every application displays its actual status.
+11. Clicking an application opens its details.
+12. Application status changes are reflected correctly.
+13. Expired vacancies do not overwrite application outcomes.
+14. Search filters actual records.
+15. Data persists after refresh and login.
+16. Desktop Dashboard remains unchanged.
+17. Arabic localization works.
+18. No infinite loading screens.
+19. Existing Swipe, Apply, Pass, Save, and Undo functionality remains intact.
+
+Run TypeScript, lint, build, and relevant automated tests.
+
+Do not claim real App Viewer testing passed unless it was executed.
+
+---
+
+## PART 10 — FINAL IMPLEMENTATION REPORT
+
+Provide an English-only report covering:
+
+1. Dashboard layout changes.
+2. Search implementation.
+3. Quick-access buttons and counts.
+4. Recent Applications implementation.
+5. Application status mappings.
+6. Company status update integration.
+7. Expired vacancy handling.
+8. Supabase persistence.
+9. Mobile responsiveness.
+10. Files changed.
+11. Actual acceptance-test results.
+12. Remaining blockers.
+
+### FINAL SUCCESS CONDITION
+
+The mobile MatchMe Job Seeker Dashboard displays the official app logo on the top-left and a working Search icon on the top-right.
+
+Below them are four clickable buttons:
+
+- All Applications.
+- Submitted Applications.
+- Skipped Jobs.
+- Saved Jobs.
+
+Below those buttons, the Job Seeker sees their five most recent real applications, each with an accurate status reflecting the recruitment process.
+
+All functionality must use actual persisted MatchMe data, not generated examples.
+
+Preserve the existing desktop layout and all working application functionality.
+
+Begin by auditing the existing mobile Dashboard and canonical application-status architecture. Implement the requested changes without rebuilding unrelated modules.

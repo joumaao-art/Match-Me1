@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { createServer } from 'vite';
+globalThis.WebSocket=class{static OPEN=1;static CONNECTING=0;static CLOSED=3;};
+globalThis.window={location:{origin:'https://example.com'},dispatchEvent:()=>{}};
+globalThis.localStorage={getItem:()=>null,setItem:()=>{}};
+const server=await createServer({server:{middlewareMode:true},appType:'custom'});
+let count=0;const test=(name,fn)=>{fn();count++;console.log(`PASS ${name}`);};
+try{
+ const {applicationStatus,recruitmentLabel,recruitmentColor,APPLICATION_STATUSES}=await server.ssrLoadModule('/src/lib/recruitment-status.ts');
+ const {isAvailableJob}=await server.ssrLoadModule('/src/lib/swipe-presentation.ts');
+ for(const [stored,display] of [['pending','applied'],['reviewed','under_review'],['accepted','shortlisted'],['interview','interview_scheduled'],['shortlisted','shortlisted'],['interview_scheduled','interview_scheduled'],['offer_received','offer_received'],['hired','hired'],['rejected','rejected']])test(`canonical stage ${stored}`,()=>assert.equal(applicationStatus({application_status:'pending',company_status:stored}),display));
+ test('saved/pass never treated as submitted',()=>assert.equal(applicationStatus({application_status:null,company_status:'pending'}),null));
+ test('withdrawal wins over Company stage',()=>assert.equal(applicationStatus({application_status:'withdrawn',company_status:'offer_received'}),'withdrawn'));
+ test('unknown status never fictional applied',()=>assert.equal(applicationStatus({application_status:'pending',company_status:'invented'}),'unknown'));
+ test('all eight stages EN and AR',()=>{assert.equal(APPLICATION_STATUSES.length,8);for(const s of APPLICATION_STATUSES){assert.ok(recruitmentLabel(s,'en'));assert.notEqual(recruitmentLabel(s,'ar'),recruitmentLabel(s,'en'));}});
+ test('expiry does not change hiring outcome',()=>{assert.equal(isAvailableJob({status:'open',expiration_date:'2000-01-01'}),false);assert.equal(applicationStatus({application_status:'pending',company_status:'offer_received'}),'offer_received');});
+ test('accessible text/color for stages',()=>{assert.ok(recruitmentColor('rejected').includes('red-800'));assert.ok(recruitmentColor('shortlisted').includes('green-800'));assert.ok(recruitmentColor('applied').includes('blue-800'));});
+ const ui=await readFile('src/components/shared/MobileDashboard.tsx','utf8');const loader=await readFile('src/lib/seeker-dashboard.ts','utf8');const route=await readFile('src/pages/JobSeeker.tsx','utf8');const sql=await readFile('supabase/migrations/021_mobile_dashboard.sql','utf8');
+ test('four real counted buttons in two columns',()=>{for(const c of ['all','submitted','skipped','saved'])assert.ok(ui.includes(`category:'${c}' as const`));assert.ok(ui.includes('grid-cols-2'));assert.ok(ui.includes('counts[category]'));});
+ test('dedicated search no global redirect',()=>{assert.ok(ui.includes('Dashboard search'));assert.ok(ui.includes('DashboardBrowser'));assert.ok(loader.includes('}, 300)'));assert.ok(!ui.includes('/search'));});
+ test('recent five via canonical query',()=>{assert.ok(loader.includes('overview ? 5 : 25'));assert.ok(ui.includes("useSeekerDashboard('all','','',false,true)"));});
+ test('only mobile mount replaced',()=>{assert.ok(route.includes("isMobile && activeTab === 'dashboard'"));assert.ok(route.includes('return <LegacyDashboard'));assert.ok(route.includes('key={messageUserId'));});
+ test('dates never fabricated from update time',()=>{assert.ok(ui.includes('Date not recorded'));assert.ok(ui.includes('row.action.applied_at'));assert.ok(!ui.includes('new Date(row.action.updated_at)'));});
+ test('permitted mutations use existing RPC flow',()=>{assert.ok(ui.includes('await recordJobAction'));assert.ok(ui.includes("completion.percentage !== 100"));assert.ok(ui.includes('latestPass === row.job.id'));assert.ok(!ui.includes('review_company_application'));});
+ test('server owns status events and authority',()=>{assert.ok(sql.includes('NEW.applied_at:=OLD.applied_at'));assert.ok(sql.includes('NEW.status_history:=OLD.status_history'));assert.ok(sql.includes('IF NOT company_owns_vacancy'));assert.ok(sql.includes("REVOKE ALL ON FUNCTION public.get_seeker_dashboard"));assert.ok(!sql.includes('UPDATE public.seeker_job_actions SET applied_at'));});
+ test('owner bounded backend search/counts',()=>{assert.ok(sql.includes('WHERE a.user_id=uid'));assert.ok(sql.includes("application_status='pending'"));assert.ok(sql.includes('least(coalesce(p_limit,25),50)'));assert.ok(sql.includes('position(lower(left(p_query,200))'));});
+ test('refresh timeout and account isolation',()=>{assert.ok(loader.includes('AbortSignal.timeout(10000)'));assert.ok(loader.includes('useAuthStore.getState().userId === uid'));assert.ok(loader.includes('15000'));assert.ok(loader.includes('setLoading(false)'));});
+ console.log(`${count} Dashboard contracts passed.`);
+}finally{await server.close();}

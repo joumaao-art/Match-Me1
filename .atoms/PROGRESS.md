@@ -1,5 +1,12 @@
 ## Task Breakdown
 
+| Mobile Job Seeker Dashboard redesign | Implementation | Validation |
+|---|---|---|
+| Audit canonical statuses/dates/RLS and mobile/desktop wiring | done | done |
+| Safe canonical stage/date/history extension and Company actions | done | done |
+| Mobile header/search/categories/recent/details and permitted actions | done | done |
+| Contracts, TypeScript, lint/build, database and viewer acceptance report | done | done |
+
 | Savings and mobile Swipe Preferences | Implementation | Validation |
 |---|---|---|
 | Catalog-derived savings and compact five-section mobile editor | done | done |
@@ -64,6 +71,9 @@
 | Approved legal sheets and required mobile A–W acceptance evidence | blocked | blocked |
 
 ## Progress Log
+- Dashboard accepted: user confirms signed-in manual PASS for logo/search, All/Submitted, Skipped/Saved, recent/status/details, Saved actions, Pass reconsideration, mobile navigation and Arabic responsiveness; no issues. Combined with117 contracts/TypeScript/lint/build and rollback-only DB PASS, current scope ready for next phase. Preserve implementation; no closeout code/DB changes. Independent authenticated browser/per-width evidence and missing historical dates remain explicitly disclosed.
+- User confirms current Dashboard manual acceptance not tested yet; preserve implemented scope and passed117 contracts/TypeScript/lint/build/database evidence; signed-in mobile/RTL acceptance remains blocked pending observations, no completion or manual PASS claim.
+- Mobile Dashboard implemented: official compact header/search, four canonical counted categories/recent5/details/permitted actions, owner paginated debounced search; additive migration021 stages/future dates/history with legacy values/unknown dates preserved, Company authorized stage controls; desktop previous layout copied unchanged. TypeScript117 contracts lint/build and live rollback-only action/search/status/history/security tests PASS. Viewer guest-only grade1: no auth bypass/repeat unchanged check; signed-in320–412/RTL/browser acceptance BLOCKED, English report records exact limits.
 - Acceptance complete for current Savings/Preferences scope: user confirms all six signed-in workflows plus unsaved Back/tab retention, same-card save return, combined10/duplicate rejection and Arabic usability PASS; independent restored DB/persistence/security/catalog/confirmed Sales Executive application evidence PASS. Validation done on this combined evidence basis, not independent browser execution; signed-in screenshots/exhaustive devices/concurrent browser and prior purchase sandbox remain unexecuted and disclosed. No recovery-round source changes.
 - User confirms Sales Executive0c988c65-2e17-4294-9954-ba31072f2f61 as the October25 manual test vacancy; six manual PASS observations now linked to independently verified committed application/owner projection/seeker join. Independent signed-in screenshots remain unavailable; mobile unsaved-navigation/RTL acceptance not yet reported.
 - User reports six signed-in manual workflows PASS/no issues; recorded separately from independent browser evidence. Canonical Tech open Sales Executive0c988c65-2e17-4294-9954-ba31072f2f61 and Sales Manager177f11b8-c341-4112-8247-a64a92150069 each have committed pending applications returned by owner RPC; seeker joins and canonical preference JSON verified read-only. Exact manual-test candidate/screenshots unconfirmed; no confirmed defect or source change.
