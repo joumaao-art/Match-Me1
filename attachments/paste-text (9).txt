@@ -1,0 +1,664 @@
+# MATCHME — MOBILE JOB SEEKER PROFILE REDESIGN
+## Account Overview | Support Center | Subscription | VIA Resume | Personal Information
+
+### OBJECTIVE
+
+Redesign the existing MatchMe Job Seeker Profile tab for the **mobile application only**.
+
+The Profile page should become a professional, premium-looking account overview with clearly organized information and functional navigation.
+
+The design must feel like a polished recruitment application, not a generic AI-generated dashboard.
+
+Preserve all existing functionality, Supabase records, authentication, subscriptions, credits, resume uploads, and Job Seeker data.
+
+Do not rebuild the Profile system or introduce duplicate databases.
+
+The application remains named **MatchMe**. The premium subscription and resume feature retain the VIA branding.
+
+All Atoms development communication and final reports must be in English only. Preserve English and Arabic application localization.
+
+---
+
+# PART 1 — MOBILE PROFILE MAIN PAGE
+
+## 1. Header
+
+At the very top of the Profile page, create a compact header.
+
+**Top-left:**
+- Official MatchMe application logo.
+- Preserve its existing proportions.
+- Use the same logo size and positioning as the mobile Swipe and Dashboard pages.
+
+**Top-right:**
+- A clickable information icon represented by a lowercase **i** inside a circle.
+- Use a professional, minimal icon.
+- The icon must open the Support & Settings page.
+
+The header must remain visually consistent with the other mobile tabs.
+
+## 2. Job Seeker Account Overview
+
+Immediately below the header, display the following account information in this order:
+
+**Username**
+- Display the Job Seeker's actual username or existing display name.
+- Do not invent a username if the account has none.
+- Use the canonical profile field.
+
+**Email Address**
+- Display the user's registered email address.
+- Retrieve it from the existing authenticated account.
+
+**Mobile Number**
+- Display the saved mobile number with its international country code.
+- Format the number appropriately.
+- If no mobile number exists, display "Not added" rather than fabricated information.
+
+**Attached CV**
+- Display the filename of the Job Seeker's currently attached CV.
+- Display the date it was last updated.
+- Example: "Last updated: 20 October 2026".
+- Use the actual stored file metadata.
+- Make the CV row clickable to open a preview or existing authorized download action.
+- If no CV is attached, display "No CV uploaded".
+- Provide a clear way to add or replace the CV using the existing resume upload functionality.
+
+Do not confuse the uploaded CV with the generated VIA Resume.
+
+The uploaded CV is the original document provided by the user.
+
+The VIA Resume is a separate generated ATS-friendly document created from the user's structured MatchMe profile.
+
+## 3. Visual Structure
+
+Use a clean, compact information block.
+
+Suggested hierarchy:
+
+MatchMe Logo                         (i)
+
+Username
+
+Email address
+
+Mobile number
+
+Attached CV
+Filename
+Last updated: Date
+
+Avoid large decorative cards, unnecessary dividers, oversized avatars, and excessive scrolling.
+
+Use clear typography and comfortable spacing.
+
+---
+
+# PART 2 — PROFILE ACTION BUTTONS
+
+Below the account overview, add the following three clickable actions in this exact order:
+
+1. Subscription Overview
+2. VIA Resume
+3. Personal
+
+Each action should have:
+- A relevant professional icon.
+- A clear label.
+- A right-facing navigation indicator in English mode.
+- An accessible touch target.
+- Consistent height, spacing, and styling.
+
+Do not create large promotional banners.
+
+---
+
+# PART 3 — SUBSCRIPTION OVERVIEW
+
+## 4. Subscription Overview Button
+
+Display a clickable button labeled:
+
+**Subscription Overview**
+
+When tapped, navigate to the existing subscription management experience.
+
+Do not create a second subscription database or separate billing architecture.
+
+## 5. Subscription Overview Page
+
+Display:
+
+**Current Plan**
+
+Show the user's actual subscription:
+
+- Free
+- VIA Premium Monthly
+- VIA Premium Yearly
+
+Use the existing canonical billing and entitlement system.
+
+If the user is on the Free plan, display:
+
+**Upgrade to VIA Premium**
+
+The upgrade action must open the existing VIA Premium subscription page.
+
+Preserve the configured plans:
+
+- Monthly: $10/month.
+- Yearly: $100/year.
+- Yearly labeled Most Popular.
+- Yearly displays Save 17%.
+- Yearly selected by default.
+
+If the user already has VIA Premium, display:
+
+- Current subscription plan.
+- Subscription status.
+- Renewal or expiration date.
+- Billing interval.
+- Manage Subscription action.
+- Available plan-change options, where supported.
+
+Do not show a duplicate purchase action to an active subscriber.
+
+Maintain the existing secure checkout and verified subscription activation process.
+
+Do not change subscription pricing, credits, or Premium entitlements.
+
+---
+
+# PART 4 — VIA RESUME
+
+## 6. VIA Resume Button
+
+Below Subscription Overview, display:
+
+**VIA Resume**
+
+Use a professional document or resume icon.
+
+When tapped, open the VIA Resume page.
+
+## 7. VIA Resume Purpose
+
+VIA Resume allows a Job Seeker to generate and download an ATS-friendly resume as a PDF using the information already saved in their MatchMe profile.
+
+The user should not need to manually re-enter information already stored in MatchMe.
+
+Use the existing structured Job Seeker profile as the authoritative data source.
+
+## 8. Resume Content
+
+Generate the resume using available information from:
+
+- Legal first and family name.
+- Email address.
+- Mobile number.
+- Current city and country.
+- Professional experience.
+- Education.
+- Skills.
+- Certifications.
+- Languages.
+
+Include relevant professional information already available in the profile.
+
+Do not automatically include birthday, gender, or other sensitive personal information in the ATS resume.
+
+Do not invent work experience, qualifications, dates, achievements, or certifications.
+
+Do not fabricate a professional summary.
+
+If information is missing, omit optional resume sections or identify missing essential information before generating.
+
+## 9. ATS-Friendly PDF Design
+
+The generated resume must:
+
+- Be professionally formatted.
+- Use a clean, single-column layout.
+- Have selectable and searchable text.
+- Use standard section headings.
+- Avoid tables for critical resume content.
+- Avoid graphics, icons, and complex columns that could interfere with ATS parsing.
+- Use consistent fonts and spacing.
+- Display experience from most recent to oldest.
+- Display education from most recent to oldest.
+- Display certifications from most recent to oldest.
+- Use the existing canonical date formatting rules.
+- Support English and Arabic text correctly.
+
+The resume should be suitable for uploading to recruitment platforms and applicant tracking systems.
+
+Do not claim guaranteed compatibility with every ATS provider.
+
+## 10. VIA Resume Page Actions
+
+Display:
+
+**Preview Resume**
+
+Allow the user to preview the generated document.
+
+**Download PDF**
+
+Generate and download the actual PDF file.
+
+The PDF must be generated from the user's latest saved profile data.
+
+Use the existing PDF generation service if available.
+
+Do not create a fake download button or export an image pretending to be a PDF.
+
+If a PDF generator does not exist, implement a reliable PDF generation workflow compatible with the existing MatchMe architecture.
+
+Ensure Arabic text renders correctly and does not appear as disconnected characters.
+
+Use a professional filename such as:
+
+FirstName_LastName_VIA_Resume.pdf
+
+---
+
+# PART 5 — PERSONAL INFORMATION
+
+## 11. Personal Button
+
+Below VIA Resume, display:
+
+**Personal**
+
+When clicked, open a dedicated Personal Information page.
+
+## 12. Personal Information Page
+
+The page must display the Job Seeker's previously saved information.
+
+Show the following fields in this exact order:
+
+1. Legal Name
+2. Birthday
+3. Email
+4. Mobile
+5. Address
+6. Gender
+
+### Legal Name
+
+Display:
+- Legal First Name.
+- Legal Family Name.
+
+Use the existing saved onboarding/profile data.
+
+### Birthday
+
+Display the previously selected date of birth.
+
+Use the existing date value and canonical date formatting.
+
+Do not expose the birthday publicly to Companies unless explicitly authorized by existing privacy rules.
+
+### Email
+
+Display the registered email address.
+
+If email editing is supported, use the existing secure email-change and verification workflow.
+
+Do not directly overwrite the authentication email without verification.
+
+### Mobile
+
+Display the international country code and phone number.
+
+If edited, use the existing country-code dropdown containing all supported international dialing codes.
+
+Apply the existing phone validation and verification requirements.
+
+### Address
+
+Display the existing saved address information.
+
+Reuse the canonical Country and City dropdowns.
+
+Do not replace saved location information with device location without the user's permission.
+
+If the existing profile supports additional address fields, preserve them.
+
+### Gender
+
+Display the previously selected gender.
+
+Available values:
+
+- Male.
+- Female.
+- Prefer not to say.
+
+Use the existing profile data and localization rules.
+
+## 13. Personal Information Editing
+
+The Personal Information page should allow authorized users to edit their information.
+
+Use a clean form with previously saved values already populated.
+
+Requirements:
+
+- Preserve existing data.
+- Validate mandatory fields according to the existing canonical profile rules.
+- Do not introduce new mandatory requirements without approval.
+- Save changes to the existing Supabase profile records.
+- Show success only after backend confirmation.
+- Prevent duplicate save requests.
+- Preserve unsaved changes if a save fails.
+- Ensure changes appear on the main Profile page immediately after successful saving.
+
+Use one clear Save action on the Personal Information page.
+
+Do not automatically overwrite the user's profile on every keystroke.
+
+---
+
+# PART 6 — SUPPORT & SETTINGS
+
+## 14. Information Icon Navigation
+
+When the Job Seeker taps the **i** icon in the top-right corner of the Profile page, open a dedicated Support & Settings page.
+
+The page must display the following options in this order:
+
+1. Chat with Support
+2. Email Us
+3. FAQ
+4. Report a Problem
+5. Settings
+
+All five options must be clickable and functional.
+
+## 15. Chat with Support
+
+When tapped, open the existing support chat system if one is already integrated.
+
+If no support chat provider exists, do not create a fake conversation.
+
+Implement a proper integration boundary and identify the missing support provider configuration.
+
+Display availability accurately.
+
+Do not promise live human support unless it is actually available.
+
+## 16. Email Us
+
+When tapped, open the user's email application with the official MatchMe support email address prefilled.
+
+Use the support address configured in the application.
+
+Do not invent an email address.
+
+Include an appropriate default subject:
+
+MatchMe Support Request
+
+If no official support email has been configured, report this as a configuration requirement.
+
+## 17. FAQ
+
+Open a dedicated FAQ page.
+
+Use a clean expandable question-and-answer interface.
+
+Include accurate information about:
+
+- Account creation.
+- Password recovery.
+- Profile completion.
+- Job swiping.
+- Applications.
+- Credits.
+- VIA Premium subscriptions.
+- Resume uploads.
+- VIA Resume downloads.
+- Privacy and account management.
+
+FAQ answers must reflect actual implemented functionality.
+
+Do not invent product policies or payment/refund rules.
+
+## 18. Report a Problem
+
+Open a dedicated issue-reporting form.
+
+Fields:
+
+- Issue category.
+- Short subject.
+- Description.
+- Optional screenshot attachment.
+
+Allow the user to submit the issue to the configured support/ticketing backend.
+
+Requirements:
+
+- Validate required fields.
+- Provide submission confirmation only after successful persistence or delivery.
+- Prevent duplicate submissions.
+- Do not expose passwords, authentication tokens, or sensitive session data.
+- Do not claim a ticket was created if no support backend is configured.
+
+## 19. Settings
+
+Open the existing Settings page or implement the missing settings navigation using the existing account architecture.
+
+Preserve relevant settings such as:
+
+- Language: English / Arabic.
+- Notifications.
+- Privacy preferences.
+- Account security.
+- Change password.
+- Logout.
+- Account deletion, where supported.
+
+Do not remove existing account settings or security functionality.
+
+Preserve the existing Forgot Password and password reset mechanisms.
+
+---
+
+# PART 7 — MOBILE DESIGN & NAVIGATION
+
+## 20. Mobile-Only Layout
+
+Apply the visual redesign only to the mobile Job Seeker Profile tab.
+
+Do not change the desktop Profile layout.
+
+Both platforms must continue sharing the same canonical account information.
+
+The design should feel consistent with the mobile Swipe and Dashboard pages.
+
+Use:
+
+- Compact headers.
+- Consistent iconography.
+- Balanced spacing.
+- Professional typography.
+- Minimal visual clutter.
+- Subtle borders.
+- Clear navigation rows.
+- Comfortable touch targets.
+- Proper mobile safe areas.
+
+Avoid:
+
+- Oversized cards.
+- Decorative illustrations.
+- Excessive gradients.
+- Redundant headings.
+- Duplicate buttons.
+- Unnecessary scrolling.
+- Generic AI-generated dashboard styling.
+
+## 21. Bottom Navigation
+
+Preserve the existing mobile navigation:
+
+**Swipe | Dashboard | Profile**
+
+The Profile tab must remain highlighted when viewing the main Profile page.
+
+Do not reintroduce additional bottom navigation tabs.
+
+Ensure navigation to Personal, VIA Resume, Subscription Overview, and Support & Settings provides a working Back action.
+
+---
+
+# PART 8 — DATA INTEGRITY & SECURITY
+
+## 22. Supabase Integration
+
+Reuse existing canonical tables, APIs, services, and Row Level Security policies.
+
+Verify that:
+
+- The correct Job Seeker profile is loaded.
+- Personal information belongs to the authenticated account.
+- CV metadata belongs to the authenticated account.
+- Resume files are accessed through authorized storage operations.
+- Subscription data comes from the canonical billing system.
+- VIA Resume generation uses only authorized profile data.
+- Profile changes persist across logout/login and devices.
+
+Do not create parallel profile or subscription records.
+
+Do not reset existing users or onboarding progress.
+
+## 23. Privacy
+
+Ensure:
+
+- Personal information is accessible only to authorized users.
+- Birthday and gender are not automatically included in exported resumes.
+- CV downloads use authorized access.
+- Sensitive data is not logged unnecessarily.
+- Support reports do not automatically include credentials or tokens.
+
+---
+
+# PART 9 — ACCEPTANCE TESTING
+
+## 24. Mandatory Mobile Tests
+
+Test the actual running mobile App Viewer.
+
+### Main Profile
+
+1. MatchMe logo appears top-left.
+2. Information icon appears top-right and works.
+3. Username displays correctly.
+4. Email displays correctly.
+5. Mobile number displays correctly.
+6. Attached CV and actual last-updated date display correctly.
+7. Missing CV is handled properly.
+
+### Subscription Overview
+
+8. Subscription Overview opens correctly.
+9. Current subscription displays correctly.
+10. Upgrade opens VIA Premium plans.
+11. Existing Premium subscribers see the correct management options.
+12. Pricing and billing status are accurate.
+
+### VIA Resume
+
+13. VIA Resume opens correctly.
+14. Resume uses actual saved profile information.
+15. Preview works.
+16. PDF download works.
+17. Experience, education, and certifications are ordered correctly.
+18. PDF text is selectable and ATS-friendly.
+19. Arabic content renders correctly.
+
+### Personal Information
+
+20. Previously saved values load correctly.
+21. Legal name displays correctly.
+22. Birthday displays correctly.
+23. Email displays correctly.
+24. Mobile country code and number display correctly.
+25. Address displays correctly.
+26. Gender displays correctly.
+27. Authorized edits persist after refresh and login.
+28. Email and mobile changes follow applicable verification rules.
+
+### Support & Settings
+
+29. Information icon opens Support & Settings.
+30. Chat with Support opens a real support integration or reports missing configuration.
+31. Email Us opens the configured email destination.
+32. FAQ opens and works.
+33. Report a Problem submits to the actual support backend.
+34. Settings opens correctly.
+35. Language and account security settings remain functional.
+
+### Regression
+
+36. Mobile navigation remains Swipe | Dashboard | Profile.
+37. Desktop layout remains unchanged.
+38. Existing signup and login continue working.
+39. Existing profile data remains intact.
+40. Existing credits and subscriptions remain intact.
+41. No infinite loading screens.
+42. English and Arabic localization work.
+43. Mobile responsiveness works across common screen sizes.
+
+Run TypeScript, lint, build, and relevant automated tests.
+
+Do not claim App Viewer tests passed unless actually executed.
+
+---
+
+# PART 10 — FINAL IMPLEMENTATION REPORT
+
+Provide an English-only report including:
+
+1. Mobile Profile layout changes.
+2. Account overview data integration.
+3. CV metadata and update date.
+4. Subscription Overview implementation.
+5. VIA Resume generation and PDF download.
+6. Personal Information implementation.
+7. Support & Settings navigation.
+8. Supabase persistence and security.
+9. Mobile responsiveness.
+10. Desktop regression results.
+11. Files changed.
+12. Tests passed, failed, or blocked.
+13. Any missing external support or billing integrations.
+
+## FINAL SUCCESS CONDITION
+
+The MatchMe mobile Job Seeker Profile page displays:
+
+- Official MatchMe logo at the top-left.
+- Functional information icon at the top-right.
+- Username, email, mobile number, and attached CV with last-updated date.
+- Subscription Overview.
+- VIA Resume.
+- Personal.
+
+The information icon opens a page containing Chat with Support, Email Us, FAQ, Report a Problem, and Settings.
+
+Subscription Overview shows the actual plan and upgrade options.
+
+VIA Resume generates a downloadable ATS-friendly PDF using the Job Seeker's real profile information.
+
+Personal opens the existing saved Legal Name, Birthday, Email, Mobile, Address, and Gender fields.
+
+All functionality must be connected to real backend data and preserve existing working MatchMe features.
+
+Implement the actual functionality, not only a visual mockup.

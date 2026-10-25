@@ -86,7 +86,7 @@ function usePersistedList<T>(name: string, seed: T[], normalize: (x: T) => T) {
     const isDemo=JSON.stringify(cached)===JSON.stringify(seed.map(normalize));
     const local=userId&&isDemo?[]:cached;
     setItems(local);
-    if (userId) void readHistory(name, userId).then(rows => { if (alive && rows !== null) { const next = rows.length?(rows as T[]).map(normalize):local; setItems(next); localStorage.setItem(key, JSON.stringify(next)); } }).catch(() => toast.error('Unable to load saved profile records.'));
+    if (userId) void readHistory(name, userId).then(rows => { if (alive && rows !== null) { const next = (rows as T[]).map(normalize); setItems(next); localStorage.setItem(key, JSON.stringify(next)); } }).catch(() => toast.error('Unable to load saved profile records.'));
     return () => { alive = false; };
   }, [key, userId, name]); // eslint-disable-line react-hooks/exhaustive-deps
   const commit = useCallback(async (next: T[]) => { if (userId) await writeHistory(name, userId, next, items); await persist(key, next); setItems(next); window.dispatchEvent(new Event('matchme:profile-changed')); }, [key, userId, name, items]);
@@ -343,7 +343,7 @@ export function ProfileView({ completion, onOpenPreferences }: { completion?: Re
             <SaveButton busy={saver.busy} onClick={onSave} />
           </div>
         </CardContent></Card>
-        <ResumeSection />
+        {!mobile && <ResumeSection />}
       </div>
     </div>
   );

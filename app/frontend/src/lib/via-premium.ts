@@ -46,7 +46,7 @@ export function viaSwipeReturn(jobId?: string) {
  return `/seeker?view=swipe${jobId ? `&job=${encodeURIComponent(jobId)}&via_return=1` : ''}`;
 }
 export function safeViaReturn(value: string | null) {
- try { const url = new URL(value || '/seeker?view=swipe', window.location.origin); return url.origin === window.location.origin && url.pathname === '/seeker' && url.searchParams.get('view') === 'swipe' ? `${url.pathname}${url.search}` : '/seeker?view=swipe'; }
+ try { const url = new URL(value || '/seeker?view=swipe', window.location.origin); return url.origin === window.location.origin && url.pathname === '/seeker' && (url.searchParams.get('view') === 'swipe' || url.searchParams.get('view') === 'subscription_overview') ? `${url.pathname}${url.search}` : '/seeker?view=swipe'; }
  catch { return '/seeker?view=swipe'; }
 }
 export function openBillingUrl(value: string, kind: 'checkout' | 'portal' = 'checkout') {

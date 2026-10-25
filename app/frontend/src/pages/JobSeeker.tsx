@@ -57,7 +57,7 @@ import { MobileBottomNav, type MobileNavTab } from '@/components/shared/MobileBo
 import { MobileDashboard } from '@/components/shared/MobileDashboard';
 import LegacyDashboard from '@/components/shared/LegacyDashboard';
 import { applicationStatus, recruitmentLabel } from '@/lib/recruitment-status';
-import { MobileAccountCenter } from '@/components/shared/MobileAccountCenter';
+import { MobileProfileAccount, MOBILE_ACCOUNT_SECTIONS } from '@/components/seeker/MobileProfileAccount';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuthStore } from '@/stores';
 import { logger } from '@/lib/logger';
@@ -138,7 +138,7 @@ const initialPortfolio: PortfolioItem[] = [
 // Navigation
 // ============================================================
 
-type NavSection = 'swipe' | 'dashboard' | 'profile' | 'cv' | 'experience' | 'education' | 'certificates' | 'skills' | 'languages' | 'portfolio' | 'video' | 'preferences' | 'saved' | 'applications' | 'matches' | 'messages' | 'notifications' | 'settings' | 'visibility' | 'exposure' | 'contact_requests' | 'who_viewed' | 'invitations';
+type NavSection = 'personal' | 'via_resume' | 'subscription_overview' | 'support' | 'faq' | 'report' | 'account_settings' | 'swipe' | 'dashboard' | 'profile' | 'cv' | 'experience' | 'education' | 'certificates' | 'skills' | 'languages' | 'portfolio' | 'video' | 'preferences' | 'saved' | 'applications' | 'matches' | 'messages' | 'notifications' | 'settings' | 'visibility' | 'exposure' | 'contact_requests' | 'who_viewed' | 'invitations';
 
 function SeekerNav({ activeTab, setActiveTab }: { activeTab: NavSection; setActiveTab: (tab: NavSection) => void }) {
   const { t, i18n } = useTranslation();
@@ -1263,30 +1263,16 @@ export default function JobSeeker() {
     );
   }
 
-  const handleMobileAccountNav = (section: string) => {
-    setActiveTab((section==='profile'?'cv':section) as NavSection);
-  };
-
   const renderContent = () => {
     // On mobile, dashboard tab shows MobileDashboard instead of desktop DashboardView
     if (isMobile && activeTab === 'dashboard') {
       return <MobileDashboard key={messageUserId || 'guest'} unreadMessages={unreadMessages} onNavigateToSection={(section) => setActiveTab(section as NavSection)} />;
     }
 
-    // On mobile, profile tab shows Account Center (all features within 3 taps)
-    if (isMobile && activeTab === 'profile' && showAccountCenter) {
-      return (
-        <MobileAccountCenter
-          onNavigateToSection={handleMobileAccountNav}
-          userName="Ahmed Hassan"
-          userEmail="ahmed@example.com"
-          profileCompletion={72}
-          subscriptionPlan="Premium"
-          unreadNotifications={0}
-          portalType="job_seeker"
-        />
-      );
+    if (isMobile && MOBILE_ACCOUNT_SECTIONS.includes(activeTab)) {
+      return <MobileProfileAccount section={activeTab}/>;
     }
+    if (isMobile && activeTab === 'settings') return <MobileProfileAccount section="account_settings"/>;
 
     switch(activeTab) {
       case 'swipe': return <SwipeView />;

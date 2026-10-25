@@ -1,5 +1,13 @@
 ## Task Breakdown
 
+| Mobile Job Seeker Profile redesign | Implementation | Validation |
+|---|---|---|
+| Canonical account/CV/support/PDF audit and data contract | done | done |
+| Private CV storage, owner profile updates and support-report persistence | done | done |
+| Mobile overview/Personal/subscription/support/settings navigation | done | blocked |
+| VIA Resume authorized data/PDF preview/download and EN/AR | done | blocked |
+| TypeScript/contracts/lint/build/database/viewer and English report | done | blocked |
+
 | Mobile Job Seeker Dashboard redesign | Implementation | Validation |
 |---|---|---|
 | Audit canonical statuses/dates/RLS and mobile/desktop wiring | done | done |
@@ -71,6 +79,7 @@
 | Approved legal sheets and required mobile A–W acceptance evidence | blocked | blocked |
 
 ## Progress Log
+- Mobile Profile implemented: real Auth/account overview, private CV/storage timestamp/signing, canonical subscription overview, deterministic selectable VIA PDF, owner conflict-safe Personal, ordered support/FAQ/persisted screenshot reports/settings; mobile Skills canonical and certificates/languages explicit server save. TypeScript/lint/build and103 Profile/navigation/Dashboard/VIA contracts plus rollback-only DB persistence/isolation PASS. Viewer guest-only; actual authenticated devices/CV HTTP/report/logout-login/billing unexecuted. Arabic shaping/text/glyph checks pass but raster feedback conflicts; visual reader acceptance BLOCKED. Official chat/email and secure login-phone change/deletion absent; no fake success. Report records13 requested sections; preserve desktop layout and existing balances/data.
 - Dashboard accepted: user confirms signed-in manual PASS for logo/search, All/Submitted, Skipped/Saved, recent/status/details, Saved actions, Pass reconsideration, mobile navigation and Arabic responsiveness; no issues. Combined with117 contracts/TypeScript/lint/build and rollback-only DB PASS, current scope ready for next phase. Preserve implementation; no closeout code/DB changes. Independent authenticated browser/per-width evidence and missing historical dates remain explicitly disclosed.
 - User confirms current Dashboard manual acceptance not tested yet; preserve implemented scope and passed117 contracts/TypeScript/lint/build/database evidence; signed-in mobile/RTL acceptance remains blocked pending observations, no completion or manual PASS claim.
 - Mobile Dashboard implemented: official compact header/search, four canonical counted categories/recent5/details/permitted actions, owner paginated debounced search; additive migration021 stages/future dates/history with legacy values/unknown dates preserved, Company authorized stage controls; desktop previous layout copied unchanged. TypeScript117 contracts lint/build and live rollback-only action/search/status/history/security tests PASS. Viewer guest-only grade1: no auth bypass/repeat unchanged check; signed-in320–412/RTL/browser acceptance BLOCKED, English report records exact limits.

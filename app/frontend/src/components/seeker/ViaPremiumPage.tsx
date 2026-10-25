@@ -14,6 +14,7 @@ export function ViaPremiumPage({ desktop = false }: { desktop?: boolean }) {
  const { i18n } = useTranslation(); const ar = i18n.language.startsWith('ar'); const copy = (en: string, arabic: string) => ar ? arabic : en;
  const uid = useAuthStore(s => s.userId); const navigate = useNavigate(); const location = useLocation();
  const query = new URLSearchParams(location.search); const back = safeViaReturn(query.get('return'));
+ const backLabel = back.includes('subscription_overview') ? copy('Back to Profile','العودة إلى الملف') : copy('Back to Swipe','العودة إلى التصفح');
  const premium = useViaPremium(uid, true);
  const [catalog, setCatalog] = useState<ViaCatalog | null>(null);
  const [selected, setSelected] = useState<ViaPlanId>('via_premium_yearly');
@@ -76,7 +77,7 @@ export function ViaPremiumPage({ desktop = false }: { desktop?: boolean }) {
  const savings = yearlySavings(catalog?.plans || []);
  const configuredPlans = catalog?.plans.filter(p => ['via_premium_monthly', 'via_premium_yearly'].includes(p.id)).sort((a, b) => a.billing_interval === 'month' ? -1 : b.billing_interval === 'month' ? 1 : 0) || [];
  return <section dir={ar ? 'rtl' : 'ltr'} className={desktop ? 'space-y-5' : 'min-h-dvh bg-background flex flex-col'}>
-  {!desktop && <header className="px-4 py-3 border-b flex items-center gap-3" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 12px)' }}><Button size="icon" variant="ghost" aria-label={copy('Back to Swipe', 'العودة إلى التصفح')} onClick={() => navigate(back)}><ArrowLeft className={ar ? 'rotate-180' : ''} size={20}/></Button><span className="font-semibold">MatchMe</span></header>}
+  {!desktop && <header className="px-4 py-3 border-b flex items-center gap-3" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 12px)' }}><Button size="icon" variant="ghost" aria-label={backLabel} onClick={() => navigate(back)}><ArrowLeft className={ar ? 'rotate-180' : ''} size={20}/></Button><span className="font-semibold">MatchMe</span></header>}
   <div className={desktop ? '' : 'w-full max-w-md mx-auto px-5 pt-7 pb-6 flex-1'}>
    <h1 className="text-2xl font-semibold leading-tight mb-7">{copy('Unlimited applications with VIA Premium', 'طلبات توظيف غير محدودة مع VIA Premium')}</h1>
    {existing ? <div className="rounded-2xl border p-5 space-y-3"><h2 className="font-semibold">VIA Premium</h2><p>{statusCopy[premium.subscription?.status || 'inactive']}</p><p className="text-sm text-muted-foreground">{premium.subscription?.plan === 'via_premium_yearly' ? copy('Yearly', 'سنوي') : copy('Monthly', 'شهري')}{premium.subscription?.current_period_end && ` · ${new Date(premium.subscription.current_period_end).toLocaleDateString(ar ? 'ar' : 'en')}`}</p><Button className="w-full h-12" disabled={busy} onClick={manage}>{copy('Manage Subscription', 'إدارة الاشتراك')}</Button></div> : <fieldset disabled={busy || pending || premium.loading} className="space-y-3"><legend className="sr-only">{copy('Select a subscription plan', 'اختر خطة الاشتراك')}</legend>
@@ -98,6 +99,6 @@ export function ViaPremiumPage({ desktop = false }: { desktop?: boolean }) {
    {query.get('via_session') && <Button variant="outline" className="!bg-transparent" disabled={busy} onClick={() => run(() => verify(query.get('via_session')!))}>{copy('Retry payment verification', 'إعادة التحقق من الدفع')}</Button>}
   </div>
   {!existing && !pending && <footer className={desktop ? 'space-y-2' : 'sticky bottom-0 bg-background border-t p-5 space-y-2'} style={{ paddingBottom: desktop ? undefined : 'calc(env(safe-area-inset-bottom) + 20px)' }}><Button className="h-12 w-full" disabled={busy || !loaded || premium.loading || !!premium.error || !catalog?.configured || !!nativeBridge()} onClick={checkout}>{busy ? copy('Please wait…', 'يرجى الانتظار…') : copy('Subscribe VIA Premium', 'اشترك في VIA Premium')}</Button><p className="flex items-center justify-center gap-1 text-xs text-muted-foreground"><ShieldCheck size={14}/>{copy('Secure checkout · USD', 'دفع آمن · دولار أمريكي')}</p></footer>}
-  {notice && !desktop && <Button className="m-5 h-12" onClick={() => navigate(back)}>{copy('Back to Swipe', 'العودة إلى التصفح')}</Button>}
+  {notice && !desktop && <Button className="m-5 h-12" onClick={() => navigate(back)}>{backLabel}</Button>}
  </section>;
 }

@@ -126,8 +126,17 @@ class ProfileService {
    * Upload CV/resume.
    */
   async uploadCV(userId: string, file: File) {
-    const path = `${userId}/${Date.now()}_${file.name}`;
-    return apiClient.uploadFile('cvs', path, file);
+    return apiClient.query<{ path: string; publicUrl: string }>('uploadCV', async () => {
+      const { data: { user }, error: authError } = await apiClient.auth.getUser();
+      if (authError || user?.id !== userId) throw new Error('Authentication required');
+      if (file.size > 10 * 1024 * 1024 || !/\.(pdf|doc|docx|txt)$/i.test(file.name)) throw new Error('CV must be PDF, DOC, DOCX or TXT, at most 10 MB.');
+      const path = `${userId}/${Date.now()}_${crypto.randomUUID()}_${file.name.replace(/[^\p{L}\p{N}._-]/gu,'_')}`;
+      const upload = await apiClient.storage.from('cvs').upload(path, file, { upsert: false });
+      if (upload.error) return {data: null, error: upload.error};
+      const saved = await apiClient.supabase.rpc('attach_profile_cv', { p_path: path, p_name: file.name }).abortSignal(AbortSignal.timeout(10000));
+      if (saved.error) return {data: null, error: saved.error};
+      return {data: {path, publicUrl: path}, error: null};
+    });
   }
 
   /**

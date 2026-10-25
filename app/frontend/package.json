@@ -52,6 +52,7 @@
     "framer-motion": "^12.42.2",
     "i18next": "^26.3.6",
     "input-otp": "^1.2.4",
+    "jspdf": "^4.2.1",
     "lucide-react": "^0.462.0",
     "markdown-to-jsx": "^9.7.13",
     "next-themes": "^0.3.0",

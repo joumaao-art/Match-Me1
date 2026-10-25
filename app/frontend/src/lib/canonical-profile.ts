@@ -3,11 +3,13 @@ import { normalizeEducation, normalizeExperience, type EducationRecord, type Exp
 
 const monthDate=(v:string)=>v ? `${v.slice(0,7).length===4?`${v.slice(0,4)}-01`:v.slice(0,7)}-01` : null;
 export async function readHistory(name:string,uid:string):Promise<unknown[]|null> {
+ if(name==='certificates'||name==='languages') { const r=await apiClient.supabase.from('job_seeker_profiles').select('professional_details').eq('user_id',uid).abortSignal(AbortSignal.timeout(10000)).single(); if(r.error)throw r.error; return r.data.professional_details?.[name]??null; }
  if(name!=='education'&&name!=='experience')return null;
  const r=await apiClient.supabase.from(name).select('*').eq('user_id',uid).abortSignal(AbortSignal.timeout(10000));if(r.error)throw r.error;
  return (r.data||[]).map(x=>name==='education'?normalizeEducation({id:x.id,institution:x.institution,degree:x.degree_code||x.degree,field:x.field_of_study,from:x.start_date,to:x.end_date,current:x.is_current,grade:x.grade,country:x.country,city:x.city}):normalizeExperience({id:x.id,title:x.job_title,company:x.company_name,type:x.employment_type,from:x.start_date,to:x.end_date,current:x.is_current,country:x.country,city:x.city,description:x.description,industry:x.industry}));
 }
 export async function writeHistory(name:string,uid:string,items:unknown[],previous:unknown[]):Promise<void> {
+ if(name==='certificates'||name==='languages') { const r=await apiClient.supabase.rpc('save_profile_section',{p_section:name,p_items:items}).abortSignal(AbortSignal.timeout(10000));if(r.error)throw r.error;return; }
  if(name!=='education'&&name!=='experience')return;
  const next=(items as {id:string}[]).map(x=>({...x,id:/^[0-9a-f-]{36}$/i.test(x.id)?x.id:crypto.randomUUID()}));
  const rows=next.map(raw=>{
