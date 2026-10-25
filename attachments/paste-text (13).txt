@@ -1,0 +1,331 @@
+# MATCHME — DESKTOP JOB SEEKER NAVIGATION & PROFILE CLEANUP
+## Remove Duplicate Logout | Move Subscription Overview & Preferences to Sidebar
+
+### OBJECTIVE
+
+Make three targeted adjustments to the existing MatchMe Job Seeker desktop interface.
+
+1. Remove the Logout button from the desktop Profile page.
+2. Move Subscription Overview from the desktop Profile page to the left sidebar.
+3. Move Preferences from the desktop Swipe page to the left sidebar.
+
+**IMPORTANT: These changes apply to the DESKTOP JOB SEEKER VIEW ONLY.**
+
+Do not change the mobile application, its navigation, layout, or functionality.
+
+Preserve all existing backend connections, Supabase records, and working features.
+
+---
+
+## 1. REMOVE LOGOUT FROM DESKTOP PROFILE PAGE
+
+The desktop currently displays two Logout buttons:
+
+- One at the bottom of the left sidebar.
+- One inside the Profile page, below the Subscription Overview, VIA Resume, and Personal buttons.
+
+### Required changes
+
+- Remove the Logout button located inside the desktop Profile page.
+- Keep the existing Logout button at the bottom of the left sidebar.
+- Preserve its existing red icon and styling.
+- Keep the Logout confirmation popup.
+- Preserve the existing Supabase sign-out functionality.
+- Do not change session management or authentication behavior.
+
+### Mobile exception
+
+The mobile Profile page must retain its existing Logout button.
+
+Do not remove, relocate, or redesign the mobile Logout button.
+
+---
+
+## 2. MOVE SUBSCRIPTION OVERVIEW TO DESKTOP SIDEBAR
+
+Currently, Subscription Overview appears as an action card inside the desktop Profile page.
+
+### Required changes
+
+Remove the Subscription Overview card from the desktop Profile page.
+
+Add a new clickable navigation item to the left sidebar labeled:
+
+**Subscription Overview**
+
+### Placement
+
+Position Subscription Overview directly below Profile in the desktop sidebar.
+
+### Functionality
+
+Clicking Subscription Overview must open the existing subscription overview experience.
+
+Preserve:
+
+- Current subscription plan.
+- Free or VIA Premium status.
+- Upgrade options.
+- Monthly subscription: $10.
+- Yearly subscription: $100.
+- Yearly Most Popular label.
+- Save 17% label.
+- Subscription renewal information.
+- Subscription management.
+- Existing checkout functionality.
+
+Do not create a duplicate subscription page or billing system.
+
+Reuse the existing subscription route, component, and backend services.
+
+### Sidebar design
+
+- Use a professional credit-card icon.
+- Match the existing sidebar typography and spacing.
+- Use the same active-state highlighting as Swipe, Dashboard, and Profile.
+- Make the entire navigation row clickable.
+
+### Mobile exception
+
+Subscription Overview must remain inside the mobile Profile page.
+
+Do not add Subscription Overview to the mobile bottom navigation.
+
+---
+
+## 3. MOVE PREFERENCES TO DESKTOP SIDEBAR
+
+Currently, Preferences is accessible through the desktop Swipe page.
+
+### Required changes
+
+Remove the Preferences icon/button from the desktop Swipe page header.
+
+Add a new clickable navigation item to the left sidebar labeled:
+
+**Preferences**
+
+### Placement
+
+Position Preferences directly below Subscription Overview.
+
+### Functionality
+
+Clicking Preferences must open the existing Job Seeker Preferences page.
+
+Preserve all current functionality, including:
+
+**Roles & Keywords**
+- Searchable autocomplete.
+- Multiple selections.
+- Maximum 10 selections.
+
+**Countries of Interest**
+- Searchable country dropdown.
+- Multiple selections.
+
+**Job Type**
+- Existing supported job-type selections.
+
+**Work Style**
+- Onsite.
+- Remote.
+- Hybrid.
+
+**Seniority Level**
+- Junior.
+- Mid.
+- Senior.
+
+Preserve the existing Save functionality and Supabase persistence.
+
+Do not reset existing preferences or create duplicate preference records.
+
+Ensure updated preferences continue influencing the existing matching and recommendation system.
+
+### Sidebar design
+
+- Use a professional sliders/settings icon.
+- Match existing sidebar styling.
+- Use the same active-state highlighting as other navigation items.
+- Make the entire navigation row clickable.
+
+### Mobile exception
+
+The mobile Swipe page must retain its existing Preferences icon.
+
+Do not move mobile Preferences to the bottom navigation or Profile page.
+
+---
+
+## 4. FINAL DESKTOP SIDEBAR STRUCTURE
+
+The desktop Job Seeker sidebar must follow this exact order:
+
+### Main Navigation
+
+1. Swipe
+2. Dashboard
+3. Profile
+4. Subscription Overview
+5. Preferences
+
+### Bottom Section
+
+6. Support & Settings
+7. Logout
+
+Keep Support & Settings and Logout anchored in the existing lower sidebar section.
+
+Do not duplicate these actions elsewhere in the desktop Profile page.
+
+Preserve the existing MatchMe logo, Job Seeker Portal heading, language control, and theme control at the top of the sidebar.
+
+Do not modify the sidebar width or overall desktop layout.
+
+---
+
+## 5. FINAL DESKTOP PROFILE PAGE
+
+After these changes, the desktop Profile page should contain:
+
+### Header
+- MatchMe logo.
+- Existing information icon.
+
+### Account Information
+- Username.
+- Email address.
+- Mobile number.
+- Attached CV.
+- CV last-updated date.
+- Existing CV upload or replacement functionality.
+
+### Profile Actions
+- VIA Resume.
+- Personal.
+
+Remove from the desktop Profile page:
+
+- Subscription Overview card.
+- Logout button.
+
+Do not remove the underlying features or account data.
+
+Maintain the current desktop spacing, alignment, typography, and visual style.
+
+If removing the two cards creates unnecessary empty space, adjust only the positioning of the remaining Profile actions without redesigning the page.
+
+---
+
+## 6. STRICT DESKTOP-ONLY IMPLEMENTATION
+
+Use desktop-specific rendering and navigation configuration.
+
+Do not make changes to shared components that unintentionally affect mobile.
+
+### Desktop changes allowed
+
+- Desktop sidebar navigation.
+- Desktop Profile action visibility.
+- Desktop Swipe header action visibility.
+- Desktop route navigation.
+- Desktop-specific styling where required.
+
+### Mobile changes prohibited
+
+- Mobile bottom navigation.
+- Mobile Swipe Preferences icon.
+- Mobile Profile Subscription Overview.
+- Mobile Profile Logout.
+- Mobile Profile layout.
+- Mobile popup behavior.
+- Mobile styling.
+
+If the project uses shared components, apply platform-specific visibility or component composition instead of deleting shared functionality.
+
+Do not rely solely on CSS hiding if that leaves obsolete interactive elements accessible to keyboard or screen readers.
+
+---
+
+## 7. NAVIGATION AND ROUTING
+
+Ensure:
+
+- Sidebar Subscription Overview opens the correct existing page.
+- Sidebar Preferences opens the correct existing page.
+- Active sidebar highlighting follows the current route.
+- Browser Back navigation works.
+- Refreshing either page works.
+- Direct navigation to the existing authorized routes works.
+- Authentication and Job Seeker permissions remain enforced.
+- No duplicate routes or conflicting navigation states are introduced.
+
+Do not delete existing backend services.
+
+---
+
+## 8. ACCEPTANCE TESTING
+
+Test the actual running application.
+
+### Desktop
+
+1. Profile page no longer displays Logout.
+2. Sidebar Logout remains visible and functional.
+3. Profile page no longer displays Subscription Overview.
+4. Sidebar displays Subscription Overview below Profile.
+5. Sidebar Subscription Overview opens correctly.
+6. Swipe page no longer displays the Preferences icon.
+7. Sidebar displays Preferences below Subscription Overview.
+8. Sidebar Preferences opens correctly.
+9. Preferences can be edited and saved.
+10. VIA Resume remains accessible from Profile.
+11. Personal remains accessible from Profile.
+12. Support & Settings remains accessible.
+13. Active navigation highlighting works.
+14. No duplicate navigation actions remain.
+15. Desktop layout remains professional and responsive.
+
+### Mobile regression tests
+
+16. Mobile Profile still displays Subscription Overview.
+17. Mobile Profile still displays Logout.
+18. Mobile Swipe still displays Preferences.
+19. Mobile bottom navigation remains Swipe | Dashboard | Profile.
+20. No mobile layout changes occur.
+
+### Backend
+
+21. Existing subscription records remain intact.
+22. Existing preferences remain intact.
+23. Logout uses the existing authentication service.
+24. No account information is deleted or reset.
+
+Run relevant TypeScript, lint, build, and navigation tests.
+
+Do not claim App Viewer tests passed unless they were actually executed.
+
+---
+
+## FINAL SUCCESS CONDITION
+
+The desktop Job Seeker sidebar contains:
+
+**Swipe → Dashboard → Profile → Subscription Overview → Preferences**
+
+The lower sidebar retains:
+
+**Support & Settings → Logout**
+
+The desktop Profile page contains only:
+
+**VIA Resume → Personal**
+
+The desktop Swipe page no longer displays the Preferences icon.
+
+All relocated actions remain fully functional.
+
+The mobile Job Seeker experience remains completely unchanged.
+
+Implement these changes directly in the existing MatchMe project and provide a concise English-only implementation report.

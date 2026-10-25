@@ -1,5 +1,13 @@
 ## Task Breakdown
 
+| Desktop navigation/Profile targeted cleanup | Implementation | Validation |
+|---|---|---|
+| Five-item sidebar, two Profile actions and Swipe header cleanup | done | done |
+| Mobile/source preservation, navigation contracts, TypeScript/lint/build and viewer report | done | done |
+| Authenticated desktop/mobile navigation, save, checkout and sign-out acceptance | done | blocked |
+
+Validation: 247 source/unit contracts passed (including 56 protected-source hashes); TypeScript, lint and build passed. Running viewer rendered guest landing only; authenticated acceptance and live record preservation were not verified. No backend/schema/data/auth/billing writes were performed.
+
 | Mobile → Desktop Job Seeker parity | Implementation | Validation |
 |---|---|---|
 | Current-source mobile/desktop feature matrix and read-only baselines | done | done |

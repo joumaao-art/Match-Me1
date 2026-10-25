@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Info, ChevronRight, CreditCard, FileText, User, Upload, Download } from 'lucide-react';
+import { Sparkles, Info, ChevronRight, FileText, User, Upload, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/stores';
 import { profileService } from '@/services/profile.service';
@@ -10,7 +10,6 @@ import { generateResume } from '@/lib/via-resume';
 import { useViaPremium, openBillingUrl } from '@/lib/via-premium';
 import { subscriptionService } from '@/services/subscription.service';
 import { PersonalInformationForm } from './PersonalInformation';
-import { DesktopProfileLogout } from './DesktopProfileLogout';
 import { DesktopSupport } from './DesktopSupport';
 
 export const MOBILE_ACCOUNT_SECTIONS=['skills','profile','personal','via_resume','subscription_overview','support','faq','report','account_settings'];
@@ -48,7 +47,7 @@ function Overview({account,onNavigate,onUpdated}:{account:AccountSnapshot;onNavi
   <div><dt className="text-xs text-muted-foreground mb-1">{copy('Attached CV','السيرة الذاتية المرفقة')}</dt><dd>{cv?<><button disabled={busy} onClick={()=>void open()} className="min-h-11 text-start text-primary font-medium text-sm break-all underline underline-offset-4">{cv.name}</button><p className="text-xs text-muted-foreground">{copy('Last updated: ','آخر تحديث: ')}{cv.updatedAt?new Date(cv.updatedAt).toLocaleDateString(lang,{day:'numeric',month:'long',year:'numeric'}):copy('Date not recorded','التاريخ غير مسجل')}</p></>:<p className="text-sm">{cvError||account.profile.cv_url?copy('CV could not be verified. Retry loading your account.','تعذر التحقق من السيرة. أعد تحميل الحساب.'):copy('No CV uploaded','لم يتم رفع سيرة ذاتية')}</p>}
    <div className="flex gap-2 mt-2"><Button variant="ghost" className="px-0 h-11 text-primary" disabled={busy} onClick={()=>input.current?.click()}><Upload size={16} className="me-2"/>{cv?copy('Replace CV','استبدال السيرة'):copy('Add CV','إضافة سيرة')}</Button>{cv&&<Button variant="ghost" disabled={busy} onClick={()=>void open(true)}><Download size={16} className="me-2"/>{copy('Download','تنزيل')}</Button>}</div><input ref={input} type="file" className="hidden" aria-label={copy('Upload CV','رفع السيرة')} accept=".pdf,.doc,.docx,.txt" onChange={e=>{const f=e.target.files?.[0];e.target.value='';if(f)void upload(f);}}/><p className="text-xs text-muted-foreground">{copy('Original document · PDF, DOC, DOCX or TXT · up to 10 MB','الملف الأصلي · PDF أو DOC أو DOCX أو TXT · حتى 10 ميغابايت')}</p></dd></div>
  </dl>{error&&<p role="alert" className="text-destructive text-sm mb-4">{error}</p>}{preview&&<div className="mb-5 space-y-2"><iframe title={copy('Original CV preview','معاينة السيرة الأصلية')} src={preview} className="w-full h-80 border rounded-lg"/><p className="text-xs text-muted-foreground">{copy('If this document format cannot be previewed, use Download.','إذا تعذرت معاينة هذا النوع من الملفات، استخدم التنزيل.')}</p><Button variant="ghost" onClick={()=>setPreview('')}>{copy('Close preview','إغلاق المعاينة')}</Button></div>}
- <nav className="grid grid-cols-3 gap-4"><AccountRow icon={CreditCard} label={copy('Subscription Overview','نظرة عامة على الاشتراك')} onClick={()=>onNavigate('subscription_overview')}/><AccountRow icon={FileText} label="VIA Resume" onClick={()=>onNavigate('via_resume')}/><AccountRow icon={User} label={copy('Personal','المعلومات الشخصية')} onClick={()=>onNavigate('personal')}/></nav><DesktopProfileLogout uid={account.uid}/></>;
+ <nav className="grid grid-cols-2 gap-4"><AccountRow icon={FileText} label="VIA Resume" onClick={()=>onNavigate('via_resume')}/><AccountRow icon={User} label={copy('Personal','المعلومات الشخصية')} onClick={()=>onNavigate('personal')}/></nav></>;
 }
 function SubscriptionOverview({uid}:{uid:string}){
  const {copy,lang}=useAccountCopy();const premium=useViaPremium(uid,true);const navigate=useNavigate();const [busy,setBusy]=useState(false);const [error,setError]=useState('');const lock=useRef(false);

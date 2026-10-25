@@ -13,7 +13,9 @@ For Job Seeker features, mobile is the authoritative product reference. Desktop 
 - Company and Super Admin are excluded unless separately approved.
 
 ## Current integration
-Primary destinations are Swipe, Dashboard and Profile. Applications/Saved/Skipped live within Dashboard; original CV, VIA Resume, Personal and subscriptions within Profile. Preferences opens from Swipe or Settings; Experience/Education/Certificates/Skills/Languages and current mobile privacy tools remain in Settings. Retired desktop bookmarks redirect without deleting records.
+Mobile primary destinations remain Swipe, Dashboard and Profile. Mobile Subscription Overview and Logout remain within Profile; mobile Preferences remains accessible from Swipe. Explicitly approved desktop-only navigation is Swipe → Dashboard → Profile → Subscription Overview → Preferences, with Support & Settings → Logout in the existing footer. Desktop Profile overview actions are VIA Resume → Personal; desktop Swipe has no Preferences control. Reuse existing authorized subscription/preferences routes and services; preserve desktop sidebar width, branding, language/theme controls and all mobile source/layout/behavior.
+
+Applications/Saved/Skipped remain within Dashboard; original CV, VIA Resume and Personal remain within Profile. Experience/Education/Certificates/Skills/Languages and current privacy tools remain in Settings. Retired desktop bookmarks redirect without deleting records.
 
 ## Billing purchase path
 Desktop Swipe Credits dialog → `/seeker/subscription` → existing `createCheckoutSession` / `create_payment_session` provider boundary → original success/cancel return carrying `via_session` / `via_cancelled` → existing `verifyPayment` / `verify_payment`. Only backend/provider verification owns Premium. Current monthly/yearly catalog, welcome allocation, Pass deductions and Apply exemption are unchanged.

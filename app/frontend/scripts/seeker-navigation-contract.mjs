@@ -11,6 +11,9 @@ try {
     test(`${tab} route round trips`, () => { const url = new URL(nav.seekerSectionUrl(tab), 'https://example.com'); assert.equal(nav.seekerSection(url.pathname, url.search), tab); });
     test(`${tab} highlights its own destination`, () => assert.equal(nav.activeSeekerMobileTab(tab), tab));
   }
+  for (const section of ['subscription_overview', 'preferences']) {
+    test(`${section} existing query route round trips`, () => { const url = new URL(nav.seekerSectionUrl(section), 'https://example.com'); assert.equal(nav.seekerSection(url.pathname, url.search), section); });
+  }
   for (const section of ['cv','experience','education','certificates','skills','languages','preferences','settings']) test(`${section} highlights Profile`, () => assert.equal(nav.activeSeekerMobileTab(section), 'profile'));
   for (const section of ['applications','matches','saved']) test(`${section} highlights Dashboard`, () => assert.equal(nav.activeSeekerMobileTab(section), 'dashboard'));
   test('Messages never highlights an unrelated tab', () => assert.equal(nav.activeSeekerMobileTab('messages'), null));
