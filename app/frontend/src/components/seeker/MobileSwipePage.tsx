@@ -31,7 +31,7 @@ export function MobileSwipePage({job,loading,error,balance,busy,premium,onCredit
    if(direction==='right'&&completion.percentage!==null&&completion.percentage<100){navigate('/seeker?view=cv&complete=1');return false;}
    return direction==='left'?onPass():onApply();
  };
- return <section className="flex-1 min-h-0 flex flex-col px-4 pb-3 overflow-hidden" style={{paddingTop:'calc(env(safe-area-inset-top) + 8px)'}}>
+ return <section className="flex-1 min-h-0 flex flex-col px-4 pb-3 overflow-hidden w-full max-w-3xl mx-auto" style={{paddingTop:'calc(env(safe-area-inset-top) + 8px)'}}>
    <header dir="ltr" className="flex items-center justify-between gap-2 shrink-0">
      <div className="flex items-center gap-2 min-w-0" aria-label="MatchMe"><span className="h-8 w-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shrink-0"><Sparkles size={20}/></span><span className="font-semibold text-sm">MatchMe</span></div>
      <div className="flex items-center gap-1">

@@ -1,3 +1,4 @@
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslation } from 'react-i18next';
 import { Home, PanelsTopLeft, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -11,9 +12,11 @@ export function MobileBottomNav({ activeTab, onTabChange, className }: {
   className?: string;
 }) {
   const { t, i18n } = useTranslation();
+  const mobile = useIsMobile();
   const current = activeSeekerMobileTab(activeTab);
-  return <nav aria-label={t('main_navigation')} className={cn('fixed bottom-0 inset-x-0 z-40 md:hidden bg-background border-t border-border pb-[env(safe-area-inset-bottom,0px)]', className)}>
-    <div dir="ltr" className="grid grid-cols-3 h-16">
+  if (!mobile) return null;
+  return <nav aria-label={t('main_navigation')} className={cn('fixed bottom-0 inset-x-0 z-40 bg-background border-t border-border pb-[env(safe-area-inset-bottom,0px)]', className)}>
+    <div dir="ltr" className="grid grid-cols-3 h-16 max-w-2xl mx-auto">
       {SEEKER_MOBILE_TABS.map(item => {
         const Icon = icons[item.id];
         const active = current === item.id;

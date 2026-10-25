@@ -1,5 +1,14 @@
 ## Task Breakdown
 
+| Mobile compatibility (attachment20) | Implementation | Validation |
+|---|---|---|
+| Audit existing Expo/WebView, web layout, auth, files, notifications and release configuration | done | done |
+| Keep native/mobile-started seeker layouts stable on resize; preserve desktop/Company/Admin | done | done |
+| Android shell: fail closed instead of mock fallback, lateral safe areas, resize configuration | done | blocked |
+| Source regression checks, web lint/build and available visual check | done | done |
+| English eighteen-section readiness report and device/22-check matrix | done | done |
+| Signed Android/iOS builds, authenticated device acceptance and store submission | blocked | blocked |
+
 | Deterministic Improve My Match (attachment19) | Implementation | Validation |
 |---|---|---|
 | Remove external AI integration and labels; explicit taxonomy/CRM normalization | done | done |
@@ -17,6 +26,7 @@
 | Real Company→published vacancy→authenticated Seeker and twenty-check English report | done | blocked |
 
 ## Progress Log
+- Attachment20 targeted compatibility complete: canonical native WebView/compact candidate layout retained on expansion, bounded Swipe/Dashboard/nav, Android orientation/keyboard/backup/lateral-safe-area safeguards and honest missing-origin root.185 completed web policy/source contracts, lint/build and guest desktop rendering passed; historical appearance suite remains failed on later hash mismatch. Native iOS unsupported, all native builds/devices and22 authenticated checks blocked; eighteen-section report records secure-session/push/files/OAuth/hinge/billing/store gaps. No Supabase, auth, matching, prices or production mutations.
 - Attachment19 supersedes AI scope: external SDK/model/key code removed, deterministic endpoint version2 ACTIVE, shared explicit CRM taxonomy/provider boundary, required-first five suggestions and individual possession confirmation.62 contracts/TypeScript/lint/build,7 rollback SQL/credit assertions and live204/401 PASS. Viewer guest-only;13 actual signed-in workflows unverified, English deterministic report saved. No table-shape/credit/action/Company/Admin changes.
 - VIA assistant implemented/deployed ACTIVE: optional shared EN/AR review on active mobile/desktop cards, private cache/rate-limited owner review, confirmed atomic canonical merge, actual unchanged-engine score refresh/current-card retention.48 contracts, TypeScript/lint/build,11 rollback SQL safeguards, credit-account equality and live OPTIONS204/anonymous401 PASS. Viewer guest-only;20 real authenticated checks and live gpt-5.4 blocked (key skipped). English report records limits; no committed profile/test-job/credit mutations.
 - OpenAI key was explicitly skipped by the user; implement authenticated deterministic fallback plus optional configured gpt-5.4 extraction/evidence path, and report live provider validation blocked without inventing AI success.

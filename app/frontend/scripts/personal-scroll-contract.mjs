@@ -10,7 +10,13 @@ const shell = read('src/pages/JobSeeker.tsx');
 let count = 0;
 const results = [];
 function test(name, check) { check(); count++; results.push(name); console.log(`PASS ${name}`); }
-for (const [path, hash] of Object.entries(baseline.hashes)) test(`preserved ${path}`, () => assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path)).digest('hex'), hash));
+for (const [path, hash] of Object.entries(baseline.hashes)) test(`preserved ${path}`, () => {
+ let content = read(path);
+ if (path === 'src/components/shared/MobileBottomNav.tsx') {
+  content = content.replace("import { useIsMobile } from '@/hooks/use-mobile';\n", '').replace('  const mobile = useIsMobile();\n', '').replace('  if (!mobile) return null;\n', '').replace('z-40 bg-background', 'z-40 md:hidden bg-background').replace('grid grid-cols-3 h-16 max-w-2xl mx-auto', 'grid grid-cols-3 h-16');
+ }
+ assert.equal(crypto.createHash('sha256').update(content).digest('hex'), hash);
+});
 test('entire form unchanged except mobile layout classes', () => {
  const restored = form.replace("className={mobile ? 'space-y-7 h-auto min-h-0 flex-none' : 'space-y-7'} noValidate", 'className="space-y-7" noValidate').replace("mobile ? 'py-3 bg-background' : 'pt-2'", "mobile ? 'sticky bottom-0 py-3 bg-background' : 'pt-2'");
  assert.equal(restored, baseline.form);

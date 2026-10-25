@@ -1,0 +1,669 @@
+# MATCHME — COMPLETE iOS & ANDROID MOBILE COMPATIBILITY
+## Including iPhone Duo, Android Foldables, Native Builds and App Store Readiness
+
+**PRIORITY: CRITICAL — CROSS-PLATFORM MOBILE READINESS**
+
+### PRIMARY OBJECTIVE
+
+Make the existing MatchMe mobile application fully compatible with:
+
+- Apple iPhone devices.
+- Apple iPhone Duo.
+- Android smartphones.
+- Android foldable smartphones.
+- Supported tablets and larger mobile displays.
+
+The goal is to maintain **one cross-platform mobile application** that provides a consistent, fully functional Job Seeker experience on both iOS and Android.
+
+MatchMe must retain its existing web application, Company portal, Super Admin portal, and Supabase backend.
+
+**Do not rebuild the application from scratch.**
+
+**Do not change existing working functionality unnecessarily.**
+
+**Do not replace the existing Expo/React Native architecture unless a technical limitation makes it unavoidable, and report that limitation before making any architectural migration.**
+
+---
+
+# PHASE 1 — COMPLETE ARCHITECTURE AUDIT
+
+Before implementing anything, inspect the actual MatchMe project.
+
+Determine:
+
+1. Current Expo SDK version.
+2. Current React Native version.
+3. Existing iOS support.
+4. Existing Android support.
+5. Current native dependencies.
+6. Current navigation architecture.
+7. Existing Supabase configuration.
+8. Authentication implementation.
+9. File upload implementation.
+10. Push notification implementation.
+11. Responsive layout architecture.
+12. Build and deployment configuration.
+
+Identify which capabilities are already working.
+
+**Do not rebuild features that already work.**
+
+Provide a short implementation plan based on the actual project architecture.
+
+Proceed with safe, supported changes. If a major migration is required, explain why and request approval first.
+
+---
+
+# PHASE 2 — NATIVE iOS COMPATIBILITY
+
+Ensure MatchMe can run as a native iOS application.
+
+Support current iOS versions and devices compatible with the selected, supported Expo SDK.
+
+Requirements:
+
+- Proper iOS project configuration.
+- Compatible native dependencies.
+- Correct application identifier.
+- Application display name: MatchMe.
+- Proper launch and splash screens.
+- Native safe-area handling.
+- Native keyboard behavior.
+- Native scrolling.
+- Touch gestures.
+- File selection and uploads.
+- Secure session storage.
+- Deep linking.
+- Permission handling.
+- System appearance support.
+- English and Arabic localization.
+
+Ensure the application can produce a valid iOS build using the supported Expo/EAS build process.
+
+Do not claim App Store readiness without successfully validating the relevant build and submission requirements.
+
+---
+
+# PHASE 3 — NATIVE ANDROID COMPATIBILITY
+
+Ensure MatchMe remains fully functional on Android.
+
+Requirements:
+
+- Correct Android application configuration.
+- Compatible Android SDK and dependencies.
+- Appropriate Android API-level support.
+- Correct application identifier.
+- Proper keyboard handling.
+- System navigation compatibility.
+- Back button behavior.
+- File selection and uploads.
+- Secure authentication storage.
+- Notification permissions.
+- Responsive layouts.
+- Light and Dark Mode.
+- English and Arabic support.
+
+Ensure the project can produce an Android App Bundle suitable for Google Play submission.
+
+Do not break existing Android functionality while implementing iOS support.
+
+---
+
+# PHASE 4 — IPHONE DUO COMPATIBILITY
+
+Use Apple's official documentation:
+
+https://developer.apple.com/documentation/technologyoverviews/preparing-your-app-for-iphone-duo
+
+Implement supported iPhone Duo compatibility requirements.
+
+### Folded Configuration
+
+Preserve the existing MatchMe mobile interface.
+
+### Unfolded Configuration
+
+Adapt the interface to the available screen width.
+
+Do not simply stretch all existing elements.
+
+Use responsive containers and appropriate maximum widths.
+
+### Dynamic Resizing
+
+Support:
+
+- Folding.
+- Unfolding.
+- Window resizing.
+- Supported orientation changes.
+- Multitasking configurations.
+
+Preserve the current screen and user activity during transitions.
+
+### State Preservation
+
+Do not reset:
+
+- Current job card.
+- Authentication session.
+- Profile form entries.
+- Onboarding progress.
+- Application drafts.
+- Saved preferences.
+- Opened job details.
+
+Do not trigger duplicate applications or credit deductions when the device changes configuration.
+
+### Native SDK Support
+
+Audit compatibility with the Apple SDK required for the optimized iPhone Duo experience.
+
+If the current Expo/React Native toolchain cannot support the necessary SDK, document the limitation.
+
+Do not force unsupported dependency upgrades.
+
+---
+
+# PHASE 5 — ANDROID FOLDABLE COMPATIBILITY
+
+Implement responsive support for Android foldable devices.
+
+Include configurations similar to:
+
+- Samsung Galaxy Z Fold.
+- Google Pixel Fold.
+- Other compatible Android foldables.
+
+Support:
+
+- Folded displays.
+- Unfolded displays.
+- Window resizing.
+- Multi-window mode.
+- Supported orientation changes.
+- Variable aspect ratios.
+- Display cutouts.
+- Hinge and folding features where exposed by supported APIs.
+
+Do not assume all foldable devices have the same screen dimensions.
+
+Avoid placing important controls across physical hinge or occlusion regions.
+
+If hinge posture information is unavailable through the existing framework, use responsive window dimensions and safe areas as a fallback.
+
+---
+
+# PHASE 6 — RESPONSIVE DESIGN SYSTEM
+
+Implement a reusable cross-platform responsive layout system.
+
+Use available window dimensions rather than fixed physical device dimensions.
+
+Support:
+
+**Compact layouts**
+- Conventional smartphones.
+- Folded devices.
+- Narrow application windows.
+
+**Expanded layouts**
+- Unfolded devices.
+- Larger mobile screens.
+- Supported tablet configurations.
+
+Do not automatically replace the mobile experience with the desktop web portal when the display becomes wider.
+
+Preserve the existing MatchMe mobile design language.
+
+---
+
+# PHASE 7 — COMPLETE JOB SEEKER FUNCTIONALITY
+
+Verify that all existing Job Seeker features work on both platforms.
+
+### Authentication and Onboarding
+
+- Signup.
+- Login.
+- Logout.
+- Password recovery.
+- Email verification.
+- Supported Apple sign-in.
+- Supported Google sign-in.
+- Supported phone verification.
+- Profile onboarding.
+- Resume upload.
+- Profile completion.
+
+For social sign-in, audit existing provider configuration, native redirect handling, and Supabase authentication.
+
+Do not replace working authentication flows.
+
+### Swipe Experience
+
+- Real published vacancies.
+- Match percentage.
+- Job details.
+- Pass.
+- Save.
+- Apply.
+- Undo.
+- Share.
+- Preferences.
+- Credits.
+- Improve My Match.
+- Skill confirmation and saving.
+
+### Dashboard
+
+- All Applications.
+- Submitted Applications.
+- Skipped Jobs.
+- Saved Jobs.
+- Application status tracking.
+- Search and filters where implemented.
+
+### Profile
+
+- Personal Information.
+- Identity.
+- Contact.
+- Compensation.
+- Gender.
+- Experience.
+- Education.
+- Certifications.
+- Skills.
+- Languages.
+- Resume management.
+- VIA Resume.
+- Subscription Overview.
+- Settings.
+- Logout.
+
+### Other Existing Features
+
+Verify:
+
+- Messaging.
+- Notifications.
+- Support.
+- Language selection.
+- Light Mode.
+- Dark Mode.
+- System Default.
+- Account security.
+- Existing premium features.
+
+All features must use real backend data.
+
+Do not introduce mock functionality or placeholder actions.
+
+---
+
+# PHASE 8 — SUPABASE INTEGRATION
+
+Both native applications must connect to the same existing Supabase project.
+
+Requirements:
+
+- Shared authentication identities.
+- Shared Job Seeker profiles.
+- Shared skills.
+- Shared preferences.
+- Shared applications.
+- Shared saved jobs.
+- Shared subscriptions.
+- Shared credits.
+- Shared messages.
+
+A candidate signing into MatchMe on iOS and Android must access the same account and data.
+
+Use secure session persistence appropriate to each platform.
+
+Maintain existing RLS policies.
+
+Do not expose service-role credentials or other privileged secrets in mobile builds.
+
+Do not modify production data unnecessarily.
+
+---
+
+# PHASE 9 — NATIVE DEVICE CAPABILITIES
+
+Audit and implement the platform-specific integration required for existing features.
+
+### Resume and Document Uploads
+
+Support native file selection on iOS and Android.
+
+Validate:
+
+- PDF selection.
+- Supported document formats.
+- Upload progress.
+- Upload errors.
+- File replacement.
+- Secure storage.
+- File preview.
+- Downloads.
+
+### Camera and Photos
+
+If an existing feature requires camera or photo access, implement the appropriate native permissions and selection flow.
+
+Do not request permissions unrelated to existing functionality.
+
+### Push Notifications
+
+Support native push notifications for relevant MatchMe events, subject to user permission.
+
+Examples:
+
+- New messages.
+- Application updates.
+- Interview invitations.
+- Relevant job alerts.
+
+Audit existing notification infrastructure before implementing new services.
+
+Use supported Expo notification capabilities where appropriate.
+
+Do not introduce duplicate notifications.
+
+### Deep Linking
+
+Ensure supported links can open the correct destination in the native application.
+
+Examples:
+
+- Job vacancies.
+- Messages.
+- Application details.
+- Authentication callbacks.
+
+Preserve authorization checks.
+
+---
+
+# PHASE 10 — APPLE AND GOOGLE SIGN-IN
+
+Verify native authentication compatibility.
+
+### Apple
+
+Ensure Sign in with Apple works correctly where offered and required.
+
+### Google
+
+Ensure Google sign-in works correctly on both platforms.
+
+### Phone
+
+Ensure existing phone verification supports international country codes and appropriate verification flows.
+
+All authentication methods must connect to the existing Supabase user identity system.
+
+Prevent duplicate accounts caused by inconsistent provider identity handling.
+
+Do not change working signup or onboarding behavior unnecessarily.
+
+---
+
+# PHASE 11 — MOBILE NAVIGATION
+
+Preserve the existing mobile Job Seeker navigation:
+
+**Swipe | Dashboard | Profile**
+
+Ensure navigation works consistently on both platforms.
+
+Support:
+
+- Android system Back.
+- iOS back navigation.
+- Deep links.
+- Keyboard dismissal.
+- Modal dismissal.
+- Foldable display resizing.
+
+Navigation must remain accessible without overlapping device controls.
+
+Do not introduce duplicate Logout buttons or obsolete desktop navigation elements.
+
+---
+
+# PHASE 12 — TOUCH, HOVER AND ACCESSIBILITY
+
+Mobile interfaces must not depend on mouse hover.
+
+Ensure:
+
+- All icons remain visible.
+- Touch targets are accessible.
+- Buttons respond to the first tap.
+- Swipe gestures remain reliable.
+- Tooltips do not interfere with touch actions.
+- Screen reader labels are available.
+- Focus indicators work with keyboards where relevant.
+- Text scaling is supported without breaking essential layouts.
+
+Preserve the previously implemented icon contrast and tooltip improvements.
+
+---
+
+# PHASE 13 — PERFORMANCE
+
+Optimize the application for smooth mobile operation.
+
+Focus on:
+
+- Fast startup.
+- Efficient navigation.
+- Smooth swipe animations.
+- Low memory usage.
+- Efficient image loading.
+- Controlled Supabase queries.
+- Minimal unnecessary rerendering.
+- Stable fold/unfold transitions.
+- Reliable background/foreground restoration.
+
+Avoid adding unnecessary dependencies.
+
+Do not introduce new paid infrastructure without approval.
+
+---
+
+# PHASE 14 — LIGHT MODE, DARK MODE AND RTL
+
+Verify:
+
+- Light Mode.
+- Dark Mode.
+- System Default.
+- English.
+- Arabic.
+- RTL layouts.
+
+Appearance settings must work on both iOS and Android.
+
+Preserve saved preferences across devices where supported by the existing implementation.
+
+Ensure text, navigation, dialogs, forms, and icons remain correctly positioned.
+
+---
+
+# PHASE 15 — APP STORE AND GOOGLE PLAY READINESS
+
+Prepare the existing mobile project for eventual publication.
+
+### Apple App Store
+
+Audit:
+
+- iOS application identifier.
+- Signing requirements.
+- App icons.
+- Splash screen.
+- Permission descriptions.
+- Privacy requirements.
+- Authentication compliance.
+- In-app purchase requirements where applicable.
+- TestFlight build readiness.
+
+### Google Play
+
+Audit:
+
+- Android application identifier.
+- Signing configuration.
+- Android App Bundle generation.
+- Required permissions.
+- Privacy declarations.
+- Target API requirements.
+- Internal testing readiness.
+- Billing requirements where applicable.
+
+### Important Subscription Requirement
+
+MatchMe includes VIA Premium and other subscription-related functionality.
+
+Audit whether the existing payment implementation complies with Apple's and Google's applicable rules for digital subscriptions.
+
+Do not assume an existing web checkout can be used unchanged inside native applications.
+
+Do not replace the existing payment system or introduce a billing provider without reporting the required changes and requesting approval.
+
+---
+
+# PHASE 16 — TESTING MATRIX
+
+Perform testing on actual supported environments.
+
+### iOS
+
+- Conventional iPhone.
+- Small-screen iPhone.
+- Large-screen iPhone.
+- iPhone Duo folded.
+- iPhone Duo unfolded.
+- Supported iOS simulator configurations.
+
+### Android
+
+- Small Android smartphone.
+- Standard Android smartphone.
+- Large Android smartphone.
+- Android foldable folded.
+- Android foldable unfolded.
+- Supported Android emulator configurations.
+
+### Functional Testing
+
+Verify:
+
+1. Signup.
+2. Login.
+3. Onboarding.
+4. Swipe.
+5. Apply.
+6. Pass.
+7. Save.
+8. Credits.
+9. Improve My Match.
+10. Dashboard.
+11. Profile editing.
+12. CV upload.
+13. Messaging.
+14. Notifications.
+15. Subscriptions.
+16. Settings.
+17. Logout.
+18. English and Arabic.
+19. Light and Dark Mode.
+20. Session persistence.
+21. Dynamic resizing.
+22. Fold/unfold state preservation.
+
+Test with authenticated accounts and real Supabase data.
+
+Do not claim native device compatibility based solely on a responsive web preview.
+
+If simulator access, signing credentials, or native builds are unavailable, mark the affected tests as BLOCKED.
+
+Do not fabricate results.
+
+---
+
+# PHASE 17 — REGRESSION PROTECTION
+
+The following must remain unchanged unless a verified compatibility issue requires a targeted fix:
+
+- Existing MatchMe branding.
+- Desktop Job Seeker layout.
+- Company portal.
+- Super Admin portal.
+- Supabase database.
+- Matching algorithm.
+- Subscription prices.
+- Credits allocation.
+- Existing user accounts.
+- Existing application records.
+- Existing mobile navigation.
+- Working authentication.
+- Existing UI styling.
+
+Avoid unnecessary code rewrites.
+
+Do not change the mobile application name.
+
+---
+
+# PHASE 18 — FINAL IMPLEMENTATION REPORT
+
+Provide an English-only report with:
+
+1. Current architecture.
+2. iOS compatibility status.
+3. Android compatibility status.
+4. iPhone Duo compatibility status.
+5. Android foldable compatibility status.
+6. Native dependency updates.
+7. Responsive layout changes.
+8. Authentication test results.
+9. Supabase integration results.
+10. Push notification readiness.
+11. File upload readiness.
+12. Native build results.
+13. App Store readiness.
+14. Google Play readiness.
+15. Regression test results.
+16. Files modified.
+17. Remaining limitations.
+18. Actions requiring developer account access or approval.
+
+For each major capability, report:
+
+**PASS / FAIL / BLOCKED / NOT IMPLEMENTED**
+
+Do not describe an untested feature as fully compatible.
+
+---
+
+# FINAL SUCCESS CONDITION
+
+MatchMe operates as a cross-platform mobile application supporting iOS and Android.
+
+It adapts to conventional smartphones, iPhone Duo, and supported Android foldables.
+
+The same Job Seeker account and data work across devices.
+
+Existing Swipe, Dashboard, Profile, matching, messaging, credits, and subscription functionality remain intact.
+
+Native iOS and Android builds are validated where the development environment permits.
+
+The application is prepared for Apple App Store and Google Play publication, with any outstanding requirements explicitly documented.
+
+**Implement the necessary supported changes directly in the existing project while preserving all working functionality.**

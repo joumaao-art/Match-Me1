@@ -5,6 +5,7 @@ last_updated: 2026-10-25
 # Architecture Design
 
 ## System Overview
+Active attachment20: existing Android-only Expo57/RN0.86 WebView shell loads canonical web/Supabase experience. Shared candidate responsive policy preserves mobile subtree after expansion, bounded containers and three tabs; Android orientation/keyboard/backup/lateral-safe-area safeguards. No iOS config enabled. Native secure sessions/push/OAuth callback/files/hinge/billing and all device/build validation remain unavailable/unimplemented as detailed in readiness report.
 Existing MatchMe React/Vite/shadcn frontend at /workspace/app/frontend; Supabase Auth/PostgreSQL/RLS/Storage/Deno Edge Functions in project ykvlaakotyouojkdydzh. Preserve canonical unprefixed production tables. Active VIA assistant is implemented; live AI and authenticated acceptance remain blocked.
 
 ## Module Design

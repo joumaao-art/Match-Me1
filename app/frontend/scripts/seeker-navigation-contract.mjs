@@ -27,7 +27,7 @@ try {
   test('actual zero and positive unread counts accepted', () => { assert.equal(nav.accurateBadgeCount(0),0); assert.equal(nav.accurateBadgeCount(12),12); });
   const bar = await readFile('src/components/shared/MobileBottomNav.tsx', 'utf8');
   test('RTL preserves physical order with localized label direction', () => { assert.ok(bar.includes('dir="ltr"')); assert.ok(bar.includes("i18n.language.startsWith('ar') ? 'rtl' : 'ltr'")); });
-  test('bar is mobile-only and safe-area aware', () => { assert.ok(bar.includes('md:hidden')); assert.ok(bar.includes('safe-area-inset-bottom')); assert.ok(bar.includes('grid-cols-3 h-16')); });
+  test('bar is mobile-only and safe-area aware', () => { assert.ok(bar.includes('if (!mobile) return null')); assert.ok(bar.includes('safe-area-inset-bottom')); assert.ok(bar.includes('grid-cols-3 h-16')); });
   test('labels are unwrapped and targets accessible', () => { assert.ok(bar.includes('whitespace-nowrap')); assert.ok(bar.includes('min-h-11')); assert.ok(bar.includes('aria-current')); });
   test('bottom bar has no fabricated badges or Messages item', () => { assert.ok(!bar.includes('badges')); assert.ok(!bar.includes("id: 'messages'")); });
   const dashboard = await readFile('src/components/shared/MobileDashboard.tsx','utf8');

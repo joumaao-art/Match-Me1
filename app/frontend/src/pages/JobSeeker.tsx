@@ -1320,12 +1320,12 @@ export default function JobSeeker() {
   return (
     <div className="h-[100dvh] bg-background flex overflow-hidden">
       {/* Desktop sidebar - hidden on mobile */}
-      <aside className="hidden md:flex w-64 border-e border-border flex-col bg-sidebar-background">
+      <aside className={`${isMobile ? 'hidden' : 'hidden md:flex'} w-64 border-e border-border flex-col bg-sidebar-background`}>
         <DesktopSeekerNavigation active={activeTab} onNavigate={section=>{if(activeTab==='preferences'&&!window.dispatchEvent(new Event('matchme:before-preferences-leave',{cancelable:true})))return;setActiveTab(section as NavSection);}} />
       </aside>
 
       {/* Main content area — pb accounts for fixed MobileBottomNav on mobile */}
-      <main className={`flex-1 flex flex-col min-w-0 pb-[calc(4rem+env(safe-area-inset-bottom,0px))] md:pb-0${isMobile && activeTab==='personal' ? ' min-h-0' : ''}`}>
+      <main className={`flex-1 flex flex-col min-w-0 pb-[calc(4rem+env(safe-area-inset-bottom,0px))]${isMobile ? '' : ' md:pb-0'}${isMobile && activeTab==='personal' ? ' min-h-0' : ''}`}>
         {isMobile && !['dashboard','swipe','preferences'].includes(activeTab) && !(activeTab==='profile' && showAccountCenter) && <div className="flex items-center gap-2 px-4 py-2 border-b shrink-0"><BackButton fallbackRoute={seekerSectionUrl(['applications','matches','saved'].includes(activeTab)?'dashboard':'profile')} /></div>}
         {renderContent()}
       </main>

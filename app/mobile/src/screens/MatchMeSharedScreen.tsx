@@ -19,7 +19,7 @@ export function MatchMeSharedScreen({origin}:{origin:string}) {
  const external=(url:string)=>{try{const u=new URL(url);if(['https:','mailto:','tel:'].includes(u.protocol))void Linking.openURL(url).catch(()=>Alert.alert('MatchMe','Unable to open this link. / تعذر فتح الرابط.'));}catch{/* Reject invalid and executable URLs. */}};
  const respond=(id:string,status:string)=>web.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('matchme:native-share-result',{detail:${JSON.stringify({id,status})}}));true;`);
  if(!ready)return <ActivityIndicator accessibilityLabel="Loading MatchMe" style={{flex:1}}/>;
- return <View style={{flex:1,paddingTop:inset.top,paddingBottom:inset.bottom,backgroundColor:'#ffffff'}}>
+ return <View style={{flex:1,paddingTop:inset.top,paddingBottom:inset.bottom,paddingLeft:inset.left,paddingRight:inset.right,backgroundColor:'#ffffff'}}>
   <WebView ref={web} source={{uri}} style={{flex:1}} domStorageEnabled javaScriptEnabled mixedContentMode="never" allowFileAccess={false} originWhitelist={[origin]} setSupportMultipleWindows
    onShouldStartLoadWithRequest={request=>{try{if(new URL(request.url).origin===origin)return true;}catch{return false;}external(request.url);return false;}}
    onOpenWindow={event=>external(event.nativeEvent.targetUrl)}

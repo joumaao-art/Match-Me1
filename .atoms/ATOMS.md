@@ -11,6 +11,9 @@ MatchMe is an EN/AR React/Vite/shadcn recruitment app using existing Supabase pr
 ## Key Decisions
 | Decision | Rationale |
 |---|---|
+| Attachment20 supported scope | Cross-platform objective retained; implement shared web/Android improvements only, no unsupported iOS config/development. Native builds/device/store acceptance blocked; no migration or paid integrations. |
+| Resize continuity | Candidate native WebView and compact-entered web journeys retain mobile subtree on expansion until reload; ordinary wide desktop remains desktop, Company/Admin excluded. |
+| Native root integrity | Missing origin shows real configuration error rather than mounting mock legacy Swipe/nav; canonical Supabase web experience stays authority. |
 | Preserve Supabase and unprefixed canonical tables | Existing auth/data/history remain; no new backend/template or parallel profiles/applications. |
 | Optional explicit assistant | Compact Improve My Match opener; never auto-open, deduct credits or block Pass/Save/Apply/Share. |
 | Canonical skills only | Merge genuinely confirmed selected skills into job_seeker_profiles.skills; preserve existing, normalize/deduplicate, authenticate and validate server-side. Preferences are not skills storage. |

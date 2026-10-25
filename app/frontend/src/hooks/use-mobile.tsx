@@ -1,19 +1,22 @@
 import * as React from 'react';
+import { isSeekerExperiencePath, mobileExperience, MOBILE_BREAKPOINT } from '@/lib/responsive-experience';
 
-const MOBILE_BREAKPOINT = 768;
+// A candidate journey that enters compact mode stays in the same component tree
+// when unfolded. Dimensions change presentation, never account or action state.
+let compactJourney = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`).matches;
 
 export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean>(() => window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`).matches);
-
+  const [compact, setCompact] = React.useState(() => window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`).matches);
   React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+    const query = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
     const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+      if (query.matches) compactJourney = true;
+      setCompact(query.matches);
     };
-    mql.addEventListener('change', onChange);
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
-    return () => mql.removeEventListener('change', onChange);
+    query.addEventListener('change', onChange);
+    onChange();
+    return () => query.removeEventListener('change', onChange);
   }, []);
-
-  return !!isMobile;
+  return mobileExperience(compact, !!window.ReactNativeWebView, compactJourney,
+    isSeekerExperiencePath(window.location.pathname, window.location.search));
 }
