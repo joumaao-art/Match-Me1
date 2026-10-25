@@ -1,0 +1,94 @@
+# MATCHME — ADD LOGOUT BUTTON TO MOBILE PROFILE
+
+## Objective
+
+Add a fully functional **Logout** button to the Job Seeker's mobile Profile page.
+
+This is a targeted adjustment. Do not redesign or modify any existing mobile or desktop layouts.
+
+### 1. Button Placement
+
+On the mobile Profile page, maintain the following order:
+
+1. MatchMe logo and information icon.
+2. Job Seeker account information.
+3. Attached CV information.
+4. Subscription Overview.
+5. VIA Resume.
+6. Personal.
+7. **Logout**.
+
+Position Logout below the Personal button with appropriate spacing.
+
+Keep the existing bottom navigation: Swipe | Dashboard | Profile.
+
+Ensure the Logout button is visible and accessible without being covered by the bottom navigation or device safe area.
+
+### 2. Button Design
+
+- Label: **Logout**.
+- Add a professional logout icon to the left.
+- Use subtle red text and iconography to distinguish it from normal navigation actions.
+- Match the existing Profile page typography, spacing, and button dimensions.
+- Avoid oversized buttons, excessive shadows, or decorative effects.
+- Make the entire button clickable.
+
+### 3. Logout Confirmation
+
+When the user taps Logout, display a confirmation popup within the current mobile view.
+
+**Title:** Log out?
+
+**Message:** Are you sure you want to log out of your MatchMe account?
+
+**Actions:**
+- Cancel — closes the popup and keeps the user logged in.
+- Logout — confirms the logout.
+
+Do not log out until the user confirms.
+
+### 4. Logout Functionality
+
+When confirmed:
+
+- Call the existing Supabase authentication sign-out service.
+- Invalidate the authenticated session according to the existing authentication architecture.
+- Clear user-specific cached information, including profile, applications, credits, preferences, and private messages.
+- Do not delete any persisted user information from Supabase.
+- Do not reset onboarding progress.
+- Do not delete uploaded CVs or generated resumes.
+- Do not cancel subscriptions.
+- Do not remove saved or skipped jobs.
+- Redirect the user to the existing MatchMe welcome/login page after successful logout.
+
+Prevent the user from returning to authenticated pages using the Back button after logout.
+
+If logout fails, show an appropriate error message rather than falsely reporting success.
+
+### 5. Platform Requirements
+
+- Add the button to the **mobile Job Seeker Profile page only**.
+- Preserve the existing desktop Logout functionality.
+- Do not modify desktop layouts.
+- Do not affect Company or Super Admin authentication.
+- Use the existing shared authentication service.
+- Maintain English and Arabic localization.
+
+### 6. Acceptance Testing
+
+Verify:
+
+1. Logout button appears below Personal.
+2. Button is fully clickable.
+3. Confirmation popup opens.
+4. Cancel keeps the user logged in.
+5. Confirm successfully logs out.
+6. User returns to the welcome/login page.
+7. Protected pages cannot be accessed after logout.
+8. Logging back in restores the user's existing profile and data.
+9. Mobile layout and bottom navigation remain unchanged.
+10. Desktop functionality is unaffected.
+
+Test the actual running mobile App Viewer and report PASS, FAIL, or BLOCKED for each applicable test.
+
+**Final requirement:** Implement a working Logout button, not a visual placeholder. Preserve all existing MatchMe functionality and provide the implementation report in English only.
