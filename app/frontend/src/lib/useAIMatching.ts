@@ -1,4 +1,5 @@
-import { useState, useCallback, useMemo } from 'react';
+import { loadPreferences } from './job-preferences';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   aiMatchingEngine,
   AIMatchingEngine,
@@ -26,13 +27,14 @@ export interface UseAIMatchingReturn {
  */
 export function useAIMatching(userId: string): UseAIMatchingReturn {
   const [version, setVersion] = useState(0);
+  useEffect(() => { const update = () => setVersion(v => v + 1); window.addEventListener('matchme:preferences-changed', update); return () => window.removeEventListener('matchme:preferences-changed', update); }, [userId]);
 
   const calculateMatch = useCallback((seeker: SeekerAIProfile, vacancy: VacancyAIProfile) => {
-    return aiMatchingEngine.calculateMatch(seeker, vacancy);
+    return aiMatchingEngine.calculateMatch({ ...seeker, jobPreferences: loadPreferences(seeker.id) }, vacancy);
   }, []);
 
   const getRecommendations = useCallback((seeker: SeekerAIProfile, vacancies: VacancyAIProfile[]) => {
-    return aiMatchingEngine.getRecommendations(seeker, vacancies);
+    return aiMatchingEngine.getRecommendations({ ...seeker, jobPreferences: loadPreferences(seeker.id) }, vacancies);
   }, [version]);
 
   const getCandidateRankings = useCallback((vacancy: VacancyAIProfile, seekers: SeekerAIProfile[]) => {

@@ -10,7 +10,7 @@ export interface DiscoverJob {
  job_description:string; required_skills:string[]; salary_min:number; salary_max:number;
  compatibility_score:number; status:string;
  company_logo?:string; education_level?:string; benefits?:string[]; expiration_date?:string|null;
- salary_currency?:string; salary_period?:string; show_salary?:boolean; employment_style?:string; qualifications?:string;
+ salary_currency?:string; salary_period?:string; show_salary?:boolean; employment_style?:string; seniority_level?:string; qualifications?:string;
 }
 export interface JobAction {vacancy_id:string;direction:'left'|'right'|null;saved:boolean;application_status:'pending'|'withdrawn'|null;company_status?:string;updated_at:string;}
 export async function recordJobAction(jobId:string,action:'left'|'right'|'save'|'unsave'|'undo'|'withdraw'):Promise<void> {
@@ -44,7 +44,7 @@ export function useSeekerJobs(paused = false) {
     const historicIds=[...(history.data||[]).filter(a=>a.saved||a.direction).map(a=>a.vacancy_id),...(requested&&/^[0-9a-f-]{36}$/i.test(requested)?[requested]:[])].filter(id=>!(vacancies.data||[]).some(j=>j.id===id));
     if(historicIds.length){const historic=await apiClient.supabase.from('vacancies').select('*,company:company_profiles(company_name,industry,logo_url)').in('id',historicIds).abortSignal(AbortSignal.timeout(10000));if(historic.error)throw historic.error;vacancies.data?.push(...(historic.data||[]));}
     if(!owned())return;
-   setJobs((vacancies.data||[]).map(j=>({id:j.id,company_id:j.company_id,posting_date:j.posting_date,created_at:j.created_at,company_name:j.company?.company_name||'',company_logo:j.company?.logo_url||'',salary_currency:j.salary_currency||undefined,salary_period:j.salary_period||undefined,show_salary:j.show_salary??undefined,employment_style:j.employment_style||undefined,qualifications:j.qualifications||undefined,education_level:j.education_level||'',benefits:j.benefits||[],expiration_date:j.expiration_date||null,industry:j.company?.industry||'',country:j.country||'',city:j.city||'',employment_type:j.employment_type||'',min_experience:j.min_experience||0,max_experience:j.max_experience||0,job_title:j.job_title,job_description:j.job_description||'',required_skills:j.required_skills||[],salary_min:j.salary_min||0,salary_max:j.salary_max||0,compatibility_score:0,status:j.status})));
+   setJobs((vacancies.data||[]).map(j=>({id:j.id,company_id:j.company_id,posting_date:j.posting_date,created_at:j.created_at,company_name:j.company?.company_name||'',company_logo:j.company?.logo_url||'',salary_currency:j.salary_currency||undefined,salary_period:j.salary_period||undefined,show_salary:j.show_salary??undefined,seniority_level:j.seniority_level||undefined,employment_style:j.employment_style||undefined,qualifications:j.qualifications||undefined,education_level:j.education_level||'',benefits:j.benefits||[],expiration_date:j.expiration_date||null,industry:j.company?.industry||'',country:j.country||'',city:j.city||'',employment_type:j.employment_type||'',min_experience:j.min_experience||0,max_experience:j.max_experience||0,job_title:j.job_title,job_description:j.job_description||'',required_skills:j.required_skills||[],salary_min:j.salary_min||0,salary_max:j.salary_max||0,compatibility_score:0,status:j.status})));
    setActions((history.data||[]) as JobAction[]);setError(false);
   }catch{if(owned())setError(true);}finally{if(owned())setLoading(false);}
  },[uid,requested]);

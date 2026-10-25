@@ -19,7 +19,7 @@ export function MobileSwipePage({job,loading,error,balance,busy,premium,onCredit
  const navigate=useNavigate();const completion=useMandatoryProfile();  const [expandedJob,setExpandedJob]=useState<string|null>(null);const expanded=expandedJob===job?.id;
  const [creditsOpen,setCreditsOpen]=useState(false);
  const changeCredits=(open:boolean)=>{setCreditsOpen(open);onCreditsOpenChange(open);};
- const preferences=()=>navigate('/seeker?view=preferences');const credits=()=>changeCredits(true);
+ const preferences=()=>{const back=viaSwipeReturn(job?.id);navigate(back,{replace:true});navigate(`/seeker?view=preferences&return=${encodeURIComponent(back)}`);};const credits=()=>changeCredits(true);
  const unlock=()=>{const back=viaSwipeReturn(job?.id);changeCredits(false);navigate(back,{replace:true});navigate(`/seeker/subscription?return=${encodeURIComponent(back)}`);};
  const decide=async(direction:'left'|'right')=>{
    if(creditsOpen||busy)return false;

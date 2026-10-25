@@ -1,3 +1,5 @@
+import { MobileSwipePreferences } from '@/components/seeker/MobileSwipePreferences';
+import { useCountries } from '@/components/shared/ProfileFields';
 import { useViaPremium } from '@/lib/via-premium';
 import { nativeBridge } from '@/lib/native-bridge';
 import { MobileSwipePage } from '@/components/seeker/MobileSwipePage';
@@ -510,7 +512,7 @@ function SwipeView() {
     window.addEventListener('matchme:preferences-changed', refresh);
     return () => {alive=false;window.removeEventListener('matchme:preferences-changed', refresh);};
   }, [accountId]);
-  const aiMatching = useAIMatching(CURRENT_SEEKER.id);
+  const aiMatching = useAIMatching(accountId || '');
   const [showMatch, setShowMatch] = useState(false);
   const [canUndo, setCanUndo] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
@@ -518,10 +520,11 @@ function SwipeView() {
   const [showPrefs, setShowPrefs] = useState(false);
   const [currentExplanation, setCurrentExplanation] = useState<MatchExplanation | null>(null);
 
+  const { countries } = useCountries();
   const recommendedJobs = useMemo(() => {
     const requested=restoredJobId||requestedId;
-    return rankEligibleVacancies(jobs,actions,prefs,requested);
-  }, [jobs,actions,prefs,requestedId,restoredJobId]);
+    return rankEligibleVacancies(jobs,actions,prefs,requested,countries);
+  }, [jobs,actions,prefs,requestedId,restoredJobId,countries]);
 
   const [handledRequestedId,setHandledRequestedId]=useState<string|null>(null);
   const requestedPreview=isMobile&&requestedId&&requestedId!==handledRequestedId?jobs.find(j=>j.id===requestedId&&isAvailableJob(j)):undefined;
@@ -1293,7 +1296,7 @@ export default function JobSeeker() {
       case 'languages': return <LanguagesView />;
       case 'portfolio': return <PortfolioView />;
       case 'video': return <VideoIntroView />;
-      case 'preferences': return <PreferencesView />;
+      case 'preferences': return isMobile?<MobileSwipePreferences/>:<PreferencesView />;
       case 'saved': return <SavedJobsView />;
       case 'applications': return <ApplicationsView />;
       case 'matches': return <MatchesView />;
@@ -1318,14 +1321,14 @@ export default function JobSeeker() {
 
       {/* Main content area — pb accounts for fixed MobileBottomNav on mobile */}
       <main className="flex-1 flex flex-col min-w-0 pb-[calc(4rem+env(safe-area-inset-bottom,0px))] md:pb-0">
-        {isMobile && !['dashboard','swipe'].includes(activeTab) && !(activeTab==='profile' && showAccountCenter) && <div className="flex items-center gap-2 px-4 py-2 border-b shrink-0"><BackButton fallbackRoute={seekerSectionUrl(['applications','matches','saved'].includes(activeTab)?'dashboard':'profile')} /></div>}
+        {isMobile && !['dashboard','swipe','preferences'].includes(activeTab) && !(activeTab==='profile' && showAccountCenter) && <div className="flex items-center gap-2 px-4 py-2 border-b shrink-0"><BackButton fallbackRoute={seekerSectionUrl(['applications','matches','saved'].includes(activeTab)?'dashboard':'profile')} /></div>}
         {renderContent()}
       </main>
 
       {/* Mobile bottom navigation - visible only on mobile (< md) */}
       <MobileBottomNav
         activeTab={activeTab}
-        onTabChange={handleMobileTabChange}
+        onTabChange={tab=>{if(activeTab==='preferences'&&!window.dispatchEvent(new Event('matchme:before-preferences-leave',{cancelable:true})))return;handleMobileTabChange(tab);}}
       />
     </div>
   );

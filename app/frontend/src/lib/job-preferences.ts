@@ -150,8 +150,8 @@ export function savePreferences(userId: string, prefs: JobPreferences): void {
 }
 
 /** Soft 0..1 preference fit used as a weighted ranking signal, never a hard filter. */
-export function preferenceFit(prefs: JobPreferences, job: { title: string; employmentType?: string; skills?: string[]; countryCode?: string }): number {
-  if (!prefs.expertise.length && !prefs.employmentTypes.length && !prefs.seniorityLevels.length && !prefs.keywords.length) return 0.5;
+export function preferenceFit(prefs: JobPreferences, job: { title: string; employmentType?: string; employmentStyle?: string; seniorityLevel?: string; description?: string; skills?: string[]; countryCode?: string }): number {
+  if (!prefs.expertise.length && !prefs.employmentTypes.length && !prefs.seniorityLevels.length && !prefs.keywords.length && !prefs.targetCountries.length && !prefs.workingStyles.length) return 0.5;
   const title = job.title.toLowerCase();
   const role = prefs.expertise.some((c) => {
     const e = BY_CODE.get(c);
@@ -160,10 +160,11 @@ export function preferenceFit(prefs: JobPreferences, job: { title: string; emplo
   const type = normalizeEmploymentType(job.employmentType);
   const typeOk = !prefs.employmentTypes.length || (!!type && prefs.employmentTypes.includes(type));
   const countryOk = !prefs.targetCountries.length || !job.countryCode || prefs.targetCountries.includes(job.countryCode);
-  const text = [title, ...(job.skills ?? [])].join(' ').toLowerCase();
+  const text = [title, job.description || '', ...(job.skills ?? [])].join(' ').toLowerCase();
   const keywordFit = !prefs.keywords.length || prefs.keywords.some(k => text.includes(k.toLowerCase()));
-  const level = /executive|chief|director/.test(title) ? 'executive' : /senior|lead/.test(title) ? 'senior' : /junior/.test(title) ? 'junior' : /intern|entry|graduate/.test(title) ? 'entry' : 'mid';
+  const level = job.seniorityLevel?.toLowerCase() || (/executive|chief|director/.test(title) ? 'executive' : /senior|lead/.test(title) ? 'senior' : /junior/.test(title) ? 'junior' : /intern|entry|graduate/.test(title) ? 'entry' : 'mid');
   const seniorityFit = !prefs.seniorityLevels.length || prefs.seniorityLevels.includes(level);
-  const styleFit = !prefs.workingStyles.length || prefs.workingStyles.some(w => (job.employmentType ?? '').toLowerCase().includes(w));
+  const style = (job.employmentStyle || job.employmentType || '').toLowerCase();
+  const styleFit = !prefs.workingStyles.length || prefs.workingStyles.some(w => style.includes(w));
   return (prefs.expertise.length ? (role ? 0.4 : 0.1) : 0.2) + (typeOk ? 0.15 : 0) + (countryOk ? 0.1 : 0) + (keywordFit ? 0.15 : 0) + (seniorityFit ? 0.1 : 0) + (styleFit ? 0.1 : 0);
 }

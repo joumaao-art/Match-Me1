@@ -1,0 +1,518 @@
+# MATCHME — SUBSCRIPTION SAVINGS & SWIPE PREFERENCES REDESIGN
+
+## Objective
+
+Implement two targeted improvements to MatchMe:
+
+1. Display subscription savings clearly on the VIA Premium subscription page.
+2. Redesign the mobile Job Seeker Preferences page accessed through the Swipe page.
+
+Preserve the existing MatchMe architecture, authentication, credits, AI Matching Engine, and shared preference data.
+
+**Important requirements:**
+
+- Apply the Preferences visual redesign to the mobile version only.
+- Do not modify the desktop Preferences layout.
+- Do not rebuild existing functionality unnecessarily.
+- Use existing canonical taxonomies and database structures.
+- Maintain English and Arabic localization.
+- All Atoms Working Process updates and final reports must be in English only.
+- The application name remains MatchMe. VIA Premium is the subscription product.
+
+---
+
+## PART 1 — VIA PREMIUM SUBSCRIPTION SAVINGS
+
+### 1. Subscription Plans
+
+Maintain the following subscription plans:
+
+**Monthly**
+- Price: $10/month.
+- No Most Popular label.
+- Display the savings as 0% if savings are shown for both plans.
+
+**Yearly**
+- Price: $100/year.
+- Display the Most Popular label.
+- Display the savings percentage prominently next to the Yearly plan.
+
+### 2. Savings Calculation
+
+Calculate the savings against the equivalent cost of paying monthly for 12 months.
+
+Monthly cost:
+$10 × 12 = $120/year.
+
+Yearly cost:
+$100/year.
+
+Savings:
+($120 − $100) ÷ $120 × 100 = 16.67%.
+
+Display:
+
+**Save 17%**
+
+Use rounded whole-number percentage formatting for the UI.
+
+Do not display misleading discounts or claim savings against an invented original price.
+
+### 3. Subscription Page Layout
+
+Maintain the heading:
+
+**Unlimited applications with VIA Premium**
+
+Show the plans as follows:
+
+**Monthly — $10/month**
+
+**Yearly — $100/year | Most Popular | Save 17%**
+
+The Yearly subscription must remain selected by default.
+
+Use a professional, subtle visual highlight for the selected Yearly plan.
+
+Do not use excessive gradients, oversized badges, or promotional animations.
+
+### 4. Subscription Footer
+
+Keep:
+
+"Subscription auto renews until cancelled"
+
+Keep the button:
+
+**Subscribe VIA Premium**
+
+Ensure that:
+
+- Monthly selection sends $10/month to checkout.
+- Yearly selection sends $100/year to checkout.
+- The selected billing interval is clearly displayed.
+- The savings percentage updates from actual configured prices if pricing changes.
+- Payment confirmation and subscription activation continue using the existing secure billing system.
+
+Do not change any other subscription functionality.
+
+---
+
+# PART 2 — MOBILE SWIPE PREFERENCES REDESIGN
+
+## 5. Scope
+
+Redesign the Preferences page accessed from the Preferences icon in the top-right corner of the mobile Swipe page.
+
+The Preferences page must be clean, compact, professional, and easy to navigate.
+
+Remove unnecessary sections and controls from this mobile Preferences view.
+
+**The page must contain only:**
+
+1. MatchMe logo and Save icon.
+2. Roles & Keywords.
+3. Countries interested in job searching.
+4. Job Type.
+5. Work Style.
+6. Level.
+
+Do not add additional preference categories, introductory banners, large cards, or unrelated settings.
+
+Preserve any existing preference data not displayed in this simplified view. Do not delete database fields merely because they are hidden from this page.
+
+---
+
+## 6. Preferences Header
+
+At the top of the page:
+
+**Top-left:** Official MatchMe logo.
+
+**Top-right:** Green checkmark icon.
+
+The green checkmark is the **Save button**.
+
+### Logo
+
+- Use the existing approved MatchMe logo.
+- Keep its original proportions.
+- Make it compact and professionally aligned.
+- Do not add a large page heading above the form.
+
+### Green Checkmark — Save
+
+Use a recognizable green checkmark icon inside an accessible clickable control.
+
+Requirements:
+
+- The icon must be clearly visible.
+- The button must have an accessible label: "Save Preferences".
+- The icon must save all modified preferences.
+- Validate selections before saving.
+- Show a subtle loading state while saving.
+- Prevent duplicate save submissions.
+- Show a brief success confirmation after successful persistence.
+- If saving fails, keep the user's changes and display an actionable error.
+- Do not show success before the backend confirms persistence.
+- After successful saving, return the user to the Swipe page.
+- Refresh job recommendations using the updated preferences.
+- Preserve the user's current Swipe session where appropriate.
+
+The Save icon must remain easily accessible on mobile.
+
+**Remove the existing Save button at the bottom of the Preferences page completely.**
+
+Do not create a second Save button.
+
+---
+
+## 7. Roles & Keywords
+
+The first section must be:
+
+**Roles & Keywords**
+
+Use a searchable type-ahead autocomplete field with multi-selection.
+
+The user must be able to:
+
+- Tap the field to open suggestions.
+- Start typing to search for relevant job roles and keywords.
+- Select multiple options.
+- View selected options as removable chips.
+- Remove individual selections.
+- Edit selections before saving.
+
+### Maximum Selection Limit
+
+Allow a maximum of **10 total selections across Roles & Keywords combined**.
+
+For example:
+
+6 Roles + 4 Keywords = 10 selections.
+
+Do not allow more than 10 combined selections.
+
+Display a subtle counter:
+
+**6/10 selected**
+
+When the limit is reached:
+
+- Prevent additional selections.
+- Keep existing selections unchanged.
+- Show a clear message explaining the limit.
+- Allow the user to remove a selection before adding another.
+
+### Autocomplete
+
+Reuse the existing MatchMe canonical job-role and skills/keyword taxonomies.
+
+Examples of role suggestions:
+
+- Sales Executive
+- Account Manager
+- Marketing Manager
+- Software Engineer
+
+Suggestions must come from the actual canonical taxonomy, not a hardcoded example-only list.
+
+Support keyword search using the existing normalized keyword architecture.
+
+Prevent duplicate selections, including case-insensitive duplicates.
+
+Preserve the distinction between roles and keywords in the underlying data model even if they share one combined user-facing section.
+
+---
+
+## 8. Countries Interested in Job Searching
+
+Below Roles & Keywords, display:
+
+**Where I am interested in the job search**
+
+Use a searchable dropdown containing all supported countries.
+
+Requirements:
+
+- Allow multiple country selections.
+- Display selected countries as removable chips.
+- Support searching by country name.
+- Use the canonical MatchMe country dataset.
+- Save stable country identifiers.
+- Do not create a separate country list.
+- Preserve existing selections when the page opens.
+- Do not automatically replace the user's selections with their current location.
+
+Example:
+
+Saudi Arabia
+
+United Arab Emirates
+
+Qatar
+
+The user must be able to select more than one country.
+
+---
+
+## 9. Job Type
+
+Below the country selection, display:
+
+**Job Type**
+
+Use a compact multi-select control.
+
+Available options:
+
+- Full-time
+- Part-time
+- Contract
+- Internship
+
+Allow multiple selections.
+
+Example:
+
+Full-time + Contract.
+
+Reuse the canonical employment-type identifiers already implemented in MatchMe.
+
+Do not create a conflicting employment-type taxonomy.
+
+The selected Job Types must be used by the existing AI Matching and recommendation system.
+
+---
+
+## 10. Work Style
+
+Below Job Type, display:
+
+**Work Style**
+
+Available options:
+
+- Onsite
+- Remote
+- Hybrid
+
+Allow multiple selections.
+
+Example:
+
+Remote + Hybrid.
+
+Keep Work Style separate from Job Type in the data model.
+
+Do not combine Remote and Hybrid into the Job Type field.
+
+Use the same canonical values established in the mobile onboarding flow.
+
+---
+
+## 11. Level
+
+Below Work Style, display:
+
+**Level**
+
+Available options:
+
+- Junior
+- Mid
+- Senior
+
+Allow multiple selections.
+
+Do not show Entry or Executive in this simplified mobile Preferences view.
+
+Use the existing canonical seniority-level identifiers.
+
+If an existing user has previously selected Entry or Executive, do not silently delete those preferences. Handle legacy selections safely and explain any conflict before overwriting them.
+
+The Job Seeker should be able to select one or several of the available levels.
+
+---
+
+## 12. Remove Everything Else
+
+The mobile Preferences page accessed from Swipe must no longer display:
+
+- Unrelated profile settings.
+- Additional job preference sections.
+- Duplicate location sections.
+- Extra filter panels.
+- Promotional content.
+- Unnecessary explanatory paragraphs.
+- A bottom Save button.
+- Redundant page headings.
+- Unrelated account settings.
+
+Keep the page focused on the five preference sections requested.
+
+Do not delete underlying functionality or saved data used elsewhere in MatchMe.
+
+---
+
+## 13. Layout and Visual Design
+
+The redesigned Preferences page should look like a professionally designed mobile application.
+
+Use:
+
+- Consistent vertical spacing.
+- Compact searchable dropdowns.
+- Clear section headings.
+- Professional typography.
+- Consistent input heights.
+- Minimal borders.
+- Subtle selection states.
+- Clean removable chips.
+- Appropriate whitespace.
+- Clear active and selected states.
+
+Avoid:
+
+- Oversized cards.
+- Excessive scrolling.
+- Generic AI-generated design patterns.
+- Unnecessary gradients.
+- Large empty spaces.
+- Decorative illustrations.
+- Multiple Save buttons.
+- Overcrowded dropdowns.
+
+Optimize for mobile screens:
+
+320px, 360px, 375px, 390px, and 412px.
+
+Ensure dropdowns and selection chips work correctly when the keyboard is open.
+
+---
+
+## 14. Save and Persistence Behavior
+
+The green checkmark in the top-right must save all changes as one consistent preference update.
+
+Requirements:
+
+- Load existing preferences from the backend when opening the page.
+- Initialize the form with the user's saved values.
+- Allow editing without immediately overwriting saved preferences.
+- Validate the maximum 10 Roles & Keywords limit.
+- Save selected roles, keywords, countries, job types, work styles, and levels.
+- Use the existing canonical preference API.
+- Preserve unrelated preference fields not shown in this view.
+- Do not replace the entire preference record with only the visible fields if that would erase hidden data.
+- Ensure updates persist after logout/login and across devices.
+- Prevent duplicate records.
+- Handle concurrent updates safely.
+
+After a successful save, update the existing AI Matching recommendations.
+
+Do not create a second independent preference system.
+
+---
+
+## 15. Back Navigation and Unsaved Changes
+
+Preserve a working way to navigate back to Swipe.
+
+If the user has unsaved changes and tries to leave:
+
+- Warn that changes have not been saved.
+- Offer a choice to discard changes or continue editing.
+- Do not silently lose the user's edits.
+
+The green checkmark remains the only Save control on the page.
+
+---
+
+## 16. AI Matching Integration
+
+Ensure the following fields continue feeding the existing AI Matching Engine:
+
+- Roles.
+- Keywords.
+- Preferred Countries.
+- Job Type.
+- Work Style.
+- Seniority Level.
+
+These should influence real vacancy recommendations and ranking.
+
+Do not generate fictional job cards.
+
+Do not automatically hide every real vacancy merely because an AI score is unavailable.
+
+Use the existing real-vacancy retrieval architecture and appropriate ranking fallback.
+
+---
+
+## 17. Mandatory Acceptance Testing
+
+Test in the real mobile App Viewer.
+
+### Subscription Tests
+
+1. Monthly displays $10/month.
+2. Yearly displays $100/year.
+3. Most Popular appears only on Yearly.
+4. Save 17% appears on Yearly.
+5. Yearly is selected by default.
+6. Switching plans updates checkout correctly.
+7. Auto-renewal disclosure remains visible.
+
+### Preferences Tests
+
+1. MatchMe logo appears top-left.
+2. Green checkmark appears top-right.
+3. Green checkmark saves successfully.
+4. Bottom Save button is removed.
+5. Roles & Keywords supports autocomplete.
+6. Roles & Keywords supports multiple selections.
+7. Maximum 10 combined selections is enforced.
+8. Countries dropdown supports multiple countries.
+9. Job Type supports multiple selections.
+10. Work Style supports multiple selections.
+11. Level displays Junior, Mid, Senior.
+12. Existing preferences load correctly.
+13. Changes persist after refresh and login.
+14. Saving returns to Swipe.
+15. Updated preferences influence real job recommendations.
+16. Unsaved changes are protected.
+17. Arabic RTL works correctly.
+18. Desktop layout remains unchanged.
+19. No infinite loading or navigation regressions.
+
+Run TypeScript, ESLint, production build, and relevant automated tests.
+
+Do not claim browser or mobile tests passed unless actually executed.
+
+---
+
+## 18. Final Implementation Report
+
+Provide an English-only report with:
+
+- Subscription savings implementation.
+- Pricing calculation.
+- Preferences layout changes.
+- Shared components reused.
+- Roles & Keywords selection limit.
+- Country dropdown behavior.
+- Job Type and Work Style mapping.
+- Level mapping.
+- Save and persistence implementation.
+- AI Matching integration.
+- Files changed.
+- Tests passed and not executed.
+- Remaining blockers.
+
+**Final success condition:**
+
+The VIA Premium page displays Yearly $100 as Most Popular with Save 17%, and the mobile Swipe Preferences page contains only the requested five sections, with the MatchMe logo on the left and a working green Save checkmark on the right.
+
+Implement these changes in the actual application, not just in a mockup.

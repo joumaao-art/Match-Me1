@@ -1,3 +1,5 @@
+import { preferenceFit, type JobPreferences } from './job-preferences';
+
 /**
  * AI-Powered Matching Engine for MatchMe
  * 
@@ -85,6 +87,7 @@ export interface SeekerAIProfile {
   availability: 'immediate' | 'two_weeks' | 'one_month' | 'three_months' | 'negotiable';
   summary: string;
   preferredRoles: string[];
+  jobPreferences?: JobPreferences;
 }
 
 export interface VacancyAIProfile {
@@ -99,6 +102,8 @@ export interface VacancyAIProfile {
   location: { country: string; city: string };
   industry: string;
   workPolicy: 'office' | 'hybrid' | 'remote';
+  employmentType?: string;
+  seniorityLevel?: string;
   startDate: 'immediate' | 'flexible' | 'specific';
   description: string;
   title: string;
@@ -315,7 +320,12 @@ export class AIMatchingEngine {
 
     // Calculate weighted score
     const weightedScore = factors.reduce((sum, f) => sum + f.score * f.weight, 0);
-    const rawScore = weightedScore * 100 + semanticBonus;
+    const preferenceScore = seeker.jobPreferences ? preferenceFit(seeker.jobPreferences, {
+      title: vacancy.title, description: vacancy.description, skills: vacancy.requiredSkills.map(s => s.name),
+      countryCode: /^[A-Z]{2}$/.test(vacancy.location.country) ? vacancy.location.country : undefined,
+      employmentType: vacancy.employmentType, employmentStyle: vacancy.workPolicy === 'office' ? 'onsite' : vacancy.workPolicy, seniorityLevel: vacancy.seniorityLevel,
+    }) : null;
+    const rawScore = preferenceScore === null ? weightedScore * 100 + semanticBonus : (weightedScore * 100 + semanticBonus) * 0.85 + preferenceScore * 15;
     const overallScore = Math.round(Math.min(100, Math.max(0, rawScore)));
 
     // Generate top reasons
