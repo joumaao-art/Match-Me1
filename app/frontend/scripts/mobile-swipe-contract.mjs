@@ -46,5 +46,14 @@ try {
  test('profile eligibility cannot bypass unknown load',()=>assert.ok(page.includes("completion.error||completion.percentage===null")));
  const native=await readFile('../mobile/src/screens/MatchMeSharedScreen.tsx','utf8');
  test('native origin restricted and bridge contains no auth tokens',()=>{assert.ok(native.includes("new URL(event.nativeEvent.url).origin!==origin"));assert.ok(native.includes('linkedJobId(`${origin}/jobs/${message.jobId}`,origin)'));assert.ok(!native.includes('access_token'));});
+ const indicator=page.match(/<div[^>]*data-testid="swipe-profile-completion"[\s\S]*?<\/div>/)?.[0];
+ test('completion indicator is informational, not a button or link',()=>{assert.ok(indicator);assert.ok(!/<(?:button|a)\b/.test(indicator));assert.ok(!/on(?:Click|Tap|PointerDown|KeyDown|TouchStart)=|tabIndex=|role="button"|navigate\(/.test(indicator));});
+ test('entire completion indicator has no interactive styling',()=>{assert.ok(!/cursor-pointer|hover:|focus-visible:/.test(indicator));assert.ok(indicator.includes('cursor-default'));});
+ test('completion position and visual tokens retained',()=>{assert.ok(page.indexOf('swipe-profile-completion')>page.indexOf('</header>'));assert.ok(indicator.includes('shrink-0 min-h-11 py-2 text-center text-xs text-muted-foreground rounded'));assert.ok(indicator.includes('h-0.5 mt-2 max-w-44 mx-auto'));assert.ok(indicator.includes('CheckCircle2 size={14} className="text-primary"'));});
+ test('100 percent message and dynamic percentage retained',()=>{assert.ok(indicator.includes('Your profile is 100% complete'));assert.ok(indicator.includes('{completion.percentage}%'));assert.ok(indicator.includes('value={completion.percentage}'));});
+ test('progress exposes value without keyboard interaction',()=>{assert.ok(indicator.includes('aria-live="polite"'));assert.ok(indicator.includes('aria-valuenow={completion.percentage}'));assert.ok(indicator.includes('aria-valuemin={0}'));assert.ok(indicator.includes('aria-valuemax={100}'));});
+ const completionSource=await readFile('src/lib/mandatory-profile.ts','utf8');
+ test('automatic profile refresh still uses canonical completion engine',()=>{assert.ok(completionSource.includes("window.addEventListener('matchme:profile-changed',refresh)"));assert.ok(completionSource.includes('calculateMandatoryCompletion(checklist).percentage'));});
+ test('profile completion navigation remains only in Apply validation',()=>{assert.equal((page.match(/navigate\('\/seeker\?view=cv&complete=1'\)/g)||[]).length,2);assert.ok(page.includes("if(direction==='right'&&"));});
  console.log(`${count} mobile Swipe contract checks passed.`);
 }finally{await server.close();}

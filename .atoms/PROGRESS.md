@@ -1,5 +1,10 @@
 ## Task Breakdown
 
+| Read-only Swipe Profile Completion indicator | Implementation | Validation |
+|---|---|---|
+| Remove indicator interaction without changing layout/calculation | done | done |
+| Targeted contracts, TypeScript, lint/build and viewer check | done | blocked |
+
 | Mobile Job Seeker Profile redesign | Implementation | Validation |
 |---|---|---|
 | Canonical account/CV/support/PDF audit and data contract | done | done |
@@ -79,6 +84,7 @@
 | Approved legal sheets and required mobile A–W acceptance evidence | blocked | blocked |
 
 ## Progress Log
+- Read-only Swipe completion: existing mobile button replaced by informational div; removed navigation/focus interaction, retained position/visual classes/icon/percentage/bar and unchanged canonical refresh/calculation; accessible live text/progress values. Desktop Swipe contains no corresponding indicator, so preserved layout rather than adding one; unrelated Profile mini-card unchanged.36 Swipe contracts, TypeScript/lint/build PASS. Viewer guest-only; signed-in click/tap and mobile/desktop visual acceptance unavailable.
 - Mobile Profile implemented: real Auth/account overview, private CV/storage timestamp/signing, canonical subscription overview, deterministic selectable VIA PDF, owner conflict-safe Personal, ordered support/FAQ/persisted screenshot reports/settings; mobile Skills canonical and certificates/languages explicit server save. TypeScript/lint/build and103 Profile/navigation/Dashboard/VIA contracts plus rollback-only DB persistence/isolation PASS. Viewer guest-only; actual authenticated devices/CV HTTP/report/logout-login/billing unexecuted. Arabic shaping/text/glyph checks pass but raster feedback conflicts; visual reader acceptance BLOCKED. Official chat/email and secure login-phone change/deletion absent; no fake success. Report records13 requested sections; preserve desktop layout and existing balances/data.
 - Dashboard accepted: user confirms signed-in manual PASS for logo/search, All/Submitted, Skipped/Saved, recent/status/details, Saved actions, Pass reconsideration, mobile navigation and Arabic responsiveness; no issues. Combined with117 contracts/TypeScript/lint/build and rollback-only DB PASS, current scope ready for next phase. Preserve implementation; no closeout code/DB changes. Independent authenticated browser/per-width evidence and missing historical dates remain explicitly disclosed.
 - User confirms current Dashboard manual acceptance not tested yet; preserve implemented scope and passed117 contracts/TypeScript/lint/build/database evidence; signed-in mobile/RTL acceptance remains blocked pending observations, no completion or manual PASS claim.

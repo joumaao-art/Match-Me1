@@ -37,10 +37,10 @@ export function MobileSwipePage({job,loading,error,balance,busy,premium,onCredit
        <Button size="icon" variant="ghost" className="h-11 w-11" onClick={preferences} aria-label={t('preferences')}><Sliders size={19}/></Button>
      </div>
    </header>
-   <button type="button" onClick={()=>navigate('/seeker?view=cv&complete=1')} className="shrink-0 min-h-11 py-2 text-center text-xs text-muted-foreground rounded focus-visible:ring-2 focus-visible:ring-primary" aria-label={t('complete_profile')}>
+   <div className="shrink-0 min-h-11 py-2 text-center text-xs text-muted-foreground rounded cursor-default" aria-live="polite" aria-atomic="true" data-testid="swipe-profile-completion">
      {completion.percentage===null?copy('View your profile','عرض ملفك الشخصي'):completion.percentage===100?<span className="inline-flex items-center gap-1"><CheckCircle2 size={14} className="text-primary"/>{copy('Your profile is 100% complete','ملفك مكتمل بنسبة 100%')}</span>:<span>{copy('Your profile is','ملفك مكتمل بنسبة')} <strong className="text-primary">{completion.percentage}%</strong> {copy('complete','')}</span>}
-     {completion.percentage!==null&&<Progress value={completion.percentage} className="h-0.5 mt-2 max-w-44 mx-auto"/>}
-   </button>
+     {completion.percentage!==null&&<Progress value={completion.percentage} aria-label={copy('Profile completion','اكتمال الملف')} aria-valuenow={completion.percentage} aria-valuemin={0} aria-valuemax={100} className="h-0.5 mt-2 max-w-44 mx-auto"/>}
+   </div>
    <div className="flex-1 min-h-0 flex items-center justify-center pt-2">
      {!loading&&!error&&job&&!unavailable?<div className="relative h-full max-h-[650px] w-full max-w-md">
        <SwipeFeedbackEngine key={job.id} items={[{...job}]} activeIndex={0} enabled={!busy&&!expanded&&!decision&&!creditsOpen} config={{showStack:false,maxRotation:8,threshold:90}} onSwipe={direction=>decide(direction)}
