@@ -19,7 +19,7 @@ try{
  test('pass and apply excluded; save stays eligible',()=>assert.deepEqual(rankEligibleVacancies([job,newer], [{vacancy_id:'a',direction:'left'},{vacancy_id:'b',direction:null,saved:true}],EMPTY_PREFERENCES).map(j=>j.id),['b']));
  test('requested job prioritized only within eligibility',()=>assert.equal(rankEligibleVacancies([job,newer],[],EMPTY_PREFERENCES,'a')[0].id,'a'));
  const dashboard=await readFile('src/components/shared/MobileDashboard.tsx','utf8');
- test('dashboard derives counts from actions rather than fixtures',()=>{assert.ok(dashboard.includes('useSeekerJobs()'));assert.ok(!/TechCorp|Ahmed|mockMatches|value:.*28/.test(dashboard));});
+ test('dashboard derives counts from actions rather than fixtures',()=>{assert.ok(dashboard.includes('useSeekerDashboard('));assert.ok(!/TechCorp|Ahmed|mockMatches|value:.*28/.test(dashboard));});
  const portal=await readFile('src/pages/Company.tsx','utf8');
  test('Company core mounts canonical screens',()=>{assert.ok(portal.includes("case 'profile': return <CompanyProfileView"));assert.ok(portal.includes("case 'candidates': return <CompanyLiveView"));assert.ok(portal.includes('onApplicants={id=>'));});
  const api=await readFile('src/lib/company-marketplace.ts','utf8');

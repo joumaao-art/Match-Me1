@@ -1,3 +1,4 @@
+import { DesktopSeekerSubscription } from '@/components/seeker/DesktopSeekerSubscription';
 import { ViaPremiumPage } from '@/components/seeker/ViaPremiumPage';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { SeekerCreditPanel } from '@/components/seeker/SeekerCreditPanel';
@@ -855,7 +856,7 @@ function FeatureComparisonTable({ plans }: { plans: PlanConfig[] }) {
 
 export default function Subscription() {
  const mobile=useIsMobile();const role=useAuthStore(s=>s.userRole);
- return mobile&&role==='job_seeker'?<ViaPremiumPage/>:<DesktopSubscription/>;
+ return role==='job_seeker'?(mobile?<ViaPremiumPage/>:<DesktopSeekerSubscription/>):<DesktopSubscription/>;
 }
 function DesktopSubscription() {
   const { t } = useTranslation();

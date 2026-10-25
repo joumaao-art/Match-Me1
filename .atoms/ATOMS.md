@@ -6,16 +6,17 @@ status: active
 # Project Context
 
 ## Project Overview
-MatchMe is a bilingual EN/AR recruitment web app using React/Vite/shadcn and the existing Supabase backend. Current work is premium mobile-only Job Seeker entry and 11-step onboarding, not a desktop redesign.
+MatchMe is a bilingual EN/AR recruitment web app using React/Vite/shadcn and the existing Supabase backend. Job Seeker mobile is the authoritative functional reference; desktop follows it using an independent professional sidebar, cards and forms. Company and Super Admin are outside this rule.
 
 ## Key Decisions
 | Decision | Rationale |
 |---|---|
+| Permanent Job Seeker mobile → desktop authority | Define Job Seeker features against current mobile first; desktop must provide equivalent fields, rules, actions and shared persistence with independent layout. No unapproved desktop-only features; retain mobile regressions and desktop parity checks. Company/Admin excluded. |
 | Mobile Profile account overview | Reuse existing Supabase/Auth/billing; owner-checked Personal patch RPC, private original CV with storage timestamp, separate deterministic selectable VIA PDF; additive professional JSON and support-report table only. Missing support chat/email and verified login-phone change/deletion flows explicitly unavailable. |
 | Mobile Dashboard canonical extension | Existing seeker_job_actions remains sole source; add nullable event dates and new-event history, retain legacy statuses without inventing old submission/interview dates; Company RPC owns new recruitment stages. Search/counts use owner-scoped paginated RPC; preserve desktop Dashboard component/layout. |
 | VIA Premium uses existing Stripe service and canonical subscriptions | USD10 monthly/USD100 yearly; only provider-verified paid terms exempt Apply credits; Pass and balances unchanged. Native external checkout blocked pending store billing. |
 | Preserve existing Supabase project and unprefixed tables | Existing users/data must survive; do not activate another backend or recreate schema. |
-| Mobile breakpoint below768px | Desktop onboarding/presentation remain legacy; synchronous media query prevents desktop flash. |
+| Mobile breakpoint below768px | Desktop onboarding follows the current mobile workflow with native desktop dates; synchronous media query preserves separate presentation. |
 | One server completion authority | ensureJobSeekerInitialized repairs only missing identity rows and resolves destination; cached completion never overrides server. |
 | Per-user version3 mobile state and canonical profile/history | Prevent account leakage, preserve stable IDs/manual values and legacy records; database RPC owns completion. |
 | Unified20 signup credits across mobile/desktop | User explicitly superseded50; server identity-insert grants once, shared initialization repairs missing entitlements; imported entitlements/balances preserved and ledger owns deductions/purchases. |

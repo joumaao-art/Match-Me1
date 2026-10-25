@@ -47,7 +47,7 @@ try {
  test('backend acknowledgement before success and return',()=>assert.ok(page.indexOf('await preferencesService.save')<page.indexOf('toast.success')));
  test('optimistic timestamp plus JSON and owner update guards',()=>{assert.ok(service.includes(".eq('updated_at', latest.updatedAt)"));assert.ok(service.includes(".filter('job_preferences', 'eq', JSON.stringify(latest.raw))"));assert.ok(service.includes(".eq('user_id', userId)"));assert.ok(!service.includes('.insert('));});
  test('unsaved refresh Back and tab guard wired',()=>{for(const x of ['beforeunload','popstate','matchme:before-preferences-leave','window.confirm'])assert.ok(page.includes(x));assert.ok(route.includes('matchme:before-preferences-leave'));});
- test('desktop Preferences layout remains original branch',()=>assert.ok(route.includes("isMobile?<MobileSwipePreferences/>:<PreferencesView />")));
+ test('mobile Preferences branch preserved with independent desktop parity form',()=>assert.ok(route.includes("isMobile?<MobileSwipePreferences/>:<DesktopPreferences />")));
  const engine=await readFile('src/lib/ai-matching-engine.ts','utf8');
  test('existing AI engine accepts canonical preference signal',()=>{assert.ok(engine.includes('jobPreferences?: JobPreferences'));assert.ok(engine.includes('preferenceFit(seeker.jobPreferences'));});
  console.log(`${count} savings and preferences checks passed.`);

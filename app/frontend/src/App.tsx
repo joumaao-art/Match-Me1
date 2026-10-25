@@ -48,12 +48,12 @@ const LearnMore = lazy(() => import('./pages/LearnMore'));
 // Feature pages - large, lazy loaded
 const SharedJob = lazy(() => import('./pages/SharedJob'));
 const JobSeeker = lazy(() => import('./pages/JobSeeker'));
-const JobSeekerOnboarding = lazy(() => import('./pages/JobSeekerOnboarding'));
+const DesktopSeekerOnboarding = lazy(() => import('./pages/DesktopSeekerOnboarding'));
 const MobileOnboarding = lazy(() => import('./pages/MobileOnboarding'));
 function SeekerOnboardingRoute() {
   const isMobile = useIsMobile();
   const userId = useAuthStore(s => s.userId);
-  return isMobile ? <MobileOnboarding key={userId ?? 'guest'} /> : <JobSeekerOnboarding />;
+  return isMobile ? <MobileOnboarding key={userId ?? 'guest'} /> : <DesktopSeekerOnboarding key={userId ?? 'guest'} />;
 }
 const Company = lazy(() => import('./pages/Company'));
 const Messages = lazy(() => import('./pages/Messages'));

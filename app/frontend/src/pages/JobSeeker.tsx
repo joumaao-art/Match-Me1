@@ -1,3 +1,8 @@
+import { DesktopSeekerNavigation } from '@/components/seeker/DesktopSeekerNavigation';
+import { DesktopSwipePage } from '@/components/seeker/DesktopSwipePage';
+import { DesktopDashboard } from '@/components/seeker/DesktopDashboard';
+import { DesktopProfileAccount } from '@/components/seeker/DesktopProfileAccount';
+import { DesktopPreferences } from '@/components/seeker/DesktopPreferences';
 import { MobileSwipePreferences } from '@/components/seeker/MobileSwipePreferences';
 import { useCountries } from '@/components/shared/ProfileFields';
 import { useViaPremium } from '@/lib/via-premium';
@@ -532,7 +537,7 @@ function SwipeView() {
   const [handledRequestedId,setHandledRequestedId]=useState<string|null>(null);
   const requestedPreview=isMobile&&requestedId&&requestedId!==handledRequestedId?jobs.find(j=>j.id===requestedId&&isAvailableJob(j)):undefined;
   const requestedDecision=actions.find(a=>a.vacancy_id===requestedPreview?.id)?.direction;
-  const currentJob = requestedPreview||recommendedJobs[0];
+  const currentJob = requestedPreview||(!isMobile&&requestedId&&requestedId!==handledRequestedId?jobs.find(j=>j.id===requestedId&&isAvailableJob(j)):undefined)||recommendedJobs[0];
   const eligiblePass=latestEligiblePass(actions,jobs);
   useEffect(()=>{setLastPass(eligiblePass);setCanUndo(!!eligiblePass);},[eligiblePass]);
   useEffect(()=>{if(requestedId&&currentJob?.id===requestedId){clearPendingSharedJob();nativeBridge()?.postMessage(JSON.stringify({type:'job-opened',jobId:requestedId}));}},[requestedId,currentJob?.id]);
@@ -601,6 +606,7 @@ function SwipeView() {
   }, [handleSwipe]);
 
   if(isMobile)return <MobileSwipePage onCreditsOpenChange={setCreditsPaused} premium={premium.active} decision={requestedDecision||undefined} onBrowse={()=>setHandledRequestedId(requestedId)} job={currentJob} loading={jobsLoading} error={jobsError} balance={creditBalance} busy={swipeBusy} saved={actions.some(a=>a.vacancy_id===currentJob?.id&&a.saved)} canUndo={canUndo} onPass={()=>handleSwipe('left')} onApply={()=>handleSwipe('right')} onSave={()=>void handleSaveJob()} onUndo={()=>void handleUndo()} onShare={()=>{if(currentJob)void shareJob(currentJob).then(result=>{if(result==='copied')toast.success(t('link_copied'));}).catch(error=>{if(error?.name!=='AbortError')toast.error(t('try_again'));});}} onRetry={()=>void refreshJobs()} unavailable={!!requestedId&&requestedId!==handledRequestedId&&!jobsLoading&&!jobsError&&!jobs.some(j=>j.id===requestedId&&isAvailableJob(j))}/>;
+  if(!isMobile)return <DesktopSwipePage onCreditsOpenChange={setCreditsPaused} premium={premium.active} decision={actions.find(a=>a.vacancy_id===currentJob?.id)?.direction||undefined} onBrowse={()=>setHandledRequestedId(requestedId)} job={currentJob} loading={jobsLoading} error={jobsError} balance={creditBalance} busy={swipeBusy} saved={actions.some(a=>a.vacancy_id===currentJob?.id&&a.saved)} canUndo={canUndo} onPass={()=>handleSwipe('left')} onApply={()=>handleSwipe('right')} onSave={()=>void handleSaveJob()} onUndo={()=>void handleUndo()} onShare={()=>{if(currentJob)void shareJob(currentJob).then(result=>{if(result==='copied')toast.success(t('link_copied'));}).catch(error=>{if(error?.name!=='AbortError')toast.error(t('try_again'));});}} onRetry={()=>void refreshJobs()} unavailable={!!requestedId&&requestedId!==handledRequestedId&&!jobsLoading&&!jobsError&&!jobs.some(j=>j.id===requestedId&&isAvailableJob(j))}/>;
   if(jobsLoading)return <div className="flex-1 p-6" role="status">{t('loading')}</div>;
   if(jobsError)return <div className="flex-1 p-6" role="alert"><p>{t('try_again')}</p><Button onClick={()=>void refreshJobs()}>{t('try_again')}</Button></div>;
   if (!currentJob) return (
@@ -1157,6 +1163,12 @@ export default function JobSeeker() {
   const setActiveTab = (section: NavSection) => navigate(seekerSectionUrl(section));
   const [unreadMessages,setUnreadMessages] = useState<number|null>(null);
   const isMobile = useIsMobile();
+  useEffect(()=>{
+    if(isMobile)return;
+    const category=activeTab==='saved'?'saved':activeTab==='applications'||activeTab==='matches'?'all':null;
+    if(category)navigate(`/seeker?view=dashboard&category=${category}`,{replace:true});
+    if(activeTab==='certificates')navigate('/seeker?view=education',{replace:true});
+  },[isMobile,activeTab,navigate]);
   const messageUserId = useAuthStore(s=>s.userId);
   useEffect(()=>{
     if(!isMobile || activeTab!=='dashboard' || !messageUserId)return;
@@ -1276,23 +1288,22 @@ export default function JobSeeker() {
     if (isMobile && activeTab === 'settings') return <MobileProfileAccount section="account_settings"/>;
 
     switch(activeTab) {
+      case 'dashboard': return <DesktopDashboard onNavigateToSection={section=>setActiveTab(section as NavSection)}/>;
+      case 'profile': case 'cv': case 'skills': case 'via_resume': case 'subscription_overview': case 'support': case 'faq': case 'report': case 'account_settings': return <DesktopProfileAccount section={activeTab==='cv'?'profile':activeTab}/>;
       case 'personal': return <PersonalInformationPage/>;
       case 'swipe': return <SwipeView />;
-      case 'dashboard': return <DashboardView onNavigateToSection={(section) => setActiveTab(section as NavSection)} />;
-      case 'profile': case 'cv': return <ProfileView onOpenPreferences={() => { trackEvent('preferences_opened', { from: 'profile' }); setActiveTab('preferences'); }} completion={<ProfileCompletionSlot onNavigate={(section) => setActiveTab(section as NavSection)} />} />;
-            case 'experience': return <ExperienceView />;
+      case 'experience': return <ExperienceView />;
       case 'education': case 'certificates': return <EducationView />;
-      case 'skills': return <SkillsView />;
       case 'languages': return <LanguagesView />;
       case 'portfolio': return <PortfolioView />;
       case 'video': return <VideoIntroView />;
-      case 'preferences': return isMobile?<MobileSwipePreferences/>:<PreferencesView />;
+      case 'preferences': return isMobile?<MobileSwipePreferences/>:<DesktopPreferences />;
       case 'saved': return <SavedJobsView />;
       case 'applications': return <ApplicationsView />;
       case 'matches': return <MatchesView />;
       case 'messages': return null; // Handled by useEffect — navigates to /messages
       case 'notifications': return <NotificationsView />;
-      case 'settings': return <SettingsView seekerTier={seekerTier} />;
+      case 'settings': return isMobile?<SettingsView seekerTier={seekerTier}/>:<DesktopProfileAccount section="account_settings"/>;
       case 'visibility': return <ProfileVisibilitySettings tier={seekerTier} />;
       case 'exposure': return <ExposureDashboard tier={seekerTier} />;
       case 'contact_requests': return <ContactRequestsView tier={seekerTier} />;
@@ -1306,7 +1317,7 @@ export default function JobSeeker() {
     <div className="h-[100dvh] bg-background flex overflow-hidden">
       {/* Desktop sidebar - hidden on mobile */}
       <aside className="hidden md:flex w-64 border-e border-border flex-col bg-sidebar-background">
-        <SeekerNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        <DesktopSeekerNavigation active={activeTab} onNavigate={section=>{if(activeTab==='preferences'&&!window.dispatchEvent(new Event('matchme:before-preferences-leave',{cancelable:true})))return;setActiveTab(section as NavSection);}} />
       </aside>
 
       {/* Main content area — pb accounts for fixed MobileBottomNav on mobile */}

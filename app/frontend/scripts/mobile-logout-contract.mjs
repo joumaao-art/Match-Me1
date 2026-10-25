@@ -140,7 +140,7 @@ try {
     assert.ok(route.includes('if (isMobile && MOBILE_ACCOUNT_SECTIONS.includes(activeTab))'));
     assert.ok(route.includes('pb-[calc(4rem+env(safe-area-inset-bottom,0px))] md:pb-0'));
     assert.ok(route.includes('<MobileBottomNav'));
-    assert.ok(route.includes("case 'profile': case 'cv': return <ProfileView"));
+    assert.ok(route.includes('return <DesktopProfileAccount'));
   });
   await test('row size, red contrast and physical left icon preserved', () => {
     assert.ok(ui.includes('w-full min-h-14')); assert.ok(ui.includes('text-red-700 dark:text-red-400'));

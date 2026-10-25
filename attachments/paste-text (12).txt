@@ -1,0 +1,877 @@
+# MATCHME — ONE-WAY MOBILE-TO-DESKTOP JOB SEEKER SYNCHRONIZATION
+## Mobile Is the Product Reference | Desktop Must Match | Preserve Independent Layouts
+
+**PRIORITY: HIGH — JOB SEEKER ONLY**
+
+## 1. PRIMARY OBJECTIVE
+
+Audit the current, working MatchMe Job Seeker mobile application and synchronize the desktop Job Seeker experience to match it completely.
+
+The mobile application is the authoritative reference for all Job Seeker features, workflows, fields, navigation destinations, business rules, and functionality.
+
+This is a **ONE-WAY synchronization: MOBILE → DESKTOP ONLY**.
+
+The desktop must adopt the current mobile functionality.
+
+The mobile application must NOT be changed to accommodate the desktop.
+
+Do not merge the two feature sets or reintroduce older desktop functionality into mobile.
+
+### Non-negotiable principles
+
+1. Mobile defines which Job Seeker features exist.
+2. Desktop must support every mobile Job Seeker feature.
+3. Desktop-only Job Seeker features must be removed from the visible desktop experience unless they are essential security, legal, accessibility, or platform-specific controls.
+4. Preserve the mobile interface exactly as it currently works.
+5. Preserve the desktop's existing professional layout and responsive structure.
+6. Do not copy the mobile visual design onto desktop.
+7. Do not change Company or Super Admin experiences.
+8. Do not delete existing database records when removing desktop-only interface features.
+9. Do not rewrite working authentication, billing, or application logic.
+10. Do not introduce generated data, mock functionality, or placeholder buttons.
+
+**The mobile application is the functional product specification. The desktop application is its desktop-optimized presentation.**
+
+---
+
+# PART 1 — AUDIT THE CURRENT MOBILE APPLICATION
+
+## 2. Inspect the Actual Running Mobile Job Seeker Experience
+
+Before making changes, inspect the existing mobile implementation and its current routes, components, services, and backend integrations.
+
+Do not rely exclusively on previous documentation or older prompts.
+
+The current mobile implementation takes precedence over outdated desktop code and historical specifications.
+
+Audit:
+
+- Welcome and authentication.
+- Signup and onboarding.
+- Swipe.
+- Dashboard.
+- Profile.
+- Personal Information.
+- Preferences.
+- Experience.
+- Education.
+- Certifications.
+- Skills.
+- Languages.
+- Resume uploads.
+- VIA Resume.
+- Credits.
+- VIA Premium subscriptions.
+- Applications.
+- Saved Jobs.
+- Skipped Jobs.
+- Messaging and hiring-related actions.
+- Support & Settings.
+- Logout.
+
+Identify exactly what is currently implemented on mobile.
+
+Distinguish functional features from unfinished or placeholder UI.
+
+Do not copy known mobile bugs into desktop.
+
+If a mobile feature is visibly present but nonfunctional, report the defect rather than treating it as successfully implemented.
+
+## 3. Create a Mobile-to-Desktop Feature Matrix
+
+For every Job Seeker feature, document:
+
+- Mobile feature name.
+- Mobile route or component.
+- Mobile fields and options.
+- Mobile actions.
+- Mobile validation rules.
+- Mobile backend service.
+- Existing desktop equivalent.
+- Desktop discrepancy.
+- Required desktop change.
+- Verification result.
+
+Classify each desktop feature as:
+
+**MATCH** — Already equivalent to mobile.
+
+**ADD** — Exists on mobile but missing on desktop.
+
+**UPDATE** — Exists on both but desktop is outdated.
+
+**REMOVE FROM UI** — Exists only on desktop and is not part of the current mobile experience.
+
+**EXCEPTION** — Required platform-specific, security, legal, or accessibility functionality.
+
+Do not start broad refactoring before identifying these differences.
+
+---
+
+# PART 2 — DESKTOP NAVIGATION
+
+## 4. Match the Current Mobile Job Seeker Navigation Structure
+
+The current mobile bottom navigation is:
+
+**Swipe | Dashboard | Profile**
+
+The desktop must use these same three primary Job Seeker destinations.
+
+Preserve the existing desktop navigation presentation, such as its sidebar or header.
+
+Do not replace the desktop navigation with a mobile bottom bar.
+
+### Desktop navigation cleanup
+
+Remove outdated desktop-only primary navigation items such as:
+
+- Discover — replace with Swipe.
+- Applications — access through Dashboard.
+- Matches — remove as a separate primary destination.
+- Saved Jobs — access through Dashboard.
+- Skipped Jobs — access through Dashboard.
+- Preferences — access through the current mobile-equivalent entry points.
+- Resume — access through Profile.
+- Certificates — access through Education.
+- Other legacy Job Seeker-only navigation entries that no longer exist on mobile.
+
+Preserve functional access to features through the same logical entry points used on mobile.
+
+For example, Applications must remain accessible through Dashboard even though the standalone desktop sidebar item is removed.
+
+Do not delete backend data or services simply because a navigation item is removed.
+
+Retire obsolete routes safely, using redirects where appropriate to avoid broken bookmarks.
+
+---
+
+# PART 3 — SWIPE PAGE
+
+## 5. Synchronize Desktop Swipe Functionality
+
+The desktop Swipe page must offer the same functionality as the current mobile Swipe page.
+
+### Header
+
+- Official MatchMe logo on the left.
+- Available credits on the right.
+- Clickable Preferences icon beside the credits.
+
+### Profile completion
+
+Display the current profile completion percentage and progress bar.
+
+**Important: The Profile Completion indicator must be completely non-clickable.**
+
+It is informational only.
+
+Do not allow it to navigate to Profile or any other page.
+
+### Job card
+
+Display real published vacancies using the existing canonical vacancy data.
+
+Include:
+
+- Company logo.
+- Position title.
+- Compensation package if declared.
+- Job location.
+- Employment type.
+- Work style.
+- Expandable job description.
+- Qualifications.
+- Undo/Go Back.
+- Share.
+- Pass.
+- Save.
+- Apply.
+
+### Desktop interactions
+
+Preserve desktop-appropriate interaction methods.
+
+Users should be able to perform the same actions through clickable controls without requiring touch gestures.
+
+Maintain the existing desktop card layout and spacing.
+
+### Data integrity
+
+- Use real Supabase vacancies.
+- Preserve credit deduction rules.
+- Prevent duplicate applications.
+- Preserve saved and skipped job records.
+- Use the same matching and eligibility logic as mobile.
+- Do not display generated vacancies as real jobs.
+
+---
+
+# PART 4 — DASHBOARD
+
+## 6. Match the Current Mobile Dashboard Features
+
+The desktop Dashboard must contain the same functional categories as mobile:
+
+1. All Applications.
+2. Submitted Applications.
+3. Skipped Jobs.
+4. Saved Jobs.
+
+Each category must be clickable.
+
+Display accurate record counts from the existing backend.
+
+### Recent Applications
+
+Display the most recent five applications, newest first.
+
+Each application must show:
+
+- Company logo.
+- Position title.
+- Company name.
+- Location where available.
+- Application date.
+- Current application status.
+
+Provide access to View All and application details.
+
+### Application statuses
+
+Use the same canonical statuses as mobile:
+
+- Applied.
+- Under Review.
+- Shortlisted.
+- Interview Scheduled.
+- Offer Received.
+- Hired.
+- Rejected.
+- Withdrawn.
+
+Handle Expired as a vacancy lifecycle condition without automatically overwriting an existing application outcome.
+
+### Search
+
+Provide the same functional Dashboard search capability as mobile.
+
+Search actual authorized records.
+
+### Desktop layout
+
+Keep the existing desktop Dashboard design.
+
+Use desktop-appropriate grids, tables, or sections where already established.
+
+Do not copy the mobile two-column button grid unless it is already appropriate to the desktop design.
+
+### Remove desktop-only Dashboard elements
+
+Remove legacy desktop-only widgets, statistics, filters, or actions that are not available in the current mobile Dashboard, unless they are essential for a supported workflow.
+
+Do not remove underlying application data.
+
+---
+
+# PART 5 — PROFILE
+
+## 7. Synchronize the Desktop Profile Page
+
+The desktop Profile must contain the same current information and actions as mobile.
+
+### Account overview
+
+Display:
+
+- Username or display name.
+- Email.
+- Mobile number.
+- Attached CV.
+- CV last-updated date.
+
+### Profile actions
+
+Provide:
+
+1. Subscription Overview.
+2. VIA Resume.
+3. Personal.
+4. Logout.
+
+Provide access to Support & Settings through an appropriate desktop information icon or equivalent entry point.
+
+### Remove outdated desktop-only Profile elements
+
+Remove duplicate sections, old action buttons, or legacy navigation that no longer exists in the current mobile Profile.
+
+Do not remove data from Supabase.
+
+Keep desktop-appropriate positioning and layout.
+
+---
+
+# PART 6 — PERSONAL INFORMATION
+
+## 8. Implement the Current Four-Category Personal Structure
+
+The desktop Personal page must match the current mobile Personal page exactly in terms of fields, validation, and functionality.
+
+### Category 1 — Identity
+
+Fields:
+
+- Title: Dr., Mr., Mrs., Ms.
+- Legal First Name.
+- Legal Last Name.
+- Birthday.
+
+Use the existing canonical fields and birthday validation.
+
+### Category 2 — Contact
+
+Fields:
+
+- Email.
+- Mobile.
+- Address.
+
+Mobile must support the international country-code selector.
+
+Address must use the existing Country and City dropdown system.
+
+### Category 3 — Compensation
+
+Field:
+
+**Current Compensation — Optional**
+
+Include:
+
+- Currency.
+- Amount.
+- Payment frequency: Monthly or Annually.
+
+Do not make compensation mandatory.
+
+Do not include compensation in the profile completion calculation.
+
+Do not expose compensation publicly or to Companies by default.
+
+### Category 4 — Gender
+
+Options:
+
+- Male.
+- Female.
+- Prefer not to say.
+
+### Desktop cleanup
+
+Remove or relocate any desktop-only Personal fields that do not exist in the current mobile Personal experience.
+
+Do not delete historical values or modify unrelated profile data.
+
+The desktop must load the same saved information as mobile.
+
+---
+
+# PART 7 — EXPERIENCE, EDUCATION, CERTIFICATIONS, SKILLS & LANGUAGES
+
+## 9. Experience
+
+Match the current mobile Experience functionality.
+
+Ensure:
+
+- Add, edit, and delete experience.
+- Mandatory fields follow current mobile rules.
+- Country and City dropdowns.
+- Employment type options match the current mobile implementation.
+- Description word limit matches mobile.
+- Display the existing advice about limiting duties to fewer than 10.
+- Total years of experience calculation.
+- Most recent experience displayed first.
+- Consistent Start and End date selectors.
+- Current role support.
+
+Do not reintroduce older desktop-only fields or outdated employment-type options.
+
+## 10. Education
+
+Match mobile Education functionality.
+
+Ensure:
+
+- Add, edit, and delete education.
+- Institution.
+- Location.
+- Degree.
+- Specialization.
+- Start and End dates.
+- Current education support.
+- Not Applicable degree option.
+- No GPA field.
+- Most recent education displayed first.
+
+Use the exact current mobile dropdown options and validation rules.
+
+## 11. Certifications
+
+Match the current mobile Certifications functionality.
+
+Ensure:
+
+- Certifications remain accessible through Education.
+- Add, edit, and delete certifications.
+- Most recent first.
+- Same fields and validation as mobile.
+
+Remove outdated standalone desktop Certificates navigation.
+
+## 12. Skills
+
+Match mobile:
+
+- Searchable skill selection.
+- Type-ahead autocomplete.
+- Multiple selections.
+- Existing validation rules.
+- Saved values and persistence.
+
+## 13. Languages
+
+Match mobile language options.
+
+Replace any outdated Advanced label with Fluent.
+
+Support Native Speaker.
+
+Preserve other existing mobile language proficiency options.
+
+---
+
+# PART 8 — PREFERENCES
+
+## 14. Match Current Mobile Preferences
+
+Desktop Preferences must contain the same fields as mobile.
+
+### Roles & Keywords
+
+- Searchable autocomplete.
+- Multiple selections.
+- Maximum 10 selections.
+
+### Countries of Interest
+
+- Searchable country dropdown.
+- Multiple selections.
+
+### Job Type
+
+Use the current mobile Job Type options.
+
+### Work Style
+
+Use the current mobile Work Style options.
+
+### Seniority Level
+
+- Junior.
+- Mid.
+- Senior.
+
+Remove outdated desktop-only preference fields and controls that are no longer present on mobile.
+
+Preserve existing stored values that may be used elsewhere; do not silently delete them.
+
+### Save
+
+Use the same validation and persistence rules as mobile.
+
+The desktop may retain its desktop-appropriate Save control.
+
+Changes must immediately become available to the matching and recommendation services.
+
+---
+
+# PART 9 — CREDITS AND SUBSCRIPTIONS
+
+## 15. Credits
+
+The desktop Credits experience must match the current mobile functionality.
+
+Requirements:
+
+- Same account balance.
+- Same 20-credit new-user allocation.
+- Same deduction rules.
+- Same transaction history where available.
+- No duplicate welcome credits.
+- Same eligibility and entitlement rules.
+
+The desktop can use a desktop-appropriate modal.
+
+Do not change the mobile Credits popup.
+
+## 16. VIA Premium
+
+Match the current mobile subscription functionality.
+
+Plans:
+
+- Monthly: $10.
+- Yearly: $100.
+- Yearly labeled Most Popular.
+- Yearly displays Save 17%.
+
+Include:
+
+- Current subscription.
+- Upgrade options.
+- Subscription management.
+- Auto-renewal disclosure.
+- Supported checkout.
+- Verified Premium entitlement.
+
+Do not create desktop-only subscription plans or change the existing prices.
+
+Respect applicable platform billing requirements.
+
+---
+
+# PART 10 — VIA RESUME
+
+## 17. ATS-Friendly Resume
+
+Desktop must provide the same VIA Resume capability as mobile.
+
+Include:
+
+- Generate resume from existing profile.
+- Preview.
+- Download PDF.
+- Experience.
+- Education.
+- Skills.
+- Certifications.
+- Languages.
+
+Use the same resume-generation service and canonical profile data.
+
+Do not create a separate desktop resume engine.
+
+Do not invent qualifications or professional experience.
+
+Do not automatically include sensitive personal information such as birthday, gender, or current compensation.
+
+---
+
+# PART 11 — SUPPORT, SETTINGS AND LOGOUT
+
+## 18. Support & Settings
+
+Desktop must offer the same current mobile options:
+
+- Chat with Support.
+- Email Us.
+- FAQ.
+- Report a Problem.
+- Settings.
+
+Reuse the existing configured support integrations.
+
+Do not create fake support chat or issue-reporting functionality.
+
+## 19. Logout
+
+Desktop must provide the same logout behavior as mobile:
+
+- Accessible Logout action.
+- Confirmation before signing out.
+- Existing Supabase sign-out service.
+- Clear user-specific cached data.
+- Preserve all persisted account records.
+- Return to the welcome/login page.
+- Prevent unauthorized access to protected pages after logout.
+
+Keep the desktop-appropriate placement of Logout.
+
+---
+
+# PART 12 — REMOVE DESKTOP-ONLY FUNCTIONALITY
+
+## 20. Desktop Feature Cleanup
+
+After the full mobile-to-desktop audit, remove desktop-only Job Seeker interface elements that are absent from mobile.
+
+This includes:
+
+- Outdated navigation.
+- Duplicate account sections.
+- Legacy Profile fields.
+- Obsolete preferences.
+- Old application widgets.
+- Redundant controls.
+- Superseded screens.
+- Unused desktop-only Job Seeker actions.
+
+### Important safety distinction
+
+Remove obsolete functionality from the **desktop interface**, not automatically from the database or shared backend.
+
+Before removing anything:
+
+1. Verify it truly has no current mobile equivalent.
+2. Confirm it is not required by another mobile workflow.
+3. Check whether it is needed for authentication, accessibility, legal compliance, billing, or account security.
+4. Check whether other roles depend on the component or service.
+5. Preserve existing user records.
+6. Remove only the obsolete desktop presentation or entry point.
+7. Update or redirect obsolete routes safely.
+
+Do not delete production data.
+
+Do not remove essential account controls merely because they are accessed differently on mobile.
+
+Do not remove a desktop feature that is required to complete a mobile-equivalent workflow.
+
+---
+
+# PART 13 — STRICT ONE-WAY CHANGE CONTROL
+
+## 21. Mobile Is Read-Only for This Task
+
+Treat the existing mobile Job Seeker implementation as read-only.
+
+Do not modify:
+
+- Mobile layouts.
+- Mobile navigation.
+- Mobile components.
+- Mobile styling.
+- Mobile field labels.
+- Mobile form structures.
+- Mobile workflow ordering.
+- Mobile button placements.
+
+Do not modify shared components or styles in ways that change the mobile presentation or behavior.
+
+If shared service changes are necessary, ensure they are backward-compatible with mobile.
+
+Any mobile regression introduced by this task is unacceptable.
+
+If a mobile defect is discovered, report it separately rather than silently modifying the mobile experience.
+
+## 22. Desktop Changes Only
+
+All user-facing changes must be confined to the desktop Job Seeker experience.
+
+Allowed:
+
+- Desktop routes.
+- Desktop Job Seeker components.
+- Desktop navigation.
+- Desktop forms.
+- Desktop feature integrations.
+- Desktop-specific styling.
+- Backward-compatible shared service adjustments.
+
+Not allowed:
+
+- Mobile redesign.
+- Company redesign.
+- Super Admin redesign.
+- Unrelated authentication rewrites.
+- Database resets.
+- Destructive migrations.
+
+---
+
+# PART 14 — REAL BACKEND SYNCHRONIZATION
+
+## 23. Shared Supabase Records
+
+Both versions must continue using the same canonical backend.
+
+Verify:
+
+- Profiles.
+- Personal Information.
+- Preferences.
+- Experience.
+- Education.
+- Certifications.
+- Skills.
+- Languages.
+- Resume files.
+- Applications.
+- Saved Jobs.
+- Skipped Jobs.
+- Credits.
+- Subscriptions.
+- Messages.
+
+Do not create duplicate mobile and desktop records.
+
+Changes made on desktop must persist in the shared account data.
+
+**One-way synchronization refers to feature design and implementation direction, not restricting users from updating their own information on desktop.**
+
+A user can still edit information on either platform.
+
+However, desktop must not introduce functionality that changes the mobile product specification.
+
+---
+
+# PART 15 — ACCEPTANCE TESTING
+
+## 24. Feature Parity Verification
+
+Test every applicable Job Seeker feature on desktop against the current mobile reference.
+
+Verify:
+
+1. Desktop has all mobile Job Seeker features.
+2. Desktop has no obsolete desktop-only Job Seeker interface features.
+3. Desktop navigation matches mobile destinations.
+4. Desktop Swipe matches mobile functionality.
+5. Desktop Dashboard matches mobile functionality.
+6. Desktop Profile matches mobile functionality.
+7. Desktop Personal has the four current categories.
+8. Desktop Preferences matches mobile.
+9. Desktop Experience matches mobile.
+10. Desktop Education matches mobile.
+11. Desktop Certifications matches mobile.
+12. Desktop Skills and Languages match mobile.
+13. Desktop Credits matches mobile.
+14. Desktop VIA Premium matches mobile.
+15. Desktop VIA Resume matches mobile.
+16. Desktop Support & Settings matches mobile.
+17. Desktop Logout works.
+18. Data persists correctly.
+19. Mobile functionality remains unchanged.
+20. Company and Super Admin functionality remains unchanged.
+
+## 25. Visual Regression Testing
+
+Before implementation, capture baseline screenshots of the existing mobile and desktop Job Seeker experiences where supported.
+
+After implementation:
+
+### Mobile
+
+Verify the layout is unchanged at:
+
+- 320px.
+- 360px.
+- 375px.
+- 390px.
+- 412px.
+
+### Desktop
+
+Verify the existing desktop visual structure remains professional at:
+
+- 1024px.
+- 1280px.
+- 1440px.
+- 1920px.
+
+Check:
+
+- Navigation.
+- Header.
+- Forms.
+- Tables.
+- Cards.
+- Modals.
+- Dropdowns.
+- Scrolling.
+- Text wrapping.
+- English and Arabic RTL.
+
+Do not claim visual testing passed without actual evidence.
+
+---
+
+# PART 16 — FUTURE DEVELOPMENT RULE
+
+## 26. Mobile-First Product Authority
+
+Establish the following rule in the existing MatchMe engineering documentation and supported project instructions:
+
+**For Job Seeker features, mobile is the authoritative product reference. Desktop must follow mobile functionality while retaining its independent desktop layout.**
+
+For future development:
+
+- Implement or define Job Seeker functionality against the mobile product specification first.
+- Ensure the same capability is available on desktop.
+- Preserve platform-specific presentation.
+- Do not introduce desktop-only Job Seeker features without explicit approval.
+- Do not reintroduce removed legacy desktop functionality.
+- Maintain one shared backend and consistent data rules.
+- Include desktop parity and mobile regression testing.
+
+This is a permanent engineering standard for Job Seeker functionality.
+
+Do not apply this rule automatically to Company or Super Admin without separate approval.
+
+---
+
+# PART 17 — FINAL IMPLEMENTATION REPORT
+
+## 27. Required Report
+
+Provide a complete English-only report containing:
+
+1. Current mobile Job Seeker feature inventory.
+2. Existing desktop Job Seeker feature inventory.
+3. Features added to desktop.
+4. Features updated on desktop.
+5. Desktop-only features removed from the interface.
+6. Exceptions retained and why.
+7. Shared service adjustments.
+8. Supabase data synchronization verification.
+9. Desktop functional acceptance results.
+10. Mobile regression results.
+11. Desktop visual regression results.
+12. Files changed.
+13. Outstanding blockers.
+
+Use PASS, FAIL, or BLOCKED for tests.
+
+Do not report full completion if required functionality remains unverified.
+
+Do not repeatedly request confirmation for requirements already specified in this prompt.
+
+---
+
+# FINAL SUCCESS CONDITION
+
+The current MatchMe mobile Job Seeker experience is the authoritative product reference.
+
+The desktop Job Seeker experience has been updated to provide the same:
+
+- Features.
+- Fields.
+- Options.
+- Validation.
+- Navigation destinations.
+- Workflows.
+- Actions.
+- Business rules.
+- Account information.
+
+All obsolete desktop-only Job Seeker interface features have been removed or safely retired.
+
+The mobile experience remains unchanged.
+
+The desktop retains its professional desktop-optimized layout.
+
+Both versions use the same Supabase backend and account information.
+
+Company and Super Admin functionality remain unaffected.
+
+**Begin by auditing the current mobile Job Seeker implementation, compare it against desktop, then implement all confirmed desktop changes. Do not redesign mobile or rebuild working functionality.**
