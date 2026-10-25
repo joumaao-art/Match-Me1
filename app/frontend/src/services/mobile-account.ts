@@ -4,7 +4,7 @@ import { readHistory } from '@/lib/canonical-profile';
 import type { CertificateRecord, LanguageRecord, EducationRecord, ExperienceRecord } from '@/lib/profile-standards';
 
 export interface AccountProfile {
- user_id: string; first_name: string | null; last_name: string | null; full_name: string | null;
+ user_id: string; title?: string | null; current_compensation?: {amount: number; currency: string; frequency: 'monthly' | 'annually'} | null; first_name: string | null; last_name: string | null; full_name: string | null;
  phone: string | null; country: string | null; city: string | null; location: string | null;
  date_of_birth: string | null; gender: string | null; cv_url: string | null; cv_file_name: string | null;
  cv_updated_at: string | null; resume_extract: { fileName?: string } | null; skills: string[] | null;

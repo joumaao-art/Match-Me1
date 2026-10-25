@@ -1,0 +1,292 @@
+# MATCHME — JOB SEEKER PERSONAL INFORMATION RESTRUCTURING
+## Identity | Contact | Compensation | Gender
+
+### OBJECTIVE
+
+Restructure the existing **Personal** page under Job Seeker → Profile → Personal into four categories, in the exact order specified below.
+
+Implement these changes on both mobile and desktop, preserving each platform's existing layout, navigation, styling, and responsive behavior.
+
+Reuse the existing Supabase profile records, validation, authentication, and data services.
+
+Do not rebuild the Profile system, reset saved information, or create duplicate profile records.
+
+---
+
+## 1. IDENTITY
+
+Create the first category with the heading:
+
+**Identity**
+
+Display the following fields in this exact order:
+
+### Title
+- Dropdown selection.
+- Options:
+  - Dr.
+  - Mr.
+  - Mrs.
+  - Ms.
+- Single selection.
+- Include a placeholder: "Select title".
+- Save the selected title to the existing Job Seeker profile, extending the schema safely if required.
+
+### Legal First Name
+- Text input.
+- Mandatory.
+- Prepopulate with the user's previously saved legal first name.
+- Support appropriate Unicode characters for English and Arabic names.
+- Trim unnecessary leading and trailing spaces.
+
+### Legal Last Name
+- Text input.
+- Mandatory.
+- Prepopulate with the user's previously saved legal last name.
+- Apply the same validation rules as Legal First Name.
+
+### Birthday
+- Display the existing saved date of birth.
+- Mandatory, consistent with the existing onboarding rules.
+- Use the established mobile scrolling day/month/year date picker.
+- On desktop, preserve the existing desktop-appropriate date entry interface.
+- Validate actual calendar dates.
+- Do not allow future birth dates.
+- Preserve the existing age calculation where used.
+
+Do not add additional Identity fields.
+
+---
+
+## 2. CONTACT
+
+Create the second category with the heading:
+
+**Contact**
+
+Display these fields in this exact order:
+
+### Email
+- Display the user's registered email address.
+- Prepopulate from the existing authenticated account.
+- If editable, use the existing secure email-change and verification process.
+- Do not directly modify the Supabase authentication email through an ordinary profile update.
+- Keep the email synchronized across the account.
+
+### Mobile
+- Use a searchable country-code dropdown beside the mobile number field.
+- Include supported international calling codes.
+- Prepopulate the previously saved country code and mobile number.
+- Validate the number using country-specific formatting where supported.
+- Preserve the existing phone verification requirements.
+- Do not overwrite the number during unrelated profile edits.
+
+### Address
+- Display the user's existing saved address.
+- Include searchable Country and City dropdowns.
+- Filter City selections based on the selected Country.
+- Preserve any existing street/address details supported by the current profile model.
+- Prepopulate all available address information.
+- Do not overwrite saved address details when the user opens the page.
+
+All Contact fields remain subject to the existing mandatory profile requirements.
+
+---
+
+## 3. COMPENSATION
+
+Create the third category with the heading:
+
+**Compensation**
+
+Add the following field:
+
+### Current Compensation
+
+This field is **optional**.
+
+Allow the Job Seeker to enter their current compensation.
+
+Recommended input structure:
+
+**Currency**
+- Searchable dropdown.
+- Support relevant international currencies using standardized currency codes.
+- Do not assume the user is paid in SAR.
+
+**Amount**
+- Numeric input.
+- Accept positive monetary amounts.
+- Support appropriate decimal precision.
+- Display the selected currency clearly.
+
+**Payment Frequency**
+- Dropdown options:
+  - Monthly.
+  - Annually.
+
+Store the amount, currency, and payment frequency together as one compensation record.
+
+Requirements:
+- The user may leave the entire category blank.
+- Do not block profile completion when compensation is missing.
+- Do not reduce the user's profile completion percentage because compensation is not provided.
+- Do not make compensation mandatory during onboarding.
+- Allow the user to edit or clear previously entered compensation.
+- Persist compensation securely in Supabase.
+- Do not expose current compensation to Companies, other Job Seekers, or public profiles by default.
+- Do not automatically include compensation in the VIA Resume PDF.
+- Do not automatically use compensation for job matching or salary filtering without an explicit product rule and user consent.
+
+Do not confuse Current Compensation with Expected Compensation or the compensation offered by a Company in a vacancy.
+
+---
+
+## 4. GENDER
+
+Create the fourth category with the heading:
+
+**Gender**
+
+Provide a single-choice selection with the following options:
+
+- Male.
+- Female.
+- Prefer not to say.
+
+Requirements:
+- Preselect the previously saved value.
+- Allow the user to change the selection.
+- Save the value to the existing canonical profile field.
+- Keep the existing mandatory selection rule, with "Prefer not to say" as a valid answer.
+- Do not expose Gender publicly or use it for discriminatory job matching.
+- Preserve English and Arabic localization.
+
+---
+
+## 5. PAGE LAYOUT
+
+Display the categories vertically in this exact order:
+
+1. Identity.
+2. Contact.
+3. Compensation.
+4. Gender.
+
+Each category should have:
+- A clear heading.
+- Consistent field labels.
+- Appropriate spacing.
+- Professional input styling.
+- Clear validation messages.
+- Prepopulated values where saved information exists.
+
+Maintain a polished, minimal interface.
+
+Do not introduce oversized cards, excessive borders, decorative gradients, or unnecessary illustrations.
+
+### Save Action
+
+Preserve the existing Personal page Save functionality.
+
+- Validate mandatory fields.
+- Save all modified fields using the existing backend services.
+- Show a success message only after the backend confirms persistence.
+- Preserve unsaved changes if a save fails.
+- Prevent duplicate submissions.
+- Keep the Save action visible and accessible on mobile.
+- Ensure it is not hidden behind the bottom navigation or device safe area.
+
+Do not create a separate Save button for each category.
+
+---
+
+## 6. MOBILE AND DESKTOP CONSISTENCY
+
+The Personal page must offer identical information and functionality on both platforms.
+
+However:
+
+**Mobile**
+- Preserve the existing mobile Profile design.
+- Use mobile-friendly dropdowns and date pickers.
+- Maintain appropriate touch targets and safe areas.
+
+**Desktop**
+- Preserve the existing desktop Profile design.
+- Use desktop-appropriate forms and dropdowns.
+- Do not copy the mobile layout onto desktop.
+
+Both platforms must read and update the same canonical Supabase records.
+
+Changes made on mobile must appear on desktop and vice versa.
+
+---
+
+## 7. DATA INTEGRITY
+
+Before implementation:
+
+1. Inspect the existing Personal Information component.
+2. Identify the canonical profile fields.
+3. Reuse existing Identity, Contact, and Gender records.
+4. Add only missing fields for Title and Current Compensation.
+5. Use safe database migrations where required.
+6. Preserve all existing user information.
+7. Maintain Row Level Security and authorization rules.
+8. Do not modify unrelated Company or Super Admin data.
+
+Do not create duplicate fields with different names for the same information.
+
+Do not reset profile completion, onboarding, authentication, or subscriptions.
+
+---
+
+## 8. ACCEPTANCE TESTING
+
+Verify the following in the running application:
+
+1. Identity appears first.
+2. Title dropdown contains Dr., Mr., Mrs., and Ms.
+3. Legal First Name loads and saves correctly.
+4. Legal Last Name loads and saves correctly.
+5. Birthday loads and saves correctly.
+6. Contact appears second.
+7. Email loads correctly and follows secure change rules.
+8. Mobile country code and number load correctly.
+9. Country and City dropdowns work.
+10. Compensation appears third.
+11. Current Compensation is optional.
+12. Currency, amount, and frequency save correctly.
+13. Compensation can be edited and cleared.
+14. Missing compensation does not affect profile completion.
+15. Gender appears fourth.
+16. All three Gender options work.
+17. Existing saved values remain intact.
+18. Saving persists after refresh and logout/login.
+19. Mobile and desktop show consistent data.
+20. Existing mobile and desktop layouts remain unchanged.
+21. English and Arabic localization works.
+22. No infinite loading or navigation regressions.
+
+Run relevant TypeScript, lint, build, and backend validation tests.
+
+Do not claim App Viewer tests passed unless they were actually executed.
+
+---
+
+## FINAL SUCCESS CONDITION
+
+The MatchMe Job Seeker Personal page contains exactly four categories:
+
+**Identity:** Title, Legal First Name, Legal Last Name, Birthday.
+
+**Contact:** Email, Mobile, Address.
+
+**Compensation:** Current Compensation (optional).
+
+**Gender:** Male, Female, Prefer not to say.
+
+All previously saved information is prepopulated correctly, changes persist in Supabase, and the same functionality is available on mobile and desktop without changing their respective layouts.
+
+Implement the changes directly in the existing project and provide a concise English-only implementation report.

@@ -61,7 +61,7 @@ export function fieldAria(id: string, error?: string, hasHint?: boolean) {
 
 interface Option { value: string; label: string }
 
-function SearchableCombobox({ id, options, value, onChange, placeholder, disabled, invalid, loading, multiple, describedBy }: {
+export function SearchableCombobox({ id, options, value, onChange, placeholder, disabled, invalid, loading, multiple, describedBy }: {
   id: string; options: Option[]; value: string[]; onChange: (v: string[]) => void;
   placeholder: string; disabled?: boolean; invalid?: boolean; loading?: boolean; multiple?: boolean; describedBy?: string;
 }) {

@@ -57,6 +57,7 @@ import { MobileBottomNav, type MobileNavTab } from '@/components/shared/MobileBo
 import { MobileDashboard } from '@/components/shared/MobileDashboard';
 import LegacyDashboard from '@/components/shared/LegacyDashboard';
 import { applicationStatus, recruitmentLabel } from '@/lib/recruitment-status';
+import { PersonalInformationPage } from '@/components/seeker/PersonalInformation';
 import { MobileProfileAccount, MOBILE_ACCOUNT_SECTIONS } from '@/components/seeker/MobileProfileAccount';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuthStore } from '@/stores';
@@ -1275,6 +1276,7 @@ export default function JobSeeker() {
     if (isMobile && activeTab === 'settings') return <MobileProfileAccount section="account_settings"/>;
 
     switch(activeTab) {
+      case 'personal': return <PersonalInformationPage/>;
       case 'swipe': return <SwipeView />;
       case 'dashboard': return <DashboardView onNavigateToSection={(section) => setActiveTab(section as NavSection)} />;
       case 'profile': case 'cv': return <ProfileView onOpenPreferences={() => { trackEvent('preferences_opened', { from: 'profile' }); setActiveTab('preferences'); }} completion={<ProfileCompletionSlot onNavigate={(section) => setActiveTab(section as NavSection)} />} />;

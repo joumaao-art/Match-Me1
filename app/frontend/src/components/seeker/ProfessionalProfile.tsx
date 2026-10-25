@@ -1,5 +1,5 @@
 import { MandatoryProfileGuidance } from './MandatoryProfileGuidance';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { readHistory, writeHistory, readCanonicalProfile, writeCanonicalProfile } from '@/lib/canonical-profile';
 import { PhoneInput } from '@/components/shared/PhoneInput';
@@ -268,8 +268,8 @@ function useFormState<T>(initial: T) {
 // ============================================================
 
 export function ProfileView({ completion, onOpenPreferences }: { completion?: React.ReactNode; onOpenPreferences?: () => void }) {
-  const location=useLocation();const mobile=useIsMobile();
-  const { t } = useTranslation();
+  const location=useLocation();const mobile=useIsMobile();const navigate=useNavigate();
+  const { t, i18n } = useTranslation();
   const [stored, save, ready] = useSeekerProfile();
   const { form: profile, setForm: setProfile, reset, dirty } = useFormState<SeekerProfileRecord>(stored);
   const [errors, setErrors] = useState<ReturnType<typeof validateProfile>>({});
@@ -303,6 +303,7 @@ export function ProfileView({ completion, onOpenPreferences }: { completion?: Re
       <div className="max-w-2xl space-y-6">
         {mobile&&new URLSearchParams(location.search).has('complete')&&<MandatoryProfileGuidance/>}
         {completion}
+        {!mobile && <Button type="button" variant="outline" className="min-h-11 !bg-transparent !hover:bg-transparent" onClick={() => navigate('/seeker?view=personal')}>{t('personal', { defaultValue: i18n.language.startsWith('ar') ? 'المعلومات الشخصية' : 'Personal' })}</Button>}
         <IncompleteBanner count={Object.keys(errors).length} />
         <Card><CardContent className="p-4 sm:p-6 space-y-4">
           <div className="flex items-center gap-4">

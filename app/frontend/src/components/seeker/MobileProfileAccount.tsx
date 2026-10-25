@@ -3,17 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, Info, ChevronRight, CreditCard, FileText, User, Upload, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { PhoneInput } from '@/components/shared/PhoneInput';
-import { LocationSelector, useCountries } from '@/components/shared/ProfileFields';
-import { isValidE164 } from '@/lib/phone';
 import { useAuthStore } from '@/stores';
-import { apiClient } from '@/services/api-client';
 import { profileService } from '@/services/profile.service';
-import { loadAccount, cvMetadata, cvLink, personalDraft, personalPatch, requireAccount, loadResumeData, type AccountSnapshot, type PersonalDraft } from '@/services/mobile-account';
+import { loadAccount, cvMetadata, cvLink, loadResumeData, type AccountSnapshot } from '@/services/mobile-account';
 import { generateResume } from '@/lib/via-resume';
 import { useViaPremium, openBillingUrl } from '@/lib/via-premium';
 import { subscriptionService } from '@/services/subscription.service';
+import { PersonalInformationForm } from './PersonalInformation';
 import { MobileProfileLogout } from './MobileProfileLogout';
 import { MobileSupport } from './MobileSupport';
 
@@ -35,7 +31,7 @@ function AccountContent({uid,section}:{uid:string|null;section:string}){
  return <section dir={ar?'rtl':'ltr'} className="flex-1 min-h-0 overflow-y-auto bg-background" data-testid="mobile-profile-account">
   {section==='profile'&&<header dir="ltr" className="flex items-center justify-between px-4 py-3" style={{paddingTop:'calc(env(safe-area-inset-top) + 12px)'}}><div className="flex items-center gap-2"><Sparkles className="w-8 h-8 text-primary"/><span className="font-bold font-[Poppins] text-lg text-primary">MatchMe</span></div><Button variant="ghost" size="icon" className="h-11 w-11" aria-label={copy('Support & Settings','الدعم والإعدادات')} onClick={()=>go('support')}><Info size={22}/></Button></header>}
   <div className="px-5 py-4 max-w-lg mx-auto w-full">
-   {loading&&!account?<p role="status">{copy('Loading account…','جارٍ تحميل الحساب…')}</p>:error?<div role="alert"><p className="text-destructive text-sm mb-3">{error}</p><Button onClick={()=>void refresh()}>{copy('Retry','إعادة المحاولة')}</Button></div>:!account?null:section==='profile'?<Overview account={account} onNavigate={go} onUpdated={()=>void refresh()}/>:section==='personal'?<Personal key={`personal:${uid}`} account={account} onSaved={setAccount}/>:section==='subscription_overview'?<SubscriptionOverview uid={account.uid}/>:section==='via_resume'?<ViaResume uid={account.uid}/>:<MobileSupport section={section} account={account} onUpdated={setAccount} onNavigate={go}/>}
+   {loading&&!account?<p role="status">{copy('Loading account…','جارٍ تحميل الحساب…')}</p>:error?<div role="alert"><p className="text-destructive text-sm mb-3">{error}</p><Button onClick={()=>void refresh()}>{copy('Retry','إعادة المحاولة')}</Button></div>:!account?null:section==='profile'?<Overview account={account} onNavigate={go} onUpdated={()=>void refresh()}/>:section==='personal'?<><h1 className="text-xl font-semibold mb-6">{copy('Personal Information','المعلومات الشخصية')}</h1><PersonalInformationForm key={`personal:${uid}`} account={account} mobile onSaved={setAccount}/></>:section==='subscription_overview'?<SubscriptionOverview uid={account.uid}/>:section==='via_resume'?<ViaResume uid={account.uid}/>:<MobileSupport section={section} account={account} onUpdated={setAccount} onNavigate={go}/>}
   </div>
  </section>;
 }
@@ -53,27 +49,6 @@ function Overview({account,onNavigate,onUpdated}:{account:AccountSnapshot;onNavi
    <div className="flex gap-2 mt-2"><Button variant="ghost" className="px-0 h-11 text-primary" disabled={busy} onClick={()=>input.current?.click()}><Upload size={16} className="me-2"/>{cv?copy('Replace CV','استبدال السيرة'):copy('Add CV','إضافة سيرة')}</Button>{cv&&<Button variant="ghost" disabled={busy} onClick={()=>void open(true)}><Download size={16} className="me-2"/>{copy('Download','تنزيل')}</Button>}</div><input ref={input} type="file" className="hidden" aria-label={copy('Upload CV','رفع السيرة')} accept=".pdf,.doc,.docx,.txt" onChange={e=>{const f=e.target.files?.[0];e.target.value='';if(f)void upload(f);}}/><p className="text-xs text-muted-foreground">{copy('Original document · PDF, DOC, DOCX or TXT · up to 10 MB','الملف الأصلي · PDF أو DOC أو DOCX أو TXT · حتى 10 ميغابايت')}</p></dd></div>
  </dl>{error&&<p role="alert" className="text-destructive text-sm mb-4">{error}</p>}{preview&&<div className="mb-5 space-y-2"><iframe title={copy('Original CV preview','معاينة السيرة الأصلية')} src={preview} className="w-full h-80 border rounded-lg"/><p className="text-xs text-muted-foreground">{copy('If this document format cannot be previewed, use Download.','إذا تعذرت معاينة هذا النوع من الملفات، استخدم التنزيل.')}</p><Button variant="ghost" onClick={()=>setPreview('')}>{copy('Close preview','إغلاق المعاينة')}</Button></div>}
  <nav className="space-y-3"><AccountRow icon={CreditCard} label={copy('Subscription Overview','نظرة عامة على الاشتراك')} onClick={()=>onNavigate('subscription_overview')}/><AccountRow icon={FileText} label="VIA Resume" onClick={()=>onNavigate('via_resume')}/><AccountRow icon={User} label={copy('Personal','المعلومات الشخصية')} onClick={()=>onNavigate('personal')}/></nav><MobileProfileLogout uid={account.uid}/></>;
-}
-function Personal({account,onSaved}:{account:AccountSnapshot;onSaved:(a:AccountSnapshot)=>void}){
- const {copy}=useAccountCopy();const {countries}=useCountries();const [base,setBase]=useState(account.profile);const [draft,setDraft]=useState<PersonalDraft>(()=>personalDraft(account.profile));const [error,setError]=useState('');const [notice,setNotice]=useState('');const [busy,setBusy]=useState(false);const lock=useRef(false);const alive=useRef(true);useEffect(()=>()=>{alive.current=false;},[]);
- const set=(k:keyof PersonalDraft,v:string)=>{setDraft(d=>({...d,[k]:v}));setNotice('');};
- const save=async()=>{
-  if(lock.current)return;const patch=personalPatch(base,draft);setError('');setNotice('');
-  if(!Object.keys(patch).length){setNotice(copy('No changes to save.','لا توجد تغييرات للحفظ.'));return;}
-  if((('first_name' in patch)&&!draft.first_name.trim())||(('last_name'in patch)&&!draft.last_name.trim())||(('country'in patch)&&!draft.country)||(('city'in patch)&&!draft.city)){setError(copy('Complete the fields you changed.','أكمل الحقول التي عدّلتها.'));return;}
-  if('phone'in patch&&!isValidE164(draft.phone,countries)){setError(copy('Enter a valid international mobile number.','أدخل رقم جوال دولي صالح.'));return;}
-  if('phone'in patch&&account.authPhone){setError(copy('Your login phone requires identity verification. Contact support; it was not changed.','رقم تسجيل الدخول يتطلب التحقق من الهوية. تواصل مع الدعم؛ لم يتم تغييره.'));return;}
-  lock.current=true;setBusy(true);try{await requireAccount(account.uid);const r=await apiClient.supabase.rpc('update_mobile_personal',{p_patch:patch,p_base:base}).abortSignal(AbortSignal.timeout(10000));if(r.error)throw r.error;if(alive.current&&useAuthStore.getState().userId===account.uid){setBase(r.data);setDraft(personalDraft(r.data));onSaved({...account,profile:r.data,displayName:account.displayName===base.full_name?r.data.full_name:account.displayName});setNotice(copy('Personal information saved.','تم حفظ المعلومات الشخصية.'));window.dispatchEvent(new Event('matchme:profile-changed'));}}catch{if(alive.current)setError(copy('Save failed or this information changed on another device. Your edits are retained. Go back and reload before resolving conflicts.','تعذر الحفظ أو تغيّرت المعلومات على جهاز آخر. تم الاحتفاظ بتعديلاتك. ارجع وأعد التحميل لحل التعارض.'));}finally{lock.current=false;if(alive.current)setBusy(false);}
- };
- const field=(label:string,id:string,type:string,k:keyof PersonalDraft)=><label className="block text-sm space-y-2" htmlFor={id}><span className="font-medium">{label}</span><Input id={id} type={type} value={draft[k]} onChange={e=>set(k,e.target.value)} className="h-11"/></label>;
- return <><h1 className="text-xl font-semibold mb-6">{copy('Personal Information','المعلومات الشخصية')}</h1><form className="space-y-6" onSubmit={e=>{e.preventDefault();void save();}}><fieldset disabled={busy} className="space-y-6">
- <fieldset><legend className="font-medium text-sm mb-3">{copy('Legal Name','الاسم القانوني')}</legend><div className="space-y-3">{field(copy('Legal First Name','الاسم الأول القانوني'),'legal-first','text','first_name')}{field(copy('Legal Family Name','اسم العائلة القانوني'),'legal-last','text','last_name')}</div></fieldset>
- {field(copy('Birthday','تاريخ الميلاد'),'personal-birthday','date','date_of_birth')}
- <label className="block text-sm space-y-2" htmlFor="personal-email"><span className="font-medium">{copy('Email','البريد الإلكتروني')}</span><Input id="personal-email" value={account.email} readOnly dir="ltr"/><span className="block text-xs text-muted-foreground">{copy('Registered email is read-only here. It cannot be changed without account verification.','البريد المسجل للقراءة فقط هنا. لا يمكن تغييره دون التحقق من الحساب.')}</span></label>
- <fieldset disabled={!!account.authPhone}><legend className="text-sm font-medium mb-2">{copy('Mobile','الجوال')}</legend><PhoneInput id="personal-mobile" value={draft.phone} onChange={v=>set('phone',v)}/>{account.authPhone&&<p className="text-xs mt-2 text-muted-foreground">{copy('Verified login phone. A secure phone-change flow is not configured here.','رقم تسجيل دخول موثق. تغيير الرقم الآمن غير مُعدّ هنا.')}</p>}</fieldset>
- <fieldset><legend className="text-sm font-medium mb-3">{copy('Address','العنوان')}</legend><LocationSelector idPrefix="personal-address" country={draft.country} city={draft.city} required={false} onChange={v=>setDraft(d=>({...d,...v}))}/>{base.location&&<p className="text-xs mt-2 text-muted-foreground" dir="auto">{base.location}</p>}</fieldset>
- <label htmlFor="personal-gender" className="block text-sm space-y-2"><span className="font-medium">{copy('Gender','الجنس')}</span><select id="personal-gender" className="w-full h-11 border rounded-md bg-background px-3" value={draft.gender} onChange={e=>set('gender',e.target.value)}><option value="">{copy('Not added','غير مضاف')}</option>{draft.gender&&!['male','female','prefer_not_to_say'].includes(draft.gender)&&<option value={draft.gender}>{draft.gender}</option>}<option value="male">{copy('Male','ذكر')}</option><option value="female">{copy('Female','أنثى')}</option><option value="prefer_not_to_say">{copy('Prefer not to say','أفضل عدم الإفصاح')}</option></select></label>
- </fieldset>{error&&<p role="alert" className="text-sm text-destructive">{error}</p>}{notice&&<p role="status" className="text-sm text-primary">{notice}</p>}<Button type="submit" className="w-full h-12" disabled={busy}>{busy?copy('Saving…','جارٍ الحفظ…'):copy('Save','حفظ')}</Button></form></>;
 }
 function SubscriptionOverview({uid}:{uid:string}){
  const {copy,lang}=useAccountCopy();const premium=useViaPremium(uid,true);const navigate=useNavigate();const [busy,setBusy]=useState(false);const [error,setError]=useState('');const lock=useRef(false);

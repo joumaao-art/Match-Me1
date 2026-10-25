@@ -1,5 +1,11 @@
 ## Task Breakdown
 
+| Personal Identity / Contact / Compensation / Gender | Implementation | Validation |
+|---|---|---|
+| Audit canonical fields and additive private Title/Compensation migration | done | done |
+| Shared Personal save/form with native desktop and mobile wheels | done | done |
+| Backend isolation/persistence, contracts, TypeScript/lint/build and viewer report | done | blocked |
+
 | Mobile Profile Logout | Implementation | Validation |
 |---|---|---|
 | Confirmation, shared sign-out, local cache cleanup and guest redirect | done | done |
@@ -89,6 +95,7 @@
 | Approved legal sheets and required mobile A–W acceptance evidence | blocked | blocked |
 
 ## Progress Log
+- Personal restructuring: shared four-category Identity/Contact/optional private Compensation/Gender form on mobile and reachable desktop Personal; canonical patch-only conflict-safe save, secure read-only auth email/login phone, existing wheels/date/phone/location and preserved address. Additive migration023 nullable title/current_compensation constraints, existing owner RLS and Company projection retained.108 contracts plus TypeScript/lint/build and rollback-only persistence/privacy backend checks PASS; viewer guest-only, all22 authenticated acceptance tests BLOCKED individually in English report.
 - Mobile Profile Logout: appended localized red row below Personal; local Cancel/confirmed shared Supabase sign-out, honest error handling, duplicate lock, owner/role race guard, QueryClient/realtime/local private cache cleanup and fresh welcome replacement; onboarding drafts/server data/CVs/resumes/subscriptions/jobs and desktop/Company/Admin unchanged.80 logout/Profile/navigation contracts plus TypeScript/lint/build PASS. Viewer guest-only; all10 actual authenticated acceptance tests BLOCKED individually in English report, no fabricated login/logout or data-restoration claims.
 - Read-only Swipe completion: existing mobile button replaced by informational div; removed navigation/focus interaction, retained position/visual classes/icon/percentage/bar and unchanged canonical refresh/calculation; accessible live text/progress values. Desktop Swipe contains no corresponding indicator, so preserved layout rather than adding one; unrelated Profile mini-card unchanged.36 Swipe contracts, TypeScript/lint/build PASS. Viewer guest-only; signed-in click/tap and mobile/desktop visual acceptance unavailable.
 - Mobile Profile implemented: real Auth/account overview, private CV/storage timestamp/signing, canonical subscription overview, deterministic selectable VIA PDF, owner conflict-safe Personal, ordered support/FAQ/persisted screenshot reports/settings; mobile Skills canonical and certificates/languages explicit server save. TypeScript/lint/build and103 Profile/navigation/Dashboard/VIA contracts plus rollback-only DB persistence/isolation PASS. Viewer guest-only; actual authenticated devices/CV HTTP/report/logout-login/billing unexecuted. Arabic shaping/text/glyph checks pass but raster feedback conflicts; visual reader acceptance BLOCKED. Official chat/email and secure login-phone change/deletion absent; no fake success. Report records13 requested sections; preserve desktop layout and existing balances/data.

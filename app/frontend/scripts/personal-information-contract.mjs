@@ -1,0 +1,66 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { createServer } from 'vite';
+globalThis.WebSocket=class { static OPEN=1; static CONNECTING=0; static CLOSED=3; };
+globalThis.localStorage={getItem:()=>null,setItem:()=>{},removeItem:()=>{}};
+globalThis.window={atob:globalThis.atob,btoa:globalThis.btoa,console,location:{origin:'https://example.com'},dispatchEvent:()=>{}};
+const server=await createServer({server:{middlewareMode:true},appType:'custom'});
+let count=0;
+const test=async(name,check)=>{await check();count++;console.log(`PASS ${name}`);};
+try {
+ const model=await server.ssrLoadModule('/src/services/personal-information.ts');
+ const {personalInformationDraft:makeDraft,personalInformationPatch:patch,personalInformationErrors:errors,validPersonalBirthday,currencyPrecision,savePersonalInformation}=model;
+ const {apiClient}=await server.ssrLoadModule('/src/services/api-client.ts');
+ const profile={user_id:'owner',first_name:'أحمد',last_name:'حسن',date_of_birth:'1990-02-15',phone:'+971501234567',country:'AE',city:'Dubai',location:'Apartment 12, Example Street',gender:'prefer_not_to_say',title:null,current_compensation:null,full_name:'أحمد حسن',cv_url:'owner/cv.pdf',professional_details:{},job_preferences:{keywords:['Engineer']}};
+ const account={uid:'owner',profile,email:'owner@example.com',authPhone:'',displayName:profile.full_name};
+ const draft=makeDraft(profile);
+ await test('previously saved identity/contact/gender/address prepopulated',()=>{for(const key of ['first_name','last_name','date_of_birth','phone','country','city','location','gender'])assert.equal(draft[key],profile[key]);});
+ await test('opening or unchanged saving generates no patch',()=>assert.deepEqual(patch(profile,draft),{}));
+ await test('empty optional compensation is valid and defaults to no currency',()=>{assert.deepEqual(errors(draft,account.email),{});assert.equal(draft.compensationCurrency,'');});
+ await test('all four exact title options',()=>assert.deepEqual(model.PERSONAL_TITLES,['Dr.','Mr.','Mrs.','Ms.']));
+ await test('Unicode English and Arabic names accepted, whitespace trimmed',()=>{for(const name of ['أحمد','Émilie','O’Connor','Anne-Marie'])assert.equal(errors({...draft,first_name:` ${name} `},account.email).first_name,undefined);assert.deepEqual(patch(profile,{...draft,first_name:'  أحمد  '}),{});});
+ await test('empty/numeric/control and excessively long names rejected',()=>{for(const name of ['', '123', 'A\nB', 'A\u200fB','A'.repeat(101)])assert.ok(errors({...draft,first_name:name},account.email).first_name);});
+ await test('actual dates, leap years, future and onboarding century limit',()=>{const now=new Date(2026,9,25);assert.ok(validPersonalBirthday('2000-02-29',now));for(const value of ['2001-02-29','2026-10-26','1900-01-01','2020-04-31',''])assert.equal(validPersonalBirthday(value,now),false);});
+ await test('mandatory identity/contact/gender validated',()=>{for(const key of ['first_name','last_name','date_of_birth','phone','country','city','gender'])assert.ok(errors({...draft,[key]:''},account.email)[key]);assert.ok(errors(draft,'').email);});
+ await test('three canonical gender answers valid',()=>{for(const gender of ['male','female','prefer_not_to_say'])assert.equal(errors({...draft,gender},account.email).gender,undefined);});
+ const compensated={...draft,compensationAmount:'1234.56',compensationCurrency:'USD',compensationFrequency:'monthly'};
+ await test('currency/amount/frequency stored together without expected salary',()=>{assert.deepEqual(errors(compensated,account.email),{});assert.deepEqual(patch(profile,compensated),{current_compensation:{amount:1234.56,currency:'USD',frequency:'monthly'}});});
+ await test('partial compensation cannot be silently discarded',()=>{assert.ok(errors({...draft,compensationCurrency:'USD'},account.email).compensationAmount);assert.ok(errors({...draft,compensationAmount:'100'},account.email).compensationCurrency);assert.ok(errors({...draft,compensationAmount:'100',compensationCurrency:'USD'},account.email).compensationFrequency);});
+ await test('positive bounded monetary precision, no exponent/negative/NaN',()=>{for(const amount of ['0','-1','NaN','1e5','1.234','1000000000001'])assert.ok(errors({...compensated,compensationAmount:amount},account.email).compensationAmount);assert.equal(currencyPrecision('JPY'),0);assert.equal(currencyPrecision('KWD'),3);assert.equal(errors({...compensated,compensationCurrency:'KWD',compensationAmount:'1.234'},account.email).compensationAmount,undefined);assert.ok(errors({...compensated,compensationCurrency:'JPY',compensationAmount:'1.2'},account.email).compensationAmount);});
+ const savedProfile={...profile,current_compensation:{amount:1234.56,currency:'USD',frequency:'monthly'},title:'Dr.'};
+ await test('saved compensation/title reload unchanged',()=>assert.deepEqual(patch(savedProfile,makeDraft(savedProfile)),{}));
+ await test('edit and clear compensation explicitly',()=>{const saved=makeDraft(savedProfile);assert.deepEqual(patch(savedProfile,{...saved,compensationAmount:'2000',compensationFrequency:'annually'}),{current_compensation:{amount:2000,currency:'USD',frequency:'annually'}});assert.deepEqual(patch(savedProfile,{...saved,compensationAmount:'',compensationCurrency:'',compensationFrequency:''}),{current_compensation:null});});
+ await test('unrelated title edit preserves phone and saved address',()=>assert.deepEqual(patch(profile,{...draft,title:'Ms.'}),{title:'Ms.'}));
+
+ const originalGetUser=apiClient.auth.getUser, originalRpc=apiClient.supabase.rpc;
+ let rpcCalls=0, seen;
+ try {
+  apiClient.auth.getUser=async()=>({data:{user:{id:'owner'}},error:null});
+  apiClient.supabase.rpc=(name,payload)=>{rpcCalls++;seen={name,payload};return {abortSignal:async()=>({data:{...profile,...payload.p_patch},error:null})};};
+  await test('shared RPC sends changed fields with canonical base and confirms response',async()=>{const saved=await savePersonalInformation(account,compensated);assert.equal(seen.name,'update_mobile_personal');assert.deepEqual(seen.payload.p_patch,{current_compensation:{amount:1234.56,currency:'USD',frequency:'monthly'}});assert.equal(seen.payload.p_base.current_compensation,null);assert.equal(saved.profile.current_compensation.amount,1234.56);});
+  await test('unmodified form never writes',async()=>{const before=rpcCalls;await savePersonalInformation(account,draft);assert.equal(rpcCalls,before);});
+  await test('verified login phone change rejects before update',async()=>{const before=rpcCalls;await assert.rejects(savePersonalInformation({...account,authPhone:profile.phone},{...draft,phone:'+971501234568'}),/verification/);assert.equal(rpcCalls,before);});
+  apiClient.supabase.rpc=()=>({abortSignal:async()=>({data:null,error:{message:'conflict'}})});
+  await test('backend errors reject and retain draft',async()=>{const before=structuredClone(compensated);await assert.rejects(savePersonalInformation(account,compensated));assert.deepEqual(compensated,before);});
+  apiClient.auth.getUser=async()=>({data:{user:{id:'foreign'}},error:null});
+  await test('wrong authenticated owner rejected',async()=>{await assert.rejects(savePersonalInformation(account,compensated),/session has changed/);});
+ } finally {apiClient.auth.getUser=originalGetUser;apiClient.supabase.rpc=originalRpc;}
+ const ui=await readFile('src/components/seeker/PersonalInformation.tsx','utf8');
+ const mobile=await readFile('src/components/seeker/MobileProfileAccount.tsx','utf8');
+ const desktop=await readFile('src/components/seeker/ProfessionalProfile.tsx','utf8');
+ const route=await readFile('src/pages/JobSeeker.tsx','utf8');
+ await test('exactly four ordered categories',()=>assert.deepEqual([...ui.matchAll(/data-personal-category="([a-z]+)"/g)].map(match=>match[1]),['identity','contact','compensation','gender']));
+ await test('mobile wheels and desktop date input use same canonical birthday',()=>{assert.ok(ui.includes('mobile ? <DateWheels'));assert.ok(ui.includes('type="date"'));assert.ok(ui.includes('ageFromBirthday(draft.date_of_birth)'));});
+ await test('both platform routes mount one shared Personal form',()=>{assert.ok(mobile.includes('account={account} mobile onSaved={setAccount}'));assert.ok(ui.includes('mobile={false} onSaved={setAccount}'));assert.ok(route.includes("case 'personal': return <PersonalInformationPage/>"));assert.ok(desktop.includes("navigate('/seeker?view=personal')"));});
+ await test('read-only auth email and searchable canonical phone/location/currency',()=>{assert.ok(ui.includes('value={base.email} readOnly'));for(const component of ['<PhoneInput','<LocationSelector','<SearchableCombobox'])assert.ok(ui.includes(component));assert.ok(ui.includes('disabled={!!base.authPhone}'));});
+ await test('one submit Save, duplicate lock, retained failed edits and safe-area shell',()=>{assert.equal((ui.match(/type="submit"/g)||[]).length,1);assert.ok(ui.includes('if (lock.current) return'));assert.ok(ui.includes('sticky bottom-0'));assert.ok(route.includes('pb-[calc(4rem+env(safe-area-inset-bottom,0px))]'));});
+ await test('English and Arabic four headings and field labels provided',()=>{for(const text of ['Identity','الهوية','Contact','التواصل','Compensation','التعويضات','Gender','الجنس','Legal Last Name','اسم العائلة القانوني','Select title','اختر اللقب'])assert.ok(ui.includes(text));});
+ const resume=await readFile('src/lib/via-resume.ts','utf8');
+ const mandatory=await readFile('src/lib/mandatory-profile.ts','utf8');
+ const onboarding=await readFile('src/lib/mobile-onboarding.ts','utf8');
+ await test('compensation excluded from resume/completion/onboarding',()=>{for(const source of [resume,mandatory,onboarding])assert.ok(!source.includes('current_compensation'));});
+ const {migrateMobile}=await server.ssrLoadModule('/src/lib/mobile-onboarding.ts');
+ const {mandatoryProfileChecklist}=await server.ssrLoadModule('/src/lib/mandatory-profile.ts');
+ await test('missing or present compensation produces identical completion checklist',()=>assert.deepEqual(mandatoryProfileChecklist(migrateMobile(null,profile).draft),mandatoryProfileChecklist(migrateMobile(null,savedProfile).draft)));
+ console.log(`${count} Personal contracts passed; mocked service checks are not browser or live persistence evidence.`);
+} finally {await server.close();}
