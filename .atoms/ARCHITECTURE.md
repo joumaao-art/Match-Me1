@@ -23,7 +23,10 @@ MatchMe React/Vite/shadcn with existing Supabase Auth, PostgreSQL/RLS, Storage a
 ## Tech Decisions
 | Decision | Choice / constraint |
 |---|---|
-| Desktop freeze | Separate mobile onboarding; existing desktop structure retained, shared credit policy corrected to20 |
+| Shared parity services | Independent desktop/mobile shells share profile, preferences, Dashboard, onboarding and account-owned credit/subscription contracts; no duplicate accounts/applications/entitlements. |
+| Communications | Migrations024–025 reference canonical applications; Company-first participant RPCs, lifecycle checks, retry keys, RLS and real in-app notifications. |
+| Conflict-safe account edits | Migrations023/026–029 implement owner-locked skills/settings/profile/history base comparisons, coherent onboarding snapshots and revision guards; hidden legacy fields retained. |
+| Desktop freeze | Separate desktop/mobile presentation around one onboarding controller; existing desktop navigation/cards/native dates retained |
 | Persistence | Server owns completed steps; per-user local draft recovery, revision guard, mounted/account/request guards |
 | History safety | Server wrapper rejects foreign history UUIDs before internal canonical writes |
 | Purchase safety | Configured server price; app/product/user/paid amount validation; browser cannot call grant RPC |
@@ -32,8 +35,9 @@ MatchMe React/Vite/shadcn with existing Supabase Auth, PostgreSQL/RLS, Storage a
 | Deployment artifacts | App-prefixed function directories contain deployed source; credit-payments directory contains readable equivalent implementation |
 
 ## Validation / Limitations
-- Latest22 pure contract checks, TypeScript, lint and production build passed.
-- Rollback-only SQL checks cover credit replay, step validation/completion, RLS and history ownership;35 accounts/350 balance preserved.
-- Only desktop homepage UI inspected; mobile widths/RTL/signed-in A–W, concurrent device behavior and real Stripe lifecycle unexecuted.
-- Approved legal absent; Stripe setup missing; Mapbox skipped; CV automatic extraction TXT-only.
-- Broader legacy demo subscription/dashboard/Company surfaces not certified by this onboarding implementation.
+- Current complete-parity round: TypeScript,216 contracts plus manifest/static readiness/save guards, lint and2818-module build PASS; Auth circular chunk warning removed.
+- Migrations023–031 preserve existing canonical tables/accounts/ledger/entitlements. Authenticated rollback-only tests cover account/history/portfolio/optional conflicts, Company-first communications/interview lifecycle/isolation and notification suppression; fixtures were not committed.
+- One current rendering check reached only the desktop guest homepage. Required signed-in EN/AR mobile320/360/375/390/412 and desktop1024/1280/1440/1920, reciprocal cross-device writes and actual CV/PDF-reader acceptance remain BLOCKED.
+- Official support chat/email, secure login-phone change/deletion and directory/private-media/analytics capabilities lack complete configured contracts. No simulated success or release-ready claim.
+- Real provider/native billing acceptance remains blocked; historical503 is not a current probe. CV automatic extraction remains TXT-only.
+- English14-section parity report distinguishes source/SQL/contracts from real browser evidence; complete100% parity is not certified.

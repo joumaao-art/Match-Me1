@@ -15,7 +15,7 @@ export interface MobileDraft {
  educations: MobileEducation[]; experiences: MobileExperience[]; noExperience: boolean;
  preferences: JobPreferences;
 }
-export interface MobileState { version: 3; screen: MobileScreen; done: MobileStep[]; draft: MobileDraft; revision: number; }
+export interface MobileState { clientFlowId?: string; version: 3; screen: MobileScreen; done: MobileStep[]; draft: MobileDraft; revision: number; serverRevision?: number; canonicalBase?: Record<string, unknown>; }
 export function emptyMobileState(): MobileState {
  return { version:3,screen:'INTRO',done:[],revision:0,draft:{firstName:'',lastName:'',email:'',mobile:'',headline:'',summary:'',nationalities:[],cvUrl:'',cvName:'',detectedSkills:[],gender:'',birthday:'',country:'',city:'',skills:[],educations:[],experiences:[],noExperience:false,preferences:{...EMPTY_PREFERENCES}} };
 }
@@ -68,21 +68,40 @@ export function validateMobile(step: MobileStep, d: MobileDraft): Record<string,
 async function checked<T>(request:PromiseLike<{data:T|null;error:unknown}>):Promise<T> {
  const result=await request;if(result.error)throw result.error;if(result.data===null)throw new Error('Empty persistence response');return result.data;
 }
-export async function loadMobile(uid:string,repair=false):Promise<{state:MobileState;completed:boolean}> {
- const response=await apiClient.supabase.from('user_profiles').select('*').eq('user_id',uid).abortSignal(AbortSignal.timeout(10000)).maybeSingle();if(response.error)throw response.error;
- const base=response.data as Record<string,unknown>|null;if(!base)throw new Error('Account profile unavailable');
- const seeker=await apiClient.supabase.from('job_seeker_profiles').select('*').eq('user_id',uid).abortSignal(AbortSignal.timeout(10000)).maybeSingle();if(seeker.error)throw seeker.error;
- const p=(seeker.data||{}) as Record<string,unknown>;
+export function discardMobileCache(uid: string) { try { localStorage.removeItem(key(uid)); } catch { /* Online recovery remains available without device storage. */ } }
+const acknowledged = new Map<string, {revision: number; canonicalBase: Record<string, unknown>}>();
+export function recoverMobileDraft(server: MobileState, local: MobileState | null): MobileState {
+ return local && local.serverRevision === server.revision && local.revision > server.revision && JSON.stringify(local.canonicalBase) === JSON.stringify(server.canonicalBase) ? {...local, done:server.done, screen:server.screen} : server;
+}
+const loadGenerations = new Map<string, number>();
+export async function loadMobile(uid:string,repair=false,discardLocal=false):Promise<{state:MobileState;completed:boolean}> {
+ const generation=(loadGenerations.get(uid)||0)+1;loadGenerations.set(uid,generation);
+ const response=await apiClient.supabase.rpc('load_seeker_onboarding').abortSignal(AbortSignal.timeout(10000));if(response.error)throw response.error;
+ const {account:base,profile:p,snapshot}=response.data as {account:Record<string,unknown>;profile:Record<string,unknown>;snapshot:Record<string,unknown>};
+ const {data:{user}}=await apiClient.auth.getUser();if(user?.id!==uid)throw new Error('Account changed');
+ if(loadGenerations.get(uid)!==generation)throw new Error('A newer onboarding load superseded this response');
  let state=base.mobile_onboarding_state ? normalizeMobile(base.mobile_onboarding_state as MobileState) : migrateMobile(base.onboarding_state as OnboardingState|null,p);
- const local=readMobileCache(uid);if(!repair && local && local.revision>state.revision)state={...local,done:state.done,screen:state.screen};
- if(repair)state={...state,draft:migrateMobile(null,p).draft};
- if(repair || !base.mobile_onboarding_state){
-  const [education,experience]=await Promise.all([apiClient.supabase.from('education').select('*').eq('user_id',uid).abortSignal(AbortSignal.timeout(10000)),apiClient.supabase.from('experience').select('*').eq('user_id',uid).abortSignal(AbortSignal.timeout(10000))]);
-  if(education.error||experience.error)throw education.error||experience.error;
+ const serverRevision=state.revision;
+ const fresh=migrateMobile(null,p).draft;fresh.email=user.email||'';
+ const fields:Partial<Record<MobileStep,(keyof MobileDraft)[]>>={PERSONAL_DETAILS:['firstName','lastName','mobile','nationalities'],GENDER:['gender'],BIRTHDAY:['birthday'],CURRENT_LOCATION:['country','city'],SKILLS:['skills']};
+ const draft={...state.draft,email:fresh.email,cvUrl:fresh.cvUrl,cvName:String(p.cv_file_name||state.draft.cvName)};
+ for(const step of state.done)for(const field of fields[step]||[])Object.assign(draft,{[field]:fresh[field]});
+ if(state.done.includes('PREFERENCES'))for(const field of ['expertise','keywords','targetCountries','workingStyles','employmentTypes'] as const)draft.preferences={...draft.preferences,[field]:fresh.preferences[field]};
+ if(state.done.includes('SENIORITY'))draft.preferences={...draft.preferences,seniorityLevels:fresh.preferences.seniorityLevels};
+ state={...state,serverRevision,canonicalBase:snapshot,draft:repair?fresh:draft};
+ const local=discardLocal?null:readMobileCache(uid);const recoveredState=!repair?recoverMobileDraft(state,local):state;const recovered=recoveredState!==state;state=recoveredState;
+ state.clientFlowId=crypto.randomUUID();
+ for (const flow of acknowledged.keys()) if (flow.startsWith(`${uid}:`)) acknowledged.delete(flow);
+ state.draft.email=fresh.email;state.draft.cvUrl=fresh.cvUrl;state.draft.cvName=String(p.cv_file_name||draft.cvName);
+ state.canonicalBase=snapshot;
+ acknowledged.set(`${uid}:${state.clientFlowId}`,{revision:serverRevision,canonicalBase:state.canonicalBase!});
+ if(!recovered&&(repair || !base.mobile_onboarding_state || state.done.includes('EDUCATION') || state.done.includes('EXPERIENCE'))){
+  const education={data:snapshot.EDUCATION as Record<string,any>[]};
+  const experience={data:(snapshot.EXPERIENCE as {records:Record<string,any>[]}).records};
   const serverEducations=(education.data||[]).map(r=>({...normalizeEducation({id:r.id,institution:r.institution,degree:r.degree_code||r.degree,field:r.field_of_study,from:r.start_date,to:r.end_date,current:r.is_current,grade:r.grade}),country:r.country||'',city:r.city||''}));
   const serverExperiences=(experience.data||[]).map(r=>({...normalizeExperience({id:r.id,company:r.company_name,title:r.job_title,type:r.employment_type,from:r.start_date,to:r.end_date,current:r.is_current,description:r.description,country:r.country,city:r.city}),industry:r.industry||''}));
-  state.draft.educations=[...state.draft.educations,...serverEducations.filter(x=>!state.draft.educations.some(c=>c.id===x.id))];
-  state.draft.experiences=[...state.draft.experiences,...serverExperiences.filter(x=>!state.draft.experiences.some(c=>c.id===x.id))];
+  if(repair||!base.mobile_onboarding_state||state.done.includes('EDUCATION'))state.draft.educations=serverEducations;
+  if(repair||!base.mobile_onboarding_state||state.done.includes('EXPERIENCE'))state.draft.experiences=serverExperiences;
  }
  return {state:repair?{...state,done:state.done.filter(s=>!Object.keys(validateMobile(s,state.draft)).length)}:state,completed:base.onboarding_completed===true};
 }
@@ -92,14 +111,21 @@ export function persistMobile(uid:string,state:MobileState,step:MobileStep|null=
   const snapshot=structuredClone(state);
   const run=async()=>{
   const {data:{session}}=await apiClient.auth.getSession();if(session?.user.id!==uid)throw new Error('Account changed; save cancelled');
+  const flowKey=`${uid}:${snapshot.clientFlowId||'legacy'}`;
+    if(!acknowledged.has(flowKey)) throw new Error('Onboarding flow changed; reload saved progress before retrying');
+  const ack=acknowledged.get(flowKey);
+  if(ack){snapshot.serverRevision=ack.revision;snapshot.canonicalBase={...snapshot.canonicalBase,...ack.canonicalBase};}
+  snapshot.revision=Math.max(snapshot.revision,(snapshot.serverRevision??0)+1);
   const saved=await checked<MobileState>(apiClient.supabase.rpc('save_mobile_onboarding',{payload:snapshot,completed_step:step,finish}).abortSignal(AbortSignal.timeout(12000)));
   const {data:{session:after}}=await apiClient.auth.getSession();if(after?.user.id!==uid)throw new Error('Account changed; response discarded');
+  if(!acknowledged.has(flowKey))throw new Error('Onboarding flow changed; response discarded');
+  acknowledged.set(flowKey,{revision:saved.revision,canonicalBase:saved.canonicalBase||snapshot.canonicalBase||{}});
   if(step==='PREFERENCES'||step==='SENIORITY')savePreferences(uid,snapshot.draft.preferences);
   try {
    if(step==='EDUCATION')localStorage.setItem(`matchme-profile:${uid}:education`,JSON.stringify(snapshot.draft.educations));
    if(step==='EXPERIENCE'&&!snapshot.draft.noExperience)localStorage.setItem(`matchme-profile:${uid}:experience`,JSON.stringify(snapshot.draft.experiences));
   }catch{ /* A successful server write must not be reported as failed because of browser quota. */ }
-  return normalizeMobile(saved);
+  return normalizeMobile({...saved,clientFlowId:snapshot.clientFlowId,serverRevision:saved.revision,canonicalBase:saved.canonicalBase||snapshot.canonicalBase});
  };
  const result=tail.then(run,run);tail=result.catch(()=>undefined);return result;
 }

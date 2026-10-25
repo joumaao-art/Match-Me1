@@ -1,3 +1,6 @@
+import { DesktopSkills } from '@/components/seeker/DesktopSkills';
+import { SeekerCreditPanel } from '@/components/seeker/SeekerCreditPanel';
+import { DesktopAccountFeatures } from '@/components/seeker/DesktopAccountFeatures';
 import { MobileSwipePreferences } from '@/components/seeker/MobileSwipePreferences';
 import { useCountries } from '@/components/shared/ProfileFields';
 import { useViaPremium } from '@/lib/via-premium';
@@ -13,6 +16,7 @@ import { loadPreferences, migrateLegacyPreferences, preferenceFit, savePreferenc
 import { apiClient } from '@/services/api-client';
 import { useCreditAccount } from '@/lib/seeker-credits';
 import { useSeekerJobs, recordJobAction, shareJob, type DiscoverJob } from '@/lib/seeker-jobs';
+import Notifications from './Notifications';
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { trackEvent } from '@/lib/analytics';
 import { PreferencesForm } from '@/components/seeker/PreferencesForm';
@@ -54,15 +58,16 @@ import {
 } from '@/components/shared/CandidateDiscoverability';
 import { ProfileCompletionCard, ProfileCompletionMini, type ProfileData } from '@/components/shared/ProfileCompletion';
 import { MobileBottomNav, type MobileNavTab } from '@/components/shared/MobileBottomNav';
-import { MobileDashboard } from '@/components/shared/MobileDashboard';
+import { MobileDashboard, RecordDetails } from '@/components/shared/MobileDashboard';
 import LegacyDashboard from '@/components/shared/LegacyDashboard';
 import { applicationStatus, recruitmentLabel } from '@/lib/recruitment-status';
+import { historyReady } from '@/lib/canonical-profile';
 import { MobileProfileAccount, MOBILE_ACCOUNT_SECTIONS } from '@/components/seeker/MobileProfileAccount';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuthStore } from '@/stores';
 import { logger } from '@/lib/logger';
 import { ensureJobSeekerInitialized } from '@/lib/signup-flow';
-import { ProfileView, ExperienceView, EducationView, LanguagesView } from '@/components/seeker/ProfessionalProfile';
+import { ProfileView, ExperienceView, EducationView, LanguagesView, useSeekerEducation, useSeekerExperience, useSeekerPortfolio } from '@/components/seeker/ProfessionalProfile';
 import { ScoreBreakdown, ConfidenceIndicator } from '@/components/shared/ScoreVisualizationEngine';
 
 // ============================================================
@@ -138,7 +143,7 @@ const initialPortfolio: PortfolioItem[] = [
 // Navigation
 // ============================================================
 
-type NavSection = 'personal' | 'via_resume' | 'subscription_overview' | 'support' | 'faq' | 'report' | 'account_settings' | 'swipe' | 'dashboard' | 'profile' | 'cv' | 'experience' | 'education' | 'certificates' | 'skills' | 'languages' | 'portfolio' | 'video' | 'preferences' | 'saved' | 'applications' | 'matches' | 'messages' | 'notifications' | 'settings' | 'visibility' | 'exposure' | 'contact_requests' | 'who_viewed' | 'invitations';
+type NavSection = 'credits' | 'personal' | 'via_resume' | 'subscription_overview' | 'support' | 'faq' | 'report' | 'account_settings' | 'swipe' | 'dashboard' | 'profile' | 'cv' | 'experience' | 'education' | 'certificates' | 'skills' | 'languages' | 'portfolio' | 'video' | 'preferences' | 'saved' | 'applications' | 'matches' | 'messages' | 'notifications' | 'settings' | 'visibility' | 'exposure' | 'contact_requests' | 'who_viewed' | 'invitations';
 
 function SeekerNav({ activeTab, setActiveTab }: { activeTab: NavSection; setActiveTab: (tab: NavSection) => void }) {
   const { t, i18n } = useTranslation();
@@ -488,6 +493,7 @@ function JobDetailsContent({ job, explanation }: { job: DiscoverJob & { explanat
 }
 
 function SwipeView() {
+  const signals=usePreferenceSignals();
   const { t } = useTranslation();
   const route=useLocation();
   const requestedId=new URLSearchParams(route.search).get('job');
@@ -529,7 +535,7 @@ function SwipeView() {
   }, [jobs,actions,prefs,requestedId,restoredJobId,countries]);
 
   const [handledRequestedId,setHandledRequestedId]=useState<string|null>(null);
-  const requestedPreview=isMobile&&requestedId&&requestedId!==handledRequestedId?jobs.find(j=>j.id===requestedId&&isAvailableJob(j)):undefined;
+  const requestedPreview=requestedId&&requestedId!==handledRequestedId?jobs.find(j=>j.id===requestedId&&isAvailableJob(j)):undefined;
   const requestedDecision=actions.find(a=>a.vacancy_id===requestedPreview?.id)?.direction;
   const currentJob = requestedPreview||recommendedJobs[0];
   const eligiblePass=latestEligiblePass(actions,jobs);
@@ -613,7 +619,7 @@ function SwipeView() {
     <div className="flex justify-between items-center">
       <h2 className={`font-bold font-[Poppins] ${isMobile ? 'text-base' : 'text-xl'}`}>{t('discover')}</h2>
       <div className="flex items-center gap-1.5">
-        <Badge variant="secondary" className="text-[10px] gap-0.5 py-0 h-5"><Zap className="w-2.5 h-2.5" />{creditBalance ?? '—'}</Badge>
+        <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={()=>navigate('/seeker?view=credits')} aria-label={t('credits',{defaultValue:'View Credits'})}><Zap className="w-3 h-3"/>{creditBalance ?? '—'}</Button><Button variant="ghost" size="sm" onClick={()=>void shareJob(currentJob).then(result=>{if(result==='copied')toast.success(t('link_copied'));}).catch(error=>{if(error?.name!=='AbortError')toast.error(t('try_again'));})}>{t('share',{defaultValue:'Share'})}</Button>
         <Button size="sm" variant="ghost" onClick={() => setShowPrefs(true)} className="cursor-pointer h-9 px-2 gap-1" aria-label={t('preferences')}><Sliders className="w-4 h-4" /><span className="text-xs">{t('preferences')}</span></Button>
       </div>
     </div>
@@ -647,11 +653,13 @@ function SwipeView() {
     />
   ) : (
     <>
-      {recommendedJobs.slice(0, 2).reverse().map((job, i) => (
+      {(requestedPreview?[requestedPreview]:recommendedJobs.slice(0, 2)).reverse().map((job, i) => (
         <div key={job.id} className="absolute inset-0">
           <SwipeCardContent
             job={job}
             score={job.compatibility_score}
+            onUndo={handleUndo}
+            canUndo={canUndo&&!swipeBusy}
             onViewDetails={() => {setDetailJobId(job.id);setShowDetails(true);}}
           />
         </div>
@@ -660,21 +668,21 @@ function SwipeView() {
   );
 
   const actionsContent = (
-    <DecisionActionBar
+    <div className="space-y-3"><button className="text-xs text-primary min-h-11" onClick={()=>navigate('/seeker?view=cv&complete=1')}>{t('complete_profile')} · {profileEligibility.percentage??'—'}%</button>{requestedDecision&&<Button variant="outline" onClick={()=>setHandledRequestedId(requestedId)}>{t('browse_jobs',{defaultValue:'Browse other jobs'})}</Button>}<DecisionActionBar
       onPass={() => void handleSwipe('left')}
-      passDisabled={swipeBusy || creditBalance === 0}
-      likeDisabled={swipeBusy || (!premium.active && (creditBalance === 0 || creditBalance === null))}
+      passDisabled={swipeBusy || creditBalance === 0 || creditBalance === null || !!requestedDecision}
+      likeDisabled={swipeBusy || !!requestedDecision || (!premium.active && (creditBalance === 0 || creditBalance === null))}
       onSave={handleSaveJob}
       onLike={() => handleSwipe('right')}
       variant={isMobile ? 'default' : 'default'}
-    />
+    /></div>
   );
 
   const overlayContent = (
     <>
       {/* Level 2 — Details Bottom Sheet */}
       <BottomSheet open={showPrefs} onClose={() => setShowPrefs(false)} title={t('preferences')}>
-        <div className="p-4"><PreferencesForm compact signals={PREF_SIGNALS} onSaved={() => setShowPrefs(false)} /></div>
+        <div className="p-4"><PreferencesForm compact signals={signals} onSaved={() => setShowPrefs(false)} /></div>
       </BottomSheet>
       <BottomSheet
         open={showDetails}
@@ -836,42 +844,52 @@ function SkillsView() {
 // ============================================================
 
 function PortfolioView() {
-  const { t } = useTranslation();
-  const [projects, setProjects] = useState<PortfolioItem[]>(initialPortfolio);
+  const { t,i18n } = useTranslation();
+  const [projects, commitProjects] = useSeekerPortfolio();
+  const uid=useAuthStore(s=>s.userId);
+  const alive=useRef(true);
+  useEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
+  const ownsAccount=()=>alive.current&&useAuthStore.getState().userId===uid;
+  const openProject=(url:string)=>{try{const parsed=new URL(url);if(['https:','http:'].includes(parsed.protocol))window.open(parsed.href,'_blank','noopener,noreferrer');}catch{toast.error(t('try_again'));}};
+  const [busy,setBusy]=useState(false);
+  const mutation=useRef(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<PortfolioItem | null>(null);
   const [form, setForm] = useState<{ title: string; desc: string; url: string }>({ title: '', desc: '', url: '' });
 
   const openAdd = () => {
+    if(mutation.current||!historyReady(projects))return;
     setEditingProject(null);
     setForm({ title: '', desc: '', url: '' });
     setDialogOpen(true);
   };
 
   const openEdit = (project: PortfolioItem) => {
+    if(mutation.current||!historyReady(projects))return;
     setEditingProject(project);
     setForm({ title: project.title, desc: project.desc, url: project.url });
     setDialogOpen(true);
   };
 
-  const handleSave = () => {
-    if (!form.title || !form.desc) {
-      toast.error(t('fill_all_fields'));
-      return;
-    }
-    if (editingProject) {
-      setProjects(prev => prev.map(p => p.id === editingProject.id ? { ...p, ...form } : p));
-      toast.success(t('project_updated'));
-    } else {
-      setProjects(prev => [...prev, { id: Date.now().toString(), ...form }]);
-      toast.success(t('project_added'));
-    }
-    setDialogOpen(false);
+  const handleSave = async () => {
+    if(mutation.current)return;
+    if (!form.title.trim() || !form.desc.trim()) { toast.error(t('fill_all_fields')); return; }
+    try {if(form.url){const url=new URL(form.url);if(!['https:','http:'].includes(url.protocol))throw new Error();}}
+    catch {toast.error(i18n.language.startsWith('ar')?'أدخل رابط HTTP أو HTTPS صالحاً.':'Enter a valid HTTP or HTTPS URL.');return;}
+    mutation.current=true;setBusy(true);
+    try {
+      const values={title:form.title.trim(),desc:form.desc.trim(),url:form.url.trim()};
+      await commitProjects(editingProject?projects.map(p=>p.id===editingProject.id?{...p,...values}:p):[...projects,{id:crypto.randomUUID(),...values}]);
+      if(ownsAccount()){toast.success(t(editingProject?'project_updated':'project_added'));setDialogOpen(false);}
+    }catch{if(ownsAccount())toast.error(t('pp_save_error'));}
+    finally{mutation.current=false;if(ownsAccount())setBusy(false);}
   };
 
-  const handleDelete = (id: string) => {
-    setProjects(prev => prev.filter(p => p.id !== id));
-    toast.success(t('project_deleted'));
+  const handleDelete = async (id: string) => {
+    if(mutation.current||!window.confirm(i18n.language.startsWith('ar')?'حذف هذا المشروع؟':'Delete this project?'))return;
+    mutation.current=true;setBusy(true);
+    try{await commitProjects(projects.filter(p=>p.id!==id));if(ownsAccount())toast.success(t('project_deleted'));}
+    catch{if(ownsAccount())toast.error(t('pp_save_error'));}finally{mutation.current=false;if(ownsAccount())setBusy(false);}
   };
 
   return (
@@ -884,7 +902,7 @@ function PortfolioView() {
             <p className="font-semibold text-sm">{p.title}</p>
             <p className="text-xs text-muted-foreground mb-2">{p.desc}</p>
             <div className="flex gap-2">
-              {p.url && <Button size="sm" variant="outline" className="cursor-pointer gap-1 text-xs" onClick={() => window.open(p.url, '_blank')}><ExternalLink className="w-3 h-3" />{t('view_project')}</Button>}
+              {p.url && <Button size="sm" variant="outline" className="cursor-pointer gap-1 text-xs" onClick={() => openProject(p.url)}><ExternalLink className="w-3 h-3" />{t('view_project')}</Button>}
               <Button size="sm" variant="ghost" className="cursor-pointer" onClick={() => openEdit(p)}><Edit className="w-3 h-3" /></Button>
               <Button size="sm" variant="ghost" className="cursor-pointer text-destructive" onClick={() => handleDelete(p.id)}><Trash2 className="w-3 h-3" /></Button>
             </div>
@@ -893,17 +911,17 @@ function PortfolioView() {
       </div>
       {projects.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_projects_yet')}</p>}
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={open=>{if(!busy)setDialogOpen(open);}}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle className="font-[Poppins]">{editingProject ? t('edit_project') : t('add_project')}</DialogTitle></DialogHeader>
-          <div className="space-y-4 mt-2">
+          <fieldset disabled={busy} className="space-y-4 mt-2">
             <div><Label>{t('project_title')}</Label><Input value={form.title} onChange={(e) => setForm({...form, title: e.target.value})} className="mt-1" /></div>
             <div><Label>{t('description')}</Label><Textarea value={form.desc} onChange={(e) => setForm({...form, desc: e.target.value})} className="mt-1" rows={3} /></div>
             <div><Label>{t('project_url')}</Label><Input value={form.url} onChange={(e) => setForm({...form, url: e.target.value})} className="mt-1" placeholder="https://..." /></div>
-          </div>
+          </fieldset>
           <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={() => setDialogOpen(false)} className="cursor-pointer">{t('cancel')}</Button>
-            <Button onClick={handleSave} className="cursor-pointer">{t('save')}</Button>
+            <Button disabled={busy} variant="outline" onClick={() => setDialogOpen(false)} className="cursor-pointer">{t('cancel')}</Button>
+            <Button disabled={busy} onClick={()=>void handleSave()} className="cursor-pointer">{t('save')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -916,68 +934,23 @@ function PortfolioView() {
 // ============================================================
 
 function VideoIntroView() {
-  const { t } = useTranslation();
-  const [hasVideo, setHasVideo] = useState(false);
-
-  const handleUpload = () => {
-    setHasVideo(true);
-    toast.success(t('video_uploaded'));
-  };
-
-  const handleDelete = () => {
-    setHasVideo(false);
-    toast.success(t('video_deleted'));
-  };
-
-  return (
-    <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-      <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('video_intro')}</h2>
-      <div className="max-w-2xl">
-        {!hasVideo ? (
-          <Card className="border-dashed border-2 mb-4"><CardContent className="p-8 text-center">
-            <Video className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
-            <h3 className="font-medium mb-1">{t('upload_video')}</h3>
-            <p className="text-sm text-muted-foreground mb-4">{t('video_hint')}</p>
-            <Button className="cursor-pointer gap-2" onClick={handleUpload}><Upload className="w-4 h-4" />{t('upload')}</Button>
-          </CardContent></Card>
-        ) : (
-          <Card className="mb-4"><CardContent className="p-4">
-            <div className="w-full h-48 bg-muted rounded-lg mb-3 flex items-center justify-center"><Video className="w-12 h-12 text-primary" /></div>
-            <div className="flex items-center justify-between">
-              <div><p className="font-medium text-sm">{t('video_intro')}</p><p className="text-xs text-muted-foreground">1:30 · {t('uploaded')} Jul 15, 2026</p></div>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" className="cursor-pointer" onClick={handleUpload}>{t('replace')}</Button>
-                <Button size="sm" variant="ghost" className="cursor-pointer text-destructive" onClick={handleDelete}><Trash2 className="w-4 h-4" /></Button>
-              </div>
-            </div>
-          </CardContent></Card>
-        )}
-        <Card><CardContent className="p-4">
-          <h3 className="font-medium text-sm mb-2">{t('video_tips_title')}</h3>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            <li className="flex items-start gap-2"><Check className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />{t('video_tip_1')}</li>
-            <li className="flex items-start gap-2"><Check className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />{t('video_tip_2')}</li>
-            <li className="flex items-start gap-2"><Check className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />{t('video_tip_3')}</li>
-            <li className="flex items-start gap-2"><Check className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />{t('video_tip_4')}</li>
-          </ul>
-        </CardContent></Card>
-      </div>
-    </div>
-  );
+  const { t,i18n } = useTranslation();
+  return <div className="flex-1 p-4 sm:p-6 overflow-y-auto"><h2 className="text-xl font-bold font-[Poppins] mb-6">{t('video_intro')}</h2><Card className="max-w-2xl"><CardContent className="p-6 space-y-3"><Video className="w-10 h-10 text-primary"/><p role="status" className="text-sm text-muted-foreground">{i18n.language.startsWith('ar')?'رفع الفيديو ومعاينته غير متاحين لأن تخزين الفيديو الخاص وربطه بالملف غير مُعدّين. لم يتم رفع أي فيديو.':'Video upload and preview are unavailable because private video storage and its profile linkage are not configured. No video has been uploaded.'}</p></CardContent></Card></div>;
 }
 
 // ============================================================
 // Preferences
 // ============================================================
 
-const PREF_SIGNALS = { skills: ['React', 'TypeScript', 'Node.js', 'Tailwind CSS', 'PostgreSQL'], titles: ['Frontend Developer'], fields: ['Computer Science'] };
+function usePreferenceSignals(){const uid=useAuthStore(s=>s.userId);const [skills,setSkills]=useState<string[]>([]);const [experience]=useSeekerExperience();const [education]=useSeekerEducation();useEffect(()=>{let alive=true;setSkills([]);if(uid)void apiClient.supabase.from('job_seeker_profiles').select('skills').eq('user_id',uid).abortSignal(AbortSignal.timeout(10000)).single().then(r=>{if(alive&&useAuthStore.getState().userId===uid&&!r.error)setSkills(r.data.skills||[]);});return()=>{alive=false;};},[uid]);return {skills,titles:experience.map(x=>x.title),fields:education.map(x=>x.field)};}
 
 function PreferencesView() {
+  const signals=usePreferenceSignals();
   const { t } = useTranslation();
   return (
     <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('preferences')}</h2>
-      <div className="max-w-2xl"><PreferencesForm signals={PREF_SIGNALS} /></div>
+      <div className="max-w-2xl"><PreferencesForm signals={signals} /></div>
     </div>
   );
 }
@@ -987,12 +960,16 @@ function PreferencesView() {
 // ============================================================
 
 function SavedJobsView() {
-  const { t } = useTranslation();
-  const navigate=useNavigate();
+  const { t,i18n } = useTranslation();
+  const navigate=useNavigate();const [selected,setSelected]=useState<string|null>(null);
   const {jobs,actions,loading,error,refresh}=useSeekerJobs();
-  const savedJobs=actions.filter(a=>a.saved).flatMap(a=>{const j=jobs.find(j=>j.id===a.vacancy_id);return j?[{id:j.id,title:j.job_title,company:j.company_name,location:`${j.city}, ${j.country}`,salary:j.salary_min?`${j.salary_min}–${j.salary_max}`:'',status:j.status}]:[];});
+  const savedJobs=actions.filter(a=>a.saved).flatMap(action=>{const job=jobs.find(j=>j.id===action.vacancy_id);return job?[{job,action}]:[];});
+  const row=savedJobs.find(r=>r.job.id===selected);
+  const latestPass=latestEligiblePass(actions,jobs);
+  const uid=useAuthStore(s=>s.userId);const [removing,setRemoving]=useState<string|null>(null);const removeLock=useRef(false);
   const handleRemove = async (id: string) => {
-    try{await recordJobAction(id,'unsave');toast.success(t('job_removed'));}catch{toast.error(t('try_again'));}
+    if(removeLock.current)return;removeLock.current=true;setRemoving(id);
+    try{await recordJobAction(id,'unsave');if(useAuthStore.getState().userId!==uid)return;await refresh();toast.success(t('job_removed'));}catch{if(useAuthStore.getState().userId===uid)toast.error(t('try_again'));}finally{removeLock.current=false;if(useAuthStore.getState().userId===uid)setRemoving(null);}
   };
 
   return (
@@ -1000,12 +977,13 @@ function SavedJobsView() {
       <h2 className="text-xl font-bold font-[Poppins] mb-6">{t('saved_jobs')}</h2>
       {loading&&<p role="status">{t('loading')}</p>}{error&&<Button onClick={()=>void refresh()}>{t('try_again')}</Button>}
       <div className="space-y-3">
-        {savedJobs.map(job => (
-          <Card key={job.id}><CardContent className="p-4 flex items-center justify-between" onClick={()=>navigate(`/seeker?view=swipe&job=${job.id}`)}>
-            <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><Building2 className="w-5 h-5 text-primary" /></div><div><p className="font-medium text-sm">{job.title}</p><p className="text-xs text-muted-foreground">{job.company} · {job.location} · {job.salary}</p></div></div>
-            <div className="flex items-center gap-2"><Badge variant={job.status === 'open' ? 'default' : 'secondary'} className="text-xs">{t(job.status)}</Badge><Button size="sm" variant="ghost" className="cursor-pointer text-destructive" onClick={(event) => {event.stopPropagation();void handleRemove(job.id);}}><Trash2 className="w-3 h-3" /></Button></div>
+        {savedJobs.map(({job}) => (
+          <Card key={job.id}><CardContent className="p-4 flex items-start flex-wrap gap-3 justify-between">
+            <button className="flex items-center text-start gap-3 min-w-0 flex-1" onClick={()=>setSelected(job.id)}><div className="w-10 h-10 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center"><Building2 className="w-5 h-5 text-primary" /></div><div className="min-w-0"><p className="font-medium text-sm break-words">{job.job_title}</p><p className="text-xs text-muted-foreground break-words">{job.company_name} · {[job.city,job.country].filter(Boolean).join(', ')} {compensationText(job,i18n.language)}</p></div></button>
+            <div className="flex items-center gap-2"><Badge variant={isAvailableJob(job) ? 'default' : 'secondary'} className="text-xs">{t(job.status==='open'&&!isAvailableJob(job)?'expired':job.status)}</Badge><Button size="sm" variant="ghost" disabled={!!removing} aria-label={t('delete')} className="cursor-pointer text-destructive" onClick={() => void handleRemove(job.id)}><Trash2 className="w-3 h-3" /></Button></div>
           </CardContent></Card>
         ))}
+        {row&&<RecordDetails row={row} latestPass={latestPass} onClose={()=>setSelected(null)} onRefresh={refresh} onNavigate={section=>navigate(seekerSectionUrl(section))}/>}
         {savedJobs.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_saved_jobs')}</p>}
       </div>
     </div>
@@ -1018,12 +996,17 @@ function SavedJobsView() {
 
 function ApplicationsView() {
   const { t, i18n } = useTranslation();
+  const navigate=useNavigate();const uid=useAuthStore(s=>s.userId);const withdrawLock=useRef(false);const [withdrawing,setWithdrawing]=useState(false);
   const {jobs,actions,loading,error,refresh}=useSeekerJobs();
+  const [selected,setSelected]=useState<string|null>(null);
+  const row=selected?(()=>{const action=actions.find(a=>a.vacancy_id===selected);const job=jobs.find(j=>j.id===selected);return action&&job?{action,job}:null;})():null;
   const applications=actions.filter(a=>a.application_status!==null).flatMap(a=>{const j=jobs.find(j=>j.id===a.vacancy_id);return j?[{id:j.id,title:j.job_title,company:j.company_name,appliedDate:a.applied_at?new Date(a.applied_at).toLocaleDateString(i18n.language):i18n.language.startsWith('ar')?'التاريخ غير مسجل':'Date not recorded',status:applicationStatus(a)||'unknown'}]:[];});
   const statusColor = (s: string) => { switch(s) { case 'interview': return 'default'; case 'reviewed': return 'secondary'; case 'pending': return 'outline'; case 'rejected': return 'destructive'; default: return 'secondary'; } };
 
   const handleWithdraw = async (id: string) => {
-    try{await recordJobAction(id,'withdraw');toast.success(t('application_withdrawn'));}catch{toast.error(t('try_again'));}
+    if(withdrawLock.current||!window.confirm(i18n.language.startsWith('ar')?'سحب هذا الطلب؟':'Withdraw this application?'))return;
+    withdrawLock.current=true;setWithdrawing(true);
+    try{await recordJobAction(id,'withdraw');if(useAuthStore.getState().userId!==uid)return;await refresh();toast.success(t('application_withdrawn'));}catch{if(useAuthStore.getState().userId===uid)toast.error(t('try_again'));}finally{withdrawLock.current=false;setWithdrawing(false);}
   };
 
   return (
@@ -1032,16 +1015,16 @@ function ApplicationsView() {
       {loading&&<p role="status">{t('loading')}</p>}{error&&<Button onClick={()=>void refresh()}>{t('try_again')}</Button>}
       <div className="space-y-3">
         {applications.map(app => (
-          <Card key={app.id}><CardContent className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center"><FileText className="w-5 h-5 text-primary" /></div><div><p className="font-medium text-sm">{app.title}</p><p className="text-xs text-muted-foreground">{app.company} · {t('applied')}: {app.appliedDate}</p></div></div>
+          <Card key={app.id}><CardContent className="p-4 flex flex-wrap gap-3 items-center justify-between">
+            <button type="button" className="flex items-center gap-3 min-h-11 text-start min-w-0" onClick={()=>setSelected(app.id)}><div className="w-10 h-10 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center"><FileText className="w-5 h-5 text-primary" /></div><div><p className="font-medium text-sm">{app.title}</p><p className="text-xs text-muted-foreground">{app.company} · {t('applied')}: {app.appliedDate}</p></div></button>
             <div className="flex items-center gap-2">
               <Badge variant={statusColor(app.status) as any} className="text-xs">{recruitmentLabel(app.status,i18n.language)}</Badge>
-              {!['withdrawn','rejected','hired'].includes(app.status) && <Button size="sm" variant="ghost" className="cursor-pointer text-destructive text-xs" onClick={() => handleWithdraw(app.id)}>{t('withdraw')}</Button>}
+              {!['withdrawn','rejected','hired'].includes(app.status) && <Button size="sm" variant="ghost" className="cursor-pointer text-destructive text-xs" disabled={withdrawing} onClick={() => void handleWithdraw(app.id)}>{t('withdraw')}</Button>}
             </div>
           </CardContent></Card>
         ))}
         {applications.length === 0 && <p className="text-center text-muted-foreground py-8">{t('no_applications')}</p>}
-      </div>
+      </div>{row&&<RecordDetails row={row} latestPass={null} onClose={()=>setSelected(null)} onRefresh={refresh} onNavigate={section=>navigate(seekerSectionUrl(section))}/>}
     </div>
   );
 }
@@ -1172,8 +1155,8 @@ export default function JobSeeker() {
     return()=>{alive=false;clearInterval(timer);window.removeEventListener('focus',refresh);};
   },[isMobile,activeTab,messageUserId]);
 
-  // Simulated seeker tier - in production this comes from subscription state
-  const seekerTier: SeekerTier = 'premium';
+  const entitlement=useViaPremium(messageUserId);
+  const seekerTier: SeekerTier = entitlement.active ? 'premium' : 'free';
 
   // Navigation Reliability: Intercept 'messages' tab at all entry points
   // If activeTab is ever set to 'messages' (from sidebar or any source), navigate immediately
@@ -1275,22 +1258,24 @@ export default function JobSeeker() {
     if (isMobile && activeTab === 'settings') return <MobileProfileAccount section="account_settings"/>;
 
     switch(activeTab) {
+      case 'credits': return <div className="flex-1 p-4 sm:p-6 overflow-y-auto"><div className="max-w-2xl"><SeekerCreditPanel/></div></div>;
+      case 'personal': case 'via_resume': case 'subscription_overview': case 'support': case 'faq': case 'report': case 'account_settings': return <DesktopAccountFeatures key={activeTab} section={activeTab}/>;
       case 'swipe': return <SwipeView />;
       case 'dashboard': return <DashboardView onNavigateToSection={(section) => setActiveTab(section as NavSection)} />;
       case 'profile': case 'cv': return <ProfileView onOpenPreferences={() => { trackEvent('preferences_opened', { from: 'profile' }); setActiveTab('preferences'); }} completion={<ProfileCompletionSlot onNavigate={(section) => setActiveTab(section as NavSection)} />} />;
             case 'experience': return <ExperienceView />;
       case 'education': case 'certificates': return <EducationView />;
-      case 'skills': return <SkillsView />;
+      case 'skills': return <DesktopSkills />;
       case 'languages': return <LanguagesView />;
       case 'portfolio': return <PortfolioView />;
       case 'video': return <VideoIntroView />;
-      case 'preferences': return isMobile?<MobileSwipePreferences/>:<PreferencesView />;
+      case 'preferences': return isMobile&&!new URLSearchParams(location.search).has('advanced')?<MobileSwipePreferences/>:<PreferencesView />;
       case 'saved': return <SavedJobsView />;
       case 'applications': return <ApplicationsView />;
       case 'matches': return <MatchesView />;
       case 'messages': return null; // Handled by useEffect — navigates to /messages
-      case 'notifications': return <NotificationsView />;
-      case 'settings': return <SettingsView seekerTier={seekerTier} />;
+      case 'notifications': return <Notifications />;
+      case 'settings': return <DesktopAccountFeatures section="account_settings" />;
       case 'visibility': return <ProfileVisibilitySettings tier={seekerTier} />;
       case 'exposure': return <ExposureDashboard tier={seekerTier} />;
       case 'contact_requests': return <ContactRequestsView tier={seekerTier} />;

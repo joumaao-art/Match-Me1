@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -91,8 +91,7 @@ function NotificationItem({
 
   return (
     <div
-      className={`flex items-start gap-3 p-4 border-b border-border transition-smooth hover:bg-muted/30 cursor-pointer ${isUnread ? 'bg-primary/5' : ''}`}
-      onClick={() => { onRead(notification.id); if (notification.actionUrl) onAction(notification.actionUrl); }}
+      className={`flex items-start gap-3 p-4 border-b border-border transition-smooth hover:bg-muted/30 ${isUnread ? 'bg-primary/5' : ''}`}
     >
       {/* Icon */}
       <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: `${template.color}15`, color: template.color }}>
@@ -101,12 +100,13 @@ function NotificationItem({
 
       {/* Content */}
       <div className="flex-1 min-w-0">
+        <button type="button" className="text-start w-full min-h-11" onClick={()=>{onRead(notification.id);if(notification.actionUrl)onAction(notification.actionUrl);}}>
         <div className="flex items-center gap-2">
           <p className={`text-sm ${isUnread ? 'font-semibold' : 'font-medium'}`}>{notification.title}</p>
           {isUnread && <div className="w-2 h-2 rounded-full bg-primary shrink-0" />}
         </div>
-        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{notification.body}</p>
-        <div className="flex items-center gap-2 mt-1.5">
+        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{notification.body}</p></button>
+        <div className="flex flex-wrap items-center gap-2 mt-1.5">
           <span className="text-[10px] text-muted-foreground">{formatTime(notification.createdAt)}</span>
           <Badge variant="outline" className="text-[10px] h-4 px-1.5" style={{ borderColor: `${template.color}40`, color: template.color }}>
             {t(EVENT_LABELS[notification.event])}
@@ -121,16 +121,16 @@ function NotificationItem({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-1 shrink-0">
+      <div className="flex flex-col sm:flex-row items-center gap-1 shrink-0">
         {isUnread && (
-          <Button variant="ghost" size="icon" className="h-7 w-7 cursor-pointer" onClick={(e) => { e.stopPropagation(); onRead(notification.id); }} title={t('mark_as_read')}>
+          <Button variant="ghost" size="icon" className="h-11 w-11 cursor-pointer" onClick={(e) => { e.stopPropagation(); onRead(notification.id); }} aria-label={t('mark_as_read')}>
             <Check className="w-3.5 h-3.5" />
           </Button>
         )}
-        <Button variant="ghost" size="icon" className="h-7 w-7 cursor-pointer" onClick={(e) => { e.stopPropagation(); onArchive(notification.id); }} title={t('archive')}>
+        <Button variant="ghost" size="icon" className="h-11 w-11 cursor-pointer" onClick={(e) => { e.stopPropagation(); onArchive(notification.id); }} aria-label={t('archive')}>
           <Archive className="w-3.5 h-3.5" />
         </Button>
-        <Button variant="ghost" size="icon" className="h-7 w-7 cursor-pointer text-destructive" onClick={(e) => { e.stopPropagation(); onDelete(notification.id); }} title={t('delete')}>
+        <Button variant="ghost" size="icon" className="h-11 w-11 cursor-pointer text-destructive" onClick={(e) => { e.stopPropagation(); onDelete(notification.id); }} aria-label={t('delete')}>
           <Trash2 className="w-3.5 h-3.5" />
         </Button>
       </div>
@@ -143,18 +143,20 @@ function NotificationItem({
 // ============================================================
 
 function PreferencesPanel({
-  preferences, onSave
+  preferences, onSave, busy
 }: {
   preferences: NotificationPreferences;
-  onSave: (prefs: NotificationPreferences) => void;
+  onSave: (prefs: NotificationPreferences) => Promise<boolean>;
+  busy: boolean;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [prefs, setPrefs] = useState<NotificationPreferences>(preferences);
+  useEffect(() => { setPrefs(preferences); }, [preferences]);
+  const save = async (updated: NotificationPreferences) => { if (busy) return; if (await onSave(updated)) setPrefs(updated); };
 
   const toggleChannel = (channel: NotificationChannel) => {
     const updated = { ...prefs, channels: { ...prefs.channels, [channel]: !prefs.channels[channel] } };
-    setPrefs(updated);
-    onSave(updated);
+    void save(updated);
   };
 
   const toggleEventChannel = (event: NotificationEvent, channel: NotificationChannel) => {
@@ -163,18 +165,17 @@ function PreferencesPanel({
       ? current.filter(c => c !== channel)
       : [...current, channel];
     const newPrefs = { ...prefs, events: { ...prefs.events, [event]: updated } };
-    setPrefs(newPrefs);
-    onSave(newPrefs);
+    void save(newPrefs);
   };
 
   const toggleQuietHours = () => {
     const updated = { ...prefs, quietHours: { ...prefs.quietHours, enabled: !prefs.quietHours.enabled } };
-    setPrefs(updated);
-    onSave(updated);
+    void save(updated);
   };
 
   return (
     <div className="space-y-6 p-4">
+      <p className="text-sm text-muted-foreground">{i18n.language.startsWith('ar') ? 'إشعارات داخل التطبيق فقط. البريد والدفع والرسائل النصية والساعات الهادئة غير مُعدّة.' : 'In-app notifications are supported. Email, push, SMS delivery and quiet hours are not configured.'}</p>
       {/* Channel Toggles */}
       <Card>
         <CardHeader className="pb-3"><CardTitle className="text-sm font-semibold">{t('notification_channels')}</CardTitle></CardHeader>
@@ -184,9 +185,9 @@ function PreferencesPanel({
               <div className="flex items-center gap-2">
                 {CHANNEL_ICONS[channel]}
                 <span className="text-sm">{t(CHANNEL_LABELS[channel])}</span>
-                {channel === 'sms' && <Badge variant="outline" className="text-[10px] h-4">{t('sms_ready')}</Badge>}
+                {channel !== 'in_app' && <Badge variant="outline" className="text-[10px] h-4">{i18n.language.startsWith('ar')?'غير مُعدّ':'Not configured'}</Badge>}
               </div>
-              <Switch checked={prefs.channels[channel]} onCheckedChange={() => toggleChannel(channel)} />
+              <Switch disabled={busy || channel !== 'in_app'} checked={prefs.channels[channel]} onCheckedChange={() => toggleChannel(channel)} />
             </div>
           ))}
         </CardContent>
@@ -205,16 +206,17 @@ function PreferencesPanel({
                   </div>
                   <span className="text-sm font-medium">{t(EVENT_LABELS[event])}</span>
                 </div>
-                <div className="flex gap-2 ps-8">
+                <div className="flex gap-2 flex-wrap ps-8">
                   {(Object.keys(prefs.channels) as NotificationChannel[]).map(channel => (
-                    <Badge
+                    <Button type="button" size="sm"
                       key={channel}
                       variant={prefs.events[event].includes(channel) ? 'default' : 'outline'}
-                      className="cursor-pointer text-[10px]"
+                      className="text-[10px] min-h-11"
                       onClick={() => toggleEventChannel(event, channel)}
+                      disabled={busy || channel !== 'in_app'}
                     >
                       {t(CHANNEL_LABELS[channel])}
-                    </Badge>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -232,7 +234,7 @@ function PreferencesPanel({
               <p className="text-sm">{t('enable_quiet_hours')}</p>
               <p className="text-xs text-muted-foreground">{prefs.quietHours.start} - {prefs.quietHours.end}</p>
             </div>
-            <Switch checked={prefs.quietHours.enabled} onCheckedChange={toggleQuietHours} />
+            <Switch disabled checked={false} onCheckedChange={toggleQuietHours} />
           </div>
         </CardContent>
       </Card>
@@ -245,14 +247,18 @@ function PreferencesPanel({
 // ============================================================
 
 export default function Notifications() {
-  const { t } = useTranslation();
+  const uid = useAuthStore(s => s.userId);
+  return <AccountNotifications key={uid || 'signed-out'} />;
+}
+function AccountNotifications() {
+  const { t,i18n } = useTranslation();
   const navigate = useNavigate();
   const { userRole } = useAuthStore();
   const backFallback = userRole === 'company' ? '/company' : userRole === 'admin' ? '/admin' : '/seeker';
   const {
-    notifications, unreadCount, preferences, grouped,
+    notifications, unreadCount, totalCount, preferences, grouped,
     markAsRead, markAllAsRead, archiveNotification, deleteNotification,
-    clearAll, updatePreferences, triggerNotification,
+    clearAll, updatePreferences, error, loading, busy, refresh, hasMore, loadMore,
   } = useNotifications();
 
   const [activeTab, setActiveTab] = useState('all');
@@ -269,19 +275,14 @@ export default function Notifications() {
     navigate(url);
   };
 
-  // Demo: trigger a test notification
-  const handleTestNotification = () => {
-    triggerNotification('new_match', { name: 'Test User', company: 'Demo Corp' });
-    toast.success(t('test_notification_sent'));
-  };
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background border-b border-border">
         <div className="max-w-3xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center flex-wrap gap-2 justify-between">
+            <div className="flex items-center flex-wrap gap-3">
               <BackButton fallbackRoute={backFallback} />
               <Bell className="w-5 h-5 text-primary" />
               <h1 className="text-lg font-bold font-[Poppins]">{t('notifications')}</h1>
@@ -299,9 +300,12 @@ export default function Notifications() {
       </div>
 
       <div className="max-w-3xl mx-auto">
+        {loading && <p className="p-4" role="status">{t('loading')}</p>}
+        {error && <div className="p-4 text-destructive" role="alert"><p>{error}</p><Button variant="outline" onClick={() => void refresh()}>{t('try_again')}</Button></div>}
+        {hasMore && <Button className="m-4" variant="outline" onClick={loadMore}>{t('load_more', { defaultValue: 'Load more' })}</Button>}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="px-4 pt-3 border-b border-border">
-            <TabsList className="w-full justify-start bg-transparent p-0 h-auto gap-4">
+            <TabsList className="w-full justify-start flex-wrap bg-transparent p-0 h-auto gap-x-4 gap-y-2">
               <TabsTrigger value="all" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none pb-2 px-0">{t('all_notifications')}</TabsTrigger>
               <TabsTrigger value="unread" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none pb-2 px-0">{t('unread')} {unreadCount > 0 && `(${unreadCount})`}</TabsTrigger>
               <TabsTrigger value="settings" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none pb-2 px-0"><Settings className="w-3.5 h-3.5 me-1" />{t('settings')}</TabsTrigger>
@@ -311,12 +315,12 @@ export default function Notifications() {
           {/* Filter bar */}
           {activeTab !== 'settings' && (
             <div className="px-4 py-2 flex gap-2 overflow-x-auto border-b border-border">
-              <Badge variant={filterEvent === 'all' ? 'default' : 'outline'} className="cursor-pointer text-xs shrink-0" onClick={() => setFilterEvent('all')}>{t('all')}</Badge>
+              <Button size="sm" variant={filterEvent === 'all' ? 'default' : 'outline'} className="text-xs shrink-0 min-h-11" onClick={() => setFilterEvent('all')}>{t('all')}</Button>
               {(Object.keys(NOTIFICATION_TEMPLATES) as NotificationEvent[]).map(event => (
-                <Badge key={event} variant={filterEvent === event ? 'default' : 'outline'} className="cursor-pointer text-xs shrink-0 flex items-center gap-1" onClick={() => setFilterEvent(event)}>
+                <Button size="sm" key={event} variant={filterEvent === event ? 'default' : 'outline'} className="text-xs shrink-0 flex items-center gap-1 min-h-11" onClick={() => setFilterEvent(event)}>
                   {EVENT_ICONS[event]}
                   <span>{t(EVENT_LABELS[event])}</span>
-                </Badge>
+                </Button>
               ))}
             </div>
           )}
@@ -383,7 +387,7 @@ export default function Notifications() {
           </TabsContent>
 
           <TabsContent value="settings" className="mt-0">
-            {preferences && <PreferencesPanel preferences={preferences} onSave={updatePreferences} />}
+            {preferences && <PreferencesPanel preferences={preferences} onSave={updatePreferences} busy={busy} />}
           </TabsContent>
         </Tabs>
 
@@ -395,14 +399,15 @@ export default function Notifications() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium">{t('notification_history')}</p>
-                    <p className="text-xs text-muted-foreground">{notifications.length} {t('total_notifications')}</p>
+                    <p className="text-xs text-muted-foreground">{totalCount} {t('total_notifications')}</p>
                   </div>
-                  <Button variant="outline" size="sm" className="cursor-pointer text-xs" onClick={() => { clearAll(); toast.success(t('notifications_cleared')); }}>
+                  <Button variant="outline" size="sm" className="cursor-pointer text-xs" onClick={async () => { if (await clearAll()) toast.success(t('notifications_cleared')); }} disabled={busy}>
                     <Trash2 className="w-3.5 h-3.5 me-1" />{t('clear_all')}
                   </Button>
                 </div>
                 {/* Stats */}
-                <div className="grid grid-cols-4 gap-2 mt-3">
+                <p className="text-xs text-muted-foreground mt-3">{i18n.language.startsWith('ar')?'الأرقام التالية للسجلات المحمّلة فقط.':'The following counts cover loaded records only.'}</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
                   {(Object.keys(NOTIFICATION_TEMPLATES) as NotificationEvent[]).slice(0, 4).map(event => {
                     const count = notifications.filter(n => n.event === event).length;
                     return (

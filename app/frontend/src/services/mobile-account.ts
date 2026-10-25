@@ -62,6 +62,20 @@ export async function loadResumeData(uid:string) {
  const [experience,education]=await Promise.all([readHistory('experience',uid),readHistory('education',uid)]);
  return {account,experience:experience as ExperienceRecord[],education:education as EducationRecord[]};
 }
+export async function saveProfileSkills(uid:string,base:string[],skills:string[]) {
+ await requireAccount(uid);
+ const {data,error}=await apiClient.supabase.rpc('update_profile_skills',{p_base:base,p_skills:skills}).abortSignal(AbortSignal.timeout(10000));
+ if(error)throw error;
+ await requireAccount(uid);
+ return data as string[];
+}
+export async function saveAccountSettings(uid:string,patch:Record<string,unknown>,base:Record<string,unknown>) {
+ await requireAccount(uid);
+ const {data,error}=await apiClient.supabase.rpc('update_seeker_account_settings',{p_patch:patch,p_base:base}).abortSignal(AbortSignal.timeout(10000));
+ if(error)throw error;
+ await requireAccount(uid);
+ return data as AccountProfile;
+}
 export const SUPPORT_REPORTS='app_91d3436dfc_support_reports';
 export async function submitReport(uid:string,requestKey:string,fields:{category:string;subject:string;description:string},file:File|null) {
  await requireAccount(uid);

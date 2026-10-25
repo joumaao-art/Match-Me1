@@ -7,7 +7,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { UserRole } from '@/types';
 import { STORAGE_KEYS } from '@/config/constants';
-import { authService } from '@/services';
+import { authService } from '@/services/auth.service';
 import { logger } from '@/lib/logger';
 
 interface AuthStore {
@@ -50,6 +50,7 @@ export const useAuthStore = create<AuthStore>()(
 
       setUser: (userId, email, emailVerified = false) => {
         set({
+          userRole: get().userId === userId ? get().userRole : null,
           userId,
           email,
           isAuthenticated: true,
@@ -80,7 +81,7 @@ export const useAuthStore = create<AuthStore>()(
       fetchAndSetRole: async (userId: string) => {
         try {
           const role = await authService.getUserRole(userId);
-          if (role) {
+          if (get().userId === userId) {
             set({ userRole: role });
             logger.info('[AuthStore] Role fetched from DB:', role);
           }

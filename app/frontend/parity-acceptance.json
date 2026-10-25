@@ -1,0 +1,26 @@
+{
+  "standard": "FEATURE_PARITY_STANDARD.md",
+  "languages": ["en", "ar"],
+  "viewports": {"mobile": [320,360,375,390,412], "desktop": [1024,1280,1440,1920]},
+  "browserAcceptance": "BLOCKED",
+  "reason": "No authorized signed-in browser execution or baseline screenshots available in this request.",
+  "features": [
+    {"id":"auth","mobile":"/auth","desktop":"/auth","contract":"Supabase Auth and existing role/session gates"},
+    {"id":"onboarding","mobile":"/seeker/onboarding","desktop":"/seeker/onboarding","contract":"load_seeker_onboarding / save_mobile_onboarding"},
+    {"id":"profile","mobile":"/seeker?view=profile","desktop":"/seeker?view=profile","contract":"mobile-account / update_seeker_profile / update_mobile_personal"},
+    {"id":"history","mobile":"/seeker?view=experience","desktop":"/seeker?view=experience","contract":"canonical-profile / save_seeker_history"},
+    {"id":"portfolio","mobile":"/seeker?view=portfolio","desktop":"/seeker?view=portfolio","contract":"canonical-profile / save_seeker_history"},
+    {"id":"cv","mobile":"/seeker?view=profile","desktop":"/seeker?view=profile","contract":"profileService.uploadCV / private cvs storage"},
+    {"id":"via_resume","mobile":"/seeker?view=via_resume","desktop":"/seeker?view=via_resume","contract":"loadResumeData / generateResume"},
+    {"id":"preferences","mobile":"/seeker?view=preferences","desktop":"/seeker?view=preferences","contract":"preferencesService / visiblePreferencePatch"},
+    {"id":"discovery","mobile":"/seeker?view=swipe","desktop":"/seeker?view=swipe","contract":"useSeekerJobs / recordJobAction / rankEligibleVacancies"},
+    {"id":"dashboard","mobile":"/seeker?view=dashboard","desktop":"/seeker?view=dashboard","contract":"get_seeker_dashboard / RecordDetails"},
+    {"id":"credits","mobile":"Swipe Credits popup","desktop":"/seeker?view=credits","contract":"seeker_credit_accounts / seeker_credit_transactions"},
+    {"id":"premium","mobile":"/seeker/subscription","desktop":"/seeker/subscription","contract":"subscriptionService / verified canonical subscriptions"},
+    {"id":"messages","mobile":"/messages","desktop":"/messages","contract":"messageService / application participant RPCs"},
+    {"id":"notifications","mobile":"/seeker?view=notifications","desktop":"/seeker?view=notifications","contract":"notification-center / owner RLS / delivery trigger"},
+    {"id":"support_settings","mobile":"/seeker?view=support","desktop":"/seeker?view=support","contract":"submitReport / saveAccountSettings / existing Auth security"}
+  ],
+  "crossDeviceCases": ["mobile profile to desktop", "desktop profile to mobile", "preferences both directions and ranking", "Apply/Pass/Save/Undo readback", "counts/status/history equality", "same credit balance and one welcome grant", "verified entitlement equality", "equivalent EN/AR PDF content", "account switch and private file isolation"],
+  "knownDependencyLimits": ["support chat/email", "verified phone change", "account deletion", "private video/avatar storage", "directory privacy modes", "directory invitations", "exposure analytics", "native store billing"]
+}

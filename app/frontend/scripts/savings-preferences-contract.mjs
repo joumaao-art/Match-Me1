@@ -22,6 +22,10 @@ try {
  test('six roles plus four keywords limit exact10',()=>{assert.equal(p.preferenceSelectionCount(six),10);assert.equal(p.canAddPreference(six,'keyword','sql'),false);assert.equal(p.canAddPreference({...six,keywords:six.keywords.slice(0,3)},'keyword','sql'),true);});
  test('case-insensitive normalized duplicate rejected',()=>assert.equal(p.canAddPreference({...pref.EMPTY_PREFERENCES,keywords:['React']},'keyword',' REACT '),false));
  test('role label and keyword combined duplicate rejected',()=>assert.equal(p.canAddPreference({...pref.EMPTY_PREFERENCES,expertise:['frontend_dev']},'keyword','Frontend Developer'),false));
+ test('unknown role aliases do not collide with themselves',()=>assert.equal(p.validPreferenceSelections({...pref.EMPTY_PREFERENCES,expertise:['legacy_custom_role']}),true));
+ test('shared save rejects duplicate roles',()=>assert.equal(p.validPreferenceSelections({...pref.EMPTY_PREFERENCES,expertise:['frontend_dev','frontend_dev']}),false));
+ test('shared save rejects role-label keyword duplicates',()=>assert.equal(p.validPreferenceSelections({...pref.EMPTY_PREFERENCES,expertise:['frontend_dev'],keywords:[' Frontend Developer ']}),false));
+ test('shared save accepts distinct keywords and rejects eleven',()=>{assert.equal(p.validPreferenceSelections({...pref.EMPTY_PREFERENCES,keywords:['react','sql']}),true);assert.equal(p.validPreferenceSelections({...pref.EMPTY_PREFERENCES,keywords:Array.from({length:11},(_,i)=>`word${i}`)}),false);});
  test('taxonomy suggestions contain actual roles and skills',()=>{assert.ok(pref.searchExpertise('sales','en').some(r=>r.code==='sales_exec'));assert.ok(p.PREFERENCE_KEYWORDS.includes('react'));});
  test('only modified visible fields patched',()=>assert.deepEqual(p.visiblePreferencePatch(pref.EMPTY_PREFERENCES,{...pref.EMPTY_PREFERENCES,targetCountries:['SA'],salaryMin:'999'}),{targetCountries:['SA']}));
  const base={expertise:['frontend_dev'],keywords:['react'],industries:['Finance'],seniorityLevels:['entry','senior'],customField:{keep:true}};
@@ -47,7 +51,7 @@ try {
  test('backend acknowledgement before success and return',()=>assert.ok(page.indexOf('await preferencesService.save')<page.indexOf('toast.success')));
  test('optimistic timestamp plus JSON and owner update guards',()=>{assert.ok(service.includes(".eq('updated_at', latest.updatedAt)"));assert.ok(service.includes(".filter('job_preferences', 'eq', JSON.stringify(latest.raw))"));assert.ok(service.includes(".eq('user_id', userId)"));assert.ok(!service.includes('.insert('));});
  test('unsaved refresh Back and tab guard wired',()=>{for(const x of ['beforeunload','popstate','matchme:before-preferences-leave','window.confirm'])assert.ok(page.includes(x));assert.ok(route.includes('matchme:before-preferences-leave'));});
- test('desktop Preferences layout remains original branch',()=>assert.ok(route.includes("isMobile?<MobileSwipePreferences/>:<PreferencesView />")));
+ test('desktop Preferences layout remains original branch',()=>assert.ok(route.includes("isMobile&&!new URLSearchParams(location.search).has('advanced')?<MobileSwipePreferences/>:<PreferencesView />")));
  const engine=await readFile('src/lib/ai-matching-engine.ts','utf8');
  test('existing AI engine accepts canonical preference signal',()=>{assert.ok(engine.includes('jobPreferences?: JobPreferences'));assert.ok(engine.includes('preferenceFit(seeker.jobPreferences'));});
  console.log(`${count} savings and preferences checks passed.`);

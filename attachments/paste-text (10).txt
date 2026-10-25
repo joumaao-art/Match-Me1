@@ -1,0 +1,794 @@
+# MATCHME — COMPLETE MOBILE & DESKTOP FEATURE PARITY
+## One Unified Application Experience | Independent Responsive Layouts | Shared Functionality
+
+### PRIORITY: HIGH — PLATFORM-WIDE IMPLEMENTATION
+
+## 1. OBJECTIVE
+
+Implement complete functional parity between the MatchMe mobile and desktop applications.
+
+Every feature, action, workflow, and capability available to a Job Seeker on mobile must also be available on desktop.
+
+Likewise, every relevant desktop feature must be available on mobile.
+
+**CRITICAL: Do not change, duplicate, or overwrite the existing visual layouts of either platform.**
+
+Mobile and desktop must maintain their own existing designs, navigation structures, spacing, component arrangements, and responsive behavior.
+
+The goal is:
+
+**100% functional parity with platform-specific visual experiences.**
+
+This applies to all existing and future Job Seeker functionality.
+
+Where appropriate, extend the same architectural principles to Company and Super Admin functionality without introducing unrequested interface redesigns.
+
+---
+
+# PART 1 — NON-NEGOTIABLE RULES
+
+## 2. Preserve Existing Layouts
+
+### Mobile
+
+Preserve:
+
+- Existing mobile-first design.
+- Bottom navigation: Swipe | Dashboard | Profile.
+- Existing mobile header arrangements.
+- Mobile-specific popup and modal behavior.
+- Swipe card layout.
+- Touch interactions.
+- Mobile spacing and typography.
+- Safe-area handling.
+- Existing mobile responsive breakpoints.
+
+### Desktop
+
+Preserve:
+
+- Existing desktop navigation.
+- Desktop sidebar or header structure.
+- Existing desktop page layouts.
+- Desktop spacing and typography.
+- Existing desktop component arrangement.
+- Desktop-specific interactions.
+- Existing desktop responsive behavior.
+
+Do not convert the desktop interface into a mobile-style layout.
+
+Do not stretch mobile components across desktop screens.
+
+Do not redesign the desktop navigation to match mobile navigation.
+
+Do not replace the mobile layout with desktop-style tables or sidebars.
+
+**Only add missing functionality within each platform's existing visual design.**
+
+---
+
+# PART 2 — SHARED FEATURE ARCHITECTURE
+
+## 3. One Source of Truth
+
+Both mobile and desktop must use the same canonical backend and business rules.
+
+Reuse the existing:
+
+- Supabase database.
+- Authentication services.
+- Job Seeker profile services.
+- Company profile services.
+- Vacancy services.
+- Application services.
+- AI Matching Engine.
+- Preferences services.
+- Credits system.
+- Subscription and billing services.
+- Resume services.
+- Notification services.
+- Messaging services.
+- Settings and support services.
+
+Do not create separate mobile and desktop databases.
+
+Do not create independent mobile and desktop versions of the same business logic.
+
+Do not duplicate API implementations unnecessarily.
+
+Where mobile and desktop are separate clients, use shared service contracts, validation schemas, and reusable business logic.
+
+### Architecture Principle
+
+**Shared data + shared business rules + shared capabilities + independent UI presentation.**
+
+---
+
+# PART 3 — COMPLETE JOB SEEKER FEATURE PARITY
+
+## 4. Authentication and Account Access
+
+Ensure mobile and desktop both support:
+
+- Job Seeker registration.
+- Email and password authentication.
+- Supported social authentication.
+- Phone authentication where configured.
+- Account verification.
+- Login.
+- Logout.
+- Forgot Password.
+- Password reset.
+- Session restoration.
+- Account security.
+
+Preserve existing working authentication flows.
+
+Do not reintroduce infinite loading or onboarding redirect issues.
+
+If a login method is platform-specific because of provider limitations, identify the limitation and provide an appropriate supported alternative.
+
+## 5. Onboarding
+
+Ensure both platforms support the same onboarding requirements:
+
+- Welcome and Get Started.
+- Personal information.
+- Legal first and family name.
+- Gender.
+- Birthday and age calculation.
+- Country and city selection.
+- Skills.
+- Education.
+- Experience.
+- Job preferences.
+- Seniority levels.
+- Credits introduction.
+- Swipe tutorial.
+- Onboarding completion.
+
+The visual presentation may differ.
+
+The underlying onboarding steps, validation, progress, and saved information must be consistent.
+
+A user who starts onboarding on mobile must be able to continue on desktop without losing progress.
+
+Likewise, a user who starts on desktop must be able to continue on mobile.
+
+Do not reset completed onboarding when switching platforms.
+
+## 6. Profile
+
+Ensure both platforms support:
+
+- Username/display name.
+- Email address.
+- Mobile number.
+- Attached CV.
+- CV last-updated date.
+- CV preview.
+- CV replacement.
+- Subscription Overview.
+- VIA Resume.
+- Personal Information.
+- Support & Settings.
+
+### Personal Information
+
+Both platforms must support:
+
+- Legal Name.
+- Birthday.
+- Email.
+- Mobile.
+- Address.
+- Gender.
+
+All information must come from the same account records.
+
+Edits made on either platform must appear on the other.
+
+Preserve the existing platform-specific Profile layouts.
+
+## 7. VIA Resume
+
+Both platforms must support:
+
+- Generating an ATS-friendly resume from the saved profile.
+- Resume preview.
+- PDF download.
+- Latest profile information.
+- Experience ordering.
+- Education ordering.
+- Certifications.
+- Skills.
+- Languages.
+- English and Arabic rendering.
+
+Do not create separate resume-generation logic for mobile and desktop.
+
+Both platforms must produce equivalent resume content for the same account.
+
+## 8. Swipe / Job Discovery
+
+Ensure both platforms support the same capabilities:
+
+- Real published vacancy retrieval.
+- AI-ranked job recommendations.
+- Company logo.
+- Job title.
+- Compensation when declared.
+- Job location.
+- Employment type.
+- Work style.
+- Expandable description.
+- Qualifications.
+- Apply.
+- Pass.
+- Save.
+- Undo.
+- Share.
+- Credits.
+- Preferences.
+- Profile completion shortcut.
+
+### Desktop Behavior
+
+Do not force a touch-based swiping interface onto desktop.
+
+Desktop may use:
+
+- Clickable Apply and Pass actions.
+- Keyboard interactions where supported.
+- Desktop-appropriate job cards.
+- Existing desktop navigation.
+
+However, the underlying actions must behave identically.
+
+### Mobile Behavior
+
+Preserve existing touch gestures and mobile card design.
+
+Both platforms must update the same application, save, pass, and credit records.
+
+## 9. Credits
+
+Both platforms must display the same actual credit balance.
+
+Requirements:
+
+- Shared account-based balance.
+- Shared transaction history.
+- No duplicate welcome credits.
+- No separate desktop and mobile balances.
+- Consistent credit deduction.
+- Consistent refund or reversal rules where supported.
+- Accurate balance after refresh and login.
+
+Preserve the existing 20-credit new-account policy.
+
+Do not issue additional credits when switching devices.
+
+Mobile may use the existing Credits popup.
+
+Desktop may use its existing layout or a desktop-appropriate modal.
+
+The same credit functionality must be available.
+
+## 10. VIA Premium Subscriptions
+
+Ensure both platforms support:
+
+- Current subscription status.
+- Monthly plan: $10/month.
+- Yearly plan: $100/year.
+- Yearly Most Popular label.
+- Yearly Save 17%.
+- Subscription selection.
+- Checkout using a supported payment method.
+- Subscription activation after verified payment.
+- Subscription management.
+- Renewal information.
+- Cancellation.
+- Unlimited eligible applications for active Premium users.
+
+Both platforms must recognize the same account entitlement.
+
+Do not create separate subscription entitlements for mobile and desktop.
+
+Respect applicable mobile app-store billing requirements.
+
+Do not change the existing subscription pricing or billing architecture.
+
+## 11. Preferences
+
+Both platforms must support the same canonical preference fields:
+
+**Roles & Keywords**
+- Autocomplete.
+- Multiple selections.
+- Maximum 10 combined selections.
+
+**Countries**
+- Searchable country dropdown.
+- Multiple selections.
+
+**Job Type**
+- Full-time.
+- Part-time.
+- Contract.
+- Internship.
+
+**Work Style**
+- Onsite.
+- Remote.
+- Hybrid.
+
+**Level**
+- Junior.
+- Mid.
+- Senior.
+
+Both platforms must save and retrieve the same preference records.
+
+Mobile must preserve its top-right green Save checkmark.
+
+Desktop must preserve its existing layout and save interaction, adapting functionality only where required.
+
+Changing preferences on one platform must update the recommendations on the other.
+
+Do not erase hidden or legacy preference fields during synchronization.
+
+## 12. Dashboard
+
+Both platforms must provide:
+
+- Search.
+- All Applications.
+- Submitted Applications.
+- Skipped Jobs.
+- Saved Jobs.
+- Recent Applications.
+- Application details.
+- Application statuses.
+- Status history where supported.
+
+### Application Statuses
+
+Use the same canonical statuses:
+
+- Applied.
+- Under Review.
+- Shortlisted.
+- Interview Scheduled.
+- Offer Received.
+- Hired.
+- Rejected.
+- Withdrawn.
+
+Handle Expired as an appropriate vacancy lifecycle condition without incorrectly overwriting the application outcome.
+
+Both platforms must show the same actual application records and statuses.
+
+Mobile retains its existing Dashboard layout.
+
+Desktop retains its existing Dashboard layout.
+
+Do not force the mobile four-button grid onto desktop.
+
+## 13. Saved and Skipped Jobs
+
+Ensure both platforms support:
+
+- Viewing saved jobs.
+- Removing saved jobs.
+- Applying to eligible saved jobs.
+- Viewing skipped jobs.
+- Reconsidering eligible skipped jobs.
+- Opening job details.
+- Accurate vacancy status.
+
+A job saved on mobile must appear on desktop.
+
+A job passed on desktop must be reflected on mobile.
+
+Do not create duplicate records.
+
+## 14. Messaging and Hiring
+
+Ensure both platforms support existing authorized:
+
+- Conversations.
+- Message history.
+- Sending and receiving messages.
+- Interview invitations.
+- Interview scheduling.
+- Hiring updates.
+- Relevant notifications.
+
+Preserve existing messaging permissions and the Company-first contact rules where applicable.
+
+Do not expose restricted candidate contact information.
+
+## 15. Support and Settings
+
+Both platforms must support:
+
+- Chat with Support.
+- Email Us.
+- FAQ.
+- Report a Problem.
+- Settings.
+- Language preferences.
+- Notification preferences.
+- Privacy settings.
+- Account security.
+- Password changes.
+- Logout.
+- Account deletion where implemented.
+
+Use the same backend support and settings services.
+
+Do not create nonfunctional placeholder buttons.
+
+If an external provider is not configured, identify the missing dependency rather than simulating success.
+
+---
+
+# PART 4 — CROSS-PLATFORM SYNCHRONIZATION
+
+## 16. Account Synchronization
+
+A Job Seeker must be able to:
+
+1. Log in on mobile.
+2. Update their profile.
+3. Open desktop.
+4. See the updated profile.
+5. Apply to a vacancy on desktop.
+6. Return to mobile.
+7. See the application and updated credit balance.
+
+All changes must persist in Supabase.
+
+Use account-based identity, not device-based records.
+
+## 17. Real-Time or Refresh Synchronization
+
+Use the existing supported synchronization architecture.
+
+Where real-time subscriptions are already available, reuse them.
+
+Otherwise, use reliable refetching or cache invalidation.
+
+Ensure consistency after:
+
+- Profile updates.
+- Preferences updates.
+- Applications.
+- Saved jobs.
+- Skipped jobs.
+- Credit transactions.
+- Subscription changes.
+- Company status changes.
+- Resume uploads.
+- Messages.
+
+Do not require users to log out and back in to see ordinary account updates.
+
+## 18. Prevent Cross-Account Data Leakage
+
+Verify:
+
+- User A cannot see User B's private data.
+- Switching accounts clears user-scoped cached information.
+- Saved jobs and preferences remain user-specific.
+- Credit balances are not shared between accounts.
+- Application history is correctly isolated.
+- RLS remains enabled and correctly enforced.
+
+Do not weaken security policies to achieve synchronization.
+
+---
+
+# PART 5 — PRESERVE PLATFORM-SPECIFIC DESIGN
+
+## 19. UI Isolation
+
+Audit the current responsive and platform-specific architecture.
+
+Ensure that changes to mobile functionality do not accidentally alter desktop styling.
+
+Likewise, desktop changes must not alter mobile styling.
+
+Use the existing architecture to isolate:
+
+- Platform-specific components.
+- Navigation.
+- Responsive layouts.
+- CSS.
+- Breakpoints.
+- Mobile safe areas.
+- Desktop spacing.
+- Modal presentation.
+- Touch and pointer interactions.
+
+Prefer shared business logic and separate presentation components where appropriate.
+
+Do not duplicate entire feature implementations just to maintain different layouts.
+
+## 20. No Visual Regression
+
+Before making changes:
+
+- Inspect the existing mobile pages.
+- Inspect the existing desktop pages.
+- Identify existing functional differences.
+- Record the current visual structure.
+- Capture baseline screenshots where supported.
+
+After implementation:
+
+- Compare mobile layouts against the baseline.
+- Compare desktop layouts against the baseline.
+- Verify no unexpected visual changes.
+- Verify no missing controls.
+- Verify no broken navigation.
+
+Do not redesign a page merely because functionality is being synchronized.
+
+---
+
+# PART 6 — FEATURE PARITY AUDIT
+
+## 21. Audit All Existing Features
+
+Before coding, inspect the current implementation and build a complete feature parity matrix.
+
+For each feature, identify:
+
+- Available on Mobile.
+- Available on Desktop.
+- Uses Shared Backend.
+- Functionality Matches.
+- Data Synchronizes.
+- Layout Preserved.
+- Requires Fix.
+
+Example:
+
+| Feature | Mobile | Desktop | Sync | Action |
+|---|---|---|---|---|
+| Profile | Yes | Yes | Verify | Preserve layouts |
+| VIA Resume | Yes | Verify | Verify | Add missing capability |
+| Preferences | Yes | Verify | Verify | Synchronize |
+| Saved Jobs | Yes | Verify | Verify | Ensure parity |
+| Credits | Yes | Yes | Verify | Shared balance |
+| Dashboard | Yes | Verify | Verify | Preserve layouts |
+
+Use actual implementation findings, not assumptions.
+
+Do not claim that a feature exists without inspecting its routes, components, and service integration.
+
+## 22. Fix All Confirmed Parity Gaps
+
+For each confirmed gap:
+
+1. Identify the root cause.
+2. Reuse existing shared functionality.
+3. Add the missing capability to the affected platform.
+4. Preserve that platform's visual layout.
+5. Verify backend persistence.
+6. Test the feature on both platforms.
+7. Confirm no regression.
+
+Do not rebuild working features.
+
+Do not introduce placeholder functionality to satisfy the parity checklist.
+
+---
+
+# PART 7 — COMPANY AND SUPER ADMIN
+
+## 23. Extend Shared Architecture
+
+Audit Company and Super Admin features for the same cross-platform principles.
+
+Where both mobile and desktop interfaces are supported, ensure functional consistency.
+
+Preserve role-based access control.
+
+Do not expose Super Admin capabilities to ordinary users.
+
+Do not change Company or Super Admin layouts unless needed to restore an existing supported capability.
+
+Do not invent unsupported native mobile admin screens solely to satisfy parity.
+
+Document genuine platform restrictions.
+
+---
+
+# PART 8 — FUTURE DEVELOPMENT STANDARD
+
+## 24. Permanent Feature Parity Rule
+
+Establish the following project-wide engineering standard:
+
+**Any new feature introduced on mobile must have equivalent functionality on desktop, and any new feature introduced on desktop must have equivalent functionality on mobile, unless an explicitly documented platform limitation applies.**
+
+For every future feature:
+
+- Use shared business logic.
+- Use shared API contracts.
+- Use the canonical backend.
+- Preserve platform-specific UI.
+- Include mobile and desktop acceptance tests.
+- Verify synchronization.
+- Check permissions.
+- Prevent visual regressions.
+
+Add this rule to the existing engineering standards and automated validation processes where supported.
+
+Do not claim that a repository rule can control Atoms' internal agent behavior unless verified.
+
+---
+
+# PART 9 — MANDATORY TESTING
+
+## 25. Functional Acceptance Tests
+
+Test the actual running application.
+
+### Profile
+
+- Update mobile profile and verify on desktop.
+- Update desktop profile and verify on mobile.
+- Verify CV metadata and Personal Information.
+
+### Preferences
+
+- Update mobile Preferences and verify on desktop.
+- Update desktop Preferences and verify on mobile.
+- Verify AI recommendations use the saved values.
+
+### Swipe
+
+- Apply on mobile and verify application on desktop.
+- Save on desktop and verify on mobile.
+- Pass on mobile and verify on desktop.
+- Verify Undo behavior.
+
+### Dashboard
+
+- Verify matching application counts.
+- Verify matching recent applications.
+- Verify matching application statuses.
+- Verify saved and skipped jobs.
+
+### Credits
+
+- Verify the same balance on both platforms.
+- Verify correct credit deductions.
+- Verify no duplicate credit grants.
+
+### Subscriptions
+
+- Verify the same Premium entitlement on both platforms.
+- Verify correct pricing.
+- Verify no duplicate subscriptions.
+- Verify correct checkout behavior.
+
+### VIA Resume
+
+- Generate a resume on mobile.
+- Generate a resume on desktop.
+- Verify equivalent content and valid PDFs.
+
+### Security
+
+- Verify account isolation.
+- Verify RLS.
+- Verify role-based permissions.
+- Verify secure file access.
+
+---
+
+# PART 10 — RESPONSIVE VISUAL REGRESSION
+
+## 26. Required Viewports
+
+Test mobile at:
+
+- 320px.
+- 360px.
+- 375px.
+- 390px.
+- 412px.
+
+Test desktop at:
+
+- 1024px.
+- 1280px.
+- 1440px.
+- 1920px.
+
+Verify:
+
+- Existing navigation remains unchanged.
+- Existing component arrangement remains unchanged.
+- No horizontal overflow.
+- No overlapping elements.
+- No hidden action buttons.
+- No unexpected typography changes.
+- No modal positioning issues.
+- English and Arabic layouts remain functional.
+
+Use visual comparisons where supported.
+
+---
+
+# PART 11 — IMPLEMENTATION CONSTRAINTS
+
+## 27. Protect Working Functionality
+
+Do not:
+
+- Rebuild MatchMe from scratch.
+- Create a new Supabase project.
+- Reset existing accounts.
+- Reset onboarding progress.
+- Duplicate profile records.
+- Duplicate applications.
+- Duplicate credits.
+- Create separate mobile and desktop subscription records.
+- Rewrite working authentication.
+- Replace the AI Matching Engine.
+- Remove existing Company features.
+- Modify layouts unnecessarily.
+
+Implement targeted changes based on confirmed gaps.
+
+---
+
+# PART 12 — FINAL REPORT
+
+## 28. Required Deliverables
+
+Provide an English-only implementation report containing:
+
+1. Full feature parity audit.
+2. Mobile-only features discovered.
+3. Desktop-only features discovered.
+4. Confirmed functional differences.
+5. Shared architecture improvements.
+6. Features synchronized.
+7. Supabase integration verification.
+8. Mobile visual regression results.
+9. Desktop visual regression results.
+10. Cross-device persistence tests.
+11. Authentication and security tests.
+12. Files changed.
+13. Outstanding limitations.
+14. Tests marked PASS, FAIL, or BLOCKED.
+
+Do not claim 100% parity unless every applicable feature has been verified.
+
+Do not claim App Viewer tests passed unless they were actually executed.
+
+---
+
+## FINAL SUCCESS CONDITION
+
+MatchMe provides a unified Job Seeker experience across mobile and desktop.
+
+**All supported features are functionally equivalent, all account information is synchronized, and both platforms retain their own original layouts.**
+
+A Job Seeker can move between mobile and desktop without losing data, functionality, preferences, applications, saved jobs, credits, subscription status, or progress.
+
+The mobile application remains mobile-first.
+
+The desktop application remains desktop-optimized.
+
+All changes must preserve the existing MatchMe architecture and working functionality.
+
+**Start by auditing the existing implementation, identify genuine parity gaps, and implement only the missing capabilities. Do not redesign either platform.**

@@ -5,7 +5,7 @@ export const SEEKER_MOBILE_TABS = [
 ] as const;
 export type MobileNavTab = typeof SEEKER_MOBILE_TABS[number]['id'];
 
-const PROFILE_SECTIONS = ['personal', 'via_resume', 'subscription_overview', 'support', 'faq', 'report', 'account_settings', 'profile', 'cv', 'experience', 'education', 'certificates', 'skills', 'languages', 'portfolio', 'video', 'preferences', 'visibility', 'exposure', 'contact_requests', 'who_viewed', 'invitations', 'notifications', 'settings', 'account'];
+const PROFILE_SECTIONS = ['credits','personal', 'via_resume', 'subscription_overview', 'support', 'faq', 'report', 'account_settings', 'profile', 'cv', 'experience', 'education', 'certificates', 'skills', 'languages', 'portfolio', 'video', 'preferences', 'visibility', 'exposure', 'contact_requests', 'who_viewed', 'invitations', 'notifications', 'settings', 'account'];
 const DASHBOARD_SECTIONS = ['dashboard', 'applications', 'matches', 'saved'];
 export function activeSeekerMobileTab(section: string): MobileNavTab | null {
   if (section === 'swipe' || section === 'discover') return 'swipe';
