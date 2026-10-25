@@ -71,7 +71,7 @@ export function PersonalInformationForm({ account, mobile, onSaved }: { account:
   const age = ageFromBirthday(draft.date_of_birth);
   const today = new Date();
   const maxDate = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-  return <form dir={ar ? 'rtl' : 'ltr'} className="space-y-7" noValidate onSubmit={event => { event.preventDefault(); void save(); }} data-testid="personal-information-form">
+  return <form dir={ar ? 'rtl' : 'ltr'} className={mobile ? 'space-y-7 h-auto min-h-0 flex-none' : 'space-y-7'} noValidate onSubmit={event => { event.preventDefault(); void save(); }} data-testid="personal-information-form">
     <fieldset disabled={busy} className="space-y-7">
       <fieldset className="space-y-4" data-personal-category="identity"><legend className="text-base font-semibold mb-4">{copy('Identity','الهوية')}</legend>
         <FormField id="personal-title" label={copy('Title','اللقب')} error={errorText('title')}><select id="personal-title" className="h-11 w-full border rounded-md bg-background px-3 text-sm" value={draft.title} onChange={event => set('title',event.target.value)} {...aria('title')}><option value="">{copy('Select title','اختر اللقب')}</option>{PERSONAL_TITLES.map(title => <option key={title} value={title}>{title}</option>)}</select></FormField>
@@ -98,7 +98,7 @@ export function PersonalInformationForm({ account, mobile, onSaved }: { account:
       <fieldset className="space-y-4" data-personal-category="gender"><legend className="text-base font-semibold mb-4">{copy('Gender','الجنس')}</legend><FormField id="personal-gender" label={copy('Gender','الجنس')} required error={errorText('gender')}><select id="personal-gender" className="h-11 w-full border rounded-md bg-background px-3 text-sm" value={draft.gender} onChange={event => set('gender',event.target.value)} {...aria('gender')}><option value="">{copy('Select gender','اختر الجنس')}</option><option value="male">{copy('Male','ذكر')}</option><option value="female">{copy('Female','أنثى')}</option><option value="prefer_not_to_say">{copy('Prefer not to say','أفضل عدم الإفصاح')}</option></select></FormField></fieldset>
     </fieldset>
     {error && <p role="alert" className="text-sm text-destructive">{error}</p>}{notice && <p role="status" className="text-sm text-primary">{notice}</p>}
-    <div className={mobile ? 'sticky bottom-0 py-3 bg-background' : 'pt-2'}><Button type="submit" disabled={busy} aria-busy={busy} className={mobile ? 'w-full h-12' : 'min-h-11'}>{busy ? copy('Saving…','جارٍ الحفظ…') : copy('Save','حفظ')}</Button></div>
+    <div className={mobile ? 'py-3 bg-background' : 'pt-2'}><Button type="submit" disabled={busy} aria-busy={busy} className={mobile ? 'w-full h-12' : 'min-h-11'}>{busy ? copy('Saving…','جارٍ الحفظ…') : copy('Save','حفظ')}</Button></div>
   </form>;
 }
 

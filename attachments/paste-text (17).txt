@@ -1,0 +1,179 @@
+# MATCHME — FIX EXCESSIVE VERTICAL SCROLLING ON MOBILE PERSONAL PAGE
+
+**PRIORITY: HIGH — MOBILE JOB SEEKER UI FIX**
+
+## 1. Objective
+
+Fix the excessive vertical scrolling and unnecessary blank space on the MatchMe mobile Job Seeker Personal page.
+
+In the attached screenshot, the Gender section contains a dropdown and Save button, but the page continues scrolling far beyond the last element, displaying a large empty area.
+
+This is incorrect behavior.
+
+The scrollable content must end immediately after the final visible element, with only appropriate bottom padding.
+
+**Apply this fix to the mobile Job Seeker Personal page only. Do not change the desktop layout.**
+
+## 2. Investigate the Root Cause
+
+Inspect the actual Personal page and its parent layout containers.
+
+Identify whether the excessive scrolling is caused by:
+
+- Fixed heights or excessive `min-height` values.
+- `height: 100vh`, `100dvh`, or similar viewport-based sizing.
+- Unnecessary bottom padding or margins.
+- Empty spacer components.
+- `flex-grow`, `flex: 1`, or `justify-content: space-between` pushing content apart.
+- Nested scrolling containers.
+- Hidden components still occupying layout space.
+- Incorrect bottom navigation offsets.
+- Incorrect safe-area calculations.
+- Form wrappers inheriting unnecessary height.
+- Mobile-specific layout styles.
+
+Do not hide the problem using `overflow: hidden` on the entire page.
+
+Correct the underlying layout issue.
+
+## 3. Required Scrolling Behavior
+
+The Personal page must use content-driven vertical sizing.
+
+When content exceeds the available viewport:
+
+- Allow normal vertical scrolling.
+- Stop scrolling shortly after the final element.
+- Include sufficient bottom padding so the last button is fully accessible above the fixed bottom navigation.
+
+When content is shorter than the available viewport:
+
+- Do not generate unnecessary scrollable blank space.
+- Allow the remaining viewport to display naturally without forcing extra scrolling.
+- Do not stretch the form to fill the screen artificially.
+
+The bottom navigation must remain fixed or sticky according to its existing implementation.
+
+Do not make the navigation part of the form's scrollable content.
+
+## 4. Apply to All Personal Categories
+
+Check each of the existing Personal sections:
+
+**Identity**
+- Title.
+- Legal First Name.
+- Legal Last Name.
+- Birthday.
+
+**Contact**
+- Email.
+- Mobile.
+- Address.
+
+**Compensation**
+- Current Compensation.
+
+**Gender**
+- Gender selection.
+
+Each section must end naturally after its final form control or Save button.
+
+Do not leave large empty scrollable areas beneath the content.
+
+Preserve all existing fields, validation, and Save functionality.
+
+## 5. Bottom Navigation and Safe Areas
+
+Preserve the existing mobile navigation:
+
+**Swipe | Dashboard | Profile**
+
+Requirements:
+
+- Bottom navigation remains visible.
+- Save buttons are never covered by navigation.
+- Content does not scroll underneath the navigation in a way that prevents interaction.
+- Respect iOS and Android safe-area insets where applicable.
+- Avoid double-counting navigation height or safe-area padding.
+- Use only the bottom padding necessary to keep the final control accessible.
+
+Do not change the bottom navigation's design, icons, or positioning.
+
+## 6. Avoid Nested Scrolling
+
+The screenshot appears to show multiple vertical scroll indicators.
+
+Investigate whether the Personal page contains nested scroll containers.
+
+Where possible, use one primary vertical scrolling region for the page content.
+
+Avoid independent scrolling within form sections unless explicitly necessary.
+
+Dropdowns and date pickers may retain their own scrolling behavior when open.
+
+Do not allow scrolling inside a dropdown or date picker to unintentionally move the entire page.
+
+## 7. Preserve the Existing Design
+
+Do not redesign the Personal page.
+
+Keep:
+
+- Existing typography.
+- Form fields.
+- Input sizes.
+- Button styling.
+- Border radius.
+- Section headings.
+- Dropdown appearance.
+- Existing spacing between fields.
+- Light and Dark Mode.
+- English and Arabic support.
+
+Only adjust layout sizing, overflow behavior, and unnecessary spacing.
+
+## 8. Acceptance Testing
+
+Test the actual mobile App Viewer.
+
+Verify:
+
+1. Gender page ends shortly after Save.
+2. Identity page has no unnecessary scrollable blank space.
+3. Contact page has no unnecessary scrollable blank space.
+4. Compensation page has no unnecessary scrollable blank space.
+5. Short forms do not create artificial scrolling.
+6. Longer forms remain fully scrollable.
+7. Save buttons remain accessible.
+8. Bottom navigation remains visible and functional.
+9. Keyboard opening does not hide required controls.
+10. Dropdowns and date pickers still work.
+11. No unintended nested scrolling remains.
+12. English and Arabic layouts work correctly.
+13. Light and Dark Mode remain unaffected.
+14. Desktop Personal page remains unchanged.
+
+Test mobile viewport widths of 320px, 360px, 375px, 390px, and 412px.
+
+Where possible, test both short and long content and the keyboard-open state.
+
+Run TypeScript, lint, build, and relevant layout tests.
+
+Do not report App Viewer acceptance as passed unless actually verified.
+
+## 9. Final Success Condition
+
+The mobile Job Seeker Personal page has natural, content-driven scrolling.
+
+**Scrolling ends immediately after the last form element, plus a small safe-area allowance.**
+
+There is no excessive blank scrollable area below Save.
+
+All four Personal categories behave consistently.
+
+The bottom navigation remains fixed and functional.
+
+No fields, actions, backend functionality, or desktop layouts are changed.
+
+Implement the actual fix and provide an English-only report explaining the root cause, files changed, and test results.
