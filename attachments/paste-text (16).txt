@@ -1,0 +1,488 @@
+# MATCHME — MOBILE ICON VISIBILITY, HOVER STATES & TOOLTIPS
+## Complete Job Seeker UI Audit | Light & Dark Mode | Accessible Icon Labels
+
+**PRIORITY: HIGH — UI/UX QUALITY & ACCESSIBILITY**
+
+## 1. OBJECTIVE
+
+Conduct a complete audit of all interactive icons across the MatchMe mobile Job Seeker application.
+
+Fix any icons that become difficult to see when hovered, focused, pressed, selected, or disabled.
+
+Also introduce a consistent tooltip system that displays the name or purpose of an icon when a user hovers over it.
+
+The existing mobile layouts, icon positions, button dimensions, and navigation structures must remain unchanged.
+
+Do not redesign the application.
+
+### Reference issue
+
+On the Swipe page, the Pass (X) button becomes difficult to see because its icon turns white while the button background remains light.
+
+Fix this specific issue and identify all similar problems throughout the application.
+
+---
+
+# PART 1 — COMPLETE ICON AUDIT
+
+## 2. Inspect Every Mobile Job Seeker Page
+
+Audit all interactive icons on:
+
+- Welcome and authentication.
+- Signup and onboarding.
+- Swipe.
+- Dashboard.
+- Profile.
+- Personal Information.
+- Experience.
+- Education.
+- Certifications.
+- Skills.
+- Languages.
+- Preferences.
+- VIA Resume.
+- Credits.
+- Subscription Overview.
+- Messaging.
+- Support & Settings.
+- Appearance.
+- Any other existing Job Seeker page, modal, or popup.
+
+Include icons used in:
+
+- Headers.
+- Navigation.
+- Cards.
+- Forms.
+- Dropdowns.
+- Date pickers.
+- Search.
+- Filters.
+- Uploads.
+- Downloads.
+- Confirmation dialogs.
+- Error messages.
+- Action buttons.
+
+Do not limit the audit to the three Swipe action buttons.
+
+---
+
+# PART 2 — ICON COLOR AND CONTRAST
+
+## 3. Fix Invisible or Low-Contrast Icons
+
+Inspect every icon's appearance in these states:
+
+1. Default.
+2. Hover.
+3. Keyboard focus.
+4. Pressed / Active.
+5. Selected.
+6. Disabled.
+
+For every state, verify that the icon remains clearly distinguishable from its immediate background.
+
+### Non-negotiable requirement
+
+**Never use a white icon on a white or very light background.**
+
+Likewise, never use a dark icon on a dark background without sufficient contrast.
+
+The foreground and background must change together when necessary.
+
+For normal-size icon graphics and meaningful control boundaries, target at least a 3:1 contrast ratio under WCAG non-text contrast guidance.
+
+Where icons include essential text, apply the relevant text contrast requirements.
+
+Do not fix visibility by adding unnecessary borders or changing the overall button layout.
+
+---
+
+# PART 3 — SWIPE ACTION BUTTONS
+
+## 4. Fix the Pass (X) Button
+
+The Swipe page contains three main actions:
+
+- Pass (X).
+- Save (Bookmark).
+- Apply (Heart).
+
+### Pass (X)
+
+The current problem is that the X becomes white and difficult to see on hover.
+
+Correct the styling so the X remains clearly visible in every interactive state.
+
+Recommended treatment:
+
+**Default**
+- Red X icon.
+- Light background.
+- Subtle red border.
+
+**Hover**
+- Stronger red icon with a very light red background, OR
+- White icon with a solid red background.
+
+**Pressed**
+- Clear visual feedback.
+- Maintain sufficient contrast.
+
+**Disabled**
+- Use a distinguishable disabled appearance.
+- Do not make the icon completely invisible.
+
+Choose whichever treatment fits the existing MatchMe design system.
+
+### Save (Bookmark)
+
+Ensure:
+
+- Bookmark remains visible on hover.
+- Saved and unsaved states are distinguishable.
+- Hover colors do not make the icon disappear.
+- Tooltip displays "Save Job" or "Remove Saved Job", depending on the current state.
+
+### Apply (Heart)
+
+Ensure:
+
+- Heart remains visible on hover.
+- Blue background and white icon maintain sufficient contrast.
+- Pressed and disabled states remain understandable.
+- Tooltip displays "Apply for Job" where applicable.
+
+Preserve the existing Pass, Save, and Apply functionality.
+
+Do not change swipe gestures, credit deductions, or application behavior.
+
+---
+
+# PART 4 — ICON TOOLTIPS
+
+## 5. Add Hover Tooltips
+
+Introduce a reusable tooltip component for interactive icon-only controls.
+
+When a user hovers over an icon with a mouse or trackpad, display a small tooltip identifying its purpose.
+
+### Examples
+
+| Icon | Tooltip |
+|---|---|
+| X | Pass Job |
+| Bookmark | Save Job |
+| Heart | Apply for Job |
+| Back Arrow | Go Back |
+| Share | Share Job |
+| Preferences | Preferences |
+| Credits | Available Credits |
+| Search | Search |
+| Information | Support & Settings |
+| Edit | Edit |
+| Trash | Delete |
+| Download | Download |
+| Upload | Upload CV |
+| Moon | Dark Mode |
+| Sun | Light Mode |
+| Logout | Logout |
+
+Use context-sensitive labels when the action changes.
+
+For example:
+
+- Save Job → Remove Saved Job.
+- Expand Details → Collapse Details.
+- Enable Notifications → Disable Notifications.
+
+Avoid generic tooltips such as "Click Here", "Button", or "Action".
+
+### Tooltip Design
+
+Tooltips must:
+
+- Use the existing MatchMe design system.
+- Have readable text.
+- Maintain sufficient foreground/background contrast.
+- Appear close to the relevant icon.
+- Avoid covering important page content.
+- Not block clicks or taps.
+- Automatically close when hover or focus ends.
+- Work correctly in Light and Dark Mode.
+- Respect the selected application language.
+
+Use a short, consistent hover delay where appropriate.
+
+---
+
+# PART 5 — MOBILE TOUCH BEHAVIOR
+
+## 6. Do Not Depend on Hover for Mobile Phones
+
+Mobile phones generally do not have a hover interaction.
+
+Therefore, implement adaptive behavior based on input capability.
+
+### Mouse / Trackpad
+
+- Display the tooltip on hover.
+- Display it on keyboard focus.
+- Hide it when the user leaves the icon or focus moves away.
+
+### Touchscreen
+
+- The first tap must perform the icon's intended action.
+- Do not require users to tap twice because a tooltip appeared.
+- Do not introduce tooltips that interfere with swipe gestures.
+- Do not make long-press mandatory for discovering essential actions.
+
+Where appropriate, allow a short explanatory label on long-press only if it does not conflict with the existing gesture system.
+
+For critical actions, ensure the interface remains understandable without relying on tooltips.
+
+Use accessible names for screen readers.
+
+---
+
+# PART 6 — ACCESSIBILITY
+
+## 7. Make Icon Buttons Accessible
+
+Every interactive icon-only button must have an accessible name describing its action.
+
+Requirements:
+
+- Use appropriate aria-label or equivalent native accessibility properties.
+- Support keyboard focus where applicable.
+- Show a visible focus indicator.
+- Ensure tooltips do not replace accessible labels.
+- Prevent tooltip text from being announced redundantly.
+- Ensure disabled actions have understandable states.
+- Preserve logical tab order.
+- Maintain sufficient touch-target sizes.
+
+For mobile touch controls, aim for comfortable touch targets without changing existing visible icon dimensions unnecessarily.
+
+Do not make decorative icons focusable or interactive.
+
+---
+
+# PART 7 — LIGHT AND DARK MODE
+
+## 8. Verify Both Appearance Modes
+
+The application supports Light Mode, Dark Mode, and System Default.
+
+All interactive icons and tooltips must work correctly in every theme.
+
+Check:
+
+- Icon foreground colors.
+- Button backgrounds.
+- Borders.
+- Hover states.
+- Focus states.
+- Pressed states.
+- Disabled states.
+- Tooltip text.
+- Tooltip backgrounds.
+- Tooltip borders.
+- Active navigation icons.
+
+Use existing semantic design tokens and theme variables.
+
+Avoid hardcoded colors that work only in Light Mode.
+
+If existing tokens produce insufficient contrast, adjust the appropriate state-specific tokens without changing unrelated visual styling.
+
+---
+
+# PART 8 — REUSABLE COMPONENT SYSTEM
+
+## 9. Centralize Icon Interaction Styling
+
+Inspect the current button and icon components.
+
+Where possible, use a shared reusable icon-button implementation that supports:
+
+- Default state.
+- Hover state.
+- Focus state.
+- Pressed state.
+- Selected state.
+- Disabled state.
+- Tooltip label.
+- Accessible name.
+- Light and Dark Mode.
+
+Use consistent semantic variants such as:
+
+- Primary.
+- Secondary.
+- Destructive.
+- Neutral.
+
+Do not introduce a separate custom styling solution for every individual icon.
+
+However, do not perform a broad component rewrite if targeted changes to existing shared components can solve the problem.
+
+Preserve all existing button actions and navigation handlers.
+
+---
+
+# PART 9 — STRICT LAYOUT PROTECTION
+
+## 10. Preserve Existing Mobile Design
+
+Do not change:
+
+- Icon placement.
+- Button size.
+- Card positioning.
+- Navigation structure.
+- Typography.
+- Existing spacing.
+- Swipe card dimensions.
+- Mobile bottom navigation.
+- Profile layout.
+- Dashboard layout.
+
+Only adjust the colors and interaction feedback required to improve icon visibility, and add appropriate tooltips.
+
+The result should look like a polished, professionally developed application.
+
+Avoid excessive animation, decorative effects, or oversized tooltip containers.
+
+### Desktop Protection
+
+This audit focuses on the mobile Job Seeker experience, including its use in responsive browser previews.
+
+If icon components are shared with desktop, ensure any shared improvements do not introduce desktop regressions.
+
+Do not redesign the desktop application.
+
+---
+
+# PART 10 — ENGLISH AND ARABIC
+
+## 11. Localization
+
+All tooltip labels must support the existing English and Arabic localization system.
+
+Requirements:
+
+- English tooltips when English is selected.
+- Arabic tooltips when Arabic is selected.
+- Correct RTL positioning where applicable.
+- No untranslated placeholder labels.
+- No Chinese text in engineering reports or user-facing English screens.
+
+All Atoms implementation reports must be in English.
+
+---
+
+# PART 11 — ACCEPTANCE TESTING
+
+## 12. Mandatory Testing
+
+Test the actual running MatchMe application.
+
+### Swipe Page
+
+1. Pass (X) remains visible by default.
+2. Pass (X) remains visible on hover.
+3. Pass (X) remains visible when pressed.
+4. Save remains visible in all states.
+5. Apply remains visible in all states.
+6. Hovering over X displays "Pass Job".
+7. Hovering over Bookmark displays the correct action.
+8. Hovering over Heart displays "Apply for Job".
+9. Clicking all three buttons performs the correct existing action.
+10. Swipe gestures continue working.
+
+### Application-Wide
+
+11. All icon-only controls have meaningful accessible labels.
+12. Hover tooltips work with a mouse or trackpad.
+13. Keyboard focus displays appropriate tooltip information.
+14. Touch interactions work on the first tap.
+15. Tooltips do not interfere with gestures.
+16. Icon contrast is sufficient in Light Mode.
+17. Icon contrast is sufficient in Dark Mode.
+18. System Default works correctly.
+19. Disabled icons remain understandable.
+20. No icons become invisible during interaction.
+21. Tooltips do not appear off-screen or behind modals.
+22. English and Arabic labels work correctly.
+23. Existing mobile layouts remain unchanged.
+24. Desktop layouts and functionality remain unaffected.
+
+### Viewport Testing
+
+Test at:
+
+- 320px.
+- 360px.
+- 375px.
+- 390px.
+- 412px.
+
+Also test a mouse/trackpad interaction at a mobile-sized browser viewport.
+
+Distinguish genuine touchscreen testing from desktop browser hover simulation.
+
+### Validation
+
+Run:
+
+- TypeScript checks.
+- Lint.
+- Build.
+- Relevant component tests.
+- Accessibility checks.
+- Visual regression tests where supported.
+
+Do not claim all tests passed unless actually executed.
+
+---
+
+# PART 12 — FINAL REPORT
+
+Provide an English-only implementation report containing:
+
+1. Total icon controls audited.
+2. Pages inspected.
+3. Low-contrast issues identified.
+4. Icons corrected.
+5. Tooltip implementation details.
+6. Accessibility improvements.
+7. Light Mode results.
+8. Dark Mode results.
+9. Touch interaction results.
+10. Mobile visual regression results.
+11. Desktop regression results.
+12. Files changed.
+13. Remaining issues or blocked tests.
+
+Include PASS, FAIL, or BLOCKED for acceptance tests.
+
+---
+
+## FINAL SUCCESS CONDITION
+
+Every interactive icon in the MatchMe mobile Job Seeker experience remains clearly visible in all relevant interaction states.
+
+The Pass (X) icon no longer disappears or becomes difficult to see on hover.
+
+All icon-only actions have descriptive tooltips for mouse and trackpad users and accessible labels for assistive technologies.
+
+Touchscreen users can continue using icons normally without additional taps.
+
+Light Mode and Dark Mode both maintain readable, professional contrast.
+
+All existing layouts, navigation, gestures, and backend functionality remain unchanged.
+
+**Implement the changes directly in the existing project, not merely as recommendations or documentation.**

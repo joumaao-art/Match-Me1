@@ -33,7 +33,7 @@ export function MobileSwipePage({job,loading,error,balance,busy,premium,onCredit
    <header dir="ltr" className="flex items-center justify-between gap-2 shrink-0">
      <div className="flex items-center gap-2 min-w-0" aria-label="MatchMe"><span className="h-8 w-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shrink-0"><Sparkles size={20}/></span><span className="font-semibold text-sm">MatchMe</span></div>
      <div className="flex items-center gap-1">
-       <Button variant="ghost" className="h-11 px-2 gap-1 text-xs whitespace-nowrap" onClick={credits} aria-label={copy('View Credits','عرض الرصيد')}><Zap size={16}/>{balance??'—'} {copy('Credits','رصيد')}</Button>
+       <Button variant="ghost" className="h-11 px-2 gap-1 text-xs whitespace-nowrap" onClick={credits} data-icon-tooltip aria-label={copy('Available Credits','الرصيد المتاح')}><Zap size={16}/>{balance??'—'} {copy('Credits','رصيد')}</Button>
        <Button size="icon" variant="ghost" className="h-11 w-11" onClick={preferences} aria-label={t('preferences')}><Sliders size={19}/></Button>
      </div>
    </header>

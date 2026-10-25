@@ -11,6 +11,7 @@ MatchMe is a bilingual EN/AR recruitment web app using React/Vite/shadcn and the
 ## Key Decisions
 | Decision | Rationale |
 |---|---|
+| Mobile icon audit isolation | Delegated enhancement retains native controls/events/refs and portal content; below768 seeker/guest scope only, no backend writes, no geometry changes. Accessible EN/AR names independent of visual tooltips; touch/pen suppress hover without cancelling events. |
 | Job Seeker Appearance in Settings | One account_settings.theme value (light/dark/system), existing conflict-safe settings RPC extended only for theme; owner cache, server-authoritative refresh/focus sync and OS listener. Existing dark tokens/application function reused; sidebar icon removed, language/navigation retained, Company/Admin behavior isolated. |
 | Approved mobile-only date confirmation | Wrap existing wheels/month-year/native date controls without redesign; draft changes commit only on explicit confirmation, saved dates load locked, Edit/Cancel stay field-local. Preserve form Save/onboarding autosave and existing expected-graduation option; no schema or desktop/Company/Admin behavior changes. |
 | Approved desktop-only navigation cleanup | Five desktop sidebar destinations: Swipe, Dashboard, Profile, Subscription Overview, Preferences. Footer Support & Settings/confirmed Logout unchanged; Profile actions VIA Resume/Personal only. Mobile three-tab navigation, Profile subscription/logout and Swipe Preferences remain unchanged; no backend/auth/billing changes. |

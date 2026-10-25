@@ -418,7 +418,7 @@ export default function Auth() {
   if (isMobile && selectedRole !== 'company' && (view === 'role_select' || view === 'seeker_signup')) return <MobileEntry busy={loading} onMethod={kind => { setSelectedRole('job_seeker'); if (kind === 'apple' || kind === 'google') void startOAuth(kind); else setView(kind === 'phone' ? 'seeker_phone' : 'register'); }} onLogin={() => { setSelectedRole('job_seeker'); setView('login'); }} />;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div data-mobile-icon-exclude={selectedRole === 'company' ? 'true' : undefined} className="min-h-screen bg-background flex flex-col">
       {/* Top bar */}
       <div className="p-4 flex justify-between items-center">
         <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="cursor-pointer">
@@ -624,6 +624,7 @@ export default function Auth() {
                         type="button"
                         variant="ghost"
                         size="icon"
+                        aria-label={showPassword ? t('hide_password') : t('show_password')}
                         className="absolute end-1 top-1/2 -translate-y-1/2 h-8 w-8 cursor-pointer"
                         onClick={() => setShowPassword(!showPassword)}
                       >
@@ -718,6 +719,7 @@ export default function Auth() {
                         type="button"
                         variant="ghost"
                         size="icon"
+                        aria-label={showPassword ? t('hide_password') : t('show_password')}
                         className="absolute end-1 top-1/2 -translate-y-1/2 h-8 w-8 cursor-pointer"
                         onClick={() => setShowPassword(!showPassword)}
                       >

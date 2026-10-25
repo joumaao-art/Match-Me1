@@ -1,5 +1,12 @@
 ## Task Breakdown
 
+| Mobile Job Seeker icon accessibility audit | Implementation | Validation |
+|---|---|---|
+| Reachable control inventory and business/layout baseline | done | done |
+| Scoped semantic interaction colors and localized adaptive tooltips | done | done |
+| Component/contrast/isolation checks, TypeScript/lint/build and viewer/report | done | done |
+| Authenticated five-width visual and genuine touchscreen acceptance | done | blocked |
+
 | Job Seeker Settings Appearance | Implementation | Validation |
 |---|---|---|
 | Existing theme/settings contract and safe account preference audit | done | done |
@@ -128,6 +135,7 @@ Validation: 247 source/unit contracts passed (including 56 protected-source hash
 | Approved legal sheets and required mobile A–W acceptance evidence | blocked | blocked |
 
 ## Progress Log
+- Mobile icon audit:140 source templates/46 files (candidate count, not rendered exhaustive total); scoped delegated EN/AR labels/tooltips and semantic state colors, contextual Swipe/Dashboard/password names; native controls/events/refs/geometry and75 business/desktop/Company/Admin/nav/wheel/gesture hashes preserved.158 DOM/component/contrast/source checks plus TypeScript/lint/build PASS; viewer desktop guest only. All24 actual authenticated acceptance/five-width/screens/touch remain BLOCKED, documented separately from simulations; no backend/data writes.
 - Mobile → desktop Job Seeker: audited matrix; desktop three-tab sidebar/Swipe/Dashboard/account/CV/PDF/support/confirmed Logout/preferences/searchable Skills/current onboarding and canonical VIA-only subscription wired; shared services/mobile56 protected files/Company/Admin unchanged.342 source/unit contracts and TypeScript/lint/build PASS; read-only live catalog/RLS/RPC inspection PASS. Viewer guest-only; all20 authenticated acceptance and nine-width EN/AR regression BLOCKED, inherited mobile defects documented; no schema/production data changes. Permanent mobile authority and complete English report recorded.
 - Personal restructuring: shared four-category Identity/Contact/optional private Compensation/Gender form on mobile and reachable desktop Personal; canonical patch-only conflict-safe save, secure read-only auth email/login phone, existing wheels/date/phone/location and preserved address. Additive migration023 nullable title/current_compensation constraints, existing owner RLS and Company projection retained.108 contracts plus TypeScript/lint/build and rollback-only persistence/privacy backend checks PASS; viewer guest-only, all22 authenticated acceptance tests BLOCKED individually in English report.
 - Mobile Profile Logout: appended localized red row below Personal; local Cancel/confirmed shared Supabase sign-out, honest error handling, duplicate lock, owner/role race guard, QueryClient/realtime/local private cache cleanup and fresh welcome replacement; onboarding drafts/server data/CVs/resumes/subscriptions/jobs and desktop/Company/Admin unchanged.80 logout/Profile/navigation contracts plus TypeScript/lint/build PASS. Viewer guest-only; all10 actual authenticated acceptance tests BLOCKED individually in English report, no fabricated login/logout or data-restoration claims.

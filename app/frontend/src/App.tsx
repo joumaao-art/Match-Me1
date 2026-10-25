@@ -5,6 +5,7 @@
  * OPTIMIZED: Lazy loading, code splitting, performance monitoring.
  */
 
+import { MobileIconAccessibility } from '@/components/shared/MobileIconAccessibility';
 import { SeekerThemeSync } from '@/components/seeker/SeekerThemeSync';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -617,6 +618,7 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <BrowserRouter>
+            <MobileIconAccessibility/>
             <AppRoutes />
           </BrowserRouter>
         </TooltipProvider>

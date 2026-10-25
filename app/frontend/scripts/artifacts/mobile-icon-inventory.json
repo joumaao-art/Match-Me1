@@ -1,0 +1,1470 @@
+{
+  "definition": "Source control templates containing Lucide icons; repeated rows count once. Shared/legacy templates are candidates, not a claimed rendered or reachable total. Dynamic Icon props and native browser glyphs require separate inspection.",
+  "files": [
+    "src/pages/Index.tsx",
+    "src/pages/Auth.tsx",
+    "src/pages/ResetPassword.tsx",
+    "src/pages/MobileOnboarding.tsx",
+    "src/pages/JobSeeker.tsx",
+    "src/pages/Messages.tsx",
+    "src/pages/Notifications.tsx",
+    "src/components/seeker/MobileSwipePage.tsx",
+    "src/components/seeker/MobileSwipeCard.tsx",
+    "src/components/seeker/MobileSwipePreferences.tsx",
+    "src/components/seeker/MobileProfileAccount.tsx",
+    "src/components/seeker/MobileProfileLogout.tsx",
+    "src/components/seeker/MobileSupport.tsx",
+    "src/components/seeker/MobileSkills.tsx",
+    "src/components/seeker/PersonalInformation.tsx",
+    "src/components/seeker/ProfessionalProfile.tsx",
+    "src/components/seeker/MobileConfirmedDate.tsx",
+    "src/components/seeker/CreditsPopup.tsx",
+    "src/components/seeker/ViaPremiumPage.tsx",
+    "src/components/seeker/SeekerAppearance.tsx",
+    "src/components/seeker/MandatoryProfileGuidance.tsx",
+    "src/components/seeker/SeekerCreditPanel.tsx",
+    "src/components/shared/MobileDashboard.tsx",
+    "src/components/shared/MobileBottomNav.tsx",
+    "src/components/shared/BackButton.tsx",
+    "src/components/shared/ProfileFields.tsx",
+    "src/components/shared/PreferenceSelectors.tsx",
+    "src/components/shared/PhoneInput.tsx",
+    "src/components/shared/ChangePassword.tsx",
+    "src/components/shared/BottomSheet.tsx",
+    "src/components/shared/CandidateDiscoverability.tsx",
+    "src/components/shared/SeekerInvitations.tsx",
+    "src/components/shared/DecisionActionBar.tsx",
+    "src/components/shared/CardEngine.tsx",
+    "src/components/shared/SwipeFeedbackEngine.tsx",
+    "src/components/onboarding/MobileEntry.tsx",
+    "src/components/onboarding/MobileControls.tsx",
+    "src/components/onboarding/OnboardingKit.tsx",
+    "src/components/ui/dialog.tsx",
+    "src/components/ui/alert-dialog.tsx",
+    "src/components/ui/select.tsx",
+    "src/components/ui/dropdown-menu.tsx",
+    "src/components/ui/calendar.tsx",
+    "src/components/ui/drawer.tsx",
+    "src/components/ui/toast.tsx",
+    "src/components/ui/sonner.tsx"
+  ],
+  "controls": [
+    {
+      "file": "src/pages/Index.tsx",
+      "line": 51,
+      "tag": "Button",
+      "icons": [
+        "Globe"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" onClick={toggleLang} className=\"cursor-pointer\" aria-label={t('language')}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Index.tsx",
+      "line": 54,
+      "tag": "Button",
+      "icons": [
+        "Sun",
+        "Moon"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" onClick={toggleDark} className=\"cursor-pointer\" aria-label={isDark ? t('light_mode') : t('dark_mode')}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Index.tsx",
+      "line": 82,
+      "tag": "Button",
+      "icons": [
+        "ArrowRight"
+      ],
+      "opening": "<Button size=\"lg\" onClick={handleGetStarted} className=\"text-lg px-8 py-6 cursor-pointer\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 424,
+      "tag": "Button",
+      "icons": [
+        "ArrowLeft"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" onClick={() => navigate('/')} className=\"cursor-pointer\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 428,
+      "tag": "Button",
+      "icons": [
+        "ShieldCheck"
+      ],
+      "opening": "<Button\n            variant=\"ghost\"\n            size=\"sm\"\n            onClick={() => navigate(ROUTES.ADMIN_LOGIN)}\n            className=\"cursor-pointer text-xs text-muted-foreground\"\n          >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 437,
+      "tag": "Button",
+      "icons": [
+        "Globe"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" onClick={toggleLang} className=\"cursor-pointer\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 506,
+      "tag": "Button",
+      "icons": [
+        "ArrowLeft"
+      ],
+      "opening": "<Button\n                  variant=\"ghost\"\n                  className=\"w-full cursor-pointer\"\n                  onClick={() => { setView('role_select'); setSelectedRole(null); }}\n                >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 552,
+      "tag": "Button",
+      "icons": [
+        "ArrowLeft"
+      ],
+      "opening": "<Button variant=\"ghost\" className=\"w-full mt-2 cursor-pointer\" onClick={() => setView('seeker_signup')}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 623,
+      "tag": "Button",
+      "icons": [
+        "EyeOff",
+        "Eye"
+      ],
+      "opening": "<Button\n                        type=\"button\"\n                        variant=\"ghost\"\n                        size=\"icon\"\n                        className=\"absolute end-1 top-1/2 -translate-y-1/2 h-8 w-8 cursor-pointer\"\n                        onClick={() => setShowPassword(!showPassword)}\n                      >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 666,
+      "tag": "Button",
+      "icons": [
+        "ArrowLeft"
+      ],
+      "opening": "<Button\n                  variant=\"ghost\"\n                  className=\"w-full mt-2 cursor-pointer\"\n                  onClick={() => { setView('role_select'); setSelectedRole(null); }}\n                >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 717,
+      "tag": "Button",
+      "icons": [
+        "EyeOff",
+        "Eye"
+      ],
+      "opening": "<Button\n                        type=\"button\"\n                        variant=\"ghost\"\n                        size=\"icon\"\n                        className=\"absolute end-1 top-1/2 -translate-y-1/2 h-8 w-8 cursor-pointer\"\n                        onClick={() => setShowPassword(!showPassword)}\n                      >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Auth.tsx",
+      "line": 804,
+      "tag": "Button",
+      "icons": [
+        "ArrowLeft"
+      ],
+      "opening": "<Button\n                  variant=\"ghost\"\n                  className=\"w-full mt-4 cursor-pointer\"\n                  onClick={() => setView('login')}\n                >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/ResetPassword.tsx",
+      "line": 131,
+      "tag": "Button",
+      "icons": [
+        "EyeOff",
+        "Eye"
+      ],
+      "opening": "<Button\n                    type=\"button\"\n                    variant=\"ghost\"\n                    size=\"icon\"\n                    className=\"absolute end-1 top-1/2 -translate-y-1/2 h-8 w-8 cursor-pointer\"\n                    onClick={() => setShowPassword(!showPassword)}\n                  >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/MobileOnboarding.tsx",
+      "line": 105,
+      "tag": "Button",
+      "icons": [
+        "ArrowLeft"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" aria-label={t('back')} disabled={busy} className=\"-ms-3 rtl:rotate-180\" onClick={()=>go(MOBILE_STEPS[MOBILE_STEPS.indexOf(step)-1]||'INTRO')}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/MobileOnboarding.tsx",
+      "line": 114,
+      "tag": "Button",
+      "icons": [
+        "MapPin"
+      ],
+      "opening": "<Button variant=\"outline\" className=\"w-full h-12 !bg-transparent\" disabled={busy} onClick={()=>void locate()}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/MobileOnboarding.tsx",
+      "line": 116,
+      "tag": "Button",
+      "icons": [
+        "Plus"
+      ],
+      "opening": "<Button variant=\"outline\" className=\"h-12 w-full !bg-transparent\" onClick={addEducation}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/MobileOnboarding.tsx",
+      "line": 117,
+      "tag": "Button",
+      "icons": [
+        "Plus"
+      ],
+      "opening": "<Button variant=\"outline\" className=\"h-12 w-full !bg-transparent\" onClick={addExperience}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/JobSeeker.tsx",
+      "line": 196,
+      "tag": "Button",
+      "icons": [
+        "Globe"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" onClick={() => changeLanguage(i18n.language === 'en' ? 'ar' : 'en')} className=\"cursor-pointer h-8 w-8\">",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/pages/JobSeeker.tsx",
+      "line": 197,
+      "tag": "Button",
+      "icons": [
+        "Sun",
+        "Moon"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" onClick={toggleDark} className=\"cursor-pointer h-8 w-8\">",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/pages/JobSeeker.tsx",
+      "line": 213,
+      "tag": "button",
+      "icons": [
+        "CreditCard"
+      ],
+      "opening": "<button onClick={() => navigate('/seeker/subscription')} className=\"w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted transition-smooth cursor-pointer\">",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/pages/JobSeeker.tsx",
+      "line": 214,
+      "tag": "button",
+      "icons": [
+        "LogOut"
+      ],
+      "opening": "<button onClick={signOut} className=\"w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-destructive hover:bg-destructive/10 transition-smooth cursor-pointer\">",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/pages/JobSeeker.tsx",
+      "line": 350,
+      "tag": "button",
+      "icons": [
+        "Undo2"
+      ],
+      "opening": "<button type=\"button\" disabled={!canUndo} className=\"w-11 h-11 rounded-full flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer\" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); onUndo?.(); }} aria-label={t('undo_last_pass')} title={t('undo_last_pass')}>",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/pages/JobSeeker.tsx",
+      "line": 353,
+      "tag": "button",
+      "icons": [
+        "ExternalLink"
+      ],
+      "opening": "<button type=\"button\" className=\"w-11 h-11 rounded-full flex items-center justify-center hover:bg-muted transition-colors cursor-pointer\" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); void shareJob({...job,status:'open'}).then(result=>{if(result==='copied')toast.success(t('link_copied'));}).catch(error=>{if(error?.name!=='AbortError')toast.error(t('try_again'));}); }} aria-label={t('share')}>",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/pages/JobSeeker.tsx",
+      "line": 614,
+      "tag": "Button",
+      "icons": [
+        "Undo2"
+      ],
+      "opening": "<Button variant=\"outline\" onClick={handleUndo} className=\"cursor-pointer gap-2\">",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/pages/JobSeeker.tsx",
+      "line": 624,
+      "tag": "Button",
+      "icons": [
+        "Sliders"
+      ],
+      "opening": "<Button size=\"sm\" variant=\"ghost\" onClick={() => setShowPrefs(true)} className=\"cursor-pointer h-9 px-2 gap-1\" aria-label={t('preferences')}>",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/pages/JobSeeker.tsx",
+      "line": 807,
+      "tag": "Button",
+      "icons": [
+        "Plus"
+      ],
+      "opening": "<Button className=\"cursor-pointer gap-2\" onClick={openAdd}>",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/pages/JobSeeker.tsx",
+      "line": 812,
+      "tag": "Button",
+      "icons": [
+        "Edit"
+      ],
+      "opening": "<Button size=\"sm\" variant=\"ghost\" className=\"cursor-pointer\" onClick={() => openEdit(skill)}>",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/pages/JobSeeker.tsx",
+      "line": 812,
+      "tag": "Button",
+      "icons": [
+        "Trash2"
+      ],
+      "opening": "<Button size=\"sm\" variant=\"ghost\" className=\"cursor-pointer text-destructive\" onClick={() => handleDelete(skill.id)}>",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/pages/JobSeeker.tsx",
+      "line": 886,
+      "tag": "Button",
+      "icons": [
+        "Plus"
+      ],
+      "opening": "<Button className=\"cursor-pointer gap-2\" onClick={openAdd}>",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/pages/JobSeeker.tsx",
+      "line": 894,
+      "tag": "Button",
+      "icons": [
+        "ExternalLink"
+      ],
+      "opening": "<Button size=\"sm\" variant=\"outline\" className=\"cursor-pointer gap-1 text-xs\" onClick={() => window.open(p.url, '_blank')}>",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/pages/JobSeeker.tsx",
+      "line": 895,
+      "tag": "Button",
+      "icons": [
+        "Edit"
+      ],
+      "opening": "<Button size=\"sm\" variant=\"ghost\" className=\"cursor-pointer\" onClick={() => openEdit(p)}>",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/pages/JobSeeker.tsx",
+      "line": 896,
+      "tag": "Button",
+      "icons": [
+        "Trash2"
+      ],
+      "opening": "<Button size=\"sm\" variant=\"ghost\" className=\"cursor-pointer text-destructive\" onClick={() => handleDelete(p.id)}>",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/pages/JobSeeker.tsx",
+      "line": 948,
+      "tag": "Button",
+      "icons": [
+        "Upload"
+      ],
+      "opening": "<Button className=\"cursor-pointer gap-2\" onClick={handleUpload}>",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/pages/JobSeeker.tsx",
+      "line": 957,
+      "tag": "Button",
+      "icons": [
+        "Trash2"
+      ],
+      "opening": "<Button size=\"sm\" variant=\"ghost\" className=\"cursor-pointer text-destructive\" onClick={handleDelete}>",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/pages/JobSeeker.tsx",
+      "line": 1013,
+      "tag": "Button",
+      "icons": [
+        "Trash2"
+      ],
+      "opening": "<Button size=\"sm\" variant=\"ghost\" className=\"cursor-pointer text-destructive\" onClick={(event) => {event.stopPropagation();void handleRemove(job.id);}}>",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/pages/JobSeeker.tsx",
+      "line": 1097,
+      "tag": "Button",
+      "icons": [
+        "Trash2"
+      ],
+      "opening": "<Button size=\"sm\" variant=\"ghost\" className=\"cursor-pointer text-destructive shrink-0\" onClick={(e) => { e.stopPropagation(); deleteNotification(n.id); }}>",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/pages/Messages.tsx",
+      "line": 335,
+      "tag": "Button",
+      "icons": [
+        "Send"
+      ],
+      "opening": "<Button disabled className=\"cursor-not-allowed opacity-50\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Messages.tsx",
+      "line": 372,
+      "tag": "Button",
+      "icons": [
+        "Download"
+      ],
+      "opening": "<Button size=\"sm\" variant=\"ghost\" className=\"cursor-pointer shrink-0\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Messages.tsx",
+      "line": 424,
+      "tag": "button",
+      "icons": [
+        "MessageSquare"
+      ],
+      "opening": "<button key={conv.id} onClick={() => onSelect(conv.id)} className={`w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-smooth cursor-pointer text-start ${activeId === conv.id ? 'bg-primary/5 border-s-2 border-primary' : ''}`}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Messages.tsx",
+      "line": 567,
+      "tag": "Button",
+      "icons": [
+        "ArrowLeft"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" className=\"md:hidden cursor-pointer\" onClick={onBack}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Messages.tsx",
+      "line": 583,
+      "tag": "Button",
+      "icons": [
+        "MoreVertical"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" className=\"cursor-pointer\" onClick={() => setShowMenu(!showMenu)}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Messages.tsx",
+      "line": 586,
+      "tag": "button",
+      "icons": [
+        "Archive"
+      ],
+      "opening": "<button onClick={() => { onArchive(); setShowMenu(false); }} className=\"w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted cursor-pointer\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Messages.tsx",
+      "line": 589,
+      "tag": "button",
+      "icons": [
+        "XCircle"
+      ],
+      "opening": "<button onClick={handleReject} className=\"w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted cursor-pointer text-destructive\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Messages.tsx",
+      "line": 590,
+      "tag": "button",
+      "icons": [
+        "Lock"
+      ],
+      "opening": "<button onClick={handleCloseConversation} className=\"w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted cursor-pointer text-amber-600\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Messages.tsx",
+      "line": 593,
+      "tag": "button",
+      "icons": [
+        "Ban"
+      ],
+      "opening": "<button onClick={() => { onBlock(); setShowMenu(false); }} className=\"w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted cursor-pointer text-destructive\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Messages.tsx",
+      "line": 594,
+      "tag": "button",
+      "icons": [
+        "Flag"
+      ],
+      "opening": "<button onClick={() => { onReport(); setShowMenu(false); }} className=\"w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted cursor-pointer text-amber-600\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Messages.tsx",
+      "line": 675,
+      "tag": "Button",
+      "icons": [
+        "Paperclip"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" className=\"cursor-pointer\" onClick={() => setShowAttach(!showAttach)}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Messages.tsx",
+      "line": 678,
+      "tag": "button",
+      "icons": [
+        "FileText"
+      ],
+      "opening": "<button onClick={handleShareCV} className=\"w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted cursor-pointer\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Messages.tsx",
+      "line": 679,
+      "tag": "button",
+      "icons": [
+        "Image"
+      ],
+      "opening": "<button onClick={handleShareImage} className=\"w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted cursor-pointer\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Messages.tsx",
+      "line": 680,
+      "tag": "button",
+      "icons": [
+        "Paperclip"
+      ],
+      "opening": "<button onClick={handleShareFile} className=\"w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted cursor-pointer\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Messages.tsx",
+      "line": 687,
+      "tag": "Button",
+      "icons": [
+        "Send"
+      ],
+      "opening": "<Button size=\"icon\" className=\"rounded-full cursor-pointer shrink-0\" onClick={handleSend} disabled={!input.trim()}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Notifications.tsx",
+      "line": 117,
+      "tag": "Button",
+      "icons": [
+        "ChevronRight"
+      ],
+      "opening": "<Button variant=\"link\" size=\"sm\" className=\"h-auto p-0 mt-1 text-xs cursor-pointer\" onClick={(e) => { e.stopPropagation(); onAction(notification.actionUrl!); }}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Notifications.tsx",
+      "line": 126,
+      "tag": "Button",
+      "icons": [
+        "Check"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" className=\"h-7 w-7 cursor-pointer\" onClick={(e) => { e.stopPropagation(); onRead(notification.id); }} title={t('mark_as_read')}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Notifications.tsx",
+      "line": 130,
+      "tag": "Button",
+      "icons": [
+        "Archive"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" className=\"h-7 w-7 cursor-pointer\" onClick={(e) => { e.stopPropagation(); onArchive(notification.id); }} title={t('archive')}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Notifications.tsx",
+      "line": 133,
+      "tag": "Button",
+      "icons": [
+        "Trash2"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" className=\"h-7 w-7 cursor-pointer text-destructive\" onClick={(e) => { e.stopPropagation(); onDelete(notification.id); }} title={t('delete')}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Notifications.tsx",
+      "line": 292,
+      "tag": "Button",
+      "icons": [
+        "CheckCheck"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"sm\" className=\"cursor-pointer text-xs\" onClick={markAllAsRead}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Notifications.tsx",
+      "line": 307,
+      "tag": "TabsTrigger",
+      "icons": [
+        "Settings"
+      ],
+      "opening": "<TabsTrigger value=\"settings\" className=\"data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none pb-2 px-0\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/pages/Notifications.tsx",
+      "line": 400,
+      "tag": "Button",
+      "icons": [
+        "Trash2"
+      ],
+      "opening": "<Button variant=\"outline\" size=\"sm\" className=\"cursor-pointer text-xs\" onClick={() => { clearAll(); toast.success(t('notifications_cleared')); }}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/MobileSwipePage.tsx",
+      "line": 36,
+      "tag": "Button",
+      "icons": [
+        "Zap"
+      ],
+      "opening": "<Button variant=\"ghost\" className=\"h-11 px-2 gap-1 text-xs whitespace-nowrap\" onClick={credits} aria-label={copy('View Credits','عرض الرصيد')}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/MobileSwipePage.tsx",
+      "line": 37,
+      "tag": "Button",
+      "icons": [
+        "Sliders"
+      ],
+      "opening": "<Button size=\"icon\" variant=\"ghost\" className=\"h-11 w-11\" onClick={preferences} aria-label={t('preferences')}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/MobileSwipeCard.tsx",
+      "line": 19,
+      "tag": "Button",
+      "icons": [
+        "Undo2"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" className=\"h-11 w-11\" disabled={!canUndo||busy} onClick={onUndo} aria-label={t('undo_last_pass')}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/MobileSwipeCard.tsx",
+      "line": 20,
+      "tag": "Button",
+      "icons": [
+        "Share2"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" className=\"h-11 w-11\" disabled={busy} onClick={onShare} aria-label={t('share')}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/MobileSwipeCard.tsx",
+      "line": 31,
+      "tag": "Button",
+      "icons": [
+        "ChevronUp",
+        "ChevronDown"
+      ],
+      "opening": "<Button variant=\"ghost\" className=\"min-h-11 text-primary gap-1\" onPointerDown={stop} onClick={toggle} aria-expanded={expanded} aria-controls={`job-details-${job.id}`}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/MobileSwipeCard.tsx",
+      "line": 42,
+      "tag": "Button",
+      "icons": [
+        "X"
+      ],
+      "opening": "<Button variant=\"outline\" size=\"icon\" disabled={busy||!!decision} onClick={onPass} aria-label={t('swipe_pass')} className=\"h-12 w-12 mx-auto !bg-transparent text-red-600 border-red-200\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/MobileSwipeCard.tsx",
+      "line": 43,
+      "tag": "Button",
+      "icons": [
+        "Bookmark"
+      ],
+      "opening": "<Button variant=\"outline\" size=\"icon\" disabled={busy} onClick={onSave} aria-label={t('save')} aria-pressed={saved} className=\"h-12 w-12 mx-auto !bg-transparent text-primary\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/MobileSwipeCard.tsx",
+      "line": 44,
+      "tag": "Button",
+      "icons": [
+        "Heart"
+      ],
+      "opening": "<Button size=\"icon\" disabled={busy||!!decision} onClick={onApply} aria-label={t('swipe_apply')} className=\"h-12 w-12 mx-auto bg-primary text-primary-foreground\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/MobileSwipePreferences.tsx",
+      "line": 92,
+      "tag": "button",
+      "icons": [
+        "Sparkles"
+      ],
+      "opening": "<button type=\"button\" className=\"flex items-center gap-2 min-h-11\" onClick={leave} aria-label={copy('Back to Swipe', 'العودة إلى التصفح')}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/MobileSwipePreferences.tsx",
+      "line": 93,
+      "tag": "Button",
+      "icons": [
+        "Loader2",
+        "Check"
+      ],
+      "opening": "<Button size=\"icon\" variant=\"ghost\" className=\"h-11 w-11 text-green-700 dark:text-green-400\" aria-label={copy('Save Preferences', 'حفظ التفضيلات')} disabled={loading || busy || !base} onClick={() => void save()}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/MobileSwipePreferences.tsx",
+      "line": 100,
+      "tag": "button",
+      "icons": [
+        "X"
+      ],
+      "opening": "<button type=\"button\" aria-label={`${copy('Remove', 'إزالة')} ${item.label}`} className=\"min-h-9 min-w-9 grid place-items-center\" onClick={() => { setDraft(p => ({ ...p, [item.field]: p[item.field].filter(v => v !== item.value) })); setLimitNotice(false); }}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/MobileProfileAccount.tsx",
+      "line": 19,
+      "tag": "button",
+      "icons": [
+        "ChevronRight"
+      ],
+      "opening": "<button type=\"button\" onClick={onClick} className=\"w-full min-h-14 flex items-center gap-3 px-4 py-3 border rounded-xl bg-background text-foreground hover:bg-muted text-start\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/MobileProfileAccount.tsx",
+      "line": 32,
+      "tag": "Button",
+      "icons": [
+        "Info"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" className=\"h-11 w-11\" aria-label={copy('Support & Settings','الدعم والإعدادات')} onClick={()=>go('support')}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/MobileProfileAccount.tsx",
+      "line": 49,
+      "tag": "Button",
+      "icons": [
+        "Upload"
+      ],
+      "opening": "<Button variant=\"ghost\" className=\"px-0 h-11 text-primary\" disabled={busy} onClick={()=>input.current?.click()}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/MobileProfileAccount.tsx",
+      "line": 49,
+      "tag": "Button",
+      "icons": [
+        "Download"
+      ],
+      "opening": "<Button variant=\"ghost\" disabled={busy} onClick={()=>void open(true)}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/MobileProfileLogout.tsx",
+      "line": 27,
+      "tag": "button",
+      "icons": [
+        "LogOut"
+      ],
+      "opening": "<button type=\"button\" data-testid=\"mobile-profile-logout\" onClick={()=>{setError('');setOpen(true);}} className=\"mt-3 w-full min-h-14 flex items-center gap-3 px-4 py-3 border rounded-xl bg-background text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 text-start font-medium text-sm\" dir=\"ltr\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/MobileSupport.tsx",
+      "line": 22,
+      "tag": "button",
+      "icons": [
+        "ChevronRight"
+      ],
+      "opening": "<button onClick={action} className=\"w-full flex items-center gap-3 text-start min-h-14 py-3 px-4 border rounded-xl text-sm bg-background text-foreground hover:bg-muted\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/ProfessionalProfile.tsx",
+      "line": 230,
+      "tag": "Button",
+      "icons": [
+        "Plus"
+      ],
+      "opening": "<Button className=\"cursor-pointer gap-2 min-h-[44px]\" onClick={onAdd}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/ProfessionalProfile.tsx",
+      "line": 259,
+      "tag": "Button",
+      "icons": [
+        "Edit"
+      ],
+      "opening": "<Button size=\"icon\" variant=\"ghost\" className=\"cursor-pointer h-10 w-10\" onClick={onEdit} aria-label={`${t('edit')} ${label}`}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/ProfessionalProfile.tsx",
+      "line": 260,
+      "tag": "Button",
+      "icons": [
+        "Trash2"
+      ],
+      "opening": "<Button size=\"icon\" variant=\"ghost\" className=\"cursor-pointer h-10 w-10 text-destructive\" onClick={onDelete} aria-label={`${t('delete')} ${label}`}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/ProfessionalProfile.tsx",
+      "line": 327,
+      "tag": "Button",
+      "icons": [
+        "Sliders"
+      ],
+      "opening": "<Button type=\"button\" variant=\"outline\" className=\"h-11 sm:col-span-2 cursor-pointer gap-2\" onClick={onOpenPreferences}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/ProfessionalProfile.tsx",
+      "line": 391,
+      "tag": "Button",
+      "icons": [
+        "Upload"
+      ],
+      "opening": "<Button className=\"cursor-pointer gap-2 min-h-[44px]\" onClick={() => input.current?.click()}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/ProfessionalProfile.tsx",
+      "line": 398,
+      "tag": "Button",
+      "icons": [
+        "Download"
+      ],
+      "opening": "<Button size=\"icon\" variant=\"ghost\" className=\"cursor-pointer h-10 w-10\" aria-label={t('download_started')} onClick={() => toast.success(t('download_started'))}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/ProfessionalProfile.tsx",
+      "line": 399,
+      "tag": "Button",
+      "icons": [
+        "Trash2"
+      ],
+      "opening": "<Button size=\"icon\" variant=\"ghost\" className=\"cursor-pointer h-10 w-10 text-destructive\" aria-label={t('delete')} onClick={async () => { await setResumes(resumes.filter((x) => x.id !== r.id)); toast.success(t('resume_deleted')); }}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/CreditsPopup.tsx",
+      "line": 13,
+      "tag": "DrawerClose",
+      "icons": [
+        "X"
+      ],
+      "opening": "<DrawerClose asChild>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/CreditsPopup.tsx",
+      "line": 13,
+      "tag": "Button",
+      "icons": [
+        "X"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" className=\"h-11 w-11\" aria-label={ar ? 'إغلاق' : 'Close'}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/seeker/ViaPremiumPage.tsx",
+      "line": 80,
+      "tag": "Button",
+      "icons": [
+        "ArrowLeft"
+      ],
+      "opening": "<Button size=\"icon\" variant=\"ghost\" aria-label={backLabel} onClick={() => navigate(back)}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/MobileDashboard.tsx",
+      "line": 29,
+      "tag": "button",
+      "icons": [
+        "ChevronRight"
+      ],
+      "opening": "<button type=\"button\" onClick={onOpen} className=\"w-full rounded-xl border bg-background p-3 text-start flex items-start gap-3 hover:bg-muted/40 active:bg-muted focus-visible:outline-primary\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/MobileDashboard.tsx",
+      "line": 57,
+      "tag": "Button",
+      "icons": [
+        "ArrowLeft"
+      ],
+      "opening": "<Button size=\"icon\" variant=\"ghost\" aria-label={copy('Close and return to Dashboard','إغلاق والعودة للوحة التحكم')} onClick={onClose}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/MobileDashboard.tsx",
+      "line": 67,
+      "tag": "Button",
+      "icons": [
+        "X",
+        "Search"
+      ],
+      "opening": "<Button size=\"icon\" variant=\"ghost\" aria-label={copy('Search Dashboard','بحث لوحة التحكم')} onClick={()=>setView(v=>v?.search?null:{category:'search',search:true})}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/BackButton.tsx",
+      "line": 62,
+      "tag": "Button",
+      "icons": [
+        "ArrowLeft"
+      ],
+      "opening": "<Button\n        variant={variant}\n        size=\"icon\"\n        onClick={handleBack}\n        className={`cursor-pointer shrink-0 ${className}`}\n        aria-label={displayLabel}\n      >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/BackButton.tsx",
+      "line": 75,
+      "tag": "Button",
+      "icons": [
+        "ArrowLeft"
+      ],
+      "opening": "<Button\n      variant={variant}\n      size={size === 'icon' ? 'sm' : size}\n      onClick={handleBack}\n      className={`cursor-pointer gap-1.5 ${className}`}\n      aria-label={displayLabel}\n    >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/ProfileFields.tsx",
+      "line": 115,
+      "tag": "button",
+      "icons": [
+        "X"
+      ],
+      "opening": "<button type=\"button\" onClick={() => onChange(value.filter((x) => x !== v))}\n                className=\"rounded-full p-1 hover:bg-primary/20 min-w-[28px] min-h-[28px] flex items-center justify-center\"\n                aria-label={t('pp_remove_value', { value: labelOf(v) })} disabled={disabled}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/PreferenceSelectors.tsx",
+      "line": 40,
+      "tag": "button",
+      "icons": [
+        "X"
+      ],
+      "opening": "<button type=\"button\" onClick={() => onChange(value.filter((x) => x !== c))} className=\"w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary/20 cursor-pointer\" aria-label={t('pp_remove_value', { value: expertiseLabel(c, lang) })}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/PreferenceSelectors.tsx",
+      "line": 89,
+      "tag": "button",
+      "icons": [
+        "Check"
+      ],
+      "opening": "<button key={c} type=\"button\" role=\"checkbox\" aria-checked={on} onClick={() => onChange(on ? value.filter((x) => x !== c) : [...value, c])}\n            className={cn('min-h-11 rounded-lg border px-3 text-sm flex items-center gap-2 cursor-pointer', on ? 'border-primary bg-primary/10 text-primary font-medium' : 'border-border hover:bg-muted')}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/PhoneInput.tsx",
+      "line": 52,
+      "tag": "PopoverTrigger",
+      "icons": [
+        "ChevronDown"
+      ],
+      "opening": "<PopoverTrigger asChild>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/PhoneInput.tsx",
+      "line": 53,
+      "tag": "button",
+      "icons": [
+        "ChevronDown"
+      ],
+      "opening": "<button type=\"button\" className=\"flex items-center gap-1 px-2.5 border-e border-input text-sm shrink-0 min-w-[84px] cursor-pointer hover:bg-muted rounded-s-md\" aria-label={t('pp_calling_code')} aria-haspopup=\"listbox\" aria-expanded={open}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/ChangePassword.tsx",
+      "line": 187,
+      "tag": "button",
+      "icons": [
+        "EyeOff",
+        "Eye"
+      ],
+      "opening": "<button\n              type=\"button\"\n              onClick={() => setShowCurrent(!showCurrent)}\n              className=\"absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer\"\n              aria-label={showCurrent ? t('hide_password') : t('show_password')}\n            >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/ChangePassword.tsx",
+      "line": 212,
+      "tag": "button",
+      "icons": [
+        "EyeOff",
+        "Eye"
+      ],
+      "opening": "<button\n              type=\"button\"\n              onClick={() => setShowNew(!showNew)}\n              className=\"absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer\"\n              aria-label={showNew ? t('hide_password') : t('show_password')}\n            >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/ChangePassword.tsx",
+      "line": 273,
+      "tag": "button",
+      "icons": [
+        "EyeOff",
+        "Eye"
+      ],
+      "opening": "<button\n              type=\"button\"\n              onClick={() => setShowConfirm(!showConfirm)}\n              className=\"absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer\"\n              aria-label={showConfirm ? t('hide_password') : t('show_password')}\n            >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/ChangePassword.tsx",
+      "line": 295,
+      "tag": "Button",
+      "icons": [
+        "Lock"
+      ],
+      "opening": "<Button\n          onClick={handleSubmit}\n          disabled={!canSubmit}\n          className=\"w-full cursor-pointer\"\n        >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/BottomSheet.tsx",
+      "line": 111,
+      "tag": "Button",
+      "icons": [
+        "X"
+      ],
+      "opening": "<Button\n                    variant=\"ghost\"\n                    size=\"icon\"\n                    className=\"cursor-pointer h-8 w-8 shrink-0\"\n                    onClick={onClose}\n                    aria-label={t('close')}\n                  >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/CandidateDiscoverability.tsx",
+      "line": 182,
+      "tag": "Button",
+      "icons": [
+        "Crown"
+      ],
+      "opening": "<Button className=\"cursor-pointer bg-primary\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/CandidateDiscoverability.tsx",
+      "line": 248,
+      "tag": "button",
+      "icons": [
+        "Globe",
+        "CheckCircle2"
+      ],
+      "opening": "<button\n              onClick={() => handleModeChange('public')}\n              className={`w-full p-4 rounded-lg border-2 text-start transition-all cursor-pointer ${\n                settings.visibilityMode === 'public'\n                  ? 'border-primary bg-primary/5'\n                  : 'border-border hover:border-primary/30'\n              }`}\n            >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/CandidateDiscoverability.tsx",
+      "line": 267,
+      "tag": "button",
+      "icons": [
+        "EyeOff",
+        "CheckCircle2"
+      ],
+      "opening": "<button\n              onClick={() => handleModeChange('anonymous')}\n              className={`w-full p-4 rounded-lg border-2 text-start transition-all cursor-pointer ${\n                settings.visibilityMode === 'anonymous'\n                  ? 'border-amber-500 bg-amber-50 dark:bg-amber-500/10'\n                  : 'border-border hover:border-amber-300'\n              }`}\n            >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/CandidateDiscoverability.tsx",
+      "line": 292,
+      "tag": "button",
+      "icons": [
+        "Lock",
+        "CheckCircle2"
+      ],
+      "opening": "<button\n              onClick={() => handleModeChange('private')}\n              className={`w-full p-4 rounded-lg border-2 text-start transition-all cursor-pointer ${\n                settings.visibilityMode === 'private'\n                  ? 'border-red-500 bg-red-50 dark:bg-red-500/10'\n                  : 'border-border hover:border-red-300'\n              }`}\n            >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/CandidateDiscoverability.tsx",
+      "line": 404,
+      "tag": "Button",
+      "icons": [
+        "Crown"
+      ],
+      "opening": "<Button className=\"cursor-pointer bg-primary\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/CandidateDiscoverability.tsx",
+      "line": 510,
+      "tag": "Button",
+      "icons": [
+        "XCircle"
+      ],
+      "opening": "<Button variant=\"outline\" className=\"cursor-pointer\" onClick={() => handleDecline(selectedRequest.id)}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/CandidateDiscoverability.tsx",
+      "line": 513,
+      "tag": "Button",
+      "icons": [
+        "CheckCircle2"
+      ],
+      "opening": "<Button className=\"cursor-pointer bg-primary\" onClick={() => handleAccept(selectedRequest.id)}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/CandidateDiscoverability.tsx",
+      "line": 588,
+      "tag": "Button",
+      "icons": [
+        "Crown"
+      ],
+      "opening": "<Button className=\"cursor-pointer bg-primary\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/CandidateDiscoverability.tsx",
+      "line": 718,
+      "tag": "Button",
+      "icons": [
+        "Crown"
+      ],
+      "opening": "<Button size=\"sm\" className=\"cursor-pointer bg-amber-500 hover:bg-amber-600 text-white shrink-0\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/CandidateDiscoverability.tsx",
+      "line": 766,
+      "tag": "Button",
+      "icons": [
+        "Crown"
+      ],
+      "opening": "<Button className=\"cursor-pointer bg-primary\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/CandidateDiscoverability.tsx",
+      "line": 837,
+      "tag": "Button",
+      "icons": [
+        "Crown"
+      ],
+      "opening": "<Button className=\"cursor-pointer bg-primary shrink-0\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/SeekerInvitations.tsx",
+      "line": 300,
+      "tag": "Button",
+      "icons": [
+        "XCircle"
+      ],
+      "opening": "<Button variant=\"outline\" className=\"cursor-pointer\" onClick={() => handleDecline(selectedInvitation.id)}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/SeekerInvitations.tsx",
+      "line": 303,
+      "tag": "Button",
+      "icons": [
+        "BookmarkPlus"
+      ],
+      "opening": "<Button variant=\"outline\" className=\"cursor-pointer\" onClick={() => handleSaveForLater(selectedInvitation.id)}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/SeekerInvitations.tsx",
+      "line": 306,
+      "tag": "Button",
+      "icons": [
+        "CheckCircle2"
+      ],
+      "opening": "<Button className=\"cursor-pointer bg-primary\" onClick={() => handleAccept(selectedInvitation.id)}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/SeekerInvitations.tsx",
+      "line": 313,
+      "tag": "Button",
+      "icons": [
+        "XCircle"
+      ],
+      "opening": "<Button variant=\"outline\" className=\"cursor-pointer\" onClick={() => handleDecline(selectedInvitation.id)}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/SeekerInvitations.tsx",
+      "line": 316,
+      "tag": "Button",
+      "icons": [
+        "CheckCircle2"
+      ],
+      "opening": "<Button className=\"cursor-pointer bg-primary\" onClick={() => handleAccept(selectedInvitation.id)}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/CardEngine.tsx",
+      "line": 216,
+      "tag": "Button",
+      "icons": [
+        "Loader2"
+      ],
+      "opening": "<Button\n            key={action.id}\n            variant={action.variant || 'ghost'}\n            size={compact ? 'sm' : (action.size === 'lg' ? 'lg' : action.size === 'sm' ? 'sm' : 'default')}\n            onClick={action.onClick}\n            disabled={action.disabled || action.loading}\n            className=\"cursor-pointer gap-1\"\n          >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/CardEngine.tsx",
+      "line": 460,
+      "tag": "button",
+      "icons": [
+        "ChevronUp",
+        "ChevronDown"
+      ],
+      "opening": "<button\n          onClick={() => setExpanded(!expanded)}\n          className=\"flex items-center justify-between w-full text-start cursor-pointer\"\n        >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/CardEngine.tsx",
+      "line": 504,
+      "tag": "button",
+      "icons": [
+        "ChevronDown"
+      ],
+      "opening": "<button\n        onClick={handleToggle}\n        className=\"flex items-center justify-between w-full text-start cursor-pointer\"\n        aria-expanded={isExpanded}\n      >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/CardEngine.tsx",
+      "line": 635,
+      "tag": "Button",
+      "icons": [
+        "X"
+      ],
+      "opening": "<Button\n          size=\"lg\"\n          variant=\"outline\"\n          className=\"rounded-full border-2 border-destructive text-destructive hover:bg-destructive hover:text-white cursor-pointer w-12 h-12\"\n          onClick={onSwipeLeft}\n          aria-label={leftLabel || 'Pass'}\n        >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/CardEngine.tsx",
+      "line": 645,
+      "tag": "Button",
+      "icons": [
+        "MoreHorizontal"
+      ],
+      "opening": "<Button size=\"lg\" variant=\"outline\" className=\"rounded-full cursor-pointer w-10 h-10\" onClick={onViewDetails} aria-label=\"Details\">",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/CardEngine.tsx",
+      "line": 649,
+      "tag": "Button",
+      "icons": [
+        "Check"
+      ],
+      "opening": "<Button\n          size=\"lg\"\n          className=\"rounded-full bg-green-500 hover:bg-green-600 text-white cursor-pointer w-12 h-12\"\n          onClick={onSwipeRight}\n          aria-label={rightLabel || 'Like'}\n        >",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/shared/CardEngine.tsx",
+      "line": 821,
+      "tag": "Button",
+      "icons": [
+        "X"
+      ],
+      "opening": "<Button size=\"sm\" variant=\"ghost\" className=\"shrink-0 cursor-pointer w-6 h-6 p-0\" onClick={(e) => { e.stopPropagation(); onDismiss?.(); }}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/onboarding/MobileControls.tsx",
+      "line": 66,
+      "tag": "button",
+      "icons": [
+        "X"
+      ],
+      "opening": "<button type=\"button\" aria-label={`${lang==='ar'?'إزالة':'Remove'} ${v}`} className=\"h-11 w-11 flex items-center justify-center\" onClick={()=>onChange(value.filter(x=>x!==v))}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/onboarding/MobileControls.tsx",
+      "line": 68,
+      "tag": "button",
+      "icons": [
+        "Check"
+      ],
+      "opening": "<button type=\"button\" key={o} role=\"option\" aria-selected={value.includes(o)} className=\"w-full min-h-11 px-3 py-2 text-start text-sm hover:bg-muted flex items-center justify-between\" onClick={()=>pick(o)}>",
+      "sharedOrLegacy": false
+    },
+    {
+      "file": "src/components/onboarding/OnboardingKit.tsx",
+      "line": 140,
+      "tag": "Button",
+      "icons": [
+        "ArrowLeft"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" onClick={onBack} aria-label={t('ob_back')} className=\"shrink-0 rtl:rotate-180\">",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/components/onboarding/OnboardingKit.tsx",
+      "line": 149,
+      "tag": "Button",
+      "icons": [
+        "ArrowRight"
+      ],
+      "opening": "<Button\n        onClick={onNext}\n        disabled={nextDisabled || busy}\n        className=\"flex-1 h-12 text-base font-semibold gap-2 bg-primary hover:bg-primary/90 text-primary-foreground\"\n      >",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/components/onboarding/OnboardingKit.tsx",
+      "line": 250,
+      "tag": "button",
+      "icons": [
+        "Check"
+      ],
+      "opening": "<button\n            key={o.value}\n            type=\"button\"\n            disabled={locked}\n            onClick={() => onToggle(o.value)}\n            aria-pressed={active}\n            className={cn(\n              'inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-all active:scale-95 min-h-[44px]',\n              active\n                ? 'border-primary bg-primary text-primary-foreground shadow-sm'\n                : 'border-border bg-card text-foreground hover:border-primary/50',\n              locked && 'opacity-40'\n            )}\n          >",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/components/onboarding/OnboardingKit.tsx",
+      "line": 363,
+      "tag": "button",
+      "icons": [
+        "Globe2",
+        "Search",
+        "ChevronDown"
+      ],
+      "opening": "<button\n          type=\"button\"\n          onClick={() => setOpen(true)}\n          className=\"w-full h-12 rounded-xl border border-border bg-card px-4 flex items-center justify-between text-sm\"\n        >",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/components/onboarding/OnboardingKit.tsx",
+      "line": 386,
+      "tag": "Button",
+      "icons": [
+        "X"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" className=\"absolute end-1 top-1/2 -translate-y-1/2 h-9 w-9\" onClick={() => setOpen(false)} aria-label={t('close')}>",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/components/onboarding/OnboardingKit.tsx",
+      "line": 436,
+      "tag": "button",
+      "icons": [
+        "Check"
+      ],
+      "opening": "<button\n              key={c.code}\n              type=\"button\"\n              onClick={() => onToggle(c.code)}\n              aria-pressed={active}\n              className={cn(\n                'flex items-center justify-between rounded-lg px-3 py-2.5 text-sm min-h-[44px] transition-colors',\n                active ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'\n              )}\n            >",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/components/onboarding/OnboardingKit.tsx",
+      "line": 500,
+      "tag": "button",
+      "icons": [
+        "Upload"
+      ],
+      "opening": "<button\n          type=\"button\"\n          onClick={() => inputRef.current?.click()}\n          className=\"w-full rounded-2xl border-2 border-dashed border-border bg-muted/30 p-8 flex flex-col items-center gap-3 active:scale-[0.99] transition-transform\"\n        >",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/components/onboarding/OnboardingKit.tsx",
+      "line": 523,
+      "tag": "Button",
+      "icons": [
+        "X"
+      ],
+      "opening": "<Button variant=\"ghost\" size=\"icon\" onClick={onRemove} aria-label={t('ob_resume_remove')}>",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/components/onboarding/OnboardingKit.tsx",
+      "line": 546,
+      "tag": "button",
+      "icons": [
+        "RatingStar"
+      ],
+      "opening": "<button\n          key={n}\n          type=\"button\"\n          role=\"radio\"\n          aria-checked={value === n}\n          aria-label={`${n} / 5 – ${labels[n - 1] ?? ''}`}\n          data-rating={n}\n          onClick={() => onChange(n)}\n          onMouseEnter={() => setHover(n)}\n          onMouseLeave={() => setHover(null)}\n          className=\"flex h-14 w-14 items-center justify-center rounded-2xl transition-transform active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary\"\n        >",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/components/ui/dialog.tsx",
+      "line": 45,
+      "tag": "DialogPrimitive.Close",
+      "icons": [
+        "X"
+      ],
+      "opening": "<DialogPrimitive.Close className=\"absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground\">",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/components/ui/select.tsx",
+      "line": 17,
+      "tag": "SelectPrimitive.Trigger",
+      "icons": [
+        "ChevronDown"
+      ],
+      "opening": "<SelectPrimitive.Trigger\n    ref={ref}\n    className={cn(\n      'flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',\n      className\n    )}\n    {...props}\n  >",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/components/ui/select.tsx",
+      "line": 37,
+      "tag": "SelectPrimitive.ScrollUpButton",
+      "icons": [
+        "ChevronUp"
+      ],
+      "opening": "<SelectPrimitive.ScrollUpButton\n    ref={ref}\n    className={cn(\n      'flex cursor-default items-center justify-center py-1',\n      className\n    )}\n    {...props}\n  >",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/components/ui/select.tsx",
+      "line": 54,
+      "tag": "SelectPrimitive.ScrollDownButton",
+      "icons": [
+        "ChevronDown"
+      ],
+      "opening": "<SelectPrimitive.ScrollDownButton\n    ref={ref}\n    className={cn(\n      'flex cursor-default items-center justify-center py-1',\n      className\n    )}\n    {...props}\n  >",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/components/ui/dropdown-menu.tsx",
+      "line": 25,
+      "tag": "DropdownMenuPrimitive.SubTrigger",
+      "icons": [
+        "ChevronRight"
+      ],
+      "opening": "<DropdownMenuPrimitive.SubTrigger\n    ref={ref}\n    className={cn(\n      'flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent data-[state=open]:bg-accent',\n      inset && 'pl-8',\n      className\n    )}\n    {...props}\n  >",
+      "sharedOrLegacy": true
+    },
+    {
+      "file": "src/components/ui/toast.tsx",
+      "line": 75,
+      "tag": "ToastPrimitives.Close",
+      "icons": [
+        "X"
+      ],
+      "opening": "<ToastPrimitives.Close\n    ref={ref}\n    className={cn(\n      'absolute right-2 top-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100 group-[.destructive]:text-red-300 group-[.destructive]:hover:text-red-50 group-[.destructive]:focus:ring-red-400 group-[.destructive]:focus:ring-offset-red-600',\n      className\n    )}\n    toast-close=\"\"\n    {...props}\n  >",
+      "sharedOrLegacy": true
+    }
+  ]
+}

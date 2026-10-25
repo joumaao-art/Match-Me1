@@ -1,0 +1,128 @@
+/* Color-only overrides; no geometry, typography, transforms, or navigation changes. */
+html[data-mobile-icon-scope="true"] {
+ --icon-action-fill: 217 91% 43%;
+ --icon-action-ink: 217 91% 38%;
+ --icon-danger-ink: 0 72% 40%;
+ --icon-danger-fill: 0 72% 40%;
+ --icon-success-ink: 142 72% 28%;
+ --icon-disabled-ink: 215 18% 40%;
+}
+html.dark[data-mobile-icon-scope="true"] {
+ --icon-action-ink: 217 95% 76%;
+ --icon-danger-ink: 0 90% 76%;
+ --icon-success-ink: 142 72% 70%;
+ --icon-disabled-ink: 215 18% 72%;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon] {
+ color: hsl(var(--foreground)) !important;
+ opacity: 1 !important;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon] svg {
+ opacity: 1;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon="neutral"]:is(:hover,:focus-visible,:active) {
+ color: hsl(var(--foreground)) !important;
+ background-color: hsl(var(--muted)) !important;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon="neutral"].bg-white {
+ background-color: hsl(var(--background)) !important;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon="primary"] {
+ color: white !important;
+ background-color: hsl(var(--icon-action-fill)) !important;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon="primary"]:is(:hover,:active) {
+ background-color: hsl(var(--icon-action-ink)) !important;
+}
+/* Dark theme ink is pale; filled actions retain the darker blue fill on hover. */
+html.dark[data-mobile-icon-scope="true"] [data-mobile-icon="primary"]:is(:hover,:active) {
+ background-color: hsl(var(--icon-action-fill)) !important;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon="destructive"] {
+ color: hsl(var(--icon-danger-ink)) !important;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon="success"] {
+ color: hsl(var(--icon-success-ink)) !important;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon="destructive"]:is(:hover,:focus-visible,:active),
+html[data-mobile-icon-scope="true"] [data-mobile-icon="success"]:is(:hover,:focus-visible,:active) {
+ background-color: hsl(var(--muted)) !important;
+}
+html[data-mobile-icon-scope="true"] [data-button-variant="destructive"][data-mobile-icon] {
+ background-color: hsl(var(--icon-danger-fill)) !important;
+ color: white !important;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon]:focus-visible {
+ outline: 2px solid hsl(var(--foreground));
+ outline-offset: 2px;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon]:active {
+ box-shadow: inset 0 0 0 2px hsl(var(--foreground) / .5);
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon]:is(:disabled,[aria-disabled="true"]) {
+ opacity: 1 !important;
+ color: hsl(var(--icon-disabled-ink)) !important;
+ background-color: hsl(var(--muted)) !important;
+ box-shadow: none;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon] svg[class*="text-"] {
+ color: inherit !important;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon="neutral"] svg.text-primary {
+ color: hsl(var(--icon-action-ink)) !important;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon="neutral"] .bg-primary svg {
+ color: white !important;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon="neutral"] .bg-primary {
+ background-color: hsl(var(--icon-action-fill)) !important;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon="neutral"] svg[class*="text-amber-"] {
+ color: hsl(var(--icon-success-ink)) !important;
+}
+html[data-mobile-icon-scope="true"] [data-button-variant="outline"][class*="bg-transparent"]:not([data-mobile-icon]):hover {
+ color: hsl(var(--foreground)) !important;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon] svg[class*="text-muted-foreground/"] {
+ color: hsl(var(--icon-disabled-ink)) !important;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon="secondary"] {
+ color: hsl(var(--icon-action-ink)) !important;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon="secondary"]:is(:hover,:focus-visible,:active) {
+ background-color: hsl(var(--muted)) !important;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon="inverse"] {
+ background-color: black !important;
+ color: white !important;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon="destructive"].border-red-200 {
+ border-color: hsl(var(--icon-danger-ink));
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon="neutral"]:is([aria-checked="true"],[aria-current="page"]) {
+ color: hsl(var(--icon-action-ink)) !important;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon] svg[class*="fill-amber-"] {
+ color: hsl(var(--icon-action-ink)) !important;
+ fill: currentColor;
+}
+html[data-mobile-icon-scope="true"] [data-mobile-icon]:is(:disabled,[aria-disabled="true"]) svg {
+ color: hsl(var(--icon-disabled-ink)) !important;
+}
+.mobile-icon-tooltip {
+ max-height: calc(100dvh - 16px);
+ position: fixed;
+ z-index: 10000;
+ pointer-events: none;
+ max-width: min(240px, calc(100vw - 16px));
+ width: max-content;
+ overflow-wrap: anywhere;
+ border: 1px solid hsl(var(--muted-foreground));
+ border-radius: var(--radius);
+ background: hsl(var(--popover));
+ color: hsl(var(--popover-foreground));
+ padding: 6px 10px;
+ font-size: 12px;
+ line-height: 18px;
+ box-shadow: 0 2px 8px hsl(var(--foreground) / .12);
+}

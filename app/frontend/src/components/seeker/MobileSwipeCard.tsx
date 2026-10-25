@@ -17,7 +17,7 @@ export function MobileSwipeCard({job,busy,saved,canUndo,onUndo,onShare,onPass,on
  return <article aria-label={job.job_title} className="h-full max-h-full flex flex-col rounded-xl border border-border bg-card shadow-sm overflow-hidden">
    <div dir="ltr" className="flex justify-end px-2 pt-1 shrink-0" onPointerDown={stop}>
      <Button variant="ghost" size="icon" className="h-11 w-11" disabled={!canUndo||busy} onClick={onUndo} aria-label={t('undo_last_pass')}><Undo2 size={18}/></Button>
-     <Button variant="ghost" size="icon" className="h-11 w-11" disabled={busy} onClick={onShare} aria-label={t('share')}><Share2 size={18}/></Button>
+     <Button variant="ghost" size="icon" className="h-11 w-11" disabled={busy} onClick={onShare} aria-label={copy('Share Job','مشاركة الوظيفة')}><Share2 size={18}/></Button>
    </div>
    <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 pb-2" onPointerDown={expanded?stop:undefined}>
      <div className="text-center space-y-2">
@@ -28,7 +28,7 @@ export function MobileSwipeCard({job,busy,saved,canUndo,onUndo,onShare,onPass,on
        {(job.city||job.country)&&<p className="text-sm flex gap-1 items-center justify-center"><MapPin size={14} className="shrink-0"/>{[job.city,job.country].filter(Boolean).join(', ')}</p>}
        {type&&<p className="text-xs text-muted-foreground">{copy('Employment Type','نوع العمل')}: <span className="text-foreground">{ar?type.ar:type.en}</span></p>}
        {style&&<p className="text-xs text-muted-foreground">{copy('Employment Style','أسلوب العمل')}: <span className="text-foreground">{ar?style.ar:style.en}</span></p>}
-       <Button variant="ghost" className="min-h-11 text-primary gap-1" onPointerDown={stop} onClick={toggle} aria-expanded={expanded} aria-controls={`job-details-${job.id}`}>{expanded?copy('View Less','عرض أقل'):copy('View More','عرض المزيد')}{expanded?<ChevronUp size={16}/>:<ChevronDown size={16}/>}</Button>
+       <Button variant="ghost" className="min-h-11 text-primary gap-1" onPointerDown={stop} onClick={toggle} data-icon-tooltip aria-label={expanded?copy('Collapse Details','طي التفاصيل'):copy('Expand Details','توسيع التفاصيل')} aria-expanded={expanded} aria-controls={`job-details-${job.id}`}>{expanded?copy('View Less','عرض أقل'):copy('View More','عرض المزيد')}{expanded?<ChevronUp size={16}/>:<ChevronDown size={16}/>}</Button>
      </div>
      {expanded&&<section id={`job-details-${job.id}`} className="border-t pt-3 mt-2 space-y-3 text-sm leading-6" onPointerDown={stop}>
        {job.job_description&&<div><h2 className="font-semibold">{t('job_description')}</h2><p className="whitespace-pre-wrap break-words text-muted-foreground">{job.job_description}</p></div>}
@@ -39,9 +39,9 @@ export function MobileSwipeCard({job,busy,saved,canUndo,onUndo,onShare,onPass,on
    </div>
    {decision&&<p className="text-xs text-center py-1 text-muted-foreground" role="status">{decision==='right'?copy('Application already recorded','تم تسجيل الطلب مسبقاً'):copy('Previously passed — use eligible Undo to restore','تم تجاوزها مسبقاً — استخدم التراجع المتاح لاستعادتها')}</p>}
    <div dir="ltr" className="grid grid-cols-3 border-t px-4 py-3 shrink-0 bg-card" onPointerDown={stop}>
-     <Button variant="outline" size="icon" disabled={busy||!!decision} onClick={onPass} aria-label={t('swipe_pass')} className="h-12 w-12 mx-auto !bg-transparent text-red-600 border-red-200"><X size={23}/></Button>
-     <Button variant="outline" size="icon" disabled={busy} onClick={onSave} aria-label={t('save')} aria-pressed={saved} className="h-12 w-12 mx-auto !bg-transparent text-primary"><Bookmark size={22} fill={saved?'currentColor':'none'}/></Button>
-     <Button size="icon" disabled={busy||!!decision} onClick={onApply} aria-label={t('swipe_apply')} className="h-12 w-12 mx-auto bg-primary text-primary-foreground"><Heart size={23}/></Button>
+     <Button variant="outline" size="icon" disabled={busy||!!decision} onClick={onPass} aria-label={copy('Pass Job','تخطي الوظيفة')} className="h-12 w-12 mx-auto !bg-transparent text-red-600 border-red-200"><X size={23}/></Button>
+     <Button variant="outline" size="icon" disabled={busy} onClick={onSave} aria-label={saved?copy('Remove Saved Job','إزالة الوظيفة المحفوظة'):copy('Save Job','حفظ الوظيفة')} aria-pressed={saved} className="h-12 w-12 mx-auto !bg-transparent text-primary"><Bookmark size={22} fill={saved?'currentColor':'none'}/></Button>
+     <Button size="icon" disabled={busy||!!decision} onClick={onApply} aria-label={copy('Apply for Job','التقديم للوظيفة')} className="h-12 w-12 mx-auto bg-primary text-primary-foreground"><Heart size={23}/></Button>
    </div>
  </article>;
 }
