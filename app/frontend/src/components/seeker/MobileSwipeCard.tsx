@@ -1,3 +1,4 @@
+import { SkillMatchAssistant } from './SkillMatchAssistant';
 import { useState, type PointerEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Building2, Undo2, Share2, X, Bookmark, Heart, ChevronDown, ChevronUp, MapPin } from 'lucide-react';
@@ -6,7 +7,8 @@ import type { DiscoverJob } from '@/lib/seeker-jobs';
 import { MOBILE_WORK_TYPES, WORKING_STYLES } from '@/lib/mobile-onboarding-options';
 import { compensationText, vacancyDimensions } from '@/lib/swipe-presentation';
 
-export function MobileSwipeCard({job,busy,saved,canUndo,onUndo,onShare,onPass,onSave,onApply,onExpandedChange,decision}:{
+export function MobileSwipeCard({job,busy,saved,canUndo,onUndo,onShare,onPass,onSave,onApply,onExpandedChange,decision,matchScore,onSkillsSaved,onAssistantOpenChange}:{
+ matchScore:number|null;onSkillsSaved:()=>void;onAssistantOpenChange:(open:boolean)=>void;
  job:DiscoverJob;busy:boolean;saved:boolean;canUndo:boolean;onUndo:()=>void;onShare:()=>void;onPass:()=>void;onSave:()=>void;onApply:()=>void;onExpandedChange:(value:boolean)=>void;decision?:'left'|'right';
 }) {
  const {t,i18n}=useTranslation();const ar=i18n.language.startsWith('ar');const copy=(en:string,arabic:string)=>ar?arabic:en;
@@ -24,6 +26,7 @@ export function MobileSwipeCard({job,busy,saved,canUndo,onUndo,onShare,onPass,on
        <div className="h-14 w-14 mx-auto flex items-center justify-center rounded-lg border bg-background">{job.company_logo&&!logoFailed?<img src={job.company_logo} onError={()=>setLogoFailed(true)} alt={job.company_name} className="h-full w-full object-contain p-1"/>:<Building2 className="text-muted-foreground" size={26}/>}</div>
        <p className="text-xs text-muted-foreground">{job.company_name}</p>
        <h1 className="text-lg font-semibold leading-snug break-words">{job.job_title}</h1>
+       <SkillMatchAssistant key={job.id} job={job} score={matchScore} onSaved={onSkillsSaved} onOpenChange={onAssistantOpenChange}/>
        {salary&&<p className="text-sm font-medium text-primary">{salary}</p>}
        {(job.city||job.country)&&<p className="text-sm flex gap-1 items-center justify-center"><MapPin size={14} className="shrink-0"/>{[job.city,job.country].filter(Boolean).join(', ')}</p>}
        {type&&<p className="text-xs text-muted-foreground">{copy('Employment Type','نوع العمل')}: <span className="text-foreground">{ar?type.ar:type.en}</span></p>}

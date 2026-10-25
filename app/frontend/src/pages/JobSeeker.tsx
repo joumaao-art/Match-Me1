@@ -13,6 +13,7 @@ import { latestEligiblePass, isAvailableJob, compensationText, clearPendingShare
 import { seekerSection, seekerSectionUrl, accurateBadgeCount } from '@/lib/seeker-navigation';
 import { messageService } from '@/services/message.service';
 import { BackButton } from '@/components/shared/BackButton';
+import { useCanonicalMatchProfile, vacancyMatchScore } from '@/lib/skill-match';
 import { rankEligibleVacancies } from '@/lib/vacancy-discovery';
 import { loadPreferences, migrateLegacyPreferences, preferenceFit, savePreferences } from '@/lib/job-preferences';
 import { apiClient } from '@/services/api-client';
@@ -529,10 +530,13 @@ function SwipeView() {
   const [currentExplanation, setCurrentExplanation] = useState<MatchExplanation | null>(null);
 
   const { countries } = useCountries();
+  const canonicalMatch=useCanonicalMatchProfile();
   const recommendedJobs = useMemo(() => {
     const requested=restoredJobId||requestedId;
-    return rankEligibleVacancies(jobs,actions,prefs,requested,countries);
-  }, [jobs,actions,prefs,requestedId,restoredJobId,countries]);
+    const eligible=rankEligibleVacancies(jobs,actions,prefs,requested,countries);
+    if(!canonicalMatch.profile)return eligible;
+    return eligible.map(job=>({...job,compatibility_score:vacancyMatchScore(canonicalMatch.profile!,job)})).sort((a,b)=>a.id===requested?-1:b.id===requested?1:b.compatibility_score-a.compatibility_score||eligible.findIndex(j=>j.id===a.id)-eligible.findIndex(j=>j.id===b.id));
+  }, [jobs,actions,prefs,requestedId,restoredJobId,countries,canonicalMatch.profile]);
 
   const [handledRequestedId,setHandledRequestedId]=useState<string|null>(null);
   const requestedPreview=isMobile&&requestedId&&requestedId!==handledRequestedId?jobs.find(j=>j.id===requestedId&&isAvailableJob(j)):undefined;
@@ -605,8 +609,8 @@ function SwipeView() {
     return handleSwipe(direction);
   }, [handleSwipe]);
 
-  if(isMobile)return <MobileSwipePage onCreditsOpenChange={setCreditsPaused} premium={premium.active} decision={requestedDecision||undefined} onBrowse={()=>setHandledRequestedId(requestedId)} job={currentJob} loading={jobsLoading} error={jobsError} balance={creditBalance} busy={swipeBusy} saved={actions.some(a=>a.vacancy_id===currentJob?.id&&a.saved)} canUndo={canUndo} onPass={()=>handleSwipe('left')} onApply={()=>handleSwipe('right')} onSave={()=>void handleSaveJob()} onUndo={()=>void handleUndo()} onShare={()=>{if(currentJob)void shareJob(currentJob).then(result=>{if(result==='copied')toast.success(t('link_copied'));}).catch(error=>{if(error?.name!=='AbortError')toast.error(t('try_again'));});}} onRetry={()=>void refreshJobs()} unavailable={!!requestedId&&requestedId!==handledRequestedId&&!jobsLoading&&!jobsError&&!jobs.some(j=>j.id===requestedId&&isAvailableJob(j))}/>;
-  if(!isMobile)return <DesktopSwipePage onCreditsOpenChange={setCreditsPaused} premium={premium.active} decision={actions.find(a=>a.vacancy_id===currentJob?.id)?.direction||undefined} onBrowse={()=>setHandledRequestedId(requestedId)} job={currentJob} loading={jobsLoading} error={jobsError} balance={creditBalance} busy={swipeBusy} saved={actions.some(a=>a.vacancy_id===currentJob?.id&&a.saved)} canUndo={canUndo} onPass={()=>handleSwipe('left')} onApply={()=>handleSwipe('right')} onSave={()=>void handleSaveJob()} onUndo={()=>void handleUndo()} onShare={()=>{if(currentJob)void shareJob(currentJob).then(result=>{if(result==='copied')toast.success(t('link_copied'));}).catch(error=>{if(error?.name!=='AbortError')toast.error(t('try_again'));});}} onRetry={()=>void refreshJobs()} unavailable={!!requestedId&&requestedId!==handledRequestedId&&!jobsLoading&&!jobsError&&!jobs.some(j=>j.id===requestedId&&isAvailableJob(j))}/>;
+  if(isMobile)return <MobileSwipePage matchScore={currentJob&&canonicalMatch.profile?vacancyMatchScore(canonicalMatch.profile,currentJob):null} onSkillsSaved={()=>{if(currentJob)setRestoredJobId(currentJob.id);void canonicalMatch.refresh().catch(()=>{});}} onCreditsOpenChange={setCreditsPaused} premium={premium.active} decision={requestedDecision||undefined} onBrowse={()=>setHandledRequestedId(requestedId)} job={currentJob} loading={jobsLoading} error={jobsError} balance={creditBalance} busy={swipeBusy} saved={actions.some(a=>a.vacancy_id===currentJob?.id&&a.saved)} canUndo={canUndo} onPass={()=>handleSwipe('left')} onApply={()=>handleSwipe('right')} onSave={()=>void handleSaveJob()} onUndo={()=>void handleUndo()} onShare={()=>{if(currentJob)void shareJob(currentJob).then(result=>{if(result==='copied')toast.success(t('link_copied'));}).catch(error=>{if(error?.name!=='AbortError')toast.error(t('try_again'));});}} onRetry={()=>void refreshJobs()} unavailable={!!requestedId&&requestedId!==handledRequestedId&&!jobsLoading&&!jobsError&&!jobs.some(j=>j.id===requestedId&&isAvailableJob(j))}/>;
+  if(!isMobile)return <DesktopSwipePage matchScore={currentJob&&canonicalMatch.profile?vacancyMatchScore(canonicalMatch.profile,currentJob):null} onSkillsSaved={()=>{if(currentJob)setRestoredJobId(currentJob.id);void canonicalMatch.refresh().catch(()=>{});}} onCreditsOpenChange={setCreditsPaused} premium={premium.active} decision={actions.find(a=>a.vacancy_id===currentJob?.id)?.direction||undefined} onBrowse={()=>setHandledRequestedId(requestedId)} job={currentJob} loading={jobsLoading} error={jobsError} balance={creditBalance} busy={swipeBusy} saved={actions.some(a=>a.vacancy_id===currentJob?.id&&a.saved)} canUndo={canUndo} onPass={()=>handleSwipe('left')} onApply={()=>handleSwipe('right')} onSave={()=>void handleSaveJob()} onUndo={()=>void handleUndo()} onShare={()=>{if(currentJob)void shareJob(currentJob).then(result=>{if(result==='copied')toast.success(t('link_copied'));}).catch(error=>{if(error?.name!=='AbortError')toast.error(t('try_again'));});}} onRetry={()=>void refreshJobs()} unavailable={!!requestedId&&requestedId!==handledRequestedId&&!jobsLoading&&!jobsError&&!jobs.some(j=>j.id===requestedId&&isAvailableJob(j))}/>;
   if(jobsLoading)return <div className="flex-1 p-6" role="status">{t('loading')}</div>;
   if(jobsError)return <div className="flex-1 p-6" role="alert"><p>{t('try_again')}</p><Button onClick={()=>void refreshJobs()}>{t('try_again')}</Button></div>;
   if (!currentJob) return (

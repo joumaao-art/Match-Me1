@@ -71,16 +71,8 @@ export const COUNTRIES: CountryOption[] = [
 ];
 
 /** Popular skills taxonomy used by resume parsing + the skills picker. */
-export const SKILL_TAXONOMY: string[] = [
-  'React', 'TypeScript', 'JavaScript', 'Node.js', 'Python', 'Java', 'Kotlin', 'Swift',
-  'Flutter', 'React Native', 'PHP', 'Laravel', 'Django', '.NET', 'SQL', 'PostgreSQL',
-  'MongoDB', 'AWS', 'Azure', 'Docker', 'Kubernetes', 'DevOps', 'CI/CD', 'Linux',
-  'UI/UX Design', 'Figma', 'Adobe XD', 'Graphic Design', 'Product Management', 'Agile',
-  'Scrum', 'Data Analysis', 'Data Science', 'Machine Learning', 'AI/ML', 'Power BI',
-  'Excel', 'Digital Marketing', 'SEO', 'Content Writing', 'Copywriting', 'Social Media',
-  'Sales', 'Business Development', 'Accounting', 'Finance', 'HR Management', 'Recruitment',
-  'Project Management', 'Customer Service', 'Microsoft Office', 'Communication', 'Leadership',
-];
+export { SKILL_NAMES as SKILL_TAXONOMY } from './skill-match-core';
+import { SKILL_NAMES as SKILL_TAXONOMY } from './skill-match-core';
 
 export const ROLE_OPTIONS = [
   'Software Development', 'Data & AI', 'Design & UX', 'Product Management',

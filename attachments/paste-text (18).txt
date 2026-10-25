@@ -1,0 +1,307 @@
+# MATCHME — VIA AI SKILL MATCH ASSISTANT
+## AI-Powered Missing Skill Suggestions Before Swiping
+
+**PRIORITY: HIGH — NEW JOB SEEKER AI FEATURE**
+
+### 1. OBJECTIVE
+
+Build a new AI-powered feature called **VIA AI Skill Match Assistant** within the existing MatchMe Job Seeker Swipe experience.
+
+Before a candidate swipes right to Apply or left to Pass, the application should be able to analyze the current job requirements and identify skills that are relevant to the vacancy but missing from the candidate's profile.
+
+The candidate must have the option to review and add suggested skills they genuinely possess.
+
+After confirmation, MatchMe must recalculate the match percentage using the existing matching engine.
+
+This feature must work on mobile and desktop, while preserving their independent layouts.
+
+### 2. AI SKILL ANALYSIS
+
+For each real published vacancy, compare:
+
+- Required skills.
+- Preferred skills.
+- Job description.
+- Qualifications.
+- Seniority level.
+- Job Seeker's existing skills.
+- Job Seeker's experience.
+- Education.
+- Certifications.
+- Existing profile and resume information.
+
+Identify three categories:
+
+**A. Matched Skills**
+
+Skills already present in the candidate's profile.
+
+**B. Missing Skills**
+
+Skills required or preferred by the employer but not currently listed in the candidate's profile.
+
+**C. Potentially Demonstrated Skills**
+
+Skills that may be supported by the candidate's experience, education, certifications, or resume but have not been explicitly added to their skills list.
+
+Prioritize potentially demonstrated skills for suggestions.
+
+Never present an inferred skill as a verified qualification without user confirmation.
+
+### 3. AI ASSISTANT ENTRY POINT
+
+On the Swipe job card, add a compact AI action labeled:
+
+**Improve My Match**
+
+Use a small AI sparkle icon.
+
+Place the action in an appropriate location near the match percentage or job details.
+
+Do not obstruct:
+
+- Pass.
+- Save.
+- Apply.
+- Share.
+- Go Back.
+
+Do not automatically open the assistant for every job.
+
+The user must be able to choose whether to review the suggestions.
+
+### 4. AI ASSISTANT INTERFACE
+
+When the user selects Improve My Match, open a modal or bottom sheet on mobile and an appropriate modal or side panel on desktop.
+
+Display:
+
+- Job title.
+- Company name.
+- Current match percentage.
+- Required skills already matched.
+- Missing skills.
+- Suggested skills.
+- Reasons for each suggestion.
+
+For each skill, show:
+
+- Skill name.
+- Whether it is Required or Preferred.
+- Why the AI suggested it.
+- Whether supporting evidence exists in the user's profile.
+- A selectable checkbox.
+
+Include:
+
+**Add Selected Skills**
+
+**Not Now**
+
+The user must be able to close the assistant without changing their profile or swipe decision.
+
+### 5. SKILL VERIFICATION
+
+Before adding selected skills, display:
+
+"Only add skills you genuinely possess. Your profile should accurately reflect your qualifications."
+
+Require the candidate to confirm the selected skills.
+
+Do not automatically add skills based only on AI inference.
+
+Do not generate fake experience, education, certifications, or qualifications.
+
+Do not suggest that a candidate falsely claim mandatory professional credentials.
+
+### 6. PROFILE INTEGRATION
+
+Confirmed skills must be added to the candidate's canonical Skills section in their Job Seeker profile.
+
+Use the existing Supabase backend and skill taxonomy.
+
+Requirements:
+
+- Prevent duplicate skills.
+- Normalize equivalent skill names.
+- Preserve existing skills.
+- Persist new skills to the correct authenticated account.
+- Apply existing RLS policies.
+- Update the profile completion calculation where appropriate.
+- Reflect confirmed skills on mobile and desktop.
+
+Do not store the same skill separately in Preferences and Profile.
+
+**Important distinction:**
+
+The candidate's actual qualifications belong in Profile → Skills.
+
+Preferences should continue representing the candidate's desired jobs, locations, work types, and seniority levels.
+
+The AI assistant can be accessible from Swipe and can use Preferences to improve job relevance, but verified skills must be stored in the canonical Skills section.
+
+### 7. MATCH SCORE RECALCULATION
+
+After confirmed skills are successfully saved:
+
+1. Refresh the candidate's canonical skills.
+2. Recalculate the current job match using the existing matching engine.
+3. Display the updated match percentage.
+4. Show the change from the previous score.
+5. Refresh relevant recommendations where appropriate.
+
+Do not invent score improvements.
+
+Do not use fixed increases such as +5% per skill.
+
+All score changes must be calculated using the actual matching algorithm.
+
+A newly added skill may increase the score, have no effect, or be insufficient to satisfy a mandatory qualification.
+
+Never guarantee a higher score.
+
+### 8. REQUIRED VS PREFERRED SKILLS
+
+Clearly distinguish:
+
+**Required Skills**
+- Explicitly required by the employer.
+- May affect eligibility or matching significantly.
+
+**Preferred Skills**
+- Beneficial but not mandatory.
+- May improve ranking without determining eligibility.
+
+Do not allow AI to override mandatory employer requirements.
+
+For example, adding "Project Management" must not substitute for a required professional license.
+
+### 9. SMART RECOMMENDATION PRIORITY
+
+Prioritize skill suggestions using:
+
+1. Skills explicitly required by the vacancy.
+2. Skills supported by existing profile or resume evidence.
+3. Skills strongly related to the candidate's experience.
+4. Skills preferred by the employer.
+5. Other relevant skills only when there is a credible reason.
+
+Avoid irrelevant or repetitive suggestions.
+
+Limit the initial display to five high-quality suggestions.
+
+Provide a View More option only if additional relevant skills exist.
+
+### 10. AI PERFORMANCE AND COST
+
+Use a hybrid architecture.
+
+First, compare structured employer skills with normalized candidate skills using deterministic logic.
+
+Use AI only when necessary for:
+
+- Extracting skills from unstructured job descriptions.
+- Identifying semantic skill equivalents.
+- Finding potential evidence in existing candidate experience.
+- Explaining why a skill is relevant.
+
+Cache normalized vacancy skill requirements.
+
+Do not call the AI model on every card render or swipe animation.
+
+Perform analysis when the user opens the assistant or through controlled background processing.
+
+Apply appropriate rate limits, privacy controls, and error handling.
+
+If AI is unavailable, the existing Swipe functionality must continue working.
+
+### 11. SWIPE EXPERIENCE
+
+The assistant must never block a candidate from:
+
+- Swiping left.
+- Swiping right.
+- Saving a job.
+- Sharing a job.
+- Viewing job details.
+
+Do not automatically deduct swiping credits for opening the assistant.
+
+Do not deduct credits for reviewing or confirming skill suggestions unless an explicitly approved product policy says otherwise.
+
+Preserve existing credit deduction rules for actual applications.
+
+### 12. MOBILE AND DESKTOP
+
+Mobile:
+- Use a compact bottom sheet or modal.
+- Preserve Swipe card layout.
+- Keep action buttons accessible.
+- Avoid unnecessary scrolling.
+
+Desktop:
+- Use an appropriate modal or side panel.
+- Preserve existing desktop layout.
+- Provide equivalent functionality.
+
+Both platforms must share:
+
+- The same confirmed skills.
+- The same matching engine.
+- The same backend records.
+- The same eligibility rules.
+
+### 13. PRIVACY AND SECURITY
+
+- Only analyze data the candidate is authorized to access.
+- Respect candidate profile privacy settings.
+- Do not expose other candidates' information.
+- Do not send unnecessary personal identifiers to AI providers.
+- Protect employer data according to existing access rules.
+- Do not expose hidden or unpublished vacancies.
+- Validate all skill updates server-side.
+
+### 14. ACCEPTANCE TESTING
+
+Test the full workflow with a real Company account and a real Job Seeker account.
+
+1. Company publishes a vacancy with required skills.
+2. Job Seeker opens the vacancy in Swipe.
+3. Improve My Match is visible.
+4. AI identifies missing skills correctly.
+5. Already listed skills are not duplicated.
+6. Candidate can select suggested skills.
+7. Candidate must confirm the skills are genuine.
+8. Selected skills are saved to Supabase.
+9. Profile Skills reflects the additions.
+10. Match score is recalculated using the actual engine.
+11. No artificial score increases occur.
+12. Required qualifications are not bypassed.
+13. Candidate can close the assistant without changes.
+14. Pass, Save, and Apply continue working.
+15. No credits are deducted for AI review.
+16. Mobile and desktop show the same saved skills.
+17. Existing Swipe layouts remain intact.
+18. AI failure does not block swiping.
+19. English and Arabic localization works.
+20. Existing Company and Super Admin functionality remains unaffected.
+
+Do not use generated job cards as proof of end-to-end acceptance.
+
+Do not claim App Viewer testing passed unless it was actually performed.
+
+### FINAL SUCCESS CONDITION
+
+MatchMe provides an optional VIA AI Skill Match Assistant before a Job Seeker swipes.
+
+The assistant identifies missing job-related skills, explains their relevance, and allows the candidate to confirm skills they genuinely possess.
+
+Confirmed skills are saved to the canonical Job Seeker profile.
+
+The existing matching engine recalculates the score using real data.
+
+The candidate remains free to Apply, Pass, or Save.
+
+The feature works on mobile and desktop without changing their existing layouts.
+
+Implement the actual functionality and provide an English-only report of the architecture, files changed, backend integration, and test results.

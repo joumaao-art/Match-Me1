@@ -11,12 +11,14 @@ import { MobileSwipeCard } from './MobileSwipeCard';
 import type { DiscoverJob } from '@/lib/seeker-jobs';
 import { useMandatoryProfile } from '@/lib/mandatory-profile';
 
-export function MobileSwipePage({job,loading,error,balance,busy,premium,onCreditsOpenChange,saved,canUndo,onPass,onApply,onSave,onUndo,onShare,onRetry,unavailable,decision,onBrowse}:{
+export function MobileSwipePage({job,loading,error,balance,busy,premium,onCreditsOpenChange,saved,canUndo,onPass,onApply,onSave,onUndo,onShare,onRetry,unavailable,decision,onBrowse,matchScore,onSkillsSaved}:{
+ matchScore:number|null;onSkillsSaved:()=>void;
  job:DiscoverJob|undefined;loading:boolean;error:boolean;balance:number|null;busy:boolean;premium:boolean;onCreditsOpenChange:(open:boolean)=>void;saved:boolean;canUndo:boolean;
  onPass:()=>Promise<boolean|undefined>;onApply:()=>Promise<boolean|undefined>;onSave:()=>void;onUndo:()=>void;onShare:()=>void;onRetry:()=>void;unavailable:boolean;decision?:'left'|'right';onBrowse:()=>void;
 }) {
  const {t,i18n}=useTranslation();const ar=i18n.language.startsWith('ar');const copy=(en:string,arabic:string)=>ar?arabic:en;
  const navigate=useNavigate();const completion=useMandatoryProfile();  const [expandedJob,setExpandedJob]=useState<string|null>(null);const expanded=expandedJob===job?.id;
+ const [assistantOpen,setAssistantOpen]=useState(false);
  const [creditsOpen,setCreditsOpen]=useState(false);
  const changeCredits=(open:boolean)=>{setCreditsOpen(open);onCreditsOpenChange(open);};
  const preferences=()=>{const back=viaSwipeReturn(job?.id);navigate(back,{replace:true});navigate(`/seeker?view=preferences&return=${encodeURIComponent(back)}`);};const credits=()=>changeCredits(true);
@@ -43,8 +45,8 @@ export function MobileSwipePage({job,loading,error,balance,busy,premium,onCredit
    </div>
    <div className="flex-1 min-h-0 flex items-center justify-center pt-2">
      {!loading&&!error&&job&&!unavailable?<div className="relative h-full max-h-[650px] w-full max-w-md">
-       <SwipeFeedbackEngine key={job.id} items={[{...job}]} activeIndex={0} enabled={!busy&&!expanded&&!decision&&!creditsOpen} config={{showStack:false,maxRotation:8,threshold:90}} onSwipe={direction=>decide(direction)}
-         renderCard={()=> <MobileSwipeCard decision={decision} job={job} busy={busy} saved={saved} canUndo={canUndo} onUndo={onUndo} onShare={onShare} onPass={()=>void decide('left')} onApply={()=>void decide('right')} onSave={onSave} onExpandedChange={value=>setExpandedJob(value?job.id:null)}/>}/>
+       <SwipeFeedbackEngine key={job.id} items={[{...job}]} activeIndex={0} enabled={!busy&&!expanded&&!decision&&!creditsOpen&&!assistantOpen} config={{showStack:false,maxRotation:8,threshold:90}} onSwipe={direction=>decide(direction)}
+         renderCard={()=> <MobileSwipeCard matchScore={matchScore} onSkillsSaved={onSkillsSaved} onAssistantOpenChange={setAssistantOpen} decision={decision} job={job} busy={busy} saved={saved} canUndo={canUndo} onUndo={onUndo} onShare={onShare} onPass={()=>void decide('left')} onApply={()=>void decide('right')} onSave={onSave} onExpandedChange={value=>setExpandedJob(value?job.id:null)}/>}/>
      </div>:<div className="text-center space-y-3 p-4" role={error?'alert':'status'}>
        <h1 className="text-lg font-semibold">{loading?t('loading'):error?copy('Unable to load jobs','تعذر تحميل الوظائف'):unavailable?copy('This job is no longer available','هذه الوظيفة لم تعد متاحة'):t('no_more_jobs')}</h1>
        {!loading&&<><p className="text-sm text-muted-foreground">{error?t('try_again'):t('check_back_later')}</p><div className="flex flex-wrap gap-2 justify-center"><Button variant="outline" className="!bg-transparent" onClick={onRetry}>{t('try_again')}</Button><Button onClick={preferences}>{t('preferences')}</Button>{canUndo&&<Button variant="outline" className="!bg-transparent" disabled={busy} onClick={onUndo}>{t('undo_last_pass')}</Button>}</div></>}

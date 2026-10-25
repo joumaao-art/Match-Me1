@@ -1,39 +1,37 @@
 ---
-last_updated: 2026-10-21
+last_updated: 2026-10-25
 ---
 
 # Architecture Design
 
 ## System Overview
-MatchMe React/Vite/shadcn with existing Supabase Auth, PostgreSQL/RLS, Storage and Deno Edge Functions. Preserve project ykvlaakotyouojkdydzh and unprefixed production tables.
+Existing MatchMe React/Vite/shadcn frontend at /workspace/app/frontend; Supabase Auth/PostgreSQL/RLS/Storage/Deno Edge Functions in project ykvlaakotyouojkdydzh. Preserve canonical unprefixed production tables. Active VIA assistant is implemented; live AI and authenticated acceptance remain blocked.
 
 ## Module Design
 | Module | Responsibility |
 |---|---|
-| Existing auth/routing | App, Auth, Index, signup initialization; server completion authority and account-keyed mobile dispatch below768 |
-| Mobile onboarding | Version3 semantic registry, exact eleven steps, validated drafts, serialized snapshot saves, completion/back navigation and retry |
-| Shared controls | Intentional wheels, bounded search/chips, worldwide dependent location selector, exact EN/AR taxonomies |
-| Canonical profile | Education/experience stable UUIDs and owner RLS; existing profile/history adapters |
-| Preferences | Roles/keywords/styles/types/seniority distinct soft ranking signals; mobile work types limited to four |
-| Credits | Account + ledger; row-locked signup20/deductions; idempotent operation keys and service-only verified purchase |
-| Discover | Live vacancies + seeker_job_actions; atomic debit/application, saved/pass/undo/withdraw actions, actual Share/details |
-| Payments | app_91d3436dfc_credit_payments; authenticated catalog/checkout/verify and signed webhook; configuration currently blocked |
-| Location | app_91d3436dfc_reverse_location; authenticated Mapbox backend lookup; manual fallback when unavailable |
+| Auth/routing | Existing apiClient.supabase singleton and account store; no second auth; mobile breakpoint below768. |
+| Active Swipe | JobSeeker SwipeView passes actual currentJob to MobileSwipePage/DesktopSwipePage; legacy JSX after both returns is unreachable. |
+| Vacancy/actions | seeker-jobs reads real open vacancies/company joins and canonical seeker_job_actions; recordJobAction sole atomic credit/action authority. |
+| Matching | useMatchingEngine wraps shared matchingEngine.calculateCompatibility; SeekerProfile/VacancyProfile adapters needed in active flow; current DiscoverJob score mapping0. |
+| Canonical profile | job_seeker_profiles.skills is actual skills authority; canonical-profile currently exposes history/basic fields but not skills. Education/experience owner rows; certificates/languages in professional_details. |
+| Planned assistant | Shared typed deterministic analysis and UI; authenticated edge runtime gpt-5.4 for necessary unstructured interpretation only, validated output and fallback. Atomic canonical merge after explicit selection and confirmation. |
+| Preferences | Independent canonical soft ranking signals; never store actual skills here. |
+| Credits/billing | Existing account ledger, signup20, provider-verified subscriptions and canonical action RPC untouched. |
+| Existing UI | Separate mobile/desktop, canonical theme/date controls, three mobile tabs, five desktop sidebar links; Company/Admin scoped out of seeker enhancements. |
 
 ## Tech Decisions
 | Decision | Choice / constraint |
 |---|---|
-| Desktop freeze | Separate mobile onboarding; existing desktop structure retained, shared credit policy corrected to20 |
-| Persistence | Server owns completed steps; per-user local draft recovery, revision guard, mounted/account/request guards |
-| History safety | Server wrapper rejects foreign history UUIDs before internal canonical writes |
-| Purchase safety | Configured server price; app/product/user/paid amount validation; browser cannot call grant RPC |
-| Migrations |012 additive mobile/credit schema,013 server integrity/live actions,014 ownership/purchase hardening,015 mobile field preservation and idempotent initial-credit trigger/repair |
-| Date wheels | Fixed44px block rows and spacers, stable controlled option-value synchronization, ascending unique years, direct calendar serialization; mobile architecture only |
-| Deployment artifacts | App-prefixed function directories contain deployed source; credit-payments directory contains readable equivalent implementation |
+| Backend | Existing Supabase; connection checked. Full frontend README and backend SDK/edge guides still required in restored context. |
+| Requirement priorities | DiscoverJob has required_skills but no preferred_skills contract yet; inspect live vacancy schema/text rather than invent priority. |
+| Score weights | Existing skills.30/experience.15/location.15/salary.15/industry.10/language.08/availability.07; do not change global scoring or promise increase. |
+| Assistant integrity | Auth owner, published/expiry checks, cached vacancy extraction, rate limits, minimized evidence/no PII; reject fabricated credentials and client-forged skill suggestions. |
+| Refresh | Retain current card, guard account/job races, reload canonical skills and compute actual old/new engine scores; refresh relevant recommendations/completion. |
+| Artifacts | Existing deployed functions use app-prefixed directories; location needs narrowly scoped discovery. Do not create parallel production data. |
 
 ## Validation / Limitations
-- Latest22 pure contract checks, TypeScript, lint and production build passed.
-- Rollback-only SQL checks cover credit replay, step validation/completion, RLS and history ownership;35 accounts/350 balance preserved.
-- Only desktop homepage UI inspected; mobile widths/RTL/signed-in A–W, concurrent device behavior and real Stripe lifecycle unexecuted.
-- Approved legal absent; Stripe setup missing; Mapbox skipped; CV automatic extraction TXT-only.
-- Broader legacy demo subscription/dashboard/Company surfaces not certified by this onboarding implementation.
+- Active assistant:48 contracts/TypeScript/lint/build,11 rollback SQL checks, credit equality and deployed anonymous401/preflight204 passed. Viewer guest-only; twenty authenticated workflow checks and live provider completion unverified (key skipped).
+- Prior source/contracts/lint/build and rollback-only SQL evidence do not establish authenticated browser or device acceptance.
+- Preview historically opens guest landing; no authentication bypass or generated fixture cards for acceptance.
+- Inherited missing legal/payment/geolocation configuration and TXT-only CV extraction remain outside current feature.
