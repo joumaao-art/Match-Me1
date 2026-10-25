@@ -1,0 +1,38 @@
+Thank you for completing the compatibility improvements.
+
+My final objective remains to have MatchMe available as a fully functional native mobile application on both iOS and Android, including iPhone Duo and Android foldable devices.
+
+Before making any additional code changes, I need you to clarify the remaining limitations and provide an actionable implementation roadmap.
+
+Please answer the following:
+
+1. Does the existing MatchMe project contain a functional Expo/React Native mobile application, or is it currently primarily a responsive web application?
+
+2. Can Atoms generate native iOS and Android application builds from the existing project?
+
+3. What specifically prevents native iOS implementation and testing in the current environment?
+
+4. Can Atoms prepare the iOS project and configuration even if native builds cannot be executed?
+
+5. What additional tools, accounts, credentials, or services will I need to provide?
+
+6. Can Expo Application Services (EAS) be used to generate iOS and Android builds from the existing project?
+
+7. Which native capabilities can Atoms implement directly, and which require external development or manual configuration?
+
+8. What is the recommended implementation sequence to achieve complete iOS and Android compatibility?
+
+9. Can the existing mobile application be prepared for Apple TestFlight and Google Play Internal Testing without rebuilding MatchMe?
+
+10. What are the specific unresolved appearance regression issues, and do they affect the existing user experience?
+
+IMPORTANT:
+
+- Do not modify any code at this stage.
+- Do not rebuild the application.
+- Do not change the existing web or mobile layouts.
+- Do not modify Supabase, authentication, or existing functionality.
+- Do not claim capabilities are supported unless verified.
+- Clearly distinguish technical limitations from missing credentials or uncompleted implementation.
+
+Provide an English-only report with a practical step-by-step roadmap, identifying what Atoms can complete independently and what requires my involvement.
