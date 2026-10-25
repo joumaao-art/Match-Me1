@@ -1,5 +1,12 @@
 ## Task Breakdown
 
+| Deterministic Improve My Match (attachment19) | Implementation | Validation |
+|---|---|---|
+| Remove external AI integration and labels; explicit taxonomy/CRM normalization | done | done |
+| Deterministic cached owner review, required-first suggestions and individual confirmation | done | done |
+| Canonical save/score regression, TypeScript/lint/build, endpoint checks and English report | done | done |
+| Actual signed-in Company/Seeker thirteen-check acceptance | done | blocked |
+
 | VIA AI Skill Match Assistant | Implementation | Validation |
 |---|---|---|
 | Read active requirement/guides and audit schema, scoring, skills and active Swipe | done | done |
@@ -10,6 +17,7 @@
 | Real Company→published vacancy→authenticated Seeker and twenty-check English report | done | blocked |
 
 ## Progress Log
+- Attachment19 supersedes AI scope: external SDK/model/key code removed, deterministic endpoint version2 ACTIVE, shared explicit CRM taxonomy/provider boundary, required-first five suggestions and individual possession confirmation.62 contracts/TypeScript/lint/build,7 rollback SQL/credit assertions and live204/401 PASS. Viewer guest-only;13 actual signed-in workflows unverified, English deterministic report saved. No table-shape/credit/action/Company/Admin changes.
 - VIA assistant implemented/deployed ACTIVE: optional shared EN/AR review on active mobile/desktop cards, private cache/rate-limited owner review, confirmed atomic canonical merge, actual unchanged-engine score refresh/current-card retention.48 contracts, TypeScript/lint/build,11 rollback SQL safeguards, credit-account equality and live OPTIONS204/anonymous401 PASS. Viewer guest-only;20 real authenticated checks and live gpt-5.4 blocked (key skipped). English report records limits; no committed profile/test-job/credit mutations.
 - OpenAI key was explicitly skipped by the user; implement authenticated deterministic fallback plus optional configured gpt-5.4 extraction/evidence path, and report live provider validation blocked without inventing AI success.
 - Active feature audit only: full attachment18, useMatchingEngine, canonical-profile, DesktopSwipePage, seeker-jobs and backend README read; SwipeView active branches inspected. No implementation/schema/runtime AI deployment yet.

@@ -15,7 +15,7 @@ Existing MatchMe React/Vite/shadcn frontend at /workspace/app/frontend; Supabase
 | Vacancy/actions | seeker-jobs reads real open vacancies/company joins and canonical seeker_job_actions; recordJobAction sole atomic credit/action authority. |
 | Matching | useMatchingEngine wraps shared matchingEngine.calculateCompatibility; SeekerProfile/VacancyProfile adapters needed in active flow; current DiscoverJob score mapping0. |
 | Canonical profile | job_seeker_profiles.skills is actual skills authority; canonical-profile currently exposes history/basic fields but not skills. Education/experience owner rows; certificates/languages in professional_details. |
-| Planned assistant | Shared typed deterministic analysis and UI; authenticated edge runtime gpt-5.4 for necessary unstructured interpretation only, validated output and fallback. Atomic canonical merge after explicit selection and confirmation. |
+| Skill recommendations | deterministic-v2 provider separates extraction/comparison; explicit taxonomy/CRM equivalence, required-first recommendations, owner cached review and confirmed canonical merge. No external AI integration or keys. |
 | Preferences | Independent canonical soft ranking signals; never store actual skills here. |
 | Credits/billing | Existing account ledger, signup20, provider-verified subscriptions and canonical action RPC untouched. |
 | Existing UI | Separate mobile/desktop, canonical theme/date controls, three mobile tabs, five desktop sidebar links; Company/Admin scoped out of seeker enhancements. |

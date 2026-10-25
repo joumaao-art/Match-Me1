@@ -16,7 +16,7 @@ const analysis=core.analyzeSkills(requirements,['React'],{experience:['Used Pyth
 test('Already matched not selectable',()=>assert.equal(analysis.find(r=>r.name==='React').selectable,false));
 test('Potential evidence not verified',()=>assert.deepEqual(analysis.find(r=>r.name==='Python').evidence,['experience']));
 test('Credentials never selectable',()=>assert.equal(analysis.find(r=>r.name==='PMP license').selectable,false));
-test('Evidence first',()=>assert.equal(analysis[0].evidence.length>0,true));
+test('Required skills first',()=>assert.equal(analysis[0].priority,'required'));
 test('Minimized provider input',()=>assert.equal(core.redactEvidence('Email person@example.com phone +12345678901 https://private.test').includes('person@example.com'),false));
 const engine=new MatchingEngine();const seeker={id:'unit-only',skills:['React'],experienceYears:3,location:{country:'AE',city:'Dubai'},expectedSalaryMin:0,expectedSalaryMax:0,preferredIndustries:[],languages:[],availability:'immediate',preferredLocations:[],willingToRelocate:false,openToRemote:false};const job={id:'unit-only',companyId:'unit',requiredSkills:['React','Python'],minExperience:0,maxExperience:10,location:seeker.location,salaryMin:0,salaryMax:0,industry:'IT',requiredLanguages:[],employmentType:'fulltime',isRemote:false};
 test('Existing engine actual delta',()=>assert.equal(engine.calculateCompatibility({...seeker,skills:['React','Python']},job)-engine.calculateCompatibility(seeker,job),15));
@@ -25,4 +25,17 @@ const ui=fs.readFileSync('src/components/seeker/SkillMatchAssistant.tsx','utf8')
 for(const text of ['!confirmed','p_confirmed:confirmed','slice(0,more?suggested.length:5)','suggested.length>5&&!more','matchme:profile-changed','generation.current','Not Now','Only add skills you genuinely possess.'])test(`UI contract ${text}`,()=>assert.ok(ui.includes(text)));
 test('No credit mutation in assistant',()=>assert.ok(!/credits-changed|recordJobAction|signup_credits/.test(ui)));
 for(const text of ['for update','auth.uid()','review.allowed_skills','vacancy_revision','enable row level security','pg_advisory_xact_lock','expires_at>now()'])test(`SQL contract ${text}`,()=>assert.ok(sql.includes(text)));
+test('CRM explicit taxonomy equivalence',()=>assert.deepEqual(core.uniqueSkills(['CRM','Customer Relationship Management',' crm ']),['Customer Relationship Management']));
+test('Unknown similarity not equivalent',()=>assert.notEqual(core.skillKey('Customer Experience'),core.skillKey('Customer Relationship Management')));
+test('Structured preferred requirements',()=>{const r=core.extractRequirements({required_skills:['CRM'],preferred_skills:['Excel']});assert.equal(r.find(s=>s.name==='Excel').priority,'preferred');});
+test('No required-to-preferred downgrade',()=>{const r=core.extractRequirements({required_skills:['CRM'],preferred_skills:['Customer Relationship Management']});assert.equal(r.length,1);assert.equal(r[0].priority,'required');});
+test('Arabic explicit requirement',()=>assert.equal(core.extractRequirements({job_description:'يشترط تحليل البيانات'}).find(r=>r.name==='Data Analysis').priority,'required'));
+test('Required ahead of evidenced preferred',()=>{const r=core.extractRequirements({required_skills:['Python'],preferred_skills:['Excel']});assert.equal(core.analyzeSkills(r,[],{resume:['Excel']})[0].name,'Python');});
+test('All matched means no suggestions',()=>assert.equal(core.analyzeSkills(core.extractRequirements({required_skills:['CRM']}),['Customer Relationship Management'],{}).filter(r=>r.selectable).length,0));
+const endpoint=fs.readFileSync('supabase/functions/app_91d3436dfc_skill_match/index.ts','utf8');
+test('No external provider, secret or model path',()=>assert.ok(!/OpenAI|OPENAI|apiKey|completions|fetch\(|gpt-|anthropic|gemini/i.test(endpoint)));
+test('No generative claims in UI',()=>assert.ok(!/AI-powered|VIA AI|AI is unavailable|الذكاء الاصطناعي/.test(ui)));
+test('Individual skill confirmation',()=>assert.ok(ui.includes('Selecting confirms I genuinely possess this skill.')));
+test('Both missing categories visible',()=>assert.ok(ui.includes('Missing required skills')&&ui.includes('Missing preferred skills')));
+test('Provider boundary used',()=>assert.ok(endpoint.includes('deterministicSkillProvider.compare')&&endpoint.includes('deterministicSkillProvider.extract')));
 console.log(`${checks} skill assistant checks passed. Unit/source tests only; no authenticated acceptance claimed.`);

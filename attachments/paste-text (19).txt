@@ -1,0 +1,180 @@
+# MATCHME — SMART SKILL RECOMMENDATIONS WITHOUT OPENAI
+
+## Objective
+
+Implement a smart skill recommendation feature for the existing MatchMe Job Seeker Swipe experience.
+
+**IMPORTANT: This version must work without OpenAI, external AI APIs, API keys, or paid AI services.**
+
+Use the existing Supabase backend, vacancy requirements, candidate profile data, and matching engine.
+
+Design the feature so that AI-powered analysis can be added later without rebuilding the system.
+
+### 1. Feature Name
+
+Use the name:
+
+**Improve My Match**
+
+Do not label this version as AI-powered or imply that generative AI is running.
+
+### 2. Job Skill Comparison
+
+When a Job Seeker opens Improve My Match:
+
+- Retrieve the current published vacancy.
+- Retrieve its required and preferred skills.
+- Retrieve the authenticated Job Seeker's profile skills.
+- Normalize skill names.
+- Compare the two sets.
+- Identify already matched skills.
+- Identify missing required skills.
+- Identify missing preferred skills.
+
+Use real Supabase data only.
+
+Never generate fictional job requirements or qualifications.
+
+### 3. Skill Normalization
+
+Implement a reusable skills normalization system.
+
+Support:
+
+- Case-insensitive comparison.
+- Whitespace normalization.
+- Known synonyms.
+- Common abbreviations.
+- Duplicate prevention.
+- Canonical skill IDs where available.
+
+For example:
+
+CRM = Customer Relationship Management.
+
+Only treat synonyms as equivalent when they are explicitly defined in the taxonomy.
+
+Do not use broad keyword similarity to claim that unrelated skills are equivalent.
+
+### 4. Recommendation Interface
+
+Add an **Improve My Match** action on the Swipe job card.
+
+When clicked, display:
+
+- Current job title.
+- Current match percentage.
+- Already matched skills.
+- Missing required skills.
+- Missing preferred skills.
+- Selectable suggested skills.
+- Add Selected Skills button.
+- Not Now button.
+
+Prioritize missing required skills.
+
+Limit the initial display to five suggestions, with an option to view additional skills.
+
+If no relevant missing skills exist, display an appropriate message.
+
+### 5. Candidate Confirmation
+
+The candidate must explicitly confirm that they genuinely possess each selected skill.
+
+Never automatically add skills.
+
+Do not allow skill recommendations to override mandatory licenses, education, or experience requirements.
+
+### 6. Supabase Integration
+
+Save confirmed skills into the existing canonical Job Seeker Skills profile data.
+
+Do not create duplicate skills in Preferences.
+
+Use existing authentication, authorization, and RLS policies.
+
+Preserve all previously saved candidate data.
+
+Ensure newly added skills synchronize between mobile and desktop.
+
+### 7. Match Recalculation
+
+After successfully saving skills:
+
+- Refresh the candidate's skills.
+- Recalculate the current job match.
+- Display the actual updated percentage.
+- Update any relevant matching data.
+
+Use the existing matching engine.
+
+Do not assign artificial percentage increases or promise a higher match.
+
+### 8. Performance
+
+Use deterministic comparison logic rather than external AI calls.
+
+Optimize for fast responses.
+
+Cache normalized vacancy requirements where appropriate.
+
+Avoid unnecessary repeated database requests.
+
+### 9. Future AI Compatibility
+
+Build a modular recommendation architecture with separate components for:
+
+- Skill extraction.
+- Skill normalization.
+- Skill comparison.
+- Recommendation generation.
+- Candidate confirmation.
+- Match recalculation.
+
+The recommendation engine should initially use deterministic rules.
+
+Allow a future AI-based recommendation provider to be introduced behind the same interface.
+
+Do not implement or activate an OpenAI integration now.
+
+### 10. Mobile and Desktop
+
+Implement the feature in both Job Seeker versions.
+
+Preserve each platform's existing layout.
+
+Do not change the current Swipe, Save, Apply, Pass, or Credits behavior.
+
+### 11. Testing
+
+Test with actual Company and Job Seeker accounts:
+
+1. Company publishes a vacancy with required skills.
+2. Candidate opens the vacancy.
+3. Improve My Match displays missing skills.
+4. Existing skills are correctly recognized.
+5. Known synonyms do not produce duplicates.
+6. Candidate selects and confirms skills.
+7. Skills are saved to Supabase.
+8. Match percentage is recalculated.
+9. Mobile and desktop show consistent results.
+10. All existing swipe actions continue working.
+11. No external AI API calls are made.
+12. No API keys are required.
+13. English and Arabic work correctly.
+
+Run relevant TypeScript, lint, build, and application tests.
+
+### Final Success Condition
+
+MatchMe provides a working skill recommendation feature before the candidate swipes.
+
+The system uses real job requirements and real candidate skills.
+
+Candidates can add confirmed missing skills and see their match recalculated.
+
+No OpenAI integration, API key, or external AI subscription is required.
+
+The implementation is modular and ready for future AI enhancement.
+
+Implement the functionality directly in the existing project and provide an English-only implementation and testing report.

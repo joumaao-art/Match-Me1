@@ -1,5 +1,5 @@
-export const SKILL_NAMES = ['React','TypeScript','JavaScript','Node.js','Python','Java','Kotlin','Swift','Flutter','React Native','PHP','Laravel','Django','.NET','SQL','PostgreSQL','MongoDB','AWS','Azure','Docker','Kubernetes','DevOps','CI/CD','Linux','UI/UX Design','Figma','Adobe XD','Graphic Design','Product Management','Agile','Scrum','Data Analysis','Data Science','Machine Learning','AI/ML','Power BI','Excel','Digital Marketing','SEO','Content Writing','Copywriting','Social Media','Sales','Business Development','Accounting','Finance','HR Management','Recruitment','Project Management','Customer Service','Microsoft Office','Communication','Leadership'];
-export const SKILL_ALIASES: Record<string,string> = {'react.js':'React','reactjs':'React','nodejs':'Node.js','node js':'Node.js','js':'JavaScript','ts':'TypeScript','postgres':'PostgreSQL','amazon web services':'AWS','ms excel':'Excel','microsoft excel':'Excel','ms office':'Microsoft Office','search engine optimization':'SEO','customer support':'Customer Service','إدارة المشاريع':'Project Management','تحليل البيانات':'Data Analysis','خدمة العملاء':'Customer Service','المبيعات':'Sales','التواصل':'Communication','القيادة':'Leadership'};
+export const SKILL_NAMES = ['React','TypeScript','JavaScript','Node.js','Python','Java','Kotlin','Swift','Flutter','React Native','PHP','Laravel','Django','.NET','SQL','PostgreSQL','MongoDB','AWS','Azure','Docker','Kubernetes','DevOps','CI/CD','Linux','UI/UX Design','Figma','Adobe XD','Graphic Design','Product Management','Agile','Scrum','Data Analysis','Data Science','Machine Learning','AI/ML','Power BI','Excel','Digital Marketing','SEO','Content Writing','Copywriting','Social Media','Sales','Business Development','Accounting','Finance','HR Management','Recruitment','Project Management','Customer Service','Customer Relationship Management','Microsoft Office','Communication','Leadership'];
+export const SKILL_ALIASES: Record<string,string> = {'crm':'Customer Relationship Management','customer relationship management':'Customer Relationship Management','react.js':'React','reactjs':'React','nodejs':'Node.js','node js':'Node.js','js':'JavaScript','ts':'TypeScript','postgres':'PostgreSQL','amazon web services':'AWS','ms excel':'Excel','microsoft excel':'Excel','ms office':'Microsoft Office','search engine optimization':'SEO','customer support':'Customer Service','إدارة المشاريع':'Project Management','تحليل البيانات':'Data Analysis','خدمة العملاء':'Customer Service','المبيعات':'Sales','التواصل':'Communication','القيادة':'Leadership'};
 export function normalizeSkill(value:string):string {
  const clean=value.normalize('NFKC').trim().replace(/\s+/g,' ');
  return SKILL_ALIASES[clean.toLowerCase()] || SKILL_NAMES.find(s=>s.toLowerCase()===clean.toLowerCase()) || clean;
@@ -15,10 +15,11 @@ export type SkillPriority='required'|'preferred';
 export type EvidenceSource='experience'|'education'|'certification'|'resume'|'profile';
 export interface SkillRequirement {name:string;priority:SkillPriority;source:'structured'|'description'|'qualifications';quote:string;credential:boolean}
 export interface SkillSuggestion extends SkillRequirement {matched:boolean;evidence:EvidenceSource[];selectable:boolean}
-export interface SkillAnalysis {requirements:SkillSuggestion[];mode:'ai'|'structured';reviewId:string;qualificationWarning:boolean}
-export interface VacancySkills {required_skills?:string[];job_description?:string;qualifications?:string;education_level?:string;seniority_level?:string}
+export interface SkillAnalysis {requirements:SkillSuggestion[];mode:'deterministic';reviewId:string;qualificationWarning:boolean}
+export interface VacancySkills {required_skills?:string[];preferred_skills?:string[];job_description?:string;qualifications?:string;education_level?:string;seniority_level?:string}
 export function extractRequirements(vacancy:VacancySkills):SkillRequirement[] {
  const result:SkillRequirement[]=(vacancy.required_skills||[]).filter(s=>typeof s==='string'&&s.trim()).map(s=>({name:normalizeSkill(s),priority:'required',source:'structured',quote:s,credential:isCredential(s)}));
+ for(const s of vacancy.preferred_skills||[])if(typeof s==='string'&&s.trim())result.push({name:normalizeSkill(s),priority:'preferred',source:'structured',quote:s,credential:isCredential(s)});
  for(const source of ['description','qualifications'] as const){
   const text=source==='description'?vacancy.job_description:vacancy.qualifications;
   for(const sentence of (text||'').split(/[\n!?؛]|\.(?:\s|$)/).filter(Boolean)){
@@ -36,7 +37,7 @@ export function deduplicateRequirements(values:SkillRequirement[]):SkillRequirem
 }
 export function analyzeSkills(requirements:SkillRequirement[],skills:string[],evidence:Partial<Record<EvidenceSource,string[]>>):SkillSuggestion[]{
  const owned=new Set(skills.map(skillKey));
- return requirements.map(r=>({...r,matched:owned.has(skillKey(r.name)),evidence:(Object.entries(evidence) as [EvidenceSource,string[]][]).filter(([,text])=>text.some(t=>containsSkill(t,r.name))).map(([source])=>source),selectable:!r.credential&&!owned.has(skillKey(r.name))})).sort((a,b)=>Number(b.evidence.length>0)-Number(a.evidence.length>0)||Number(b.priority==='required')-Number(a.priority==='required')||a.name.localeCompare(b.name));
+ return requirements.map(r=>({...r,matched:owned.has(skillKey(r.name)),evidence:(Object.entries(evidence) as [EvidenceSource,string[]][]).filter(([,text])=>text.some(t=>containsSkill(t,r.name))).map(([source])=>source),selectable:!r.credential&&!owned.has(skillKey(r.name))})).sort((a,b)=>Number(b.priority==='required')-Number(a.priority==='required')||Number(b.evidence.length>0)-Number(a.evidence.length>0)||a.name.localeCompare(b.name));
 }
 export function redactEvidence(value:unknown):string {
  return typeof value==='string'?value.replace(/https?:\/\/\S+|[\w.+-]+@[\w.-]+\.[a-z]{2,}|\+?\d[\d ()-]{7,}\d/gi,'[redacted]').slice(0,1500):'';
